@@ -1,11 +1,22 @@
-import CardiacRhythmDropdown from "./cardiacDropdown"
+import Dropdown from "./Dropdown" 
+
+interface LabPanel {
+    value: string,
+    label: string
+};
 
 const PtOrder = () => {
-    
+    const LabPanels: Array<LabPanel> = [
+        { value: 'cbc', label: 'Complete Blood Count (CBC)' },
+        { value: 'bmp', label: 'Basic Metabolic Panel (BMP)' },
+        { value: 'handh', label: 'Hemoglobin and Hematocrit (H&H)' },
+        { value: 'cardiac', label: 'Cardiac Enzymes' },
+    ];
+
     return (
         <div className="h-fit w-84 flex-shrink-0 rounded-lg my-2 mx-6 border-1 border-neutral-500 shadow-md/30 bg-neutral-300">
             <label htmlFor="ptCond" className="mx-2 text-sm font-medium">Patient Condition</label>
-            <textarea id="ptCond" placeholder="Developing respiratory distress" className="w-[95%] h-12 px-1 py-0.5 mx-2 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" />
+            <textarea id="ptCond" placeholder="Developing respiratory distress" className="w-[95%] h-6 px-1 py-0.5 mx-2 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" />
             
             <div className="grid grid-cols-[3fr_3fr_4fr] gap-y-6 my-3 ">
                 <div className="flex items-center ml-2">
@@ -30,11 +41,11 @@ const PtOrder = () => {
                 </div>
                 <div className="col-span-2 mr-2 flex flex-col h-20">
                     <label className="mr-1 text-sm font-medium">Cardiac Rhythm</label>
-                    <CardiacRhythmDropdown />
+                    <Dropdown dropDownContents={ LabPanels } />
                 </div>
             </div>
             <label htmlFor="ptCond" className="mx-2  text-sm font-medium">Facilitator Prompts</label>
-            <textarea id="ptCond" className="w-[95%] h-12 px-1 py-0.5 mx-2 resize-y text-md bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="" />
+            <textarea id="ptCond" className="w-[95%] h-12 px-1 py-0.5 mx-2 resize-none text-md bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="" />
         </div>
     )
 } 

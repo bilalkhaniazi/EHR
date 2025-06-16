@@ -3,58 +3,72 @@ import Sidebar from "./components/Sidebar"
 import PtState from "./components/PtState"
 import SimMedOrder from "./components/SimMedOrder";
 import PtOrder from "./components/PtOrder";
+import SimLabResult from "./components/SimLabResult";
 
-export interface LabOrderItem {
+export interface SimItem {
   id: number;
-  type: 'lab' | 'order';
+  type: 'medOrder' | 'order' | 'labResult'
 }
 
 const SimStudio = () => {
     const [ptStates, setPtStates] = useState<number[]>([])
-    const [simItems, setSimItems] = useState<LabOrderItem[]>([])
+    const [simItems, setSimItems] = useState<SimItem[]>([])
 
     const addPtState = () => {
         setPtStates((prevStates) => [...prevStates, Date.now()]);
     }
 
-    const addLab = () => {
-        setSimItems((prevItems) => [...prevItems, { id: Date.now(), type: 'lab' }])
+    const addMedOrder = () => {
+        setSimItems((prevItems) => [...prevItems, { id: Date.now(), type: 'medOrder' }])
     }
 
-    const addMedOrder = () => {
+    const addOrder = () => {
         setSimItems((prevItems) => [...prevItems, { id: Date.now(), type: 'order' }])
+    }
+    
+    const addLabResult = () => {
+        setSimItems((prevItems) => [...prevItems, { id: Date.now(), type: 'labResult' }])
+    }
+
+    const componentMap = {
+        medOrder: SimMedOrder,
+        order: PtOrder,
+        labResult: SimLabResult
     }
 
     return (
-        <div className="flex flex-1">
-            <Sidebar onAddPtState={addPtState} onAddLab={addLab} onAddMedOrder={addMedOrder} />
+        <div className="flex h-[calc(100vh-4rem)]">
+            <Sidebar onAddPtState={addPtState} onAddMedOrder={addMedOrder} onAddOrder={addOrder} onAddLabResult={addLabResult} />
 
-            <div className="flex-1 flex flex-col items-center overflow-hidden bg-mint-200 border-l-1 border-l-lime-800">
+            <div className="flex-1 flex flex-col overflow-y-auto gap-y-2 items-center bg-mint-200 border-l-1 border-l-lime-800">
 
-                <div className="w-[95%] h-[48%] flex flex-col overflow-hidden mt-2 mb-1 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
-                    <div className="flex justify-around w-fit h-fit rounded-br-lg bg-neutral-300 border-b-1 border-r-1 border-neutral-500 ">
+                <div className="w-[95%] flex-1 flex flex-col  mt-2 mb-1 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
+                    <div className="flex justify-around w-fit h-fit rounded-tl-lg rounded-br-lg bg-neutral-300 border-b-1 border-r-1 border-neutral-500 ">
                         <h1 className="p-1 text-lg text-neutral-700 font-bold">Expected patient states</h1>
                     </div>
-                    <div className="relative flex flex-1 min-h-0 overflow-x-auto overflow-y-auto justify-left">
+                    <div className="flex flex-1 overflow-x-auto justify-left items-center">
                         {ptStates.length === 0 ? (
                             <p className="h-fit w-fit m-8 text-center text-neutral-500 text-sm">Click 'Add Patient State' in the sidebar to begin</p>
                         ) : (
                             ptStates.map((stateID)=> (<PtState key={stateID} />)
                         ))}
-
                     </div>
                 </div>
-                <div className="w-[95%] h-[48%] flex flex-col overflow-hidden mt-2 mb-1 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
-                    <div className="flex justify-around  w-fit h-fit rounded-br-lg bg-neutral-300 border-b-1 border-r-1 border-neutral-500 ">
+                <div className="w-[95%] flex-1 flex flex-col  mt-2 mb-1 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
+                    <div className="flex justify-around  w-fit h-fit rounded-tl-lg rounded-br-lg bg-neutral-300 border-b-1 border-r-1 border-neutral-500 ">
                         <h1 className="p-1 text-lg text-neutral-700 font-bold">Orders and Labs</h1>
                     </div>
-                    <div className="flex flex-1 min-h-0 overflow-x-auto overflow-y-auto justify-left">
+                    <div className="flex flex-1 overflow-x-auto justify-left">
                         {simItems.length === 0 ? (
                             <p className="h-fit w-fit m-8 text-center text-neutral-500 text-sm">Add Labs and Orders</p>
                         ) : (
-                            simItems.map((item) => (item.type === 'lab' ? 
-                                <SimMedOrder key={item.id} /> : <PtOrder key={item.id} />)
-                        ))}
+                            simItems.map((item) => {
+                                const SimItem = componentMap[item.type]
+                                return(
+                                    <SimItem key={item.id} />
+                                )
+                            }))
+                        }
 
                     </div>
                 </div>
