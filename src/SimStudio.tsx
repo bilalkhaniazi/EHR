@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Sidebar from "./components/Sidebar"
 import PtState from "./components/PtState"
 import SimMedOrder from "./components/SimMedOrder";
@@ -7,12 +7,23 @@ import SimLabResult from "./components/SimLabResult";
 
 export interface SimItem {
   id: number;
-  type: 'medOrder' | 'order' | 'labResult'
+  type: 'medOrder' | 'order' | 'labResult';
+}
+
+export interface MedOrderData {
+    id: number;
+    selectedMed: string;
+    dose: string;
+    priority: string;
+    frequency: string;
+    comments: string;
+    adminInstructions: string;
 }
 
 const SimStudio = () => {
     const [ptStates, setPtStates] = useState<number[]>([])
     const [simItems, setSimItems] = useState<SimItem[]>([])
+    const [medOrderData, setMedOrdersData] = useState<MedOrderData[]>([])
 
     const addPtState = () => {
         setPtStates((prevStates) => [...prevStates, Date.now()]);
@@ -29,6 +40,24 @@ const SimStudio = () => {
     const addLabResult = () => {
         setSimItems((prevItems) => [...prevItems, { id: Date.now(), type: 'labResult' }])
     }
+
+    const onMedOrderUpdate = (updatedOrder: MedOrderData) => {
+        setMedOrdersData(prevOrders => {
+            const existingIndex = prevOrders.findIndex(order => order.id === updatedOrder.id)
+
+            if (existingIndex > -1) { 
+                const newOrders = [...prevOrders]
+                newOrders[existingIndex] = updatedOrder
+                return newOrders
+            } else {
+                return [...prevOrders, updatedOrder]
+            }
+        });
+    }
+
+    useEffect (()=> {
+        console.log(medOrderData)
+    }, [medOrderData])
 
     const componentMap = {
         medOrder: SimMedOrder,
@@ -50,11 +79,11 @@ const SimStudio = () => {
                         {ptStates.length === 0 ? (
                             <p className="h-fit w-fit m-8 text-center text-neutral-500 text-sm">Click 'Add Patient State' in the sidebar to begin</p>
                         ) : (
-                            ptStates.map((stateID)=> (<PtState key={stateID} />)
+                            ptStates.map((stateID)=> (<PtState key={stateID} instanceID={stateID} />)
                         ))}
                     </div>
                 </div>
-                <div className="w-[95%] flex-1 flex flex-col  mt-2 mb-1 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
+                <div className="w-[95%] flex-1 flex flex-col  mt-2 mb-2 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
                     <div className="flex justify-around  w-fit h-fit rounded-tl-lg rounded-br-lg bg-neutral-300 border-b-1 border-r-1 border-neutral-500 ">
                         <h1 className="p-1 text-lg text-neutral-700 font-bold">Orders and Labs</h1>
                     </div>
@@ -65,7 +94,7 @@ const SimStudio = () => {
                             simItems.map((item) => {
                                 const SimItem = componentMap[item.type]
                                 return(
-                                    <SimItem key={item.id} />
+                                    <SimItem key={item.id} instanceID={item.id} onUpdate={onMedOrderUpdate}/>
                                 )
                             }))
                         }

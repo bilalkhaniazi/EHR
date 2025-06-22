@@ -15,7 +15,7 @@ const PtOrder = () => {
 
     return (
         <div className="h-fit w-84 flex-shrink-0 rounded-lg my-2 mx-6 border-1 border-neutral-500 shadow-md/30 bg-neutral-300">
-            <label htmlFor="ptCond" className="mx-2 text-sm font-medium">Patient Condition</label>
+            <p className="mx-2 text-sm font-medium line-through">Patient Condition</p>
             <textarea id="ptCond" placeholder="Developing respiratory distress" className="w-[95%] h-6 px-1 py-0.5 mx-2 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" />
             
             <div className="grid grid-cols-[3fr_3fr_4fr] gap-y-6 my-3 ">

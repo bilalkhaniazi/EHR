@@ -4,20 +4,13 @@ interface dropdownOption {
 }
 
 interface DropdownProps {
-    // The currently selected value (controlled component)
     selectedValue: string;
-    // Callback function when an option is selected
     onSelect: (value: string) => void;
-        // Optional: Placeholder text (note: native select doesn't support a true "placeholder" option
-        // that's not selectable, but we can add a "Select..." option with an empty value)
     dropDownContents: Array<dropdownOption> ;
+    instanceID: number
 }
 
-const Dropdown: React.FC<DropdownProps> = ({
-    selectedValue,
-    onSelect,
-    dropDownContents
-    }) => {
+const Dropdown: React.FC<DropdownProps> = ({ selectedValue, onSelect, dropDownContents, instanceID }) => {
     const dropdownOptions: dropdownOption[] = dropDownContents
 
     // Function to handle option selection directly from the native select onChange
@@ -28,7 +21,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     return (
         <div className="relative w-full">
             <select
-                id="medRhythmSelect" // Provide an ID for potential labeling
+                id={`selection-${instanceID}`} 
                 value={selectedValue}
                 onChange={handleChange}
                 className="

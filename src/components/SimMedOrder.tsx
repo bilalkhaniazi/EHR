@@ -1,11 +1,45 @@
 import Dropdown from "./Dropdown"
+import { useEffect, useState } from "react";
+import type { MedOrderData } from "../SimStudio";
 
 interface dropdownOption {
     value: string;
     label: string;
 }
 
-const SimMedOrder = () => {
+interface SimMedOrderProps {
+    instanceID: number
+    onUpdate: (data: MedOrderData) => void
+}
+
+const SimMedOrder: React.FC<SimMedOrderProps> = ({ instanceID, onUpdate }) => {
+    const [selectedMed, setSelectedMed] = useState<string>("")
+    const [dose, setDose] = useState<string>("")
+    const [priority, setPriority] = useState<string>("")
+    const [frequency, setFrequency] = useState<string>("")
+    const [comments, setComments] = useState<string>("")
+    const [adminInstructions, setAdminInstructions] = useState<string>("")
+
+    const handleMedChange = (value: string) => setSelectedMed(value);
+    const handleDoseChange = (e: React.ChangeEvent<HTMLInputElement>) => setDose(e.target.value);
+    const handlePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => setPriority(e.target.value);
+    const handleFrequencyChange = (e: React.ChangeEvent<HTMLInputElement>) => setFrequency(e.target.value);
+    const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setComments(e.target.value)
+    const handleAdminInstructionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setAdminInstructions(e.target.value)
+
+    useEffect(() => {
+        const currentOrderData: MedOrderData = {
+            id: instanceID,
+            selectedMed,
+            dose,
+            priority,
+            frequency,
+            comments,
+            adminInstructions
+        };
+        onUpdate(currentOrderData)
+    }, [selectedMed, dose, priority, frequency, comments, adminInstructions])
+
     const meds: dropdownOption[] = [
         { value: '1', label: 'Select a Medication' }, // Placeholder option
         { value: 'acetaminophen', label: 'Acetaminophen (Tylenol)' },
@@ -27,33 +61,33 @@ const SimMedOrder = () => {
     ];
     return (
         <div className="h-fit w-76 flex-shrink-0 rounded-lg my-2 mx-6 border-1 border-neutral-500 shadow-md/30 bg-neutral-300">
-            <label className="mx-2 text-sm font-medium">Medication Order</label>
+            <p className="mx-2 text-sm font-medium">Medication Order</p>
             <div className="grid grid-cols-4 gap-y-2">
                 <div className="mx-2 col-span-3">
-                    <Dropdown dropDownContents={meds} />
+                    <Dropdown dropDownContents={meds} instanceID={instanceID} selectedValue={selectedMed} onSelect={handleMedChange} />
                 </div>
                 <div className=" col-span-2 mx-2">
-                    <label htmlFor="dose" className="mr-1 text-sm font-medium">Dose</label>
+                    <p className="text-sm font-medium">Dose</p>
                     <div className="flex">
-                        <input type="number" id="dose" className="w-[95%] h-fit px-1 py-0.5 bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="" min="0" />
+                        <input type="number" id={`dose-${instanceID}`} onChange={handleDoseChange} className="w-[95%] h-fit px-1 py-0.5 bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="" min="0" />
                         <p className="text-neutral-800 text-sm">mg</p>
                     </div>
                 </div>
                 <div className="col-span-2 mx-2">
-                    <label htmlFor="priority" className="text-sm font-medium">Priority</label>
-                    <input id="priority" className="w-[95%] px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="NOW" />
+                    <p className="text-sm font-medium">Priority</p>
+                    <input id={`priority-${instanceID}`} onChange={handlePriorityChange} className="w-[95%] px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="NOW" />
                 </div>
                 <div className="col-span-2 mx-2">
-                    <label htmlFor="freq" className="text-sm font-medium">Frequency</label>
-                    <input id="freq" className="w-[95%] px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="Once" />
+                    <p className="text-sm font-medium">Frequency</p>
+                    <input id={`freq-${instanceID}`} onChange={handleFrequencyChange} className="w-[95%] px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="Once" />
                 </div>
                 <div className="col-span-4 mx-2">
-                    <label htmlFor="comments" className="text-sm font-medium">Comments</label>
-                    <textarea id="comments" className="w-full h-8 px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="" />
+                    <p className="text-sm font-medium">Comments</p>
+                    <textarea id={`comments-${instanceID}`} onChange={handleCommentChange} className="w-full h-8 px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="" />
                 </div>
                 <div className="col-span-4 mx-2">
-                    <label htmlFor="instruct" className="text-sm font-medium">Administration Instructions</label>
-                    <textarea id="instruct" className="w-full  px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="Administer for sustained HR of >150 bpm." />
+                    <p className="text-sm font-medium">Administration Instructions</p>
+                    <textarea id={`instruct-${instanceID}`} onChange={handleAdminInstructionChange} className="w-full  px-1 py-0.5 resize-none text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="Administer for sustained HR of >150 bpm." />
                 </div>
             </div>
             
