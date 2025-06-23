@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import Dropdown from "./Dropdown" 
+import type { LabOrderData } from "../SimStudio";
 
 interface LabPanel {
     value: string,
@@ -8,42 +9,55 @@ interface LabPanel {
 };
 
 interface LabValuesState {
+    id: number;
+    labPanelType: string;
     [key: string] : string | number
 }
 
 interface SimLabResultProps {
-    instanceID: number
+    instanceID: number;
+    onUpdate: (data: LabOrderData) => void;
 }
 
-const SimLabResult: React.FC<SimLabResultProps> = ({ instanceID }) => {
+const SimLabResult: React.FC<SimLabResultProps> = ({ instanceID, onUpdate }) => {
     const [labType, setLabType] = useState<string>("")
-    const [labValues, setLabValues] = useState<LabValuesState>({})
+    const [labValues, setLabValues] = useState<LabValuesState>({
+        id: instanceID,
+        labPanelType: ""
+    });
     
-    const handleSelect = (value: string) => {
-        setLabType(value)
-    }
+    const handleSelect = (selectedLabType: string) => {
+        setLabType(selectedLabType)
+        const baseValues: LabValuesState = {
+            id: instanceID,
+            labPanelType: selectedLabType
+        }
+
+        if (labMap[selectedLabType]) {
+            labMap[selectedLabType].forEach(item => {
+                baseValues[item] = 0
+            })
+        };
+        setLabValues(baseValues)
+    };
 
     const handleLabValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {id, value} = e.target;
+        const [labItem] = id.split('-');
+
         setLabValues(prevLabValues => ({
-            ...prevLabValues, [id]: value,
+            ...prevLabValues, [labItem]: value,
         }))
     };
 
-    useEffect(() => {
-        if (labType && labMap[labType]) {
-            const initialValues: LabValuesState = {};
-            labMap[labType].forEach(item => {
-                const uniqueKey = `${item}-${instanceID}`
-                initialValues[uniqueKey] = 0; 
-            });
-            setLabValues(initialValues);
-        }
-    }, [labType]);
-
-    useEffect(() => {
-        console.log(labValues)
-    }, [labValues])
+    useEffect(() =>{
+        onUpdate(labValues)
+    }, [labValues]
+    );
+    
+    // useEffect(() => {
+    //     console.log(labValues)
+    // }, [labValues])
     
     const LabPanels: Array<LabPanel> = [
         { value: '', label: 'Select Lab Panel' },

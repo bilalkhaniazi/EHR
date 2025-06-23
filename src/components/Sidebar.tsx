@@ -16,7 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddPtState, onAddMedOrder, onAddOrd
                 <button className="mx-4 mb-4 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Edit Patient Chart</button>
             </div>
             <div className=" flex-1 flex flex-col justify-start mb-10 rounded-md border border-lime-800 bg-mint-200 shadow-md/30">
-                <button onClick={onAddPtState} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Patient State</button>
+                <button onClick={onAddPtState} className="line-through m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Patient State</button>
                 <button onClick={onAddOrder} className="line-through m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add New Order</button>
                 <button onClick={onAddMedOrder} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Med Order</button>
                 <button onClick={onAddLabResult} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Lab Result</button>
