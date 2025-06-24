@@ -17,9 +17,10 @@ interface LabValuesState {
 interface SimLabResultProps {
     instanceID: number;
     onUpdate: (data: LabOrderData) => void;
+    onClose: (id: number, type: 'labOrder') => void;
 }
 
-const SimLabResult: React.FC<SimLabResultProps> = ({ instanceID, onUpdate }) => {
+const SimLabResult: React.FC<SimLabResultProps> = ({ instanceID, onUpdate, onClose }) => {
     const [labType, setLabType] = useState<string>("")
     const [labValues, setLabValues] = useState<LabValuesState>({
         id: instanceID,
@@ -55,10 +56,6 @@ const SimLabResult: React.FC<SimLabResultProps> = ({ instanceID, onUpdate }) => 
     }, [labValues]
     );
     
-    // useEffect(() => {
-    //     console.log(labValues)
-    // }, [labValues])
-    
     const LabPanels: Array<LabPanel> = [
         { value: '', label: 'Select Lab Panel' },
         { value: 'cbc', label: 'Complete Blood Count (CBC)' },
@@ -78,7 +75,10 @@ const SimLabResult: React.FC<SimLabResultProps> = ({ instanceID, onUpdate }) => 
         
         <div className="h-fit w-84 flex-shrink-0 rounded-lg my-2 mx-6 border-1 border-neutral-500 shadow-md/30 bg-neutral-300">
             <div className="w-[95%] mx-2 mb-2">
-                <p className="text-md font-medium">Lab Result</p>
+                <div className="flex justify-between">
+                    <p className="text-md font-medium">Lab Result</p>
+                    <img src="src/assets/close.png" onClick={() => onClose(instanceID, 'labOrder')} className="h-3 m-2"></img>
+                </div>
                 <Dropdown selectedValue={labType} onSelect={handleSelect} dropDownContents={LabPanels} instanceID={instanceID}/>
             </div>
             

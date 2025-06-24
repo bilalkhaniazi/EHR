@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import Sidebar from "./components/Sidebar"
-import PtState from "./components/PtState"
 import SimMedOrder from "./components/SimMedOrder";
 import PtOrder from "./components/PtOrder";
 import SimLabResult from "./components/SimLabResult";
@@ -27,22 +26,33 @@ export interface LabOrderData {
 }
 
 const SimStudio = () => {
-    const [simLabs, setSimLabs] = useState<number[]>([])
-    // const [ptStates, setPtStates] = useState<number[]>([])
     const [simItems, setSimItems] = useState<SimItem[]>([])
     const [medOrderData, setMedOrdersData] = useState<MedOrderData[]>([])
     const [labOrderData, setLabOrderData] = useState<LabOrderData[]>([])
-
-    const addPtState = () => {
-        setPtStates((prevStates) => [...prevStates, Date.now()]);
-    }
+    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
     const addLabResult = () => {
-        setSimLabs((prevLabs) => [...prevLabs, Date.now()])
-    }
+        setLabOrderData((prev) => [
+            ...prev, 
+            {
+                id: Date.now(),
+                labPanelType: ""
+            }            
+        ])
+    };
 
     const addMedOrder = () => {
-        setSimItems((prevItems) => [...prevItems, { id: Date.now(), type: 'medOrder' }])
+        setMedOrdersData((prev) => [
+            ...prev,
+            {
+                id: Date.now(), 
+                selectedMed: "",
+                dose: "",
+                priority: "",
+                frequency: "",
+                comments: "",
+                adminInstructions: "",                
+            }])
     }
 
     const addOrder = () => {
@@ -76,25 +86,58 @@ const SimStudio = () => {
             }
         });
     }
-    // const onLabOrderUpdate = (updatedOrder: LabOrderData) => {
-    //     setLabOrderData(prevOrders => {
 
-    //     })
-    // }
+    const removeOrder = (instanceID: number, type: 'medOrder' | 'labOrder') => {
+        if(type === 'medOrder'){
+            setMedOrdersData(prev => prev.filter(item => item.id != instanceID))
+        } else if (type === 'labOrder') {
+            setLabOrderData(prev => prev.filter(item => item.id != instanceID))
+        }
+    };
+    
+
+    const submitSimItems = async () => {
+        setSubmissionStatus('loading');
+        
+        const dataToSubmit = {
+            labs: labOrderData,
+            orders: medOrderData
+        }
+        console.log(labOrderData, medOrderData)
+        try {
+            const response = await fetch('api/simstudio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type' : 'application/json',
+                },
+                body: JSON.stringify(dataToSubmit)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.message || "POST error")
+            }
+
+            const responseData = await response.json()
+            console.log("Submission successful", responseData)
+
+            setSubmissionStatus('success')
+            setLabOrderData([])
+            setMedOrdersData([])
+
+        } catch (error: any) {
+            console.log("Submission failed", error)
+            setSubmissionStatus('error')
+        }
+    }
 
     useEffect (()=> {
-        console.log(labOrderData)
-    }, [labOrderData])
-
-    const componentMap = {
-        medOrder: SimMedOrder,
-        order: PtOrder,
-        labResult: SimLabResult
-    }
+        console.log(medOrderData)
+    }, [medOrderData])
 
     return (
         <div className="flex h-[calc(100vh-4rem)]">
-            <Sidebar onAddPtState={addPtState} onAddMedOrder={addMedOrder} onAddOrder={addOrder} onAddLabResult={addLabResult} />
+            <Sidebar onSubmit={submitSimItems} onAddMedOrder={addMedOrder} onAddOrder={addOrder} onAddLabResult={addLabResult} submissionStatus={submissionStatus} />
 
             <div className="flex-1 flex flex-col overflow-y-auto gap-y-2 items-center bg-mint-200 border-l-1 border-l-lime-800">
 
@@ -103,10 +146,10 @@ const SimStudio = () => {
                         <h1 className="p-1 text-lg text-neutral-700 font-bold">New Lab Results</h1>
                     </div>
                     <div className="flex flex-1 overflow-x-auto justify-left items-center">
-                        {simLabs.length === 0 ? (
+                        {labOrderData.length === 0 ? (
                             <p className="h-fit w-fit m-8 text-center text-neutral-500 text-sm">Click 'Add Lab Result' in the sidebar to begin</p>
                         ) : (
-                            simLabs.map((stateID)=> (<SimLabResult onUpdate={onLabOrderUpdate} key={stateID} instanceID={stateID} />)
+                            labOrderData.map((labOrder)=> (<SimLabResult onUpdate={onLabOrderUpdate} key={labOrder.id} instanceID={labOrder.id} onClose={removeOrder} />)
                         ))}
                     </div>
                 </div>
@@ -115,13 +158,12 @@ const SimStudio = () => {
                         <h1 className="p-1 text-lg text-neutral-700 font-bold">New Orders</h1>
                     </div>
                     <div className="flex flex-1 overflow-x-auto justify-left">
-                        {simItems.length === 0 ? (
+                        {medOrderData.length === 0 ? (
                             <p className="h-fit w-fit m-8 text-center text-neutral-500 text-sm">Add Labs and Orders</p>
                         ) : (
-                            simItems.map((item) => {
-                                const SimItem = componentMap[item.type]
+                            medOrderData.map((item) => {
                                 return(
-                                    <SimItem key={item.id} instanceID={item.id} onUpdate={onMedOrderUpdate}/>
+                                    <SimMedOrder key={item.id} instanceID={item.id} onUpdate={onMedOrderUpdate} onClose={removeOrder}/>
                                 )
                             }))
                         }

@@ -1,11 +1,11 @@
 interface SidebarProps {
-    onAddPtState: () => void;
+    onSubmit: () => void;
     onAddMedOrder: () => void;
     onAddOrder: () => void;
     onAddLabResult: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onAddPtState, onAddMedOrder, onAddOrder, onAddLabResult }) => { 
+const Sidebar: React.FC<SidebarProps> = ({ onSubmit, onAddMedOrder, onAddOrder, onAddLabResult }) => { 
     
     return (
         <div className="w-52 sticky top-20 h-[calc(100vh-4rem)] p-3 flex flex-col flex-shrink-0 bg-mint-500">
@@ -16,10 +16,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddPtState, onAddMedOrder, onAddOrd
                 <button className="mx-4 mb-4 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Edit Patient Chart</button>
             </div>
             <div className=" flex-1 flex flex-col justify-start mb-10 rounded-md border border-lime-800 bg-mint-200 shadow-md/30">
-                <button onClick={onAddPtState} className="line-through m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Patient State</button>
                 <button onClick={onAddOrder} className="line-through m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add New Order</button>
                 <button onClick={onAddMedOrder} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Med Order</button>
                 <button onClick={onAddLabResult} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Add Lab Result</button>
+                <button onClick={onSubmit} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Submit Items</button>
             </div>
         </div>
     )

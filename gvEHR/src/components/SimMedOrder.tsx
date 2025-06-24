@@ -10,9 +10,10 @@ interface dropdownOption {
 interface SimMedOrderProps {
     instanceID: number
     onUpdate: (data: MedOrderData) => void
+    onClose: (id: number, type: 'medOrder') => void
 }
 
-const SimMedOrder: React.FC<SimMedOrderProps> = ({ instanceID, onUpdate }) => {
+const SimMedOrder: React.FC<SimMedOrderProps> = ({ instanceID, onUpdate, onClose }) => {
     const [selectedMed, setSelectedMed] = useState<string>("")
     const [dose, setDose] = useState<string>("")
     const [priority, setPriority] = useState<string>("")
@@ -27,6 +28,7 @@ const SimMedOrder: React.FC<SimMedOrderProps> = ({ instanceID, onUpdate }) => {
     const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setComments(e.target.value)
     const handleAdminInstructionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setAdminInstructions(e.target.value)
 
+  
     useEffect(() => {
         const currentOrderData: MedOrderData = {
             id: instanceID,
@@ -59,9 +61,13 @@ const SimMedOrder: React.FC<SimMedOrderProps> = ({ instanceID, onUpdate }) => {
         { value: 'metoprolol', label: 'Metoprolol' },
         { value: 'amiodarone', label: 'Amiodarone' },
     ];
+    
     return (
         <div className="h-fit w-76 flex-shrink-0 rounded-lg my-2 mx-6 border-1 border-neutral-500 shadow-md/30 bg-neutral-300">
-            <p className="mx-2 text-sm font-medium">Medication Order</p>
+            <div className="flex justify-between px-2">
+                <p className="mr-2 my-1 text-sm font-medium">Medication Order</p>
+                <img src="src/assets/close.png" onClick={() => onClose(instanceID, 'medOrder')} className="h-3 m-2"></img>
+            </div>
             <div className="grid grid-cols-4 gap-y-2">
                 <div className="mx-2 col-span-3">
                     <Dropdown dropDownContents={meds} instanceID={instanceID} selectedValue={selectedMed} onSelect={handleMedChange} />

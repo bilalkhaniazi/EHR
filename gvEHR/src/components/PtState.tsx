@@ -50,7 +50,7 @@ const PtState: React.FC<PtStateProps> = ({ instanceID }) => {
                 <div className="flex flex-col items-center ml-2">
                     <div className="flex flex-col">
                     <p className="mr-1 text-sm font-medium">BP</p>
-                    <input type="number" id={`sBP-${instanceID}`} className="w-[95%] h-fit px-1 py-0.5 text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="116" min="0" />
+                    <input type="number" id={`SBP-${instanceID}`} className="w-[95%] h-fit px-1 py-0.5 text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="116" min="0" />
                     <input type="number" id={`DBP-${instanceID}`} className="w-[95%] h-fit px-1 py-0.5 text-sm bg-white border border-neutral-400 rounded-md shadow-sm focus:outline-none focus:border-2" placeholder="74" min="0" />                
                     </div>
                 </div>
