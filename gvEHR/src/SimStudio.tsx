@@ -131,6 +131,19 @@ const SimStudio = () => {
         }
     }
 
+    const testGet = async () => {
+        try {
+            const response = await fetch('api/simstudio')
+            if (!response.ok) {
+                throw new Error(`GET error ${response.status}`)
+            }
+            const data = await response.json()
+            console.log(data)
+        } catch (error: any) {
+            console.log('Get failed', error,)
+        }
+    }
+
     useEffect (()=> {
         console.log(medOrderData)
     }, [medOrderData])
@@ -140,6 +153,7 @@ const SimStudio = () => {
             <Sidebar onSubmit={submitSimItems} onAddMedOrder={addMedOrder} onAddOrder={addOrder} onAddLabResult={addLabResult} submissionStatus={submissionStatus} />
 
             <div className="flex-1 flex flex-col overflow-y-auto gap-y-2 items-center bg-mint-200 border-l-1 border-l-lime-800">
+                <button onClick={testGet} className="m-2 py-2 rounded-xl font-semibold bg-buttonGray shadow-md/30 hover:bg-neutral-300">Submit Items</button>
 
                 <div className="w-[95%] flex-1 flex flex-col  mt-2 mb-1 bg-neutral-200 border-1 border-neutral-500 rounded-md shadow-md/30">
                     <div className="flex justify-around w-fit h-fit rounded-tl-lg rounded-br-lg bg-neutral-300 border-b-1 border-r-1 border-neutral-500 ">

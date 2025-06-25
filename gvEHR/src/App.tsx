@@ -1,6 +1,7 @@
 import Layout from './layout.tsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import SimStudio from './SimStudio.tsx'
+import StudentDash from './studentDash.tsx'
 
 
 function App() {
@@ -11,7 +12,8 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<SimStudio />} />
         </Route>
-      </Routes> 
+        <Route path="/dog" element={<StudentDash />} />
+        </Routes> 
     </BrowserRouter>
   )
 }

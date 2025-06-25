@@ -17,4 +17,17 @@ router.post('/', (req, res) => {
     })
 });
 
+router.get('/', function(res, req, next) {
+    const medication = {
+        id: Date.now(),
+        selectedMed: Milrinone,
+        dose: 2.5,
+        priority: 'NOW',
+        frequency: 'Continuous',
+        comments: "",
+        adminInstructions: "asdf",    
+    }
+
+    res.json(medication)
+})
 module.exports = router
