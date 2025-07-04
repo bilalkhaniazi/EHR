@@ -1,15 +1,29 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Vitals } from "../tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
-import { initialVitalsData } from "../tableData";
+import { generateInitialVitalsData, getInitialDynamicHours } from "../tableData";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import { AutoComplete } from "./autocomplete";
+import { Plus } from "lucide-react"
 
 const columnHelper = createColumnHelper<Vitals>();
 
+function getPinnedStyles(column: any): React.CSSProperties {
+  if (!column.getIsPinned()) return {};
+  const side = column.getIsPinned();
+  return {
+    position: 'sticky',
+    [side]: `${column.getStart(side)}px`,
+    zIndex: side === 'left' ? 2 : 1,
+  };
+}
+
 export function PtTable() {
-    const [data, setData] = useState(() => [...initialVitalsData]);
+    const [timeColumns, setTimeColumns] = useState(() => getInitialDynamicHours())
+    const [data, setData] = useState(() => generateInitialVitalsData(timeColumns));
+
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 
             oldData.map(row => {
@@ -43,36 +57,58 @@ export function PtTable() {
         { value: "Other", label: "Other" },
     ], []);
 
+    const displayDate = () => {
+        const todayDate = new Date()
+        return todayDate.toLocaleDateString("en-US", {
+            month: "numeric",
+            day: "numeric",
+        });
+    }
+
     const columns = useMemo(
         () => [
             columnHelper.accessor("field", {
-                id: 'vitals',
-                header: () => "Vital Signs",
-                cell: info => (
-                    <p className="min-w-24 h-6 text-left font-light py-0 pl-4 text-sm text-neutral-500 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
-                )
+                id: 'Vital Signs',
+                header: () => "",
+                cell: info => {
+                    const rowType = info.row.original.field
+                    if (rowType === "Vital Signs") {
+                        return (
+                            <p className="min-w-24 h-6 text-left font-medium py-0 pl-4 text-sm text-lime-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">Vital Signs</p>
+                        )
+                    } 
+                    else {
+                        return (
+                            <p className="min-w-24 h-6 text-left font-light py-0 pl-4 text-sm text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
+
+                        )
+                    };
+                }, 
             }),
 
-            ...(["0800", "1200", "1600", "2000"] as const).map(timeKey =>
+            ...timeColumns.map(timeKey =>
                 columnHelper.accessor(timeKey, {
                     id: timeKey,
-                    header: () => timeKey,
+                    header: () => (
+                        <div className="flex flex-col justify-center items-center">
+                            <h2 className="mb-1 text-neutral-500 text-xs font-light">{displayDate()}</h2>
+                            <h1 className="mb-1">{timeKey}</h1>
+                        </div>
+                    ),
                     cell: ({row, column, getValue}) => {
                         const initialValue = getValue()
                         const [value, setValue] = useState(initialValue)
 
-                        const isBPSourceRow = row.original.field === "BP Source"
-                        const isHRSourceRow = row.original.field === "HR Source"
-
+                        const rowType = row.original.field
 
                         const handleComponentChange = (newValue: string) => {
                             setValue(newValue); // Update local state
-                            onCellUpdate(row.original.field, column.id as keyof Vitals, newValue); // Update global state immediately
+                            onCellUpdate(row.original.field, column.id, newValue); // Update global state immediately
                         };
                             
                         const onBlur = () => {
                             if(value != initialValue) {
-                                onCellUpdate(row.original.field, column.id as keyof Vitals, value);
+                                onCellUpdate(row.original.field, column.id, value);
                             }
                         };
 
@@ -80,9 +116,13 @@ export function PtTable() {
                             if(e.key === "Enter") {
                                 (e.target as HTMLInputElement).blur();
                             }
-                        }
+                        };
 
-                        if(isBPSourceRow) {
+                        if(rowType === "Vital Signs") {
+                            return (
+                                <p></p>
+                            );
+                        } else if(rowType === "BP Source") {
                             return (
                                 <AutoComplete
                                     options={bpSourceOptions} 
@@ -91,7 +131,7 @@ export function PtTable() {
                                     className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                             )
-                        } else if (isHRSourceRow) {
+                        } else if (rowType === "HR Source") {
                             return (
                                 <AutoComplete
                                     options={hrSourceOptions} 
@@ -100,8 +140,7 @@ export function PtTable() {
                                     className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                             )
-                        }
-                        else {
+                        } else {
                             return (
                                 <Input
                                     type="text"
@@ -119,26 +158,75 @@ export function PtTable() {
             
             
         ],
-        [onCellUpdate, bpSourceOptions]
+        [onCellUpdate, hrSourceOptions, bpSourceOptions, timeColumns]
     );
 
     const ptTable = useReactTable({
         data,
         columns,
+        enablePinning: true,
+        initialState: {
+            columnPinning: {
+                left: ['Vital Signs']
+            }
+        },
         getCoreRowModel: getCoreRowModel(), 
     });
 
-      return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Basic TanStack Table</h2>
-      <Table className="w-full border-collapse border border-gray-300">
+    useEffect(() => {
+        console.log(data)
+    }, [data]);
+
+    const onAddTime = useCallback(() => {
+        const now = new Date()
+        const addedDate = now.toLocaleDateString("en-US", {
+            month: "numeric",
+            day: "numeric",
+        });
+        
+        const addedTime = now.toLocaleTimeString("en-GB", {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }).replace(":", '')
+        console.log(addedDate, addedTime)
+
+        if(timeColumns.includes(addedTime)) {
+            alert(`Time at ${addedTime} already exists`)
+            return;
+        }
+
+        setTimeColumns(prevColumns => {
+            const updatedColumns = [...prevColumns, addedTime ].sort();
+            return updatedColumns;
+        });
+
+        setData(prevData =>
+            prevData.map(row => {
+                const newRow = {...row};
+                newRow[addedTime] = '';
+                return newRow
+            })
+        );
+
+        
+    }, [timeColumns, data]);
+
+    return (
+    <div className="flex flex-col justify-center items-center p-4">
+      <Button onClick={onAddTime} className="bg-gray-100 text-black mb-4">
+        <Plus />
+        Add Col
+      </Button>
+      <Table className="w-full border-collapse border-1">
         <TableHeader className="bg-gray-100">
           {ptTable.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map(header => (
                 <TableHead
+                  style={getPinnedStyles(header.column)}
                   key={header.id}
-                  className="h-6 text-center font-medium"
+                  className="h-6 text-center font-medium border-b-2 border-gray-200"
                 >
                   {/* Render the header content using flexRender */}
                   {header.isPlaceholder
@@ -152,27 +240,36 @@ export function PtTable() {
             </TableRow>
           ))}
         </TableHeader>
+
         <TableBody>
           {ptTable.getRowModel().rows.map(row => (
             <TableRow key={row.id} className="h-6">
-              {row.getVisibleCells().map(cell => (
-                <TableCell
-                  key={cell.id}
-                  className="p-0 text-sm text-gray-800 border-b border-r border-gray-200"
-                >
-                  {/* Render the cell content using flexRender */}
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
+              {row.getVisibleCells().map(cell => {
+                const rowType = row.original.field
+                
+                return(
+                  <TableCell
+                    style={getPinnedStyles(cell.column)}
+                    key={cell.id}
+                    className={`p-0 text-sm text-gray-800 border-b ${rowType === "Vital Signs" ? "" : "border-r"} border-gray-200`}
+                  >
+                    {/* Render the cell content using flexRender */}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                )
+              })}
             </TableRow>
           ))}
         </TableBody>
-        {/* Optional: Table footer */}
+
         <TableFooter className="bg-gray-100">
           {ptTable.getFooterGroups().map(footerGroup => (
             <TableRow key={footerGroup.id}>
               {footerGroup.headers.map(header => (
-                <TableHead key={header.id} className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-t border-r border-gray-300">
+                <TableHead 
+                  key={header.id} 
+                  className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-gray-300">
+
                   {header.isPlaceholder
                     ? null
                     : flexRender(
