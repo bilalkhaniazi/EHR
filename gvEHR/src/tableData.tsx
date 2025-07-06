@@ -17,6 +17,7 @@ const vitalsTemplate: {field: string}[] = [
     { field: "BP Source"},
     { field: "RR"},
     { field: "Temp"},
+    { field: "Temp Source"},
     { field: "SpO2"},
 ];
 

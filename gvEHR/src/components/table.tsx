@@ -39,12 +39,13 @@ export function PtTable() {
     },  [])
 
     const hrSourceOptions = useMemo(() => [
-        { value: "Radial", label: "Radial" },
         { value: "Apical", label: "Apical" },
+        { value: "Brachial", label: "Brachial" },
+        { value: "Dorsalis pedis", label: "Dorsalis pedis" },
         { value: "Femoral", label: "Femoral" },
         { value: "Monitor", label: "Monitor" },
-        { value: "Palpation", label: "Palpation" },
-        { value: "Auscultation", label: "Auscultation" },
+        { value: "Popliteal", label: "Popliteal" },
+        { value: "Radial", label: "Radial" },
     ], []);
 
     const bpSourceOptions = useMemo(() => [
@@ -52,10 +53,24 @@ export function PtTable() {
         { value: "Right upper arm", label: "Right upper arm" },
         { value: "Left lower arm", label: "Left lower arm" },
         { value: "Right lower arm", label: "Right lower arm" },
-        { value: "Thigh", label: "Thigh" },
-        { value: "Calf", label: "Calf" },
+        { value: "Left thigh", label: "Left thigh" },
+        { value: "Right thigh", label: "Right thigh" },
+        { value: "Left lower leg", label: "Left lower leg" },
+        { value: "Right lower leg", label: "Right lower leg" },
+        { value: "Arterial line", label: "Arterial line" },
         { value: "Other", label: "Other" },
     ], []);
+
+    const tempSourceOptions = useMemo(() => [
+        { value: "Oral", label: "Oral" },
+        { value: "Axillary", label: "Axillary" },
+        { value: "Rectal", label: "Rectal" },
+        { value: "Tympanic", label: "Tympanic" },
+        { value: "Temporal", label: "Temporal" },
+        { value: "Bladder", label: "Bladder" },
+        { value: "Other", label: "Other" },
+    ], []);
+
 
     const displayDate = () => {
         const todayDate = new Date()
@@ -140,6 +155,15 @@ export function PtTable() {
                                     className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                             )
+                        } else if (rowType === "Temp Source") {
+                            return (
+                                <AutoComplete
+                                    options={tempSourceOptions}
+                                    value={value}
+                                    onValueChange={handleComponentChange}
+                                    className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                                />
+                                )
                         } else {
                             return (
                                 <Input
