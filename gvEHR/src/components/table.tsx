@@ -1,6 +1,6 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import type { Vitals } from "../tableData";
+import type { Vitals, AutocompleteOptions } from "../tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
 import { generateInitialVitalsData, getInitialDynamicHours } from "../tableData";
 import { Input } from "./ui/input";
@@ -24,6 +24,10 @@ export function PtTable() {
     const [timeColumns, setTimeColumns] = useState(() => getInitialDynamicHours())
     const [data, setData] = useState(() => generateInitialVitalsData(timeColumns));
 
+    useEffect(() => {
+        console.log(timeColumns)
+    }, [timeColumns])
+
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 
             oldData.map(row => {
@@ -37,40 +41,6 @@ export function PtTable() {
             })
         );
     },  [])
-
-    const hrSourceOptions = useMemo(() => [
-        { value: "Apical", label: "Apical" },
-        { value: "Brachial", label: "Brachial" },
-        { value: "Dorsalis pedis", label: "Dorsalis pedis" },
-        { value: "Femoral", label: "Femoral" },
-        { value: "Monitor", label: "Monitor" },
-        { value: "Popliteal", label: "Popliteal" },
-        { value: "Radial", label: "Radial" },
-    ], []);
-
-    const bpSourceOptions = useMemo(() => [
-        { value: "Left upper arm", label: "Left upper arm" },
-        { value: "Right upper arm", label: "Right upper arm" },
-        { value: "Left lower arm", label: "Left lower arm" },
-        { value: "Right lower arm", label: "Right lower arm" },
-        { value: "Left thigh", label: "Left thigh" },
-        { value: "Right thigh", label: "Right thigh" },
-        { value: "Left lower leg", label: "Left lower leg" },
-        { value: "Right lower leg", label: "Right lower leg" },
-        { value: "Arterial line", label: "Arterial line" },
-        { value: "Other", label: "Other" },
-    ], []);
-
-    const tempSourceOptions = useMemo(() => [
-        { value: "Oral", label: "Oral" },
-        { value: "Axillary", label: "Axillary" },
-        { value: "Rectal", label: "Rectal" },
-        { value: "Tympanic", label: "Tympanic" },
-        { value: "Temporal", label: "Temporal" },
-        { value: "Bladder", label: "Bladder" },
-        { value: "Other", label: "Other" },
-    ], []);
-
 
     const displayDate = () => {
         const todayDate = new Date()
@@ -111,14 +81,13 @@ export function PtTable() {
                         </div>
                     ),
                     cell: ({row, column, getValue}) => {
-                        const initialValue = getValue()
+                        const initialValue = (getValue() as string) || '';
                         const [value, setValue] = useState(initialValue)
-
-                        const rowType = row.original.field
-
+                        const componentType = row.original.componentType
+                        const autocompleteOptions = (row.original.autocompleteOptions || []) as AutocompleteOptions[];
                         const handleComponentChange = (newValue: string) => {
-                            setValue(newValue); // Update local state
-                            onCellUpdate(row.original.field, column.id, newValue); // Update global state immediately
+                            setValue(newValue); 
+                            onCellUpdate(row.original.field, column.id, newValue); 
                         };
                             
                         const onBlur = () => {
@@ -133,37 +102,19 @@ export function PtTable() {
                             }
                         };
 
-                        if(rowType === "Vital Signs") {
+                        if(componentType === "static") {
                             return (
                                 <p></p>
                             );
-                        } else if(rowType === "BP Source") {
+                        } else if(componentType === "autocomplete") {
                             return (
                                 <AutoComplete
-                                    options={bpSourceOptions} 
+                                    options={autocompleteOptions} 
                                     value={value}
                                     onValueChange={handleComponentChange}
                                     className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                 />
                             )
-                        } else if (rowType === "HR Source") {
-                            return (
-                                <AutoComplete
-                                    options={hrSourceOptions} 
-                                    value={value}
-                                    onValueChange={handleComponentChange}
-                                    className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
-                            )
-                        } else if (rowType === "Temp Source") {
-                            return (
-                                <AutoComplete
-                                    options={tempSourceOptions}
-                                    value={value}
-                                    onValueChange={handleComponentChange}
-                                    className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
-                                )
                         } else {
                             return (
                                 <Input
@@ -182,7 +133,7 @@ export function PtTable() {
             
             
         ],
-        [onCellUpdate, hrSourceOptions, bpSourceOptions, timeColumns]
+        [onCellUpdate, timeColumns]
     );
 
     const ptTable = useReactTable({
@@ -275,7 +226,7 @@ export function PtTable() {
                   <TableCell
                     style={getPinnedStyles(cell.column)}
                     key={cell.id}
-                    className={`p-0 text-sm text-gray-800 border-b ${rowType === "Vital Signs" ? "" : "border-r"} border-gray-200`}
+                    className={`p-0 min-w-32 text-sm bg-white text-gray-800 border-gray-200 border-b ${rowType === "Vital Signs" ? "" : "border-r"}`}
                   >
                     {/* Render the cell content using flexRender */}
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
