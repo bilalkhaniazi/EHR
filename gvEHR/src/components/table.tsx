@@ -2,7 +2,7 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Vitals, AutocompleteOptions } from "../tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
-import { generateInitialVitalsData, getInitialDynamicHours } from "../tableData";
+import { generateInitialVitalsData, getInitialDynamicHours, getAllInitialHours } from "../tableData";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { AutoComplete } from "./autocomplete";
@@ -21,12 +21,8 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function PtTable() {
-    const [timeColumns, setTimeColumns] = useState(() => getInitialDynamicHours())
+    const [timeColumns, setTimeColumns] = useState(() => getAllInitialHours())
     const [data, setData] = useState(() => generateInitialVitalsData(timeColumns));
-
-    useEffect(() => {
-        console.log(timeColumns)
-    }, [timeColumns])
 
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 

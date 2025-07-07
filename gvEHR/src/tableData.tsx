@@ -17,41 +17,26 @@ export const getInitialDynamicHours = () => {
         }); 
 };
 
-const staticVitalsData = [
-    { 
-        "HR" : 
-            {"0715": "83", "0745": "88"},
+export const getAllInitialHours = (): string[] => {
+    const dynamicHours = getInitialDynamicHours();
+    const staticTimes = new Set<string>();
+    Object.values(staticVitalsData).forEach(timeData => {
+        Object.keys(timeData).forEach(time => staticTimes.add(time));
+    });
+    const combinedTimes = [... new Set([...dynamicHours, ...Array.from(staticTimes)])];
+    return combinedTimes.sort()
+}
 
-     },
-    {
-        "HR Source": 
-            {"0715": "83", "0745": "88"},
-    },
-    {
-        "BP": 
-            {"0715": "83", "0745": "88"},
-    },
-    {
-        "BP Source": 
-            {"0715": "83", "0745": "88"},
-    },
-    {
-        "RR": 
-            {"0715": "83", "0745": "88"},
-    },
-    {
-        "Temp": 
-            {"0715": "83", "0745": "88"},
-    },
-    {
-        "Temp Source": 
-            {"0715": "83", "0745": "88"},
-    },
-    {
-        "SpO2": 
-            {"0715": "83", "0745": "88"},
-    },
-]
+const staticVitalsData: { [field: string]: { [time: string]: string } } = {
+    "HR" : {"0715": "82", "0745": "88"},
+    "HR Source": {"0715": "Monitor", "0745": "Radial"},
+    "BP": {"0715": "83", "0745": "88"},
+    "BP Source": {"0715": "86", "0745": "88"},
+    "RR": {"0715": "87", "0745": "88"},
+    "Temp": {"0715": "88", "0745": "88"},
+    "Temp Source": {"0715": "89", "0745": "88"},
+    "SpO2": {"0715": "90", "0745": "88"},
+}
 
 const vitalsTemplate: {
     field: string;
@@ -108,24 +93,21 @@ const vitalsTemplate: {
     { field: "SpO2", componentType: "input" },
 ];
 
-export const generateInitialVitalsData = (dynamicTimeColumns: string[]): Vitals[] => {
+export const generateInitialVitalsData = (allTimesColumns: string[]): Vitals[] => {
     const generatedData: Vitals[] = []
 
-    // const labelRow: Vitals = {field: "Vital Signs", componentType: "static"};
+    vitalsTemplate.forEach(templateRow => {
+        const newRow: Vitals = {
+            field: templateRow.field,
+            componentType: templateRow.componentType,
+            ...(templateRow.autocompleteOptions && { autocompleteOptions: templateRow.autocompleteOptions })
+        };
 
-    // dynamicTimeColumns.forEach(hour => {
-    //     labelRow[hour] = ''        
-    // });
-    // generatedData.push(labelRow)
+        allTimesColumns.forEach(hour => {
+            const predefinedValue = staticVitalsData[templateRow.field]?.[hour];
 
-    
-
-
-    vitalsTemplate.map(row => {
-        const newRow: Vitals = {...row}
-        dynamicTimeColumns.forEach(hour =>
-            newRow[hour] = ''
-        );
+            newRow[hour] = predefinedValue !== undefined ? predefinedValue : '';
+        });
         generatedData.push(newRow)
     });
     return generatedData
