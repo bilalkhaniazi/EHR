@@ -2,7 +2,7 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Vitals, AutocompleteOptions } from "../tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
-import { generateInitialVitalsData, getInitialDynamicHours, getAllInitialHours } from "../tableData";
+import { generateInitialVitalsData, getAllInitialHours } from "../tableData";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { AutoComplete } from "./autocomplete";
@@ -21,8 +21,10 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function PtTable() {
-    const [timeColumns, setTimeColumns] = useState(() => getAllInitialHours())
-    const [data, setData] = useState(() => generateInitialVitalsData(timeColumns));
+    const { allTimesColumns, predefinedVitalsTimeMap } = useMemo(() => getAllInitialHours(), [])
+
+    const [timeColumns, setTimeColumns] = useState(allTimesColumns)
+    const [data, setData] = useState(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap));
 
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 
@@ -72,7 +74,7 @@ export function PtTable() {
                     id: timeKey,
                     header: () => (
                         <div className="flex flex-col justify-center items-center">
-                            <h2 className="mb-1 text-neutral-500 text-xs font-light">{displayDate()}</h2>
+                            <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate()}</h2>
                             <h1 className="mb-1">{timeKey}</h1>
                         </div>
                     ),
@@ -81,10 +83,19 @@ export function PtTable() {
                         const [value, setValue] = useState(initialValue)
                         const componentType = row.original.componentType
                         const autocompleteOptions = (row.original.autocompleteOptions || []) as AutocompleteOptions[];
+                        const normalRange = row.original?.normalRange
                         const handleComponentChange = (newValue: string) => {
                             setValue(newValue); 
                             onCellUpdate(row.original.field, column.id, newValue); 
                         };
+
+                        let alertFlag = false;
+                        if (normalRange && componentType == "input") {
+                            const numericValue = parseFloat(value) 
+                            if(!isNaN(numericValue)) {
+                                alertFlag = numericValue < normalRange.low || numericValue > normalRange.high;
+                            }
+                        }
                             
                         const onBlur = () => {
                             if(value != initialValue) {
@@ -119,7 +130,7 @@ export function PtTable() {
                                     onChange={(e) => setValue(e.target.value)}
                                     onBlur={onBlur}
                                     onKeyDown={onKeyDown}
-                                    className="min-w-12 h-6 text-right pr-2 py-0 text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    className={`min-w-12 h-6 text-right pr-2 py-0 text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 ${alertFlag ? "text-red-600 font-medium" : ""}`}
                                 />
                             )
                         };
@@ -185,11 +196,12 @@ export function PtTable() {
 
     return (
     <div className="flex flex-col justify-center items-center p-4">
-      <Button onClick={onAddTime} className="bg-gray-100 text-black mb-4">
+      <Button onClick={onAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
         <Plus />
         Add Col
       </Button>
-      <Table className="w-full border-collapse border-1">
+      <div className="relative w-full overflow-x-auto border-1 border-gray-200 rounded-md">
+      <Table className="w-full">
         <TableHeader className="bg-gray-100">
           {ptTable.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
@@ -253,6 +265,7 @@ export function PtTable() {
           ))}
         </TableFooter>
       </Table>
+    </div>
     </div>
   );
 }

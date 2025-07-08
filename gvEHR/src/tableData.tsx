@@ -1,50 +1,44 @@
-export type AutocompleteOptions = {
+export interface AutocompleteOptions {
     value: string;
     label: string;
 };
 
-export type Vitals = {
+export interface Vitals {
     field: string;
     componentType: string;
     autocompleteOptions?: AutocompleteOptions[];
-    [key: string]: string | AutocompleteOptions[] | undefined;
+    normalRange?: {low: number, high: number}
+    [key: string]: string | AutocompleteOptions[] | undefined | {low: number, high: number};
 };
 
-export const getInitialDynamicHours = () => {
-        const currHour = new Date().getHours()
-        return Array.from({length: 8}, (_, index) => {
-            return `${(currHour + index).toString().padStart(2, "0")}00`
-        }); 
+const formatTime = (date: Date): string => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}${minutes}`;
 };
 
-export const getAllInitialHours = (): string[] => {
-    const dynamicHours = getInitialDynamicHours();
-    const staticTimes = new Set<string>();
-    Object.values(staticVitalsData).forEach(timeData => {
-        Object.keys(timeData).forEach(time => staticTimes.add(time));
-    });
-    const combinedTimes = [... new Set([...dynamicHours, ...Array.from(staticTimes)])];
-    return combinedTimes.sort()
-}
-
-const staticVitalsData: { [field: string]: { [time: string]: string } } = {
-    "HR" : {"0715": "82", "0745": "88"},
-    "HR Source": {"0715": "Monitor", "0745": "Radial"},
-    "BP": {"0715": "83", "0745": "88"},
-    "BP Source": {"0715": "86", "0745": "88"},
-    "RR": {"0715": "87", "0745": "88"},
-    "Temp": {"0715": "88", "0745": "88"},
-    "Temp Source": {"0715": "89", "0745": "88"},
-    "SpO2": {"0715": "90", "0745": "88"},
+const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
+    "HR" : {90: "112", 60: "88"},
+    "HR Source": {90: "Monitor", 60: "Radial"},
+    "BP": {90: "112/68", 60: "124/72"},
+    "BP Source": {90: "Left upper arm", 60: "Left upper arm"},
+    "RR": {90: "16", 60: "20"},
+    "Temp": {90: "37.0", 60: "36.8"},
+    "Temp Source": {90: "Oral", 60: "Oral"},
+    "SpO2": {90: "99", 60: "98"},
 }
 
 const vitalsTemplate: {
     field: string;
     componentType: "input" | "autocomplete" | "static";
     autocompleteOptions?: AutocompleteOptions[];
+    normalRange?: {low: number, high: number}
 }[] = [
     { field: "Vital Signs", componentType: "static" },
-    { field: "HR", componentType: "input" },
+    { 
+        field: "HR", 
+        componentType: "input", 
+        normalRange: {low: 60, high: 100 }},
     { 
         field: "HR Source", 
         componentType: "autocomplete",
@@ -73,10 +67,18 @@ const vitalsTemplate: {
             { value: "Right lower leg", label: "Right lower leg" },
             { value: "Arterial line", label: "Arterial line" },
             { value: "Other", label: "Other" },
-        ]
+        ],
     },
-    { field: "RR", componentType: "input"},
-    { field: "Temp", componentType: "input"},
+    { 
+        field: "RR",
+        componentType: "input",
+        normalRange: {low: 12, high: 20}
+    },
+    { 
+        field: "Temp",
+        componentType: "input", 
+        normalRange: { low: 36.6, high: 37.2}
+    },
     { 
         field: "Temp Source", 
         componentType: "autocomplete",
@@ -90,22 +92,80 @@ const vitalsTemplate: {
             { value: "Other", label: "Other" },
         ]
     },
-    { field: "SpO2", componentType: "input" },
+    { 
+        field: "SpO2",
+        componentType: "input", 
+        normalRange: { low: 92, high: 100 }
+    },
 ];
 
-export const generateInitialVitalsData = (allTimesColumns: string[]): Vitals[] => {
+
+export const getInitialDynamicHours = (currHour: number) => {
+        return Array.from({length: 8}, (_, index) => {
+            return `${(currHour + index).toString().padStart(2, "0")}00`
+        }); 
+};
+
+export const getPredefinedHoursMap = (currDate: Date) => {
+    const predefinedTimesMap= new Map<string, number>();
+
+    const allOffsetTimes = new Set<number>()
+    Object.values(predefinedVitalsData).forEach(fieldData => {
+        Object.keys(fieldData).forEach(minuteOffsetStr => {
+            allOffsetTimes.add(parseInt(minuteOffsetStr))
+        });
+    });
+
+    Array.from(allOffsetTimes).sort((a, b) => a - b).forEach(minutesOffset => {
+        const tempDate = new Date(currDate)
+        tempDate.setMinutes(currDate.getMinutes() - minutesOffset);
+        const formattedTime = formatTime(tempDate)
+        predefinedTimesMap.set(formattedTime, minutesOffset)
+    });
+            
+    return predefinedTimesMap
+};
+
+export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVitalsTimeMap: Map<string, number> } => {
+    const currDate = new Date()
+    const currHour = currDate.getHours()
+
+    const dynamicTimes = getInitialDynamicHours(currHour);
+
+    const predefinedVitalsTimeMap = getPredefinedHoursMap(currDate);
+    const predefinedTimes = Array.from(predefinedVitalsTimeMap.keys())
+    const combinedTimes = [... new Set([...dynamicTimes, ...predefinedTimes])];
+    console.log(`Combined times: ${combinedTimes}` )
+    return { 
+        allTimesColumns: combinedTimes.sort(),
+        predefinedVitalsTimeMap: predefinedVitalsTimeMap
+    }
+};
+
+export const generateInitialVitalsData = (
+    allTimesColumns: string[],
+    staticTimesMap: Map<string,number>
+): Vitals[] => {
     const generatedData: Vitals[] = []
 
     vitalsTemplate.forEach(templateRow => {
         const newRow: Vitals = {
             field: templateRow.field,
             componentType: templateRow.componentType,
-            ...(templateRow.autocompleteOptions && { autocompleteOptions: templateRow.autocompleteOptions })
+            ...(templateRow.autocompleteOptions && { autocompleteOptions: templateRow.autocompleteOptions }),
+            ...(templateRow.normalRange && { normalRange: templateRow.normalRange })   
         };
 
         allTimesColumns.forEach(hour => {
-            const predefinedValue = staticVitalsData[templateRow.field]?.[hour];
+            const correspondingMinuteOffset = staticTimesMap.get(hour)
 
+            let predefinedValue: string | undefined
+
+            if ( correspondingMinuteOffset !== undefined) {
+                predefinedValue = predefinedVitalsData[templateRow.field]?.[correspondingMinuteOffset];
+            } else {
+                predefinedValue = ''
+            }
             newRow[hour] = predefinedValue !== undefined ? predefinedValue : '';
         });
         generatedData.push(newRow)
