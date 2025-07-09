@@ -6,6 +6,7 @@ export interface AutocompleteOptions {
 export interface Vitals {
     field: string;
     componentType: string;
+    rowType?: string;
     autocompleteOptions?: AutocompleteOptions[];
     normalRange?: {low: number, high: number}
     [key: string]: string | AutocompleteOptions[] | undefined | {low: number, high: number};
@@ -30,11 +31,15 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
 
 const vitalsTemplate: {
     field: string;
-    componentType: "input" | "autocomplete" | "static";
+    componentType: "input" | "autocomplete" | "static" | "solidRow" | "checkboxlist";
+    rowType?: string;
     autocompleteOptions?: AutocompleteOptions[];
     normalRange?: {low: number, high: number}
 }[] = [
-    { field: "Vital Signs", componentType: "static" },
+    { field: "Vital Signs",
+      componentType: "static",
+      rowType: "titleRow" 
+    },
     { 
         field: "HR", 
         componentType: "input", 
@@ -97,12 +102,32 @@ const vitalsTemplate: {
         componentType: "input", 
         normalRange: { low: 92, high: 100 }
     },
+    { 
+        field: "rowBreak",
+        componentType: "solidRow", 
+    },
+    {
+        field: "Respiratory",
+        rowType: "titleRow",
+        componentType: "static"
+    },
+    {
+        field: "Respiratory",
+        componentType: "checkboxlist"
+    },
+    {
+        field: "Respiratory",
+        componentType: "static"
+    },
+
+
 ];
 
 
 export const getInitialDynamicHours = (currHour: number) => {
         return Array.from({length: 8}, (_, index) => {
-            return `${(currHour + index).toString().padStart(2, "0")}00`
+            const adjustedHour = (currHour + index) % 24
+            return `${adjustedHour.toString().padStart(2, "0")}00`
         }); 
 };
 
@@ -152,8 +177,9 @@ export const generateInitialVitalsData = (
         const newRow: Vitals = {
             field: templateRow.field,
             componentType: templateRow.componentType,
+            rowType: templateRow.rowType,
             ...(templateRow.autocompleteOptions && { autocompleteOptions: templateRow.autocompleteOptions }),
-            ...(templateRow.normalRange && { normalRange: templateRow.normalRange })   
+            ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
         };
 
         allTimesColumns.forEach(hour => {
