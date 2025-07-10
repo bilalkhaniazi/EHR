@@ -17,14 +17,14 @@ import {
 import { Input } from "@/components/ui/input"; // Import Input for the visual input field
 
 // Define the shape of an option for the AutoComplete
-interface AutoCompleteOption {
+interface chartingOptions {
   value: string;
   label: string;
 }
 
 // Define the props for the AutoComplete component
 interface AutoCompleteProps {
-  options: AutoCompleteOption[]; // Array of options to display
+  options: chartingOptions[]; // Array of options to display
   value?: string; // The currently selected value (controlled by the parent component)
   onValueChange: (value: string) => void; // Callback when the value changes
   placeholder?: string; // Placeholder text for the input

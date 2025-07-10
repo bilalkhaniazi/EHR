@@ -1,16 +1,17 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import type { Vitals, AutocompleteOptions } from "../tableData";
+import type { tableData, chartingOptions } from "../tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
 import { generateInitialVitalsData, getAllInitialHours } from "../tableData";
 import { Input } from "./ui/input";
-import { AutoComplete } from "./autocomplete";
 import { Toaster, toast } from "sonner";
 import CheckBoxList from "./CheckBoxList";
 import { AddTimeColumnButton } from "./addTimeColButton";
+import AssessmentSelect from "./AssessmentSelect";
 
-const columnHelper = createColumnHelper<Vitals>();
+const columnHelper = createColumnHelper<tableData>();
 
+// left column pinned
 function getPinnedStyles(column: any): React.CSSProperties {
   if (!column.getIsPinned()) return {};
   const side = column.getIsPinned();
@@ -22,13 +23,16 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function PtTable() {
+    // list of predefined and dynamically-generated hours, and map of time-offsets to real-time equivalents
     const { allTimesColumns, predefinedVitalsTimeMap } = useMemo(() => getAllInitialHours(), [])
 
     const [timeColumns, setTimeColumns] = useState(allTimesColumns)
     const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
 
+    // generate inital dataset to be used by PtTable 
     const initialData = useMemo(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
     
+    // upon change in rows to display, update 
     const visibleSubsetIds = useMemo(() => {
         const combinedSet = new Set<string>();
         Object.values(fieldSelections).forEach(selectedIdsArray => {
@@ -53,7 +57,7 @@ export function PtTable() {
             });
         }, [initialData, visibleSubsetIds]);
     
-    const [data, setData] = useState<Vitals[]>(filteredData);
+    const [data, setData] = useState<tableData[]>(filteredData);
     
     useEffect(() => {
         setData(filteredData);
@@ -143,7 +147,7 @@ export function PtTable() {
                         const initialValue = (getValue() as string) || '';
                         const [value, setValue] = useState(initialValue)
                         const componentType = row.original.componentType
-                        const autocompleteOptions = (row.original.autocompleteOptions || []) as AutocompleteOptions[];
+                        const chartingOptions = (row.original.chartingOptions || []) as chartingOptions[];
                         const normalRange = row.original?.normalRange
                         const handleComponentChange = (newValue: string) => {
                             setValue(newValue); 
@@ -176,11 +180,11 @@ export function PtTable() {
                             );
                         } else if(componentType === "autocomplete") {
                             return (
-                                <AutoComplete
-                                    options={autocompleteOptions} 
+                                <AssessmentSelect
+                                    options={chartingOptions} 
                                     value={value}
                                     onValueChange={handleComponentChange}
-                                    className="w-full h-auto hover:bg-muted/30 border-0 px-0 py-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    className="p-0 h-6 hover:bg-muted/30"
                                 />
                             )
                         } else if (componentType === "checkboxlist") {
@@ -214,7 +218,7 @@ export function PtTable() {
             
             
         ],
-        [onCellUpdate, timeColumns]
+        [timeColumns]
     );
 
     const ptTable = useReactTable({
@@ -235,7 +239,7 @@ export function PtTable() {
 
    
     return (
-    <div className="flex flex-col justify-center items-center mt-4">
+    <div className="flex flex-col justify-center items-center mt-4 px-4">
       <Toaster position="top-right" />
       <div className="flex gap-4">
         <AddTimeColumnButton onColumnAdd={handleColumnAdd} existingTimeColumns={timeColumns}></AddTimeColumnButton>
@@ -306,7 +310,6 @@ export function PtTable() {
         </TableFooter>
       </Table>
     </div>
-    
     </div>
   );
 }

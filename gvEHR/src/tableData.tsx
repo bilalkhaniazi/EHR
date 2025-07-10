@@ -1,13 +1,13 @@
-export interface AutocompleteOptions {
+export interface chartingOptions {
     value: string;
     label: string;
 };
 
-export interface Vitals {
+export interface tableData {
     field: string;
     componentType: string;
     rowType?: string;
-    autocompleteOptions?: AutocompleteOptions[];
+    chartingOptions?: chartingOptions[];
     normalRange?: {low: number, high: number},
     hideable?: boolean,
     hideableId?: string,
@@ -31,9 +31,35 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
     "Temp": {90: "37.0", 60: "36.8"},
     "Temp Source": {90: "Oral", 60: "Oral"},
     "SpO2": {90: "99", 60: "98"},
+    "Lung Sounds" : {90: "Clear"}
 }
 
-const vitalsTemplate: Vitals[] = [
+const vitalsTemplate: tableData[] = [
+    { field: "General Appearance",
+      componentType: "static",
+      rowType: "titleRow" 
+    },
+    {
+        field: "General Appearance", 
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "Appearance", label: "Appearance" },
+            { value: "Safety Checks", label: "Safety Checks" },
+        ]
+    },
+    { 
+        field: "Appearance", 
+        componentType: "input", 
+        hideable: true,
+        hideableId: "Appearance" // matches with assessmentSubsets's value above
+    },
+    { 
+        field: "Safety Check", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Appearance" 
+    },
     { field: "Vital Signs",
       componentType: "static",
       rowType: "titleRow" 
@@ -41,11 +67,12 @@ const vitalsTemplate: Vitals[] = [
     { 
         field: "HR", 
         componentType: "input", 
-        normalRange: {low: 60, high: 100 }},
+        normalRange: {low: 60, high: 100 }
+    },
     { 
         field: "HR Source", 
         componentType: "autocomplete",
-        autocompleteOptions: [
+        chartingOptions: [
             { value: "Apical", label: "Apical" },
             { value: "Brachial", label: "Brachial" },
             { value: "Dorsalis pedis", label: "Dorsalis pedis" },
@@ -59,7 +86,7 @@ const vitalsTemplate: Vitals[] = [
     { 
         field: "BP Source", 
         componentType: "autocomplete",
-        autocompleteOptions: [
+        chartingOptions: [
             { value: "Left upper arm", label: "Left upper arm" },
             { value: "Right upper arm", label: "Right upper arm" },
             { value: "Left lower arm", label: "Left lower arm" },
@@ -85,7 +112,7 @@ const vitalsTemplate: Vitals[] = [
     { 
         field: "Temp Source", 
         componentType: "autocomplete",
-        autocompleteOptions: [
+        chartingOptions: [
             { value: "Oral", label: "Oral" },
             { value: "Axillary", label: "Axillary" },
             { value: "Rectal", label: "Rectal" },
@@ -98,79 +125,308 @@ const vitalsTemplate: Vitals[] = [
     { 
         field: "SpO2",
         componentType: "input", 
-        normalRange: { low: 92, high: 100 }
+        normalRange: { low: 95, high: 100 }
     },
     { 
-        field: "Respiratory",
+        field: "Pain",
+        componentType: "input", 
+    },
+    { 
+        field: "Weight (kg)",
+        componentType: "input", 
+    },
+    { 
+        field: "HEENT Assessment",
         componentType: "static", 
         rowType: "titleRow" 
     },
     {
-        field: "Respiratory Assessment", // Renamed for clarity, this is the row with the popover checkbox list
+        field: "HEENT Status", 
         componentType: "checkboxlist",
-        // This array defines the options for the popover and links to hideableId
-        assessmentSubsets: [
-            { value: "WDL", label: "WDL" }, // WDL doesn't control other rows directly, it's just an option
-            { value: "Lung Sounds", label: "Lung Sounds" },
-            { value: "Cough", label: "Cough" },
-            { value: "Effort/Expansion", label: "Effort/Expansion" },
-            // ... more assessment subsets
+        assessmentSubsets: [ 
+            { value: "WDL", label: "WDL" },
+            { value: "Head & Scalp", label: "Head & Scalp" },
+            { value: "Eyes", label: "Eyes" },
+            { value: "Ears", label: "Ears" },
+            { value: "Nose", label: "Nose" },
+            { value: "Mouth & Throat", label: "Mouth & Throat" },
         ]
     },
-    // These are the rows that will be hidden/shown
+    {
+        field: "Head & Scalp", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Head & Scalp"
+    },
+    {
+        field: "Ears", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Ears"
+    },
+    {
+        field: "Nose", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Nose"
+    },
+    {
+        field: "Mouth & Throat", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Mouth & Throat"
+    },
+    {
+        field: "Neurological Assessment",
+        componentType: "static",
+        rowType: "titleRow" 
+    },
+    {
+        field: "Neurological Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "Orientation", label: "Orientation" }, 
+            { value: "Speech", label: "Speech" },
+            { value: "Motor Function", label: "Motor Function"}
+        ]
+    },
+    {
+        field: "Orientation", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Orientation"
+    },
+    {
+        field: "Speech", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Speech"
+    },
+    {
+        field: "Motor Function", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Motor Function"
+    },
+    {
+        field: "Integumentary Assessment",
+        componentType: "static",
+        rowType: "titleRow" 
+    },
+    {
+        field: "Integument Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "Skin", label: "Skin" }, 
+            { value: "Hair & Nails", label: "Hair & Nails" },
+            { value: "Turgor", label: "Turgor"},
+            { value: "Wound", label: "Wound" }
+        ]
+    },
+    {
+        field: "Skin",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Skin" 
+    },
+    {
+        field: "Hair & Nails",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Hair & Nails" 
+    },
+    {
+        field: "Turgor",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Turgor" 
+    },
+    {
+        field: "Wound",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Wound" 
+    },
+    {
+        field: "Cardiovascular Assessment",
+        componentType: "static",
+        rowType: "titleRow"
+    },
+    {
+        field: "Cardiovascular Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "Heart sounds", label: "Heart Sounds" }, 
+            { value: "Extremities", label: "Extremities" },
+            { value: "Jugular Distention", label: "Jugular Distention"},
+        ]
+    },
+    {
+        field: "Heart sounds",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Heart sounds" 
+    },
+    {
+        field: "Extremities",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Extremities" 
+    },
+    {
+        field: "Jugular Distention",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Jugular Distention" 
+    },
+    {
+        field: "Wound",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Wound" 
+    },
+    {
+        field: "Respiratory Assessment",
+        componentType: "static",
+        rowType: "titleRow"
+    },
+    {
+        field: "Respiratory Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "Appearance", label: "Appearance" }, 
+            { value: "Lung Sounds", label: "Lung Sounds" },
+        ]
+    },
+    {
+        field: "Appearance",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Appearance" 
+    },
     {
         field: "Lung Sounds",
-        componentType: "autocomplete",
-        autocompleteOptions: [
-            { value: "Clear", label: "Clear" },
-            { value: "Diminished", label: "Diminished" },
-            { value: "Wheezes", label: "Wheezes" },
-            { value: "Crackles", label: "Crackles" },
-        ],
+        componentType: "input",
         hideable: true,
-        hideableId: "Lung Sounds" // Matches the value from controlledSubsets
+        hideableId: "Lung Sounds" 
     },
     {
-        field: "Cough",
-        componentType: "input", // Or autocomplete, depending on expected input
-        hideable: true,
-        hideableId: "Cough" // Matches the value from controlledSubsets
+        field: "GI Assessment",
+        componentType: "static",
+        rowType: "titleRow"
     },
     {
-        field: "Effort/Expansion",
-        componentType: "input", // Or autocomplete
-        hideable: true,
-        hideableId: "Effort/Expansion" // Matches the value from controlledSubsets
-    },
-    { 
-        field: "Cardiac",
-        componentType: "static", 
-        rowType: "titleRow" 
-    },
-    {
-        field: "Cardiac Assessment", // Renamed for clarity, this is the row with the popover checkbox list
+        field: "GI Status",
         componentType: "checkboxlist",
-        // This array defines the options for the popover and links to hideableId
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" }, // WDL doesn't control other rows directly, it's just an option
-            { value: "Heart Sounds", label: "Heart Sounds" },
+            { value: "WDL", label: "WDL" },
+            { value: "Abdomen", label: "Abdomen" }, 
+            { value: "Bowel Sounds", label: "Bowel Sounds" },
+            { value: "Nausea", label: "Bowel Sounds"}
         ]
     },
     {
-        field: "Heart Sounds",
-        componentType: "autocomplete",
-        autocompleteOptions: [
-            { value: "S1, S2", label: "S1, S2" },
-            { value: "S3", label: "S3" },
-            { value: "Murmur", label: "Murmur" },
-        ],
+        field: "Abdomen",
+        componentType: "input",
         hideable: true,
-        hideableId: "Heart Sounds" // Matches the value from controlledSubsets
+        hideableId: "Abdomen" 
     },
+    {
+        field: "Bowel Sounds",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Bowel Sounds" 
+    },
+    {
+        field: "Nausea",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Nausea" 
+    },
+    {
+        field: "Musculoskeletal Assessment",
+        componentType: "static",
+        rowType: "titleRow"
+    },
+    {
+        field: "Musculoskeletal Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "Extremity ROM", label: "Extremity ROM" },
+            { value: "Gait", label: "Gait" }, 
+        ]
+    },
+    {
+        field: "Extremity ROM",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Extremity ROM" 
+    },
+    {
+        field: "Gait",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Gait" 
+    },
+    {
+        field: "Genitourinary Assessment",
+        componentType: "static",
+        rowType: "titleRow"
+    },
+    {
+        field: "Genitourinary Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "Voiding", label: "Voiding" },
+            { value: "Urine", label: "Urine" }, 
+        ]
+    },
+    {
+        field: "Voiding",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Voiding" 
+    },
+    {
+        field: "Urine",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Urine" 
+    },
+    {
+        field: "Additional Assessment Tools",
+        componentType: "static",
+        rowType: "titleRow"
+    },
+    {
+        field: "Tools",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "CIWA-AR", label: "CIWA-AR" },
+            { value: "Braden Scale", label: "Braden Scale" }, 
+        ]
+    },
+    {
+        field: "CIWA-AR",
+        componentType: "input",
+        hideable: true,
+        hideableId: "CIWA-AR" 
+    },
+    {
+        field: "Braden Scale",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Braden Scale" 
+    },
+    
 ];
 
 export const getInitialDynamicHours = (currHour: number) => {
-        return Array.from({length: 8}, (_, index) => {
+        return Array.from({length: 2}, (_, index) => {
             const adjustedHour = (currHour + index) % 24
             return `${adjustedHour.toString().padStart(2, "0")}00`
         }); 
@@ -215,15 +471,15 @@ export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVit
 export const generateInitialVitalsData = (
     allTimesColumns: string[],
     staticTimesMap: Map<string,number>
-): Vitals[] => {
-    const generatedData: Vitals[] = []
+): tableData[] => {
+    const generatedData: tableData[] = []
 
     vitalsTemplate.forEach(templateRow => {
-        const newRow: Vitals = {
+        const newRow: tableData = {
             field: templateRow.field,
             componentType: templateRow.componentType,
             rowType: templateRow.rowType,
-            ...(templateRow.autocompleteOptions && { autocompleteOptions: templateRow.autocompleteOptions }),
+            ...(templateRow.chartingOptions && { chartingOptions: templateRow.chartingOptions }),
             ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
             ...(templateRow.hideable && { hideable: templateRow.hideable }),
             ...(templateRow.hideableId && { hideableId: templateRow.hideableId }),

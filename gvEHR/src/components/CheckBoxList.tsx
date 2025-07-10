@@ -4,10 +4,10 @@ import { Label } from "./ui/label";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button"; // Make sure Button is imported
 import { Checkbox } from "./ui/checkbox";
-import type { AutocompleteOptions } from "@/tableData";
+import type { chartingOptions } from "@/tableData";
 
 interface CheckBoxListProps {
-    options: AutocompleteOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)
+    options: chartingOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)
     selectedOptions: string[]; // The currently selected options (values) from the parent
     field: string;
     onSelectionChange: (field: string, selectedValues: string[]) => void; // Callback to notify parent of changes
