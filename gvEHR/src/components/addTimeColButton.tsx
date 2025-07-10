@@ -1,0 +1,107 @@
+import { useState, useCallback } from "react";
+import { Button } from "./ui/button"; 
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"; 
+import { TimePickerInput } from "./ui/time-picker-input"; 
+import { Clock, Plus } from "lucide-react";
+import { toast } from "sonner"; 
+
+interface AddTimeColumnButtonProps {
+    onColumnAdd: (timeString: string) => void;
+    existingTimeColumns: string[];
+}
+
+export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTimeColumnButtonProps) {
+    const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date());
+    const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+
+    const handleAddTime = useCallback(() => {
+        const now = new Date();
+        const addedTime = now.toLocaleTimeString("en-GB", {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }).replace(":", '');
+
+        if (existingTimeColumns.includes(addedTime)) {
+            toast.error(`Time at ${addedTime} already exists`, {
+                description: "Please choose a different time or use an existing column.",
+            });
+            return;
+        }
+
+        onColumnAdd(addedTime); 
+        toast.success(`Time column added at ${addedTime}`);
+    }, [onColumnAdd, existingTimeColumns]); 
+
+    const handleAddUserDefinedTime = useCallback(() => {
+        if (!selectedTime) {
+            toast.error("Please select a time to add.", {
+                description: "The time field cannot be empty.",
+            });
+            return;
+        }
+
+        const addedTime = selectedTime.toLocaleTimeString("en-GB", {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }).replace(":", '');
+
+        if (existingTimeColumns.includes(addedTime)) {
+            toast.error(`Time at ${addedTime} already exists`, {
+                description: "Please choose a different time or use an existing column.",
+            });
+            return;
+        }
+
+        onColumnAdd(addedTime); 
+        setIsPopoverOpen(false); 
+        setSelectedTime(new Date(0,0,0,0,0,0,0)); 
+        toast.success(`Time column added at ${addedTime}`);
+    }, [selectedTime, existingTimeColumns, onColumnAdd, setIsPopoverOpen]); 
+    return (
+        <div className="flex gap-4">
+            <Button onClick={handleAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Time
+            </Button>
+
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                <PopoverTrigger asChild>
+                    <Button className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
+                        <Clock className="mr-2 h-4 w-4" />
+                        Insert Time
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="z-3 p-3 flex flex-col bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
+                    <div className="flex justify-around">
+                        <h1 className="text-center font-normal text-sm">Hours</h1>
+                        <h1 className="text-center font-normal text-sm">Minutes</h1>
+                    </div>
+                    <div className="flex mt-2 mb-4 gap-1">
+                        <TimePickerInput
+                            picker={'hours'}
+                            setDate={setSelectedTime}
+                            date={selectedTime}
+                            className="bg-gray-100/50 border border-gray-300 focus:border-0"
+                        />
+                        <span>:</span>
+                        <TimePickerInput
+                            picker={'minutes'}
+                            setDate={setSelectedTime}
+                            date={selectedTime}
+                            className="bg-gray-100/50 border border-gray-300 focus:border-0"
+                        />
+                    </div>
+                    <Button
+                        variant="secondary"
+                        onClick={handleAddUserDefinedTime}
+                        className="w-full"
+                    >
+                        Insert Time
+                    </Button>
+                </PopoverContent>
+            </Popover>
+        </div>
+    );
+}

@@ -1,74 +1,98 @@
-import { Label } from "./ui/label"
-import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover"
-import { Button } from "./ui/button"
-import { Checkbox } from "./ui/checkbox"
+// src/components/CheckBoxList.tsx
+import React, { useState, useEffect } from 'react';
+import { Label } from "./ui/label";
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
+import { Button } from "./ui/button"; // Make sure Button is imported
+import { Checkbox } from "./ui/checkbox";
+import type { AutocompleteOptions } from "@/tableData";
 
-
-const CheckBoxList = () => {
-    return (
-        <Popover>
-        <PopoverTrigger asChild>
-            <Button className="h-6 w-full rounded-none m-0 bg-transparent shadow-none hover:bg-muted/30 text-black p-0"></Button>
-        </PopoverTrigger>
-        <PopoverContent className="bg-white p-0 shadow-md shadow-black/30 border rounded-xl">
-            <Label className="hover:bg-accent/50 flex items-start gap-3 border-b p-2 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
-                <Checkbox
-                id="toggle-2"
-                
-                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
-                />
-                <p className="text-sm leading-none font-normal">
-                    WDL
-                </p>
-            </Label>
-            <Label className="bg-accent/50 flex items-start gap-3 border-b p-2 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
-                <p className="pl-4 text-sm leading-none font-normal">
-                    WDL, except:
-                </p>
-            </Label>
-            <Label className="hover:bg-accent/50 flex items-start gap-3 border-b p-2 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
-                <Checkbox
-                id="toggle-2"
-                
-                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
-                />
-                <p className="text-sm leading-none font-normal">
-                    Lung Sounds
-                </p>
-            </Label>
-            <Label className="hover:bg-accent/50 flex items-start gap-3 border-b p-2 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
-                <Checkbox
-                id="toggle-2"
-                
-                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
-                />
-                <p className="text-sm leading-none font-normal">
-                    Cough
-                </p>
-            </Label>
-            <Label className="hover:bg-accent/50 flex items-start gap-3 border-b p-2 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
-                <Checkbox
-                id="toggle-2"
-                
-                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
-                />
-                <p className="text-sm leading-none font-normal">
-                    Rhythm/Pattern
-                </p>
-            </Label>
-            <Label className="hover:bg-accent/50 flex items-start gap-3 p-2 has-[[aria-checked=true]]:border-gray-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
-                <Checkbox
-                id="toggle-2"
-                
-                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
-                />
-                <p className="text-sm leading-none font-normal">
-                    Effort/Expansion
-                </p>
-            </Label>
-        </PopoverContent>
-    </Popover>
-    )
+interface CheckBoxListProps {
+    options: AutocompleteOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)
+    selectedOptions: string[]; // The currently selected options (values) from the parent
+    onSelectionChange: (selectedValues: string[]) => void; // Callback to notify parent of changes
 }
 
-export default CheckBoxList
+const CheckBoxList: React.FC<CheckBoxListProps> = ({ options, selectedOptions, onSelectionChange }) => {
+    // Local state to manage the checkboxes within the popover
+    const [localSelected, setLocalSelected] = useState<Set<string>>(new Set(selectedOptions));
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+    // Sync local state with parent prop when parent's selectedOptions change
+    // useEffect(() => {
+    //     setLocalSelected(new Set(selectedOptions));
+    // }, [selectedOptions]);
+
+    const handleCheckboxChange = (value: string, checked: boolean) => {
+        setLocalSelected(prev => {
+            const newSet = new Set(prev);
+            if (checked) {
+                newSet.add(value);
+            } else {
+                newSet.delete(value);
+            }
+            console.log(newSet)
+            return newSet;
+        });
+    };
+
+    const handleApplyClick = () => {
+        // When the "Apply" button is clicked, notify the parent of the final selections
+        onSelectionChange(Array.from(localSelected));
+        setIsPopoverOpen(false); // Close the popover after applying
+    };
+
+    const handleCancelClick = () => {
+        // If "Cancel" is clicked, revert to the parent's current selections and close
+        setLocalSelected(new Set(selectedOptions)); // Revert local changes
+        setIsPopoverOpen(false);
+    };
+
+    return (
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}> 
+            <PopoverTrigger asChild>
+                <Button className="h-6 w-full rounded-none m-0 bg-transparent shadow-none hover:bg-muted/30 p-0 font-normal text-xs text-black">
+                    {[...localSelected].join(', ') || "0"}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-fit bg-white p-0 shadow-md shadow-black/30 border rounded-xl">
+                <div className="p-1"> {/* Added padding for content */}
+                    {options.map((option) => (
+                        <Label
+                            key={option.value}
+                            className="hover:bg-accent/50 flex text-xs  items-center gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
+                        >
+                            <Checkbox
+                                id={`checkbox-${option.value}`}
+                                checked={localSelected.has(option.value)}
+                                onCheckedChange={(checked) => handleCheckboxChange(option.value, checked as boolean)}
+                                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
+                            />
+                            <p className="text-xs leading-none font-normal">
+                                {option.label}
+                            </p>
+                        </Label>
+                    ))}
+                </div>
+                <div className="flex justify-center gap-2 p-2 border-t"> {/* Buttons at the bottom */}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelClick}
+                        className='text-xs py-1 px-2'
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={handleApplyClick}
+                        className='text-xs py-1 px-2 bg-lime-700'
+                    >
+                        Apply
+                    </Button>
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+};
+
+export default CheckBoxList;

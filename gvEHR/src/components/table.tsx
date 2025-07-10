@@ -4,13 +4,11 @@ import type { Vitals, AutocompleteOptions } from "../tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
 import { generateInitialVitalsData, getAllInitialHours } from "../tableData";
 import { Input } from "./ui/input";
-import { Button } from "./ui/button";
 import { AutoComplete } from "./autocomplete";
-import { Clock, Plus } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { TimePickerInput } from "./ui/time-picker-input";
 import { Toaster, toast } from "sonner";
 import CheckBoxList from "./CheckBoxList";
+import { AddTimeColumnButton } from "./addTimeColButton";
+import { Button } from "./ui/button";
 
 const columnHelper = createColumnHelper<Vitals>();
 
@@ -27,11 +25,28 @@ function getPinnedStyles(column: any): React.CSSProperties {
 export function PtTable() {
     const { allTimesColumns, predefinedVitalsTimeMap } = useMemo(() => getAllInitialHours(), [])
 
-    const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date())
     const [timeColumns, setTimeColumns] = useState(allTimesColumns)
-    const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false)
-    const [data, setData] = useState(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap));
+    const [visibleSubsetIds, setVisibleSubsetIds] = useState<Set<string>>(new Set());
+    
+    const initialData = useMemo(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
+    
+    const filteredData = useMemo(() => {
+            return initialData.filter(row => {
+                if (row.hideable) {
+                    // Only show hideable rows if their specific hideableId is in the set
+                    return row.hideableId && visibleSubsetIds.has(row.hideableId);
+                }
+                return true; // Always show non-hideable rows (including title rows and the checkboxlist row itself)
+            });
+        }, [initialData, visibleSubsetIds]);
+    
+    const [data, setData] = useState<Vitals[]>(filteredData);
+    
+    useEffect(() => {
+        setData(filteredData);
+    }, [filteredData]);
 
+    
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 
             oldData.map(row => {
@@ -45,6 +60,27 @@ export function PtTable() {
             })
         );
     },  [])
+
+    const handleSubsetSelection = useCallback((selectedIds: string[]) => {
+        // Convert the array of selected IDs to a Set for efficient lookup
+        setVisibleSubsetIds(new Set(selectedIds));
+    }, []);
+
+
+    const handleColumnAdd = useCallback((newTime: string) => {
+        setTimeColumns(prevColumns => {
+            const updatedColumns = [...prevColumns, newTime].sort();
+            return updatedColumns;
+        });
+
+        setData(prevData =>
+            prevData.map(row => {
+                const newRow = { ...row };
+                newRow[newTime] = '';
+                return newRow;
+            })
+        );
+    }, []);
 
     const displayDate = () => {
         const todayDate = new Date()
@@ -61,7 +97,7 @@ export function PtTable() {
                 header: () => "",
                 cell: info => {
                     const rowType = info.row.original.rowType
-                    console.log(rowType)
+                    console.log(info.row.original.field)
                     if (rowType === "titleRow") {
                         return (
                             <p className="min-w-24 h-6 text-left font-medium py-0 pl-4 text-sm text-lime-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.row.original.field}</p>
@@ -120,10 +156,6 @@ export function PtTable() {
                             return (
                                 <p></p>
                             );
-                        } else if(componentType === "solidRow") {
-                            return (
-                                <div className="h-6 w-full bg-gray-100"></div>
-                            )
                         } else if(componentType === "autocomplete") {
                             return (
                                 <AutoComplete
@@ -134,9 +166,16 @@ export function PtTable() {
                                 />
                             )
                         } else if (componentType === "checkboxlist") {
+                            const optionsForCheckboxList = row.original.assessmentSubsets || [];
+                            const currentSelectedSubsetIds = Array.from(visibleSubsetIds); // Convert Set to Array for props
+                            
                             return (
-                                <CheckBoxList></CheckBoxList>
-                            )
+                                <CheckBoxList
+                                    options={optionsForCheckboxList}
+                                    selectedOptions={currentSelectedSubsetIds}
+                                    onSelectionChange={handleSubsetSelection}
+                                />
+                            );
                         } else {
                             return (
                                 <Input
@@ -174,122 +213,12 @@ export function PtTable() {
         console.log(data)
     }, [data]);
 
-    const onAddTime = useCallback(() => {
-        const now = new Date()
-        
-        const addedTime = now.toLocaleTimeString("en-GB", {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        }).replace(":", '')
-        console.log(addedTime)
-
-        if(timeColumns.includes(addedTime)) {   
-            toast.error(`Time at ${addedTime} already exists`, {
-                description: "Please choose a different time or use an existing column.",
-            });
-            return;
-        }
-
-        setTimeColumns(prevColumns => {
-            const updatedColumns = [...prevColumns, addedTime ].sort();
-            return updatedColumns;
-        });
-
-        setData(prevData =>
-            prevData.map(row => {
-                const newRow = {...row};
-                newRow[addedTime] = '';
-                return newRow
-            })
-        );
-
-        toast.success(`Time column added at ${addedTime}`)
-        
-    }, [timeColumns, data]);
-
-    const onAddUserDefinedTime = useCallback(() => {
-        if (!selectedTime) {
-            alert("Please select a time to add.");
-            return;
-        }
-
-        const addedTime = selectedTime.toLocaleTimeString("en-GB", {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        }).replace(":", '');
-
-        if (timeColumns.includes(addedTime)) {
-            toast.error(`Time at ${addedTime} already exists`, {
-                description: "Please choose a different time or use an existing column.",
-            });
-            return;
-        }
-
-        setTimeColumns(prevColumns => {
-            const updatedColumns = [...prevColumns, addedTime].sort();
-            return updatedColumns;
-        });
-
-        setData(prevData =>
-            prevData.map(row => {
-                const newRow = { ...row };
-                newRow[addedTime] = ''; 
-                return newRow
-            })
-        );
-        setIsPopoverOpen(false)
-        setSelectedTime(new Date(0, 0, 0, 0))
-        toast.success(`Time column added at ${addedTime}`)
-        }, [selectedTime, timeColumns, setData, setTimeColumns]);
    
     return (
     <div className="flex flex-col justify-center items-center mt-4">
       <Toaster position="top-right" />
       <div className="flex gap-4">
-        <Button onClick={onAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
-            <Plus />
-            Add Col
-        </Button>
-        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen} >
-            <PopoverTrigger asChild className="">
-                <Button 
-                    className="bg-gray-100 text-black mb-4 hover:bg-gray-200"
-                >
-                    <Clock />
-                    Insert Col
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="z-3 p-3 flex flex-col bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
-                <div className="flex justify-around">
-                    <h1 className="text-center font-normal text-sm">Hours</h1>
-                    <h1 className="text-center font-normal text-sm">Minutes</h1>
-                </div>
-                <div className="flex mt-2 mb-4 gap-1">
-                    <TimePickerInput
-                        picker={'hours'}
-                        setDate={setSelectedTime}
-                        date={selectedTime} 
-                        className="bg-gray-100/50 border border-gray-300 focus:border-0"
-                    />
-                    <span>:</span>
-                    <TimePickerInput 
-                        picker={'minutes'} 
-                        setDate={setSelectedTime} 
-                        date={selectedTime}
-                        className="bg-gray-100/50 border border-gray-300 focus:border-0"
-                    />
-                </div>
-                    <Button 
-                        variant="secondary"
-                        onClick={onAddUserDefinedTime}
-                        className=""
-                    >    
-                        Insert Time
-                    </Button>
-            </PopoverContent>
-        </Popover>
+        <AddTimeColumnButton onColumnAdd={handleColumnAdd} existingTimeColumns={timeColumns}></AddTimeColumnButton>
       </div>
       <div className="relative w-full overflow-x-auto border-1 border-gray-200 rounded-md">
       <Table className="w-full">
@@ -325,7 +254,7 @@ export function PtTable() {
                   <TableCell
                     style={getPinnedStyles(cell.column)}
                     key={cell.id}
-                    className={`p-0 min-w-32 text-sm bg-white text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "" : "border-r"}`}
+                    className={`p-0 min-w-32 text-sm  text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
                   >
                     {/* Render the cell content using flexRender */}
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

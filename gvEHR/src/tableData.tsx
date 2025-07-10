@@ -8,8 +8,12 @@ export interface Vitals {
     componentType: string;
     rowType?: string;
     autocompleteOptions?: AutocompleteOptions[];
-    normalRange?: {low: number, high: number}
-    [key: string]: string | AutocompleteOptions[] | undefined | {low: number, high: number};
+    normalRange?: {low: number, high: number},
+    hideable?: boolean,
+    hideableId?: string,
+    assessmentSubsets?: { value: string, label: string }[];
+    [key: string]: any;
+
 };
 
 const formatTime = (date: Date): string => {
@@ -29,13 +33,7 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
     "SpO2": {90: "99", 60: "98"},
 }
 
-const vitalsTemplate: {
-    field: string;
-    componentType: "input" | "autocomplete" | "static" | "solidRow" | "checkboxlist";
-    rowType?: string;
-    autocompleteOptions?: AutocompleteOptions[];
-    normalRange?: {low: number, high: number}
-}[] = [
+const vitalsTemplate: Vitals[] = [
     { field: "Vital Signs",
       componentType: "static",
       rowType: "titleRow" 
@@ -103,26 +101,73 @@ const vitalsTemplate: {
         normalRange: { low: 92, high: 100 }
     },
     { 
-        field: "rowBreak",
-        componentType: "solidRow", 
+        field: "Respiratory",
+        componentType: "static", 
+        rowType: "titleRow" 
     },
     {
-        field: "Respiratory",
-        rowType: "titleRow",
-        componentType: "static"
+        field: "Respiratory Assessment", // Renamed for clarity, this is the row with the popover checkbox list
+        componentType: "checkboxlist",
+        // This array defines the options for the popover and links to hideableId
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" }, // WDL doesn't control other rows directly, it's just an option
+            { value: "Lung Sounds", label: "Lung Sounds" },
+            { value: "Cough", label: "Cough" },
+            { value: "Effort/Expansion", label: "Effort/Expansion" },
+            // ... more assessment subsets
+        ]
+    },
+    // These are the rows that will be hidden/shown
+    {
+        field: "Lung Sounds",
+        componentType: "autocomplete",
+        autocompleteOptions: [
+            { value: "Clear", label: "Clear" },
+            { value: "Diminished", label: "Diminished" },
+            { value: "Wheezes", label: "Wheezes" },
+            { value: "Crackles", label: "Crackles" },
+        ],
+        hideable: true,
+        hideableId: "Lung Sounds" // Matches the value from controlledSubsets
     },
     {
-        field: "Respiratory",
-        componentType: "checkboxlist"
+        field: "Cough",
+        componentType: "input", // Or autocomplete, depending on expected input
+        hideable: true,
+        hideableId: "Cough" // Matches the value from controlledSubsets
     },
     {
-        field: "Respiratory",
-        componentType: "static"
+        field: "Effort/Expansion",
+        componentType: "input", // Or autocomplete
+        hideable: true,
+        hideableId: "Effort/Expansion" // Matches the value from controlledSubsets
     },
-
-
+    { 
+        field: "Cardiac",
+        componentType: "static", 
+        rowType: "titleRow" 
+    },
+    {
+        field: "Cardiac Assessment", // Renamed for clarity, this is the row with the popover checkbox list
+        componentType: "checkboxlist",
+        // This array defines the options for the popover and links to hideableId
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" }, // WDL doesn't control other rows directly, it's just an option
+            { value: "Heart Sounds", label: "Heart Sounds" },
+        ]
+    },
+    {
+        field: "Heart Sounds",
+        componentType: "autocomplete",
+        autocompleteOptions: [
+            { value: "S1, S2", label: "S1, S2" },
+            { value: "S3", label: "S3" },
+            { value: "Murmur", label: "Murmur" },
+        ],
+        hideable: true,
+        hideableId: "Heart Sounds" // Matches the value from controlledSubsets
+    },
 ];
-
 
 export const getInitialDynamicHours = (currHour: number) => {
         return Array.from({length: 8}, (_, index) => {
@@ -180,6 +225,10 @@ export const generateInitialVitalsData = (
             rowType: templateRow.rowType,
             ...(templateRow.autocompleteOptions && { autocompleteOptions: templateRow.autocompleteOptions }),
             ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
+            ...(templateRow.hideable && { hideable: templateRow.hideable }),
+            ...(templateRow.hideableId && { hideableId: templateRow.hideableId }),
+            ...(templateRow.assessmentSubsets && { assessmentSubsets: templateRow.assessmentSubsets})
+
         };
 
         allTimesColumns.forEach(hour => {
