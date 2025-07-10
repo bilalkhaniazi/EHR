@@ -8,7 +8,6 @@ import { AutoComplete } from "./autocomplete";
 import { Toaster, toast } from "sonner";
 import CheckBoxList from "./CheckBoxList";
 import { AddTimeColumnButton } from "./addTimeColButton";
-import { Button } from "./ui/button";
 
 const columnHelper = createColumnHelper<Vitals>();
 
@@ -26,9 +25,23 @@ export function PtTable() {
     const { allTimesColumns, predefinedVitalsTimeMap } = useMemo(() => getAllInitialHours(), [])
 
     const [timeColumns, setTimeColumns] = useState(allTimesColumns)
-    const [visibleSubsetIds, setVisibleSubsetIds] = useState<Set<string>>(new Set());
-    
+    const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
+
     const initialData = useMemo(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
+    
+    const visibleSubsetIds = useMemo(() => {
+        const combinedSet = new Set<string>();
+        Object.values(fieldSelections).forEach(selectedIdsArray => {
+            selectedIdsArray.forEach(id => {
+                // IMPORTANT: Only add to combinedSet if it's NOT "WDL"
+                // WDL is an option in the checkboxlist but doesn't map to a hideableId row.
+                if (id !== "WDL") {
+                    combinedSet.add(id);
+                }
+            });
+        });
+        return combinedSet;
+    }, [fieldSelections]);
     
     const filteredData = useMemo(() => {
             return initialData.filter(row => {
@@ -47,6 +60,9 @@ export function PtTable() {
     }, [filteredData]);
 
     
+
+
+    
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 
             oldData.map(row => {
@@ -61,9 +77,11 @@ export function PtTable() {
         );
     },  [])
 
-    const handleSubsetSelection = useCallback((selectedIds: string[]) => {
-        // Convert the array of selected IDs to a Set for efficient lookup
-        setVisibleSubsetIds(new Set(selectedIds));
+    const handleSubsetSelection = useCallback((field: string, selectedIdsForField: string[]) => {
+        setFieldSelections(prev => ({
+            ...prev,
+            [field]: selectedIdsForField // Update only the selections for this specific field
+        }));
     }, []);
 
 
@@ -166,13 +184,15 @@ export function PtTable() {
                                 />
                             )
                         } else if (componentType === "checkboxlist") {
-                            const optionsForCheckboxList = row.original.assessmentSubsets || [];
-                            const currentSelectedSubsetIds = Array.from(visibleSubsetIds); // Convert Set to Array for props
+                            const assessmentSubsets = row.original.assessmentSubsets || [];
+                            // Pass the selections relevant to THIS specific checkboxlist field
+                            const currentSelectedForThisField = fieldSelections[row.original.field] || [];
                             
                             return (
                                 <CheckBoxList
-                                    options={optionsForCheckboxList}
-                                    selectedOptions={currentSelectedSubsetIds}
+                                    options={assessmentSubsets}
+                                    selectedOptions={currentSelectedForThisField}
+                                    field={row.original.field}
                                     onSelectionChange={handleSubsetSelection}
                                 />
                             );
