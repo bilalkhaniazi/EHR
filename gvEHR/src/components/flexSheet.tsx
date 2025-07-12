@@ -8,6 +8,9 @@ import { Toaster, toast } from "sonner";
 import CheckBoxList from "./CheckBoxList";
 import { AddTimeColumnButton } from "./addTimeColButton";
 import AssessmentSelect from "./AssessmentSelect";
+import { Tooltip, TooltipTrigger } from "./ui/tooltip";
+import { TooltipContent } from "@radix-ui/react-tooltip";
+import { TooltipPortal } from "@radix-ui/react-tooltip";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -22,7 +25,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
-export function PtTable() {
+export function FlexSheet() {
     // list of predefined and dynamically-generated hours, and map of time-offsets to real-time equivalents
     const { allTimesColumns, predefinedVitalsTimeMap } = useMemo(() => getAllInitialHours(), [])
 
@@ -90,9 +93,11 @@ export function PtTable() {
 
 
     const handleSubsetSelection = useCallback((field: string, columnId: string, selectedIdsForField: string[]) => {
+        const selectionKey = `${field}-${columnId}`;
+
         setFieldSelections(prev => ({
             ...prev,
-            [field]: selectedIdsForField // Update only the selections for this specific field
+            [selectionKey]: selectedIdsForField // Update only the selections for this specific field
         }));
         onCellUpdate(field, columnId, selectedIdsForField)
     }, []);
@@ -113,13 +118,13 @@ export function PtTable() {
         );
     }, []);
 
-    const displayDate = () => {
+    const displayDate = useMemo(() => {
         const todayDate = new Date()
         return todayDate.toLocaleDateString("en-US", {
             month: "numeric",
             day: "numeric",
         });
-    }
+    }, []);
 
     const columns = useMemo(
         () => [
@@ -130,8 +135,28 @@ export function PtTable() {
                     const rowType = info.row.original.rowType
                     // console.log(info.row.original.field)
                     if (rowType === "titleRow") {
+                        const wdlDescription = info.row.original.wdlDescription || [{assessment: "fake", description: "fake"}]
                         return (
-                            <p className="min-w-24 h-6 text-left font-medium py-0 pl-4 text-sm text-lime-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.row.original.field}</p>
+                            <Tooltip>
+                                <TooltipTrigger
+                                    className="px-2 font-medium text-lime-900"
+                                >
+                                    {info.row.original.field}
+                                </TooltipTrigger>
+                                <TooltipPortal>
+                                <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm"> 
+                                    <h1 className="text-md font-bold">WDL Criterion</h1>
+                                    <div className="space-y-2"> {/* Add spacing between items */}
+                                        {wdlDescription.map((row, index) => (
+                                            <div key={index} className="text-sm">
+                                                <p className="pl-2 font-semibold text-gray-800 text-wrap">{row.assessment}:</p> 
+                                                <p className="pl-4 text-gray-600 italic text-wrap">{row.description}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </TooltipContent>
+                                </TooltipPortal>
+                            </Tooltip>
                         )
                     } 
                     else {
@@ -148,7 +173,7 @@ export function PtTable() {
                     id: timeKey,
                     header: () => (
                         <div className="flex flex-col justify-center items-center">
-                            <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate()}</h2>
+                            <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
                             <h1 className="mb-1">{timeKey}</h1>
                         </div>
                     ),
@@ -182,13 +207,15 @@ export function PtTable() {
                             )
                         } else if (componentType === "checkboxlist") {
                             const assessmentSubsets = row.original.assessmentSubsets || [];
-                            // Pass the selections relevant to THIS specific checkboxlist field
-                            const currentSelectedForThisField = fieldSelections[row.original.field] || [];
+                            
+                            // unique key because currentSelectedSubsets are coming from fieldSelections, not Data
+                            const selectionKey = `${row.original.field}-${column.id}`
+                            const currentSelectedSubsets = fieldSelections[selectionKey] || [];
                             
                             return (
                                 <CheckBoxList
                                     options={assessmentSubsets}
-                                    selectedOptions={currentSelectedForThisField}
+                                    selectedOptions={currentSelectedSubsets}
                                     field={row.original.field}
                                     columnId={column.id}
                                     onSelectionChange={handleSubsetSelection}
@@ -214,7 +241,7 @@ export function PtTable() {
                                     (e.target as HTMLInputElement).blur();
                                 }
                             };
-                            
+
                             return (
                                 <Input
                                     id={`cell-${row.id}-${column.id}`} 

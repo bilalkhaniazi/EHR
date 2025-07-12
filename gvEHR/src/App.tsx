@@ -1,18 +1,13 @@
-import Layout from './layout.tsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import SimStudio from './SimStudio.tsx'
-import StudentDash from './StudentDash.tsx'
-import { PtTable } from './components/table.tsx'
+import { FlexSheet } from './components/flexSheet.tsx'
 
 function App() {
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<SimStudio />} />
-        </Route>
-            <Route path="/table" element={<PtTable />} />
+          <Route path="/" element={<FlexSheet />} />
+          <Route path="/table" element={<FlexSheet />} />
         </Routes> 
     </BrowserRouter>
   )

@@ -8,6 +8,7 @@ export interface tableData {
     componentType: string;
     rowType?: string;
     chartingOptions?: chartingOptions[];
+    wdlDescription?: {assessment: string, description: string }[];
     normalRange?: {low: number, high: number},
     hideable?: boolean,
     hideableId?: string,
@@ -37,7 +38,11 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
 const vitalsTemplate: tableData[] = [
     { field: "General Appearance",
       componentType: "static",
-      rowType: "titleRow" 
+      rowType: "titleRow",
+      wdlDescription: [
+        {assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
+        {assessment: "Safety", description: "call‑light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
+    ] 
     },
     {
         field: "General Appearance", 
@@ -187,7 +192,11 @@ const vitalsTemplate: tableData[] = [
     {
         field: "Neurological Assessment",
         componentType: "static",
-        rowType: "titleRow" 
+        rowType: "titleRow", 
+        wdlDescription: [
+            {assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
+            {assessment: "Safety", description: "call‑light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
+    ] 
     },
     {
         field: "Neurological Status",
@@ -496,7 +505,8 @@ export const generateInitialVitalsData = (
             ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
             ...(templateRow.hideable && { hideable: templateRow.hideable }),
             ...(templateRow.hideableId && { hideableId: templateRow.hideableId }),
-            ...(templateRow.assessmentSubsets && { assessmentSubsets: templateRow.assessmentSubsets})
+            ...(templateRow.assessmentSubsets && { assessmentSubsets: templateRow.assessmentSubsets}),
+            ...(templateRow.wdlDescription && { wdlDescription: templateRow.wdlDescription })
 
         };
 
