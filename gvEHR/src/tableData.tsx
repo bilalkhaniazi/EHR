@@ -44,6 +44,7 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Appearance", label: "Appearance" },
             { value: "Safety Checks", label: "Safety Checks" },
         ]
@@ -145,6 +146,7 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [ 
             { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Head & Scalp", label: "Head & Scalp" },
             { value: "Eyes", label: "Eyes" },
             { value: "Ears", label: "Ears" },
@@ -192,6 +194,7 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Orientation", label: "Orientation" }, 
             { value: "Speech", label: "Speech" },
             { value: "Motor Function", label: "Motor Function"}
@@ -225,6 +228,7 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Skin", label: "Skin" }, 
             { value: "Hair & Nails", label: "Hair & Nails" },
             { value: "Turgor", label: "Turgor"},
@@ -265,6 +269,7 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Heart sounds", label: "Heart Sounds" }, 
             { value: "Extremities", label: "Extremities" },
             { value: "Jugular Distention", label: "Jugular Distention"},
@@ -298,15 +303,16 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
-            { value: "Appearance", label: "Appearance" }, 
+            { value: "WDL, except:", label: "WDL, except:" },
+            { value: "Chest Appearance", label: "Chest Appearance" }, 
             { value: "Lung Sounds", label: "Lung Sounds" },
         ]
     },
     {
-        field: "Appearance",
+        field: "Chest Appearance",
         componentType: "input",
         hideable: true,
-        hideableId: "Appearance" 
+        hideableId: "Chest Appearance" 
     },
     {
         field: "Lung Sounds",
@@ -324,6 +330,7 @@ const vitalsTemplate: tableData[] = [
         componentType: "checkboxlist",
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Abdomen", label: "Abdomen" }, 
             { value: "Bowel Sounds", label: "Bowel Sounds" },
             { value: "Nausea", label: "Bowel Sounds"}
@@ -356,6 +363,8 @@ const vitalsTemplate: tableData[] = [
         field: "Musculoskeletal Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Extremity ROM", label: "Extremity ROM" },
             { value: "Gait", label: "Gait" }, 
         ]
@@ -381,6 +390,8 @@ const vitalsTemplate: tableData[] = [
         field: "Genitourinary Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
             { value: "Voiding", label: "Voiding" },
             { value: "Urine", label: "Urine" }, 
         ]

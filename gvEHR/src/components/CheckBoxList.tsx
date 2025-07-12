@@ -10,9 +10,8 @@ interface CheckBoxListProps {
     options: chartingOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)
     selectedOptions: string[]; // The currently selected options (values) from the parent
     field: string;
-    rowId: string;
     columnId: string;
-    onSelectionChange: (field: string, selectedValues: string[]) => void; // Callback to notify parent of changes
+    onSelectionChange: (field: string, columnId: string, selectedValues: string[]) => void; // Callback to notify parent of changes
 }
 
 const CheckBoxList: React.FC<CheckBoxListProps> = ({ 
@@ -20,8 +19,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
     selectedOptions,
     field,
     onSelectionChange,
-    rowId,
-    columnId
+    columnId,
 }) => {
     // Local state to manage the checkboxes within the popover
     const [localSelected, setLocalSelected] = useState<Set<string>>(new Set(selectedOptions));
@@ -47,7 +45,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
 
     const handleApplyClick = () => {
         // When the "Apply" button is clicked, notify the parent of the final selections
-        onSelectionChange(field, Array.from(localSelected));
+        onSelectionChange(field, columnId, Array.from(localSelected));
         setIsPopoverOpen(false); // Close the popover after applying
     };
 
@@ -59,29 +57,47 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
 
     return (
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}> 
-            <PopoverTrigger asChild className='max-w-full justify-start'>
-                <Button className="h-6 w-32 rounded-none px-2 overflow-hidden bg-transparent shadow-none hover:bg-muted/30 font-normal text-xs text-black">
+            <PopoverTrigger asChild className='justify-start w-full gap-0 px-0'>
+                <Button className="h-6 w-full rounded-none px-2 overflow-hidden bg-transparent shadow-none hover:bg-muted/30 font-normal text-xs text-black">
                     {[...localSelected].join(', ') || ""}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-fit bg-white p-0 shadow-md shadow-black/30 border rounded-xl">
-                <div className=""> 
-                    {options.map((option) => (
-                        <Label
-                            key={`cell-${field}-${columnId}`}
-                            className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
-                        >
-                            <Checkbox
-                                id={`cell-${field}-${columnId}`}
-                                checked={localSelected.has(option.value)}
-                                onCheckedChange={(checked) => handleCheckboxChange(option.value, checked as boolean)}
-                                className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
-                            />
-                            <p className="text-xs text-left leading-none font-normal">
-                                {option.label}
-                            </p>
-                        </Label>
-                    ))}
+            <PopoverContent className="w-full bg-white p-0 shadow-md shadow-black/30 border rounded-xl">
+                <div className="">
+                    {options.map((option) => {
+                        const isWDLExcept = option.label === "WDL, except:"
+
+                        if (!isWDLExcept) {
+                            const checkboxId = `checkbox-${field}-${columnId}-${option.value}`;
+
+                            return (
+                                <Label
+                                    htmlFor={checkboxId}
+                                    key={`label-${field}-${columnId}-${option.value}`}
+                                    className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
+                                >
+                                    <Checkbox
+                                        id={checkboxId}
+                                        checked={localSelected.has(option.value)}
+                                        onCheckedChange={(checked) => handleCheckboxChange(option.value, checked as boolean)}
+                                        className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
+                                    />
+                                    <p className="text-xs text-left leading-none font-normal">
+                                        {option.label}
+                                    </p>
+                                </Label>
+                            )
+                        } else {
+                            return (
+                                <Label 
+                                    className='h-8 pl-4 border-b bg-gray-100 text-xs text-left leading-none font-normal'
+                                    key={`wdl-except-${field}-${columnId}`}
+                                >
+                                    WDL, except:
+                                </Label>
+                            )
+                        }
+                    })}
                 </div>
                 <div className="flex justify-center gap-2 p-2 border-t"> 
                     <Button

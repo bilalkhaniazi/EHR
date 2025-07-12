@@ -27,12 +27,12 @@ export default function AssessmentSelect({
                 <SelectValue placeholder="" className="text-xs w-full" />
             </SelectTrigger>
             <SelectContent className="">
-                <SelectGroup className="text-xs p-0 ">
+                <SelectGroup className="p-0 ">
                     {options.map((option) => (
                         <SelectItem 
                             key={option.value}
                             value={option.label}
-                            className="w-full text-xs h-6 m-0 border-b rounded-none"
+                            className="w-full text-xs h-6 m-0 border-b last:border-b-0 rounded-none"
                         >
                             {option.label}
                         </SelectItem>

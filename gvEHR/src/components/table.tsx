@@ -73,13 +73,14 @@ export function PtTable() {
         setData(updatedData);
     }, [updatedData]);
 
-    const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
+    // updates Data upon submission of Input or AssessmentSelect component 
+    const onCellUpdate = useCallback((rowId: string, columnId: string, newValue: string | string[]) => {
         setData(oldData => 
             oldData.map(row => {
-                if(row.field === rowID) {
+                if(row.field === rowId) {
                     return {
                         ...row,
-                        [columnID]: newValue,
+                        [columnId]: newValue,
                     };
                 }
                 return row
@@ -87,11 +88,13 @@ export function PtTable() {
         );
     },  []);
 
-    const handleSubsetSelection = useCallback((field: string, selectedIdsForField: string[]) => {
+
+    const handleSubsetSelection = useCallback((field: string, columnId: string, selectedIdsForField: string[]) => {
         setFieldSelections(prev => ({
             ...prev,
             [field]: selectedIdsForField // Update only the selections for this specific field
         }));
+        onCellUpdate(field, columnId, selectedIdsForField)
     }, []);
 
 
@@ -160,25 +163,7 @@ export function PtTable() {
                             onCellUpdate(row.original.field, column.id, newValue); 
                         };
 
-                        let alertFlag = false;
-                        if (normalRange && componentType == "input") {
-                            const numericValue = parseFloat(value) 
-                            if(!isNaN(numericValue)) {
-                                alertFlag = numericValue < normalRange.low || numericValue > normalRange.high;
-                            }
-                        }
-                            
-                        const onBlur = () => {
-                            if(value != initialValue) {
-                                onCellUpdate(row.original.field, column.id, value);
-                            }
-                        };
-
-                        const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-                            if(e.key === "Enter") {
-                                (e.target as HTMLInputElement).blur();
-                            }
-                        };
+                        
 
                         if(componentType === "static") {
                             return (
@@ -206,11 +191,30 @@ export function PtTable() {
                                     selectedOptions={currentSelectedForThisField}
                                     field={row.original.field}
                                     columnId={column.id}
-                                    rowId={row.id}
                                     onSelectionChange={handleSubsetSelection}
                                 />
                             );
                         } else {
+                            let alertFlag = false;
+                            if (normalRange && componentType == "input") {
+                                const numericValue = parseFloat(value) 
+                                if(!isNaN(numericValue)) {
+                                    alertFlag = numericValue < normalRange.low || numericValue > normalRange.high;
+                                }
+                            };   
+                            
+                            const onBlur = () => {
+                                if(value != initialValue) {
+                                    onCellUpdate(row.original.field, column.id, value);
+                                }
+                            };
+
+                            const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+                                if(e.key === "Enter") {
+                                    (e.target as HTMLInputElement).blur();
+                                }
+                            };
+                            
                             return (
                                 <Input
                                     id={`cell-${row.id}-${column.id}`} 
@@ -289,7 +293,7 @@ export function PtTable() {
                   <TableCell
                     style={getPinnedStyles(cell.column)}
                     key={`${cell.id}-${row.original.field}`}
-                    className={`p-0 min-w-32 text-sm  text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
+                    className={`p-0 min-w-32 text-sm text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
                   >
                     {/* Render the cell content using flexRender */}
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
