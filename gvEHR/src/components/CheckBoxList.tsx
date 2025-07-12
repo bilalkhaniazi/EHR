@@ -10,10 +10,19 @@ interface CheckBoxListProps {
     options: chartingOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)
     selectedOptions: string[]; // The currently selected options (values) from the parent
     field: string;
+    rowId: string;
+    columnId: string;
     onSelectionChange: (field: string, selectedValues: string[]) => void; // Callback to notify parent of changes
 }
 
-const CheckBoxList: React.FC<CheckBoxListProps> = ({ options, selectedOptions, field, onSelectionChange }) => {
+const CheckBoxList: React.FC<CheckBoxListProps> = ({ 
+    options,
+    selectedOptions,
+    field,
+    onSelectionChange,
+    rowId,
+    columnId
+}) => {
     // Local state to manage the checkboxes within the popover
     const [localSelected, setLocalSelected] = useState<Set<string>>(new Set(selectedOptions));
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -59,11 +68,11 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({ options, selectedOptions, f
                 <div className=""> 
                     {options.map((option) => (
                         <Label
-                            key={option.value}
+                            key={`cell-${field}-${columnId}`}
                             className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
                         >
                             <Checkbox
-                                id={`checkbox-${option.value}`}
+                                id={`cell-${field}-${columnId}`}
                                 checked={localSelected.has(option.value)}
                                 onCheckedChange={(checked) => handleCheckboxChange(option.value, checked as boolean)}
                                 className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"

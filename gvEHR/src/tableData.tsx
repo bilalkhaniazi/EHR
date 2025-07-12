@@ -159,6 +159,12 @@ const vitalsTemplate: tableData[] = [
         hideableId: "Head & Scalp"
     },
     {
+        field: "Eyes", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Eyes"
+    },
+    {
         field: "Ears", 
         componentType: "input",
         hideable: true,
@@ -281,12 +287,6 @@ const vitalsTemplate: tableData[] = [
         componentType: "input",
         hideable: true,
         hideableId: "Jugular Distention" 
-    },
-    {
-        field: "Wound",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Wound" 
     },
     {
         field: "Respiratory Assessment",
@@ -462,6 +462,8 @@ export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVit
     const predefinedTimes = Array.from(predefinedVitalsTimeMap.keys())
     const combinedTimes = [... new Set([...dynamicTimes, ...predefinedTimes])];
     console.log(`Combined times: ${combinedTimes}` )
+    console.warn("generateInitialVitalsData called")
+
     return { 
         allTimesColumns: combinedTimes.sort(),
         predefinedVitalsTimeMap: predefinedVitalsTimeMap
@@ -501,5 +503,6 @@ export const generateInitialVitalsData = (
         });
         generatedData.push(newRow)
     });
+    console.warn("generateInitialVitalsData called")
     return generatedData
 };

@@ -32,12 +32,13 @@ export function PtTable() {
     // generate inital dataset to be used by PtTable 
     const initialData = useMemo(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
     
+    const [data, setData] = useState<tableData[]>(initialData);
+
     // upon change in rows to display, update 
     const visibleSubsetIds = useMemo(() => {
         const combinedSet = new Set<string>();
         Object.values(fieldSelections).forEach(selectedIdsArray => {
             selectedIdsArray.forEach(id => {
-                // IMPORTANT: Only add to combinedSet if it's NOT "WDL"
                 // WDL is an option in the checkboxlist but doesn't map to a hideableId row.
                 if (id !== "WDL") {
                     combinedSet.add(id);
@@ -47,26 +48,31 @@ export function PtTable() {
         return combinedSet;
     }, [fieldSelections]);
     
-    const filteredData = useMemo(() => {
-            return initialData.filter(row => {
-                if (row.hideable) {
-                    // Only show hideable rows if their specific hideableId is in the set
-                    return row.hideableId && visibleSubsetIds.has(row.hideableId);
-                }
-                return true; // Always show non-hideable rows (including title rows and the checkboxlist row itself)
+    // construct new data object and map in existing user entries upon addition of rows
+    const updatedData = useMemo(() => {
+        const filteredData: tableData[] = initialData.filter(row => {
+            if (row.hideable) {
+                // Only show hideable rows if their specific hideableId is in the set
+                return row.hideableId && visibleSubsetIds.has(row.hideableId);
+            }
+            return true; // Always show non-hideable rows
+        });
+
+        return filteredData.map(row => {
+            const newRow = { ...row };
+            timeColumns.forEach(hour => {
+                const matchingRow = data.find(d => d.field === row.field);
+                newRow[hour] = matchingRow ? matchingRow[hour] : "";
             });
-        }, [initialData, visibleSubsetIds]);
+            return newRow;
+        });
+    }, [visibleSubsetIds, timeColumns]);
     
-    const [data, setData] = useState<tableData[]>(filteredData);
-    
+    // set Data upon addition of rows
     useEffect(() => {
-        setData(filteredData);
-    }, [filteredData]);
+        setData(updatedData);
+    }, [updatedData]);
 
-    
-
-
-    
     const onCellUpdate = useCallback((rowID: string, columnID: string, newValue: string) => {
         setData(oldData => 
             oldData.map(row => {
@@ -79,7 +85,7 @@ export function PtTable() {
                 return row
             })
         );
-    },  [])
+    },  []);
 
     const handleSubsetSelection = useCallback((field: string, selectedIdsForField: string[]) => {
         setFieldSelections(prev => ({
@@ -119,7 +125,7 @@ export function PtTable() {
                 header: () => "",
                 cell: info => {
                     const rowType = info.row.original.rowType
-                    console.log(info.row.original.field)
+                    // console.log(info.row.original.field)
                     if (rowType === "titleRow") {
                         return (
                             <p className="min-w-24 h-6 text-left font-medium py-0 pl-4 text-sm text-lime-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.row.original.field}</p>
@@ -183,6 +189,8 @@ export function PtTable() {
                                 <AssessmentSelect
                                     options={chartingOptions} 
                                     value={value}
+                                    rowId={row.original.field}
+                                    columnId={column.id}
                                     onValueChange={handleComponentChange}
                                     className="p-0 h-6 hover:bg-muted/30"
                                 />
@@ -197,12 +205,15 @@ export function PtTable() {
                                     options={assessmentSubsets}
                                     selectedOptions={currentSelectedForThisField}
                                     field={row.original.field}
+                                    columnId={column.id}
+                                    rowId={row.id}
                                     onSelectionChange={handleSubsetSelection}
                                 />
                             );
                         } else {
                             return (
                                 <Input
+                                    id={`cell-${row.id}-${column.id}`} 
                                     type="text"
                                     value={value}
                                     onChange={(e) => setValue(e.target.value)}
@@ -277,7 +288,7 @@ export function PtTable() {
                 return(
                   <TableCell
                     style={getPinnedStyles(cell.column)}
-                    key={cell.id}
+                    key={`${cell.id}-${row.original.field}`}
                     className={`p-0 min-w-32 text-sm  text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
                   >
                     {/* Render the cell content using flexRender */}

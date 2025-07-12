@@ -7,9 +7,18 @@ interface AssessmentSelectProps {
     options: chartingOptions[];
     value: string;
     onValueChange: (newValue: string) => void;
+    rowId: string;
+    columnId: string;
     className?: string;
 }
-export default function AssessmentSelect({ options, value, onValueChange, className }: AssessmentSelectProps) {
+export default function AssessmentSelect({ 
+    options,
+    value,
+    onValueChange,
+    className,
+    rowId,
+    columnId
+}: AssessmentSelectProps) {
      
     return(
         <div className={cn("flex items-center h-6 w-full", className)}>
