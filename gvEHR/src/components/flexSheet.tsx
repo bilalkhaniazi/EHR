@@ -135,7 +135,7 @@ export function FlexSheet() {
                     const rowType = info.row.original.rowType
                     // console.log(info.row.original.field)
                     if (rowType === "titleRow") {
-                        const wdlDescription = info.row.original.wdlDescription || [{assessment: "fake", description: "fake"}]
+                        const wdlDescription = info.row.original.wdlDescription || []
                         return (
                             <Tooltip>
                                 <TooltipTrigger
@@ -145,8 +145,8 @@ export function FlexSheet() {
                                 </TooltipTrigger>
                                 <TooltipPortal>
                                 <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm"> 
-                                    <h1 className="text-md font-bold">WDL Criterion</h1>
-                                    <div className="space-y-2"> {/* Add spacing between items */}
+                                    <h1 className="text-md font-bold">WDL Criteria</h1>
+                                    <div className="space-y-2"> 
                                         {wdlDescription.map((row, index) => (
                                             <div key={index} className="text-sm">
                                                 <p className="pl-2 font-semibold text-gray-800 text-wrap">{row.assessment}:</p> 
@@ -161,7 +161,7 @@ export function FlexSheet() {
                     } 
                     else {
                         return (
-                            <p className="min-w-24 h-6 text-left font-light py-0 pl-4 text-sm text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
+                            <p className="min-w-24 h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-400 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
 
                         )
                     };

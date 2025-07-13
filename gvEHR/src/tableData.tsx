@@ -66,9 +66,25 @@ const vitalsTemplate: tableData[] = [
         hideable: true,
         hideableId: "Appearance" 
     },
-    { field: "Vital Signs",
-      componentType: "static",
-      rowType: "titleRow" 
+    { 
+        field: "Psychosocial Assessment",
+        componentType: "static",
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Mood & Affect", description: "Appropriate, consistent with situation. Speech coherent, hygiene appropriate, denies suicidal/homicidal ideation." },
+        ]
+
+    },
+    {
+        field: "Mood & Affect",
+        componentType: "input",
+        hideable: true, 
+        hideableId: "Mood & Affect"
+    },
+    { 
+        field: "Vital Signs",
+        componentType: "static",
+        rowType: "titleRow" 
     },
     { 
         field: "HR", 
@@ -144,7 +160,14 @@ const vitalsTemplate: tableData[] = [
     { 
         field: "HEENT Assessment",
         componentType: "static", 
-        rowType: "titleRow" 
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Head & Scalp", description: "Normocephalic, no lesions or tenderness"},
+            { assessment: "Eyes", description: "Conjunctivae pink, sclera white, pupils equal/reactive (PERRLA), follows light/objects"},
+            { assessment: "Ears", description: "No drainage, gross hearing intact" },
+            { assessment: "Nose", description: "Nares patent, no drainage, no deformities"},
+            { assessment: "Mouth & Throat", description: "mucous membranes pink and moist, no lesions or odor, uvula midline"},
+        ] 
     },
     {
         field: "HEENT Status", 
@@ -194,8 +217,9 @@ const vitalsTemplate: tableData[] = [
         componentType: "static",
         rowType: "titleRow", 
         wdlDescription: [
-            {assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
-            {assessment: "Safety", description: "call‑light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
+            { assessment: "Orientation", description: "Alert and oriented × 4, follows commands."},
+            { assessment: "Speech", description: "Speech clear and coherent."},
+            { assessment: "Motor Function", description: "Gross motor functioning intact."}
     ] 
     },
     {
@@ -230,7 +254,12 @@ const vitalsTemplate: tableData[] = [
     {
         field: "Integumentary Assessment",
         componentType: "static",
-        rowType: "titleRow" 
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Skin", description: "Warm, dry, intact, uniform color appropriate for race, no rashes or swelling. No signs of inflammation, breakdown, or pressure injury" },
+            { assessment: "Hair & Skin", description: "Normal distribution; nails smooth; no clubbing or abnormalities, cap refill < 2 seconds" },
+            { assessment: "Turgor", description: "Brisk recoil."}
+        ]
     },
     {
         field: "Integument Status",
@@ -271,7 +300,12 @@ const vitalsTemplate: tableData[] = [
     {
         field: "Cardiovascular Assessment",
         componentType: "static",
-        rowType: "titleRow"
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Heart Sounds", description: "Regular rate (60-100 bpm) & rhythm, S1/S2 audible, no murmurs/rubs/gallops." },
+            { assessment: "Extremities", description: "Pulses 2+ bilaterally (radial, dorsalis pedis), cap refill < 2 seconds, no edema, uniform color." },
+            { assessment: "Jugular Distention", description: "No venous jugular distention."}
+        ]
     },
     {
         field: "Cardiovascular Status",
@@ -305,7 +339,11 @@ const vitalsTemplate: tableData[] = [
     {
         field: "Respiratory Assessment",
         componentType: "static",
-        rowType: "titleRow"
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Chest Appearance", description: "Chest expansion symmetric, respirations non-labored, regular rate, no accessory muscle use." },
+            { assessment: "Lung Sounds", description: "Breath sounds clear bilaterally (anterior/posterior/lateral), no adventitious sounds (crackles, wheezes, rhonchi)." }
+        ]
     },
     {
         field: "Respiratory Status",
@@ -332,7 +370,12 @@ const vitalsTemplate: tableData[] = [
     {
         field: "GI Assessment",
         componentType: "static",
-        rowType: "titleRow"
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Abdomen", description: "Soft, non-tender, non-distended. No masses or guarding, no visible scars or lesions." },
+            { assessment: "Bowel Sounds", description: "Present and active in all four quadrants." },
+            { assessment: "Nausea", description: "No nausea, vomiting, or diarrhea."}
+        ]
     },
     {
         field: "GI Status",
@@ -366,7 +409,11 @@ const vitalsTemplate: tableData[] = [
     {
         field: "Musculoskeletal Assessment",
         componentType: "static",
-        rowType: "titleRow"
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "ROM", description: "Full active and passive in all joints, strength 5/5 bilaterally." },
+            { assessment: "Gait", description: "Gait steady, ambulates independently"}
+        ]
     },
     {
         field: "Musculoskeletal Status",
@@ -393,7 +440,11 @@ const vitalsTemplate: tableData[] = [
     {
         field: "Genitourinary Assessment",
         componentType: "static",
-        rowType: "titleRow"
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "Voiding", description: "Without pain, burning, or urgency. No new incontinence."},
+            { assessment: "Urine", description: "Clear, yellow, absent of odor."}
+        ]
     },
     {
         field: "Genitourinary Status",
