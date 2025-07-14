@@ -1,4 +1,3 @@
-import * as React from "react"
 import {
   Sidebar,
   SidebarContent,
@@ -6,11 +5,6 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 
@@ -20,11 +14,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { type AssessmentTool, assessmentTools as tempData } from "../tableData"
 
-export function ChartSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+export function ChartSidebar() {
+  const assessmentTools: AssessmentTool[] = tempData
   return (
-    <Sidebar {...props}>
-      <SidebarContent>
+    <Sidebar 
+      side="right"
+      >
+      <SidebarContent className="bg-gray-100">
         <SidebarGroup>
           <SidebarGroupLabel>Assessment Descriptions</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -34,19 +33,40 @@ export function ChartSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
                 collapsible
                 className=""
               >
-                <AccordionItem value="1">
-                  <AccordionTrigger>CIWA-Ar</AccordionTrigger>
-                  <AccordionContent className="">
-                      <div className="space-y-2"> 
-                          {/* {wdlDescription.map((row, index) => ( */}
-                              <div key={"1"} className="text-sm">
-                                  <p className="pl-2 font-semibold text-gray-800 text-wrap">Nausea & Vomitting</p> 
-                                  <p className="pl-4 text-gray-600 italic text-wrap">0 - No nausea or vomitting</p>
-                              </div>
-                          {/* ))} */}
-                      </div>
-                  </AccordionContent>
-                </AccordionItem>
+                {assessmentTools.map((tool, index) => (
+                  <AccordionItem
+                    value={tool.name}
+                    className="">
+                    <AccordionTrigger className="">{tool.name}</AccordionTrigger>
+                    <AccordionContent className="">
+                      {tool.categories.map((category) => (
+                        <div className="space-y-10"> 
+                          <div className="py-1 border-b-3">
+                              <p className="pl-2 pb-1 font-semibold text-gray-800 text-wrap">{category.name}</p>
+                              {category.scoringOptions.map((option) => (
+                                <div className="flex last:pb-1">
+                                  <p className="pl-5 text-xs text-gray-800 font-medium">{`${option.rating}`}</p>
+                                  <p className="pl-3 text-xs text-gray-600 italic text-wrap">{option.description}</p>
+                                </div>
+                              ))} 
+                          </div>
+                        </div>
+                      ))}
+                      { tool.interpretations && tool.interpretations.length > 0 && (
+                        <div className="">
+                          <h1 className="pl-2 pb-2 font-semibold text-gray-800 text-wrap">Scoring</h1>
+                          {tool.interpretations?.map((interpretation) => 
+                            <div className="flex">
+                              <p className="pl-5 text-xs text-gray-800 text-nowrap  font-medium">{interpretation.result}</p>
+                              <p className="pl-3 text-xs text-gray-600  text-nowrap italic">{interpretation.range}</p>
+                              <p className="pl-3 text-xs text-gray-600 italic text-wrap">{interpretation.description}</p>
+                            </div>
+                          )}
+                        </div>
+                        )}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
               </Accordion>
             </SidebarMenu>
           </SidebarGroupContent>

@@ -11,8 +11,11 @@ import AssessmentSelect from "./AssessmentSelect";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "./ui/sidebar";
 import { ChartSidebar } from "./chartSidebar";
+import { assessmentTools } from "../tableData";
+import { Button } from "./ui/button";
+import { Icon, PanelLeftCloseIcon, PanelLeftIcon, PanelLeftInactiveIcon, PanelLeftOpenIcon } from "lucide-react";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -33,6 +36,7 @@ export function FlexSheet() {
 
     const [timeColumns, setTimeColumns] = useState(allTimesColumns)
     const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
+    const [isSidebarOpen, setIsSideBarOpen] = useState<boolean>(false)
 
     // generate inital dataset to be used by PtTable 
     const initialData = useMemo(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
@@ -120,6 +124,27 @@ export function FlexSheet() {
         );
     }, []);
 
+    useEffect(() => {
+        let shouldOpen = false;
+        for (const tool of assessmentTools) {
+            if (visibleSubsetIds.has(tool.name)) {
+                shouldOpen = true
+                break
+            }
+        }
+
+        if(shouldOpen != isSidebarOpen) {
+            setIsSideBarOpen(shouldOpen)
+        }
+        }, [visibleSubsetIds]);
+
+    const handleManualToggleSidebar = () => {
+        setIsSideBarOpen(prev => !prev);
+        console.log("called")
+    }; 
+    
+    
+
     const displayDate = useMemo(() => {
         const todayDate = new Date()
         return todayDate.toLocaleDateString("en-US", {
@@ -135,7 +160,6 @@ export function FlexSheet() {
                 header: () => "",
                 cell: info => {
                     const rowType = info.row.original.rowType
-                    // console.log(info.row.original.field)
                     if (rowType === "titleRow") {
                         const wdlDescription = info.row.original.wdlDescription || []
                         return (
@@ -283,7 +307,11 @@ export function FlexSheet() {
 
    
     return (
-    <SidebarProvider className="">
+    <SidebarProvider 
+        className=""
+        open={isSidebarOpen}
+        onOpenChange={setIsSideBarOpen}
+    >
         <SidebarInset>
             <Toaster position="top-right" />
             <div className="flex flex-col h-screen justify-center items-center p-4">
@@ -292,19 +320,27 @@ export function FlexSheet() {
                         onColumnAdd={handleColumnAdd}
                         existingTimeColumns={timeColumns}
                     />
-                    <SidebarTrigger className=" rotate-180" />
+                    <Button
+                        onClick={handleManualToggleSidebar}
+                        className="bg-gray-100 text-black mb-4 hover:bg-gray-200"
+                    >
+                        {isSidebarOpen ?
+                            <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
+                        }
+                    
+                    </Button>
                 </div>
-                <div className=" w-full overflow-x-auto border-1 border-gray-200 rounded-md">
+                <div className=" w-full overflow-auto border-1 border-gray-200 rounded-md">
              
                     <Table className="w-full border-collapse-separate rounded-md">
-                        <TableHeader className="bg-gray-100 sticky top-0">
+                        <TableHeader className=" bg-gray-100 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (
                             <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map(header => (
                                 <TableHead
                                 style={getPinnedStyles(header.column)}
                                 key={header.id}
-                                className="h-6 text-center font-medium border-b-2 border-gray-200 top sticky-0"
+                                className="h-6 text-center font-medium border-b-2 border-gray-200 "
                                 >
                                 {/* Render the header content using flexRender */}
                                 {header.isPlaceholder
@@ -363,7 +399,7 @@ export function FlexSheet() {
                 </div>
             </div>
         </SidebarInset>
-        <ChartSidebar side="right" />
+        <ChartSidebar  />
     </SidebarProvider>
   );
 }
