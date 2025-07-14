@@ -60,7 +60,7 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTim
         toast.success(`Time column added at ${addedTime}`);
     }, [selectedTime, existingTimeColumns, onColumnAdd, setIsPopoverOpen]); 
     return (
-        <div className="flex gap-4">
+        <div className="flex gap-4 pl-8">
             <Button onClick={handleAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Time

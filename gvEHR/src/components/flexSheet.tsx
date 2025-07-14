@@ -11,6 +11,8 @@ import AssessmentSelect from "./AssessmentSelect";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar";
+import { ChartSidebar } from "./chartSidebar";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -161,7 +163,7 @@ export function FlexSheet() {
                     } 
                     else {
                         return (
-                            <p className="min-w-24 h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-400 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
+                            <p className="min-w-24 h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
 
                         )
                     };
@@ -270,7 +272,7 @@ export function FlexSheet() {
         initialState: {
             columnPinning: {
                 left: ['Vital Signs']
-            }
+            },
         },
         getCoreRowModel: getCoreRowModel(), 
     });
@@ -281,77 +283,87 @@ export function FlexSheet() {
 
    
     return (
-    <div className="flex flex-col justify-center items-center mt-4 px-4">
-      <Toaster position="top-right" />
-      <div className="flex gap-4">
-        <AddTimeColumnButton onColumnAdd={handleColumnAdd} existingTimeColumns={timeColumns}></AddTimeColumnButton>
-      </div>
-      <div className="relative w-full overflow-x-auto border-1 border-gray-200 rounded-md">
-      <Table className="w-full">
-        <TableHeader className="bg-gray-100">
-          {ptTable.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <TableHead
-                  style={getPinnedStyles(header.column)}
-                  key={header.id}
-                  className="h-6 text-center font-medium border-b-2 border-gray-200"
-                >
-                  {/* Render the header content using flexRender */}
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
+    <SidebarProvider className="">
+        <SidebarInset>
+            <Toaster position="top-right" />
+            <div className="flex flex-col h-screen justify-center items-center p-4">
+                <div className="w-full flex justify-between">
+                    <AddTimeColumnButton 
+                        onColumnAdd={handleColumnAdd}
+                        existingTimeColumns={timeColumns}
+                    />
+                    <SidebarTrigger className=" rotate-180" />
+                </div>
+                <div className=" w-full overflow-x-auto border-1 border-gray-200 rounded-md">
+             
+                    <Table className="w-full border-collapse-separate rounded-md">
+                        <TableHeader className="bg-gray-100 sticky top-0">
+                        {ptTable.getHeaderGroups().map(headerGroup => (
+                            <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map(header => (
+                                <TableHead
+                                style={getPinnedStyles(header.column)}
+                                key={header.id}
+                                className="h-6 text-center font-medium border-b-2 border-gray-200 top sticky-0"
+                                >
+                                {/* Render the header content using flexRender */}
+                                {header.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        header.column.columnDef.header,
+                                        header.getContext()
+                                    )}
+                                </TableHead>
+                            ))}
+                            </TableRow>
+                        ))}
+                        </TableHeader>
 
-        <TableBody>
-          {ptTable.getRowModel().rows.map(row => (
-            <TableRow key={row.id} className="h-6">
-              {row.getVisibleCells().map(cell => {
-                const rowType = row.original.rowType
-                
-                return(
-                  <TableCell
-                    style={getPinnedStyles(cell.column)}
-                    key={`${cell.id}-${row.original.field}`}
-                    className={`p-0 min-w-32 text-sm text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
-                  >
-                    {/* Render the cell content using flexRender */}
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                )
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
+                        <TableBody>
+                        {ptTable.getRowModel().rows.map(row => (
+                            <TableRow key={row.id} className="h-6">
+                            {row.getVisibleCells().map(cell => {
+                                const rowType = row.original.rowType
+                                
+                                return(
+                                <TableCell
+                                    style={getPinnedStyles(cell.column)}
+                                    key={`${cell.id}-${row.original.field}`}
+                                    className={`p-0 min-w-32 text-sm text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
+                                >
+                                    {/* Render the cell content using flexRender */}
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </TableCell>
+                                )
+                            })}
+                            </TableRow>
+                        ))}
+                        </TableBody>
 
-        <TableFooter className="bg-gray-100">
-          {ptTable.getFooterGroups().map(footerGroup => (
-            <TableRow key={footerGroup.id}>
-              {footerGroup.headers.map(header => (
-                <TableHead 
-                  key={header.id} 
-                  className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-gray-300">
+                        <TableFooter className="bg-gray-100">
+                        {ptTable.getFooterGroups().map(footerGroup => (
+                            <TableRow key={footerGroup.id}>
+                            {footerGroup.headers.map(header => (
+                                <TableHead 
+                                key={header.id} 
+                                className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-gray-300">
 
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.footer,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableFooter>
-      </Table>
-    </div>
-    </div>
+                                {header.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        header.column.columnDef.footer,
+                                        header.getContext()
+                                    )}
+                                </TableHead>
+                            ))}
+                            </TableRow>
+                        ))}
+                        </TableFooter>
+                    </Table>
+                </div>
+            </div>
+        </SidebarInset>
+        <ChartSidebar side="right" />
+    </SidebarProvider>
   );
 }

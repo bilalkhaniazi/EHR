@@ -1,3 +1,5 @@
+import { Description } from "@radix-ui/react-dialog";
+
 export interface chartingOptions {
     value: string;
     label: string;
@@ -74,6 +76,15 @@ const vitalsTemplate: tableData[] = [
             { assessment: "Mood & Affect", description: "Appropriate, consistent with situation. Speech coherent, hygiene appropriate, denies suicidal/homicidal ideation." },
         ]
 
+    },
+    {
+        field: "Pyschosocial Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { value: "WDL", label: "WDL" },
+            { value: "WDL, except:", label: "WDL, except:" },
+            { value: "Mood & Affect", label: "Mood & Affect" },
+        ]
     },
     {
         field: "Mood & Affect",
@@ -578,3 +589,53 @@ export const generateInitialVitalsData = (
     console.warn("generateInitialVitalsData called")
     return generatedData
 };
+
+interface AssessmentToolCategories {
+    name: string,
+    scoringOptions: {rating: string, description: string}[]
+}
+
+interface ScoreInterpretation {
+    range: string,
+    description: string,
+    action?: string
+}
+
+interface AssessmentTool {
+    name: string,
+    categories: AssessmentToolCategories[],
+    maxScore?: string,
+    interpretation?: Record<string, ScoreInterpretation>
+}
+
+
+const assessmentToolTips: AssessmentTool[] = [
+    { 
+        name: "CIWA-Ar",
+        categories: [
+            { name: "Nausea & Vomitting",
+                scoringOptions: [
+                    { rating: "0", description: "No nausea or vomitting."},
+                    { rating: "1", description: "Mild nausea with no vomiting"} 
+                ]
+            }
+        ],
+        maxScore: "67",
+        interpretation: {
+            mild: { range: "0-9", description: "Minimal symptoms" },
+            moderate: { range: "10-15", description: "Moderate symptoms" },
+            severe: { range: "16+", description: "Severe symptoms requiring medical attention" }
+        }
+    },
+    { 
+        name: "Morse Fall Risk Assessment",
+        categories: [
+            { name: "History of Falling, within past 3 months",
+                scoringOptions: [
+                    { rating: "0", description: "No falls"},
+                    { rating: "25", description: "Has fallen in past 3 months."}
+                ]
+            }
+        ]
+    }
+]
