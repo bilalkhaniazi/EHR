@@ -25,11 +25,6 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
     const [localSelected, setLocalSelected] = useState<Set<string>>(new Set(selectedOptions));
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    // Sync local state with parent prop when parent's selectedOptions change
-    // useEffect(() => {
-    //     setLocalSelected(new Set(selectedOptions));
-    // }, [selectedOptions]);
-
     const handleCheckboxChange = (value: string, checked: boolean) => {
         setLocalSelected(prev => {
             const newSet = new Set(prev);
@@ -62,7 +57,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                     {[...localSelected].join(', ') || ""}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full bg-white p-0 shadow-md shadow-black/30 border rounded-xl">
+            <PopoverContent className="w-full bg-white p-0 shadow-md shadow-black/30 border rounded-xl overflow-hidden">
                 <div className="">
                     {options.map((option) => {
                         const isWDLExcept = option.label === "WDL, except:"
@@ -74,13 +69,13 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                                 <Label
                                     htmlFor={checkboxId}
                                     key={`label-${field}-${columnId}-${option.value}`}
-                                    className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950"
+                                    className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 "
                                 >
                                     <Checkbox
                                         id={checkboxId}
                                         checked={localSelected.has(option.value)}
                                         onCheckedChange={(checked) => handleCheckboxChange(option.value, checked as boolean)}
-                                        className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700 dark:data-[state=checked]:bg-blue-gray"
+                                        className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white "
                                     />
                                     <p className="text-xs text-left leading-none font-normal">
                                         {option.label}
