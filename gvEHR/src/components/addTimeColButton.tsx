@@ -11,7 +11,7 @@ interface AddTimeColumnButtonProps {
 }
 
 export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTimeColumnButtonProps) {
-    const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date());
+    const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date(0, 0, 0, 0, 0));
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
     const handleAddTime = useCallback(() => {

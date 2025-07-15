@@ -517,7 +517,8 @@ const vitalsTemplate: tableData[] = [
         assessmentSubsets: [
             { value: "CIWA-Ar", label: "CIWA-Ar"},
             { value: "Morse Fall Risk", label: "Morse Fall Risk"},
-            { value: "Braden Scale", label: "Braden Scale"}
+            { value: "Braden Scale", label: "Braden Scale"},
+            { value: "PAINAD", label: "PAINAD"}
         ]
     },
     {
@@ -814,6 +815,68 @@ const vitalsTemplate: tableData[] = [
         ],
         hideable: true,
         hideableId: "Braden Scale"
+    },
+    {
+        field: "PAINAD",
+        componentType: "static",
+        rowType: "titleRow",
+        hideable: true,
+        hideableId: "PAINAD"
+    },
+    {
+        field: "Breathing (Independent of Vocalization)",
+        componentType: "autocomplete",
+        chartingOptions: [
+            { value: "0", label: "0 - Normal" },
+            { value: "1", label: "1 - Occasional labored breathing, short periods of hyperventilation" },
+            { value: "2", label: "2 - Noisy labored breathing, long periods of hyperventilation, Cheyne-Stokes" },
+        ],
+        hideable: true,
+        hideableId: "PAINAD"
+    },
+    {
+        field: "Negative Vocalization",
+        componentType: "autocomplete",
+        chartingOptions: [
+            { value: "0", label: "0 - None" },
+            { value: "1", label: "1 - Occasional moan or groan, low-level speech with a negative or disapproving quality" },
+            { value: "2", label: "2 - Repeated troubled calling out, loud moaning or groaning, crying" },
+        ],
+        hideable: true,
+        hideableId: "PAINAD"
+    },
+    {
+        field: "Facial Expression",
+        componentType: "autocomplete",
+        chartingOptions: [
+            { value: "0", label: "0 - Smiling or inexpressive" },
+            { value: "1", label: "1 - Sad, frightened, frown" },
+            { value: "2", label: "2 - Facial grimacing" },
+        ],
+        hideable: true,
+        hideableId: "PAINAD"
+    },
+    {
+        field: "Body Language",
+        componentType: "autocomplete",
+        chartingOptions: [
+            { value: "0", label: "0 - Relaxed" },
+            { value: "1", label: "1 - Tense, distressed pacing, fidgeting" },
+            { value: "2", label: "2 - Rigid, fists clenched, knees pulled up or pushing away, striking out" },
+        ],
+        hideable: true,
+        hideableId: "PAINAD"
+    },
+    {
+        field: "Consolability",
+        componentType: "autocomplete",
+        chartingOptions: [
+            { value: "0", label: "0 - No need to console" },
+            { value: "1", label: "1 - Distracted or reassured by voice or touch" },
+            { value: "2", label: "2 - Unable to console, distract, or reassure" },
+        ],
+        hideable: true,
+        hideableId: "PAINAD"
     },
 ];
     
@@ -1156,5 +1219,56 @@ export const assessmentTools: AssessmentTool[] = [
             { result: "High Risk", range: "10-12", description: "Requires additional equipment and frequent repositioning." },
             { result: "Severe Risk", range: "6-9", description: "At very high risk for skin breakdown; frequent monitoring is essential." },
         ]
-    } 
+    },
+    {
+    name: "PAINAD",
+    categories: [
+        {
+            name: "Breathing (Independent of Vocalization)",
+            scoringOptions: [
+                { rating: "0", description: "Normal" },
+                { rating: "1", description: "Occasional labored breathing, short periods of hyperventilation" },
+                { rating: "2", description: "Noisy labored breathing, long periods of hyperventilation, Cheyne-Stokes" },
+            ],
+        },
+        {
+            name: "Negative Vocalization",
+            scoringOptions: [
+                { rating: "0", description: "None" },
+                { rating: "1", description: "Occasional moan or groan, low-level speech with a negative or disapproving quality" },
+                { rating: "2", description: "Repeated troubled calling out, loud moaning or groaning, crying" },
+            ],
+        },
+        {
+            name: "Facial Expression",
+            scoringOptions: [
+                { rating: "0", description: "Smiling or inexpressive" },
+                { rating: "1", description: "Sad, frightened, frown" },
+                { rating: "2", description: "Facial grimacing" },
+            ],
+        },
+        {
+            name: "Body Language",
+            scoringOptions: [
+                { rating: "0", description: "Relaxed" },
+                { rating: "1", description: "Tense, distressed pacing, fidgeting" },
+                { rating: "2", description: "Rigid, fists clenched, knees pulled up or pushing away, striking out" },
+            ],
+        },
+        {
+            name: "Consolability",
+            scoringOptions: [
+                { rating: "0", description: "No need to console" },
+                { rating: "1", description: "Distracted or reassured by voice or touch" },
+                { rating: "2", description: "Unable to console, distract, or reassure" },
+            ],
+        },
+    ],
+    maxScore: "10", // Max score for PAINAD Scale is 10 (5 categories * 2 points/category)
+    interpretations: [
+        { result: "Mild Pain", range: "1-3", description: "Possible mild discomfort." },
+        { result: "Moderate Pain", range: "4-6", description: "Likely moderate pain, consider intervention." },
+        { result: "Severe Pain", range: "7-10", description: "Severe pain, requires immediate attention and intervention." },
+    ]
+} 
 ];

@@ -11,17 +11,19 @@ import AssessmentSelect from "./AssessmentSelect";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "./ui/sidebar";
+import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 import { ChartSidebar } from "./chartSidebar";
 import { assessmentTools } from "../tableData";
 import { Button } from "./ui/button";
-import { Icon, PanelLeftCloseIcon, PanelLeftIcon, PanelLeftInactiveIcon, PanelLeftOpenIcon } from "lucide-react";
+import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 
 const columnHelper = createColumnHelper<tableData>();
 
 // left column pinned
 function getPinnedStyles(column: any): React.CSSProperties {
-  if (!column.getIsPinned()) return {};
+  if (!column.getIsPinned()) {
+    return {};
+  }
   const side = column.getIsPinned();
   return {
     position: 'sticky',
@@ -156,42 +158,53 @@ export function FlexSheet() {
     const columns = useMemo(
         () => [
             columnHelper.accessor("field", {
-                id: 'Vital Signs',
-                header: () => "",
+                id: 'pinned',
+                header: () => <h1 className="w-full h-full bg-gray-100"></h1>,
                 cell: info => {
-                    const rowType = info.row.original.rowType
+                    const rowType = info.row.original.rowType;
                     if (rowType === "titleRow") {
-                        const wdlDescription = info.row.original.wdlDescription || []
-                        return (
-                            <Tooltip>
-                                <TooltipTrigger
-                                    className="px-2 font-medium text-lime-900"
-                                >
-                                    {info.row.original.field}
-                                </TooltipTrigger>
-                                <TooltipPortal>
-                                <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm"> 
-                                    <h1 className="text-md font-bold">WDL Criteria</h1>
-                                    <div className="space-y-2"> 
-                                        {wdlDescription.map((row, index) => (
-                                            <div key={index} className="text-sm">
-                                                <p className="pl-2 font-semibold text-gray-800 text-wrap">{row.assessment}:</p> 
-                                                <p className="pl-4 text-gray-600 italic text-wrap">{row.description}</p>
+                        const wdlDescription = info.row.original?.wdlDescription;
+                        // Conditionally render the entire Tooltip component
+                        if (wdlDescription && wdlDescription.length > 0) {
+                            return (
+                                <Tooltip>
+                                    <TooltipTrigger
+                                        className="px-2 font-medium text-lime-900"
+                                    >
+                                        {info.row.original.field}
+                                    </TooltipTrigger>
+                                    <TooltipPortal>
+                                        <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm">
+                                            <h1 className="text-md font-bold">WDL Criteria</h1>
+                                            <div className="space-y-2">
+                                                {wdlDescription.map((row, index) => (
+                                                    <div key={index} className="text-sm">
+                                                        <p className="pl-2 font-semibold text-gray-800 text-wrap">{row.assessment}:</p>
+                                                        <p className="pl-4 text-gray-600 italic text-wrap">{row.description}</p>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                </TooltipContent>
-                                </TooltipPortal>
-                            </Tooltip>
-                        )
-                    } 
-                    else {
+                                        </TooltipContent>
+                                    </TooltipPortal>
+                                </Tooltip>
+                            );
+                        } else {
+                            // If wdlDescription is undefined or empty, just render the field content
+                            return (
+                                <p className="min-w-24 h-6 text-left  py-0 pl-2 text-sm px-2 font-medium text-lime-900">
+                                    {info.row.original.field}
+                                </p>
+                            );
+                        }
+                    } else {
+                        // This is for other row types that are not "titleRow"
                         return (
-                            <p className="min-w-24 h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">{info.getValue()}</p>
-
-                        )
+                            <p className="min-w-24 h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                                {info.getValue()}
+                            </p>
+                        );
                     };
-                }, 
+                },
             }),
 
             ...timeColumns.map(timeKey =>
@@ -295,7 +308,7 @@ export function FlexSheet() {
         enablePinning: true,
         initialState: {
             columnPinning: {
-                left: ['Vital Signs']
+                left: ['pinned']
             },
         },
         getCoreRowModel: getCoreRowModel(), 
@@ -327,12 +340,11 @@ export function FlexSheet() {
                         {isSidebarOpen ?
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
-                    
                     </Button>
                 </div>
-                <div className=" w-full overflow-auto border-1 border-gray-200 rounded-md">
+                <div className="w-full overflow-auto border-1 border-gray-200 rounded-md">
              
-                    <Table className="w-full border-collapse-separate rounded-md">
+                    <Table className="w-full  rounded-md">
                         <TableHeader className=" bg-gray-100 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (
                             <TableRow key={headerGroup.id}>
@@ -340,7 +352,7 @@ export function FlexSheet() {
                                 <TableHead
                                 style={getPinnedStyles(header.column)}
                                 key={header.id}
-                                className="h-6 text-center font-medium border-b-2 border-gray-200 "
+                                className="border-b-2 border-gray-200 "
                                 >
                                 {/* Render the header content using flexRender */}
                                 {header.isPlaceholder
@@ -365,7 +377,7 @@ export function FlexSheet() {
                                 <TableCell
                                     style={getPinnedStyles(cell.column)}
                                     key={`${cell.id}-${row.original.field}`}
-                                    className={`p-0 min-w-32 text-sm text-gray-800 border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r"}`}
+                                    className={`p-0 min-w-32 text-sm text-gray-800 border-separate border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
                                 >
                                     {/* Render the cell content using flexRender */}
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
