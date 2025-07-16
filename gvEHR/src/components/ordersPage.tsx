@@ -1,8 +1,18 @@
 import OrdersTable from "./ui/ordersTable"
-import { nursingOrders, nursingHeaderNames, respiratoryOrders, respHeaderNames, medHeaderNames, type NursingOrderData } from "@/orderData"
+import { 
+    nursingOrders,
+    nursingHeaderNames, 
+    respiratoryOrders, 
+    respHeaderNames, 
+    medHeaderNames, 
+    type NursingOrderData,
+    type MedOrderData,
+    type RespiratoryOrderData,
+} from "@/orderData"
 import { medOrders } from "@/orderData"
 import { useState } from "react"
 import { Button } from "./ui/button"
+import { Toaster, toast } from "sonner"
 
 const OrdersPage = () => {
     const nursingOrderColumns = ["details", "status", "orderingProvider"]
@@ -10,6 +20,9 @@ const OrdersPage = () => {
     const respOrderColumns = ["details", "status", "orderingProvider"]
 
     const [nursingOrderData, setNursingOrderData] = useState(nursingOrders)
+    const [medicationOrderData, setMedicationOrderData] = useState(medOrders)
+    const [respiratoryOrderData, setRespiratoryOrderData] = useState(respiratoryOrders)
+
 
     const addOrder = <T extends Record<string, any>>(
         setOrderData: React.Dispatch<React.SetStateAction<T[]>>,
@@ -17,18 +30,44 @@ const OrdersPage = () => {
     ) => {
         setOrderData(prevOrders => [...prevOrders, newOrder]);
     };
-    
+
     const addNursingOrder = () => {
         const newOrder: NursingOrderData = { displayName: "Turning/Positioning", orderType: "nursing", details: "Reposition patient a minimum of every 2 hours off of pressure points.", status: "Active", orderingProvider: "Dr. Sammy ZamZam"}
+        toast.success(`Added ${newOrder.displayName} to Nursing`);
         addOrder(setNursingOrderData, newOrder)
     };
 
+    const addMedicationOrder = () => {
+        const newOrder: MedOrderData = {
+            displayName: "Insulin (Rapid-Acting)", orderType: "medication", dose: "4 units", route: "Subcutaneous", frequency: "Before Meals", priority: "Routine", administrationInstructions: "Administer 15 minutes before meal based on blood glucose.", orderingProvider: "Dr. Emily White"};
+            addOrder(setMedicationOrderData, newOrder);
+            toast.success(`Added ${newOrder.displayName} to Medication`);
+
+    };
+
+    const addRespiratoryOrder = () => {
+        const newOrder: RespiratoryOrderData = {
+            displayName: "Chest Physiotherapy",
+            orderType: "respiratory",
+            details: "Perform chest physiotherapy twice daily.",
+            status: "Active",
+            orderingProvider: "Dr. Alex Green"
+        };
+        addOrder(setRespiratoryOrderData, newOrder);
+        toast.success(`Added ${newOrder.displayName} to Respiratory`);
+    };
+
     return (
-        <div className="p-4 w-full h-screen overflow-y-auto flex flex-col gap-6 justify-start items-center bg-gray-100">
-            <Button className="bg-gray-200 shadow shadow-black/30" onClick={addNursingOrder}  />
+        <div className="p-4 w-full overflow-y-auto flex flex-col gap-6 justify-start items-center bg-gray-100">
+            <Toaster position="top-right" />
+            <div className="flex w-full gap-4 justify-center">
+                <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addNursingOrder}>Add Nursing Order</Button>
+                <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addMedicationOrder}>Add Med Order</Button>
+                <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addRespiratoryOrder}>Add Respiratory Order</Button>
+            </div>
             <OrdersTable color="bg-blue-300" columnNames={nursingOrderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
-            <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medOrders} />
-            <OrdersTable color="bg-lime-200" columnNames={respOrderColumns} headerNames={respHeaderNames} data={respiratoryOrders} />
+            <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
+            <OrdersTable color="bg-lime-200" columnNames={respOrderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />
         </div>
     )
 }

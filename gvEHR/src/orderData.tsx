@@ -89,16 +89,6 @@ export interface MedOrderData {
 
 export const medOrders: MedOrderData[] = [
   {
-    displayName: "Medication",
-    orderType: "medical",
-    dose: "Dose",
-    route: "Route", 
-    frequency: "Frequency",
-    priority: "Priority",
-    administrationInstructions: "Administration Instructions",
-    orderingProvider: "Ordering Provider"
-  },
-  {
     displayName: "metoprolol tartrate 5mg/1mg",
     orderType: "medical",
     dose: "5mg",
@@ -171,7 +161,7 @@ export const medOrders: MedOrderData[] = [
 ];
 
 export const medHeaderNames: MedOrderData = {
-        displayName: "Nursing",
+        displayName: "Medication",
         orderType: "medical",
         dose: "Dose",
         route: "Route",
@@ -186,26 +176,16 @@ export interface RespiratoryOrderData {
   orderType: string;
   details: string;
   status: string;
-  duration: string;
   orderingProvider: string;
   [key: string]: string;
 }
 
 export const respiratoryOrders: RespiratoryOrderData[] = [
   {
-    displayName: "Respiratory",
-    orderType: "respiratory",
-    details: "Details",
-    status: "Status",
-    duration: "Duration",
-    orderingProvider: "Ordering Provider"
-  },
-  {
     displayName: "Oxygen Therapy",
     orderType: "respiratory",
     details: "Administer oxygen via nasal cannula at 2 L/min. Titrate to maintain SpO₂ ≥ 92%.",
     status: "Active",
-    duration: "Until cancelled",
     orderingProvider: "Dr. Azzedine Habz"
   },
   {
@@ -235,7 +215,7 @@ export const respiratoryOrders: RespiratoryOrderData[] = [
 ];
 
 export const respHeaderNames: RespiratoryOrderData = {
-        displayName: "Nursing",
+        displayName: "Respiratory",
         orderType: "nursing",
         details: "Details",
         status: "Status",

@@ -74,7 +74,7 @@ const OrdersTable = <T extends Record<string, any>>({
             id: id,
             header: () => (
               <div className="h-full flex justify-left items-end">
-                <p className="text-xs font-light text-gray-400">{headerNames[id]}</p>
+                <p className="text-sm font-light text-gray-400">{headerNames[id]}</p>
               </div>
             ),
             cell: ({getValue}) => {
@@ -100,8 +100,8 @@ const OrdersTable = <T extends Record<string, any>>({
     });
 
     return (
-    <div className="w-full rounded-xl border">
-      <Table className="bg-white rounded-xl">
+    <div className="w-full rounded-xl border overflow-auto">
+      <Table className="bg-white">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -130,7 +130,7 @@ const OrdersTable = <T extends Record<string, any>>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell 
                     key={cell.id}
-                    className=" border-r last:border-0 border-gray-200 py-2"
+                    className="h-12 border-r last:border-0 border-gray-200 py-2"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
