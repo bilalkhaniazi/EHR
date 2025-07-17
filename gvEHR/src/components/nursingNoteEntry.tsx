@@ -32,7 +32,7 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={() => setIsOpen(true)}>
+        <Button variant="outline" onClick={() => setIsOpen(true)} className="hover:bg-black/5">
         <PencilLine />
         Add Note
       </Button>

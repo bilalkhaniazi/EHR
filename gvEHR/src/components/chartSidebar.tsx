@@ -35,6 +35,7 @@ export function ChartSidebar() {
               >
                 {assessmentTools.map((tool, index) => (
                   <AccordionItem
+                    key={index}
                     value={tool.name}
                     className="">
                     <AccordionTrigger className="">{tool.name}</AccordionTrigger>

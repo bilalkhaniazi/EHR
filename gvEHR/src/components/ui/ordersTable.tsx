@@ -100,8 +100,8 @@ const OrdersTable = <T extends Record<string, any>>({
     });
 
     return (
-    <div className="w-full rounded-xl border overflow-auto shadow shadow-black/25">
-      <Table className="bg-white">
+    <div className="w-full rounded-lg border shadow shadow-black/25">
+      <Table className="bg-white rounded-lg">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

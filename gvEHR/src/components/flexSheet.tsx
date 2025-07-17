@@ -289,7 +289,7 @@ export function FlexSheet() {
                                     onChange={(e) => setValue(e.target.value)}
                                     onBlur={onBlur}
                                     onKeyDown={onKeyDown}
-                                    className={`min-w-12 h-6 text-right pr-2 py-0 text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 ${alertFlag ? "text-red-600 font-bold" : ""}`}
+                                    className={`min-w-12 h-6 text-right pr-2 py-0 text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 ${alertFlag ? "text-red-600 font-medium" : ""}`}
                                 />
                             )
                         };

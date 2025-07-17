@@ -58,7 +58,7 @@ const NoteDisplay = ({ note, displayDate }: NoteDisplayProps) => {
       </CollapsibleContent>
       <div className="flex justify-center">
         <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="focus-visible:ring-none focus:ring-none hover:bg-transparent h-fit">
+          <Button variant="ghost" className="focus-visible:ring-none focus:ring-none hover:bg-transparent p-1 h-fit">
             <ChevronDown style={{transform: isOpen ? `rotate(180deg)` : "none"}} />
           </Button>
         </CollapsibleTrigger>

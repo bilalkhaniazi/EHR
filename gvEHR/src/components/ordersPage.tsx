@@ -58,16 +58,18 @@ const OrdersPage = () => {
     };
 
     return (
-        <div className="p-4 w-full overflow-y-auto flex flex-col gap-6 justify-start items-center bg-gray-100">
+        <div className="px-2 w-full h-screen flex flex-col gap-4 justify-start items-center bg-gray-100">
             <Toaster position="top-right" />
             <div className="flex w-full gap-4 justify-center">
                 <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addNursingOrder}>Add Nursing Order</Button>
                 <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addMedicationOrder}>Add Med Order</Button>
                 <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addRespiratoryOrder}>Add Respiratory Order</Button>
             </div>
-            <OrdersTable color="bg-blue-300" columnNames={nursingOrderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
-            <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
-            <OrdersTable color="bg-lime-200" columnNames={respOrderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />
+            <div className="flex w-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+                <OrdersTable color="bg-blue-300" columnNames={nursingOrderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
+                <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
+                <OrdersTable color="bg-lime-200" columnNames={respOrderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />
+            </div>
         </div>
     )
 }
