@@ -39,7 +39,7 @@ const OrdersPage = () => {
 
     const addMedicationOrder = () => {
         const newOrder: MedOrderData = {
-            displayName: "Insulin (Rapid-Acting)", orderType: "medication", dose: "4 units", route: "Subcutaneous", frequency: "Before Meals", priority: "Routine", administrationInstructions: "Administer 15 minutes before meal based on blood glucose.", orderingProvider: "Dr. Emily White"};
+            displayName: "insulin lispro (Humalog)", orderType: "medication", dose: "4 units", route: "Subcutaneous", frequency: "Before Meals", priority: "Routine", administrationInstructions: "Administer 15 minutes before meal based on blood glucose.", orderingProvider: "Dr. Emily White"};
             addOrder(setMedicationOrderData, newOrder);
             toast.success(`Added ${newOrder.displayName} to Medication`);
 

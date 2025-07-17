@@ -220,20 +220,19 @@ export function FlexSheet() {
                         const initialValue = (getValue() as string) || '';
                         const [value, setValue] = useState(initialValue)
                         const componentType = row.original.componentType
-                        const chartingOptions = (row.original.chartingOptions || []) as chartingOptions[];
-                        const normalRange = row.original?.normalRange
-                        const handleComponentChange = (newValue: string) => {
-                            setValue(newValue); 
-                            onCellUpdate(row.original.field, column.id, newValue); 
-                        };
-
-                        
 
                         if(componentType === "static") {
                             return (
                                 <p></p>
                             );
-                        } else if(componentType === "autocomplete") {
+                        } else if(componentType === "assessmentselect") {
+                            const chartingOptions = (row.original.chartingOptions || []) as chartingOptions[];
+
+                            const handleComponentChange = (newValue: string) => {
+                                setValue(newValue); 
+                                onCellUpdate(row.original.field, column.id, newValue); 
+                            };
+
                             return (
                                 <AssessmentSelect
                                     options={chartingOptions} 
@@ -261,6 +260,7 @@ export function FlexSheet() {
                                 />
                             );
                         } else {
+                            const normalRange = row.original?.normalRange
                             let alertFlag = false;
                             if (normalRange && componentType == "input") {
                                 const numericValue = parseFloat(value) 
@@ -289,7 +289,7 @@ export function FlexSheet() {
                                     onChange={(e) => setValue(e.target.value)}
                                     onBlur={onBlur}
                                     onKeyDown={onKeyDown}
-                                    className={`min-w-12 h-6 text-right pr-2 py-0 text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 ${alertFlag ? "text-red-600 font-medium" : ""}`}
+                                    className={`min-w-12 h-6 text-right pr-2 py-0 text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 ${alertFlag ? "text-red-600 font-bold" : ""}`}
                                 />
                             )
                         };
@@ -327,7 +327,7 @@ export function FlexSheet() {
     >
         <SidebarInset>
             <Toaster position="top-right" />
-            <div className="flex flex-col h-screen justify-center items-center p-4">
+            <div className="flex flex-col h-screen justify-center items-center p-4 ">
                 <div className="w-full flex justify-between">
                     <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
@@ -335,14 +335,14 @@ export function FlexSheet() {
                     />
                     <Button
                         onClick={handleManualToggleSidebar}
-                        className="bg-gray-100 text-black mb-4 hover:bg-gray-200"
+                        className="bg-gray-100 text-black mb-4 hover:bg-gray-200 shadow shadow-black/20"
                     >
                         {isSidebarOpen ?
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
                     </Button>
                 </div>
-                <div className="w-full overflow-auto border-1 border-gray-200 rounded-md">
+                <div className="w-full overflow-auto border-1 border-gray-200 rounded-md ">
              
                     <Table className="w-full  rounded-md">
                         <TableHeader className=" bg-gray-100 sticky top-0">

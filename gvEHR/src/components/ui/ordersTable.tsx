@@ -40,7 +40,7 @@ const OrdersTable = <T extends Record<string, any>>({
         id: "displayName",
         header: () => {
           return (
-            <div className="pl-2 w-full h-12 flex items-center justify-start">
+            <div className="pl-2 w-full h-12 flex items-center justify-start ">
               <h1 className="text-xl">
                 <span className="relative inline-block px-3 py-1">
                   <span
@@ -100,7 +100,7 @@ const OrdersTable = <T extends Record<string, any>>({
     });
 
     return (
-    <div className="w-full rounded-xl border overflow-auto">
+    <div className="w-full rounded-xl border overflow-auto shadow shadow-black/25">
       <Table className="bg-white">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

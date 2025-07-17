@@ -59,16 +59,17 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTim
         setSelectedTime(new Date(0,0,0,0,0,0,0)); 
         toast.success(`Time column added at ${addedTime}`);
     }, [selectedTime, existingTimeColumns, onColumnAdd, setIsPopoverOpen]); 
+    
     return (
         <div className="flex gap-4 pl-8">
-            <Button onClick={handleAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
+            <Button onClick={handleAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200 shadow shadow-black/20">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Time
             </Button>
 
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
-                    <Button className="bg-gray-100 text-black mb-4 hover:bg-gray-200">
+                    <Button className="bg-gray-100 text-black mb-4 hover:bg-gray-200 shadow shadow-black/20">
                         <Clock className="mr-2 h-4 w-4" />
                         Insert Time
                     </Button>
@@ -96,7 +97,7 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTim
                     <Button
                         variant="secondary"
                         onClick={handleAddUserDefinedTime}
-                        className="w-full"
+                        className="w-full shadow shadow-black/20"
                     >
                         Insert Time
                     </Button>

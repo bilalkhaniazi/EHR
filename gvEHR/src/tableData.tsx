@@ -28,11 +28,16 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
     "HR Source": {90: "Monitor", 60: "Radial"},
     "BP": {90: "112/68", 60: "124/72"},
     "BP Source": {90: "Left upper arm", 60: "Left upper arm"},
-    "RR": {90: "16", 60: "20"},
-    "Temp": {90: "37.0", 60: "36.8"},
+    "RR": {90: "21", 60: "20"},
+    "Temp": {90: "37.4", 60: "36.8"},
     "Temp Source": {90: "Oral", 60: "Oral"},
-    "SpO2": {90: "99", 60: "98"},
-    "Lung Sounds" : {90: "Clear"}
+    "SpO2": {90: "91", 60: "98"},
+    "Pain": {90: "2"},
+    "Weight (kg)": {90: "76.4 kg"},
+    "Lung Sounds" : {90: "Clear"},
+    "Heart Sounds": {90: "S1, S2. No mumur noted"},
+    "Extremities": {90: "+2 pitting edema in BLE"}
+
 }
 
 const vitalsTemplate: tableData[] = [
@@ -105,7 +110,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "HR Source", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "Apical", label: "Apical" },
             { value: "Brachial", label: "Brachial" },
@@ -119,7 +124,7 @@ const vitalsTemplate: tableData[] = [
     { field: "BP", componentType: "input"},
     { 
         field: "BP Source", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "Left upper arm", label: "Left upper arm" },
             { value: "Right upper arm", label: "Right upper arm" },
@@ -145,7 +150,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Temp Source", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "Oral", label: "Oral" },
             { value: "Axillary", label: "Axillary" },
@@ -178,7 +183,7 @@ const vitalsTemplate: tableData[] = [
             { assessment: "Eyes", description: "Conjunctivae pink, sclera white, pupils equal/reactive (PERRLA), follows light/objects"},
             { assessment: "Ears", description: "No drainage, gross hearing intact" },
             { assessment: "Nose", description: "Nares patent, no drainage, no deformities"},
-            { assessment: "Mouth & Throat", description: "mucous membranes pink and moist, no lesions or odor, uvula midline"},
+            { assessment: "Mouth & Throat", description: "Mucous membranes pink and moist, no lesions or odor, uvula midline"},
         ] 
     },
     {
@@ -325,16 +330,16 @@ const vitalsTemplate: tableData[] = [
         assessmentSubsets: [
             { value: "WDL", label: "WDL" },
             { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Heart sounds", label: "Heart Sounds" }, 
+            { value: "Heart Sounds", label: "Heart Sounds" }, 
             { value: "Extremities", label: "Extremities" },
             { value: "Jugular Distention", label: "Jugular Distention"},
         ]
     },
     {
-        field: "Heart sounds",
+        field: "Heart Sounds",
         componentType: "input",
         hideable: true,
-        hideableId: "Heart sounds" 
+        hideableId: "Heart Sounds" 
     },
     {
         field: "Extremities",
@@ -530,7 +535,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Nausea & Vomiting", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No nausea or vomitting" },
             { value: "1", label: "1 - Mild nausea with no vomiting" },
@@ -546,7 +551,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Tremor", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No tremor" },
             { value: "1", label: "1 - Not visible, but can be felt fingertip to fingertip" },
@@ -562,7 +567,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Paroxysmal Sweats", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No sweat visible" },
             { value: "1", label: "1 - Barely perceptible sweating, palms moist" },
@@ -578,7 +583,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Anxiety", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No anxiety, at ease" },
             { value: "1", label: "1 - Mildly anxious" },
@@ -594,7 +599,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Agitation", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Normal activity" },
             { value: "1", label: "1 - Somewhat more than normal activity" },
@@ -610,7 +615,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Tactile Disturbances", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - None" },
             { value: "1", label: "1 - Very mild itching, pins and needles, burning, or numbness" },
@@ -626,7 +631,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Visual Disturbances", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Not present" },
             { value: "1", label: "1 - Very mild sensitivity" },
@@ -642,7 +647,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Headache", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Not Present" },
             { value: "1", label: "1 - Very mild" },
@@ -658,7 +663,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Orientation", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Oriented, can do serial additions" },
             { value: "1", label: "1 - Cannot do serial additions or is uncertain about date" },
@@ -678,7 +683,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "History of Falling", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No falls" },
             { value: "25", label: "25 - Has fallen within 3 months" },
@@ -688,7 +693,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Secondary Diagnosis", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No" },
             { value: "15", label: "15 - Yes" },
@@ -698,7 +703,7 @@ const vitalsTemplate: tableData[] = [
     },
     { 
         field: "Ambulatory Aid", 
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Bedrest/nurse assist" },
             { value: "15", label: "15 - Crutches/cane/walker" },
@@ -709,7 +714,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "IV Therapy/Heparin Lock",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No" },
             { value: "20", label: "20 - Yes" },
@@ -719,7 +724,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Gait",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Normal/Bedrest/Wheelchair" },
             { value: "10", label: "10 - Weak" },
@@ -730,7 +735,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Mental Status",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Oriented to own abilities" },
             { value: "15", label: "15 - Overestimates or forgets limitations" },
@@ -747,7 +752,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Sensory Perception",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "1", label: "1 - Completely Limited" },
             { value: "2", label: "2 - Very Limited" },
@@ -759,7 +764,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Moisture",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "1", label: "1 - Constantly Moist" },
             { value: "2", label: "2 - Very Moist" },
@@ -771,7 +776,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Activity",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "1", label: "1 - Bedfast" },
             { value: "2", label: "2 - Chairfast" },
@@ -783,7 +788,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Mobility",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "1", label: "1 - Completely Immobile" },
             { value: "2", label: "2 - Very Limited" },
@@ -795,7 +800,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Nutrition",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "1", label: "1 - Very Poor" },
             { value: "2", label: "2 - Probably Inadequate" },
@@ -807,7 +812,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Friction and Shear",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "1", label: "1 - Problem" },
             { value: "2", label: "2 - Potential Problem" },
@@ -825,7 +830,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Breathing (Independent of Vocalization)",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Normal" },
             { value: "1", label: "1 - Occasional labored breathing, short periods of hyperventilation" },
@@ -836,7 +841,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Negative Vocalization",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - None" },
             { value: "1", label: "1 - Occasional moan or groan, low-level speech with a negative or disapproving quality" },
@@ -847,7 +852,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Facial Expression",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Smiling or inexpressive" },
             { value: "1", label: "1 - Sad, frightened, frown" },
@@ -858,7 +863,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Body Language",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - Relaxed" },
             { value: "1", label: "1 - Tense, distressed pacing, fidgeting" },
@@ -869,7 +874,7 @@ const vitalsTemplate: tableData[] = [
     },
     {
         field: "Consolability",
-        componentType: "autocomplete",
+        componentType: "assessmentselect",
         chartingOptions: [
             { value: "0", label: "0 - No need to console" },
             { value: "1", label: "1 - Distracted or reassured by voice or touch" },
