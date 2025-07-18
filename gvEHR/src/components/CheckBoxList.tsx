@@ -4,7 +4,7 @@ import { Label } from "./ui/label";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button"; // Make sure Button is imported
 import { Checkbox } from "./ui/checkbox";
-import type { chartingOptions } from "@/tableData";
+import type { chartingOptions } from "@/components/tableData";
 
 interface CheckBoxListProps {
     options: chartingOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)

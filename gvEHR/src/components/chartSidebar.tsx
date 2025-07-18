@@ -14,7 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { type AssessmentTool, assessmentTools as tempData } from "../tableData"
+import { type AssessmentTool, assessmentTools as tempData } from "./tableData"
 
 
 export function ChartSidebar() {

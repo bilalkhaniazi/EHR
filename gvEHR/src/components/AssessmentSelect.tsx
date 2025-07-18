@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectGroup, SelectLabel, SelectValue } from "./ui/select"    
-import { type chartingOptions} from "@/tableData"
+import { type chartingOptions} from "@/components/tableData"
 import { cn, } from "@/lib/utils"
 
 

@@ -89,17 +89,14 @@ const OrdersTable = <T extends Record<string, any>>({
       )
     ], [data]
   );
+  const table = useReactTable({
+      data,
+      columns,
+      enablePinning: true,
+      getCoreRowModel: getCoreRowModel(), 
+  });
 
-
-
-    const table = useReactTable({
-        data,
-        columns,
-        enablePinning: true,
-        getCoreRowModel: getCoreRowModel(), 
-    });
-
-    return (
+  return (
     <div className="w-full rounded-lg border shadow shadow-black/25">
       <Table className="bg-white rounded-lg">
         <TableHeader>

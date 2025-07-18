@@ -8,8 +8,8 @@ import {
     type NursingOrderData,
     type MedOrderData,
     type RespiratoryOrderData,
-} from "@/orderData"
-import { medOrders } from "@/orderData"
+} from "@/components/orderData"
+import { medOrders } from "@/components/orderData"
 import { useState } from "react"
 import { Button } from "./ui/button"
 import { Toaster, toast } from "sonner"

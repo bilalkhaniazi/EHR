@@ -1,8 +1,9 @@
+// Resident attempted to wean sedation again, pt subsequently self-extubated, impromptu SBT failed.
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import type { tableData, chartingOptions } from "../tableData";
+import type { tableData, chartingOptions } from "./tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
-import { generateInitialVitalsData, getAllInitialHours } from "../tableData";
+import { generateInitialVitalsData, getAllInitialHours } from "./tableData";
 import { Input } from "./ui/input";
 import { Toaster, toast } from "sonner";
 import CheckBoxList from "./CheckBoxList";
@@ -13,7 +14,7 @@ import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 import { ChartSidebar } from "./chartSidebar";
-import { assessmentTools } from "../tableData";
+import { assessmentTools } from "./tableData";
 import { Button } from "./ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 
@@ -343,8 +344,7 @@ export function FlexSheet() {
                     </Button>
                 </div>
                 <div className="w-full overflow-auto border-1 border-gray-200 rounded-md ">
-             
-                    <Table className="w-full  rounded-md">
+                    <Table className="w-full rounded-md">
                         <TableHeader className=" bg-gray-100 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (
                             <TableRow key={headerGroup.id}>
@@ -352,7 +352,7 @@ export function FlexSheet() {
                                 <TableHead
                                 style={getPinnedStyles(header.column)}
                                 key={header.id}
-                                className="border-b-2 border-gray-200 "
+                                className="border-b-2 p-0 border-gray-200 "
                                 >
                                 {/* Render the header content using flexRender */}
                                 {header.isPlaceholder

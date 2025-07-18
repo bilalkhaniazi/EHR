@@ -23,6 +23,86 @@ const formatTime = (date: Date): string => {
     return `${hours}${minutes}`;
 };
 
+export const getInitialDynamicHours = (currHour: number) => {
+    return Array.from({length: 2}, (_, index) => {
+        const adjustedHour = (currHour + index) % 24
+        return `${adjustedHour.toString().padStart(2, "0")}00`
+    }); 
+};
+
+export const getPredefinedHoursMap = (currDate: Date) => {
+    const predefinedTimesMap= new Map<string, number>();
+
+    const allOffsetTimes = new Set<number>()
+    Object.values(predefinedVitalsData).forEach(fieldData => {
+        Object.keys(fieldData).forEach(minuteOffsetStr => {
+            allOffsetTimes.add(parseInt(minuteOffsetStr))
+        });
+    });
+
+    Array.from(allOffsetTimes).sort((a, b) => a - b).forEach(minutesOffset => {
+        const tempDate = new Date(currDate)
+        tempDate.setMinutes(currDate.getMinutes() - minutesOffset);
+        const formattedTime = formatTime(tempDate)
+        predefinedTimesMap.set(formattedTime, minutesOffset)
+    });
+            
+    return predefinedTimesMap
+};
+
+export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVitalsTimeMap: Map<string, number> } => {
+    const currDate = new Date()
+    const currHour = currDate.getHours()
+
+    const dynamicTimes = getInitialDynamicHours(currHour);
+
+    const predefinedVitalsTimeMap = getPredefinedHoursMap(currDate);
+    const predefinedTimes = Array.from(predefinedVitalsTimeMap.keys())
+    const combinedTimes = [... new Set([...dynamicTimes, ...predefinedTimes])];
+
+    return { 
+        allTimesColumns: combinedTimes.sort(),
+        predefinedVitalsTimeMap: predefinedVitalsTimeMap
+    }
+};
+
+export const generateInitialVitalsData = (
+    allTimesColumns: string[],
+    staticTimesMap: Map<string,number>
+): tableData[] => {
+    const generatedData: tableData[] = []
+
+    vitalsTemplate.forEach(templateRow => {
+        const newRow: tableData = {
+            field: templateRow.field,
+            componentType: templateRow.componentType,
+            rowType: templateRow.rowType,
+            ...(templateRow.chartingOptions && { chartingOptions: templateRow.chartingOptions }),
+            ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
+            ...(templateRow.hideable && { hideable: templateRow.hideable }),
+            ...(templateRow.hideableId && { hideableId: templateRow.hideableId }),
+            ...(templateRow.assessmentSubsets && { assessmentSubsets: templateRow.assessmentSubsets}),
+            ...(templateRow.wdlDescription && { wdlDescription: templateRow.wdlDescription })
+
+        };
+
+        allTimesColumns.forEach(hour => {
+            const correspondingMinuteOffset = staticTimesMap.get(hour)
+
+            let predefinedValue: string | undefined
+
+            if ( correspondingMinuteOffset !== undefined) {
+                predefinedValue = predefinedVitalsData[templateRow.field]?.[correspondingMinuteOffset];
+            } else {
+                predefinedValue = ''
+            }
+            newRow[hour] = predefinedValue !== undefined ? predefinedValue : '';
+        });
+        generatedData.push(newRow)
+    });
+    return generatedData
+};
+
 const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
     "HR" : {90: "112", 60: "88"},
     "HR Source": {90: "Monitor", 60: "Radial"},
@@ -41,13 +121,14 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
 }
 
 const vitalsTemplate: tableData[] = [
-    { field: "General Appearance",
-      componentType: "static",
-      rowType: "titleRow",
-      wdlDescription: [
-        {assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
-        {assessment: "Safety", description: "call‑light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
-    ] 
+    { 
+        field: "General Appearance",
+        componentType: "static",
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
+            { assessment: "Safety", description: "call-light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
+        ] 
     },
     {
         field: "General Appearance", 
@@ -886,85 +967,7 @@ const vitalsTemplate: tableData[] = [
 ];
     
 
-export const getInitialDynamicHours = (currHour: number) => {
-        return Array.from({length: 2}, (_, index) => {
-            const adjustedHour = (currHour + index) % 24
-            return `${adjustedHour.toString().padStart(2, "0")}00`
-        }); 
-};
 
-export const getPredefinedHoursMap = (currDate: Date) => {
-    const predefinedTimesMap= new Map<string, number>();
-
-    const allOffsetTimes = new Set<number>()
-    Object.values(predefinedVitalsData).forEach(fieldData => {
-        Object.keys(fieldData).forEach(minuteOffsetStr => {
-            allOffsetTimes.add(parseInt(minuteOffsetStr))
-        });
-    });
-
-    Array.from(allOffsetTimes).sort((a, b) => a - b).forEach(minutesOffset => {
-        const tempDate = new Date(currDate)
-        tempDate.setMinutes(currDate.getMinutes() - minutesOffset);
-        const formattedTime = formatTime(tempDate)
-        predefinedTimesMap.set(formattedTime, minutesOffset)
-    });
-            
-    return predefinedTimesMap
-};
-
-export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVitalsTimeMap: Map<string, number> } => {
-    const currDate = new Date()
-    const currHour = currDate.getHours()
-
-    const dynamicTimes = getInitialDynamicHours(currHour);
-
-    const predefinedVitalsTimeMap = getPredefinedHoursMap(currDate);
-    const predefinedTimes = Array.from(predefinedVitalsTimeMap.keys())
-    const combinedTimes = [... new Set([...dynamicTimes, ...predefinedTimes])];
-
-    return { 
-        allTimesColumns: combinedTimes.sort(),
-        predefinedVitalsTimeMap: predefinedVitalsTimeMap
-    }
-};
-
-export const generateInitialVitalsData = (
-    allTimesColumns: string[],
-    staticTimesMap: Map<string,number>
-): tableData[] => {
-    const generatedData: tableData[] = []
-
-    vitalsTemplate.forEach(templateRow => {
-        const newRow: tableData = {
-            field: templateRow.field,
-            componentType: templateRow.componentType,
-            rowType: templateRow.rowType,
-            ...(templateRow.chartingOptions && { chartingOptions: templateRow.chartingOptions }),
-            ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
-            ...(templateRow.hideable && { hideable: templateRow.hideable }),
-            ...(templateRow.hideableId && { hideableId: templateRow.hideableId }),
-            ...(templateRow.assessmentSubsets && { assessmentSubsets: templateRow.assessmentSubsets}),
-            ...(templateRow.wdlDescription && { wdlDescription: templateRow.wdlDescription })
-
-        };
-
-        allTimesColumns.forEach(hour => {
-            const correspondingMinuteOffset = staticTimesMap.get(hour)
-
-            let predefinedValue: string | undefined
-
-            if ( correspondingMinuteOffset !== undefined) {
-                predefinedValue = predefinedVitalsData[templateRow.field]?.[correspondingMinuteOffset];
-            } else {
-                predefinedValue = ''
-            }
-            newRow[hour] = predefinedValue !== undefined ? predefinedValue : '';
-        });
-        generatedData.push(newRow)
-    });
-    return generatedData
-};
 
 interface AssessmentToolCategories {
     name: string,

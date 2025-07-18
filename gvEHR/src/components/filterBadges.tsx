@@ -38,7 +38,6 @@ const FilterBadges = ( { activeFilters, handleFilterChange, handleClearFilters }
                 >
                     <Trash />
                     Clear all
-
                 </Button>
             )}
         </div>
