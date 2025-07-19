@@ -1,5 +1,5 @@
 // src/components/CheckBoxList.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Label } from "./ui/label";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Button } from "./ui/button"; // Make sure Button is imported

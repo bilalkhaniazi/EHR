@@ -13,7 +13,7 @@ interface NoteContent {
     label?: string;
 }
 
-export const sampleNotes = [
+export const sampleNotes: NoteData[] = [
     // --- Day 1 (July 18, 2025) - Current Day Notes (Newest) ---
     {
         title: "Progress Note",
@@ -140,7 +140,7 @@ export const sampleNotes = [
             { type: 'paragraph', content: '60-year-old male with PMH of T2DM, HTN, peripheral neuropathy. Presents with non-healing right great toe ulcer over past week, associated with increasing redness. Reports feeling fatigued and bilateral foot numbness. Admits to inconsistent insulin use (missed doses for last 3 days). Denies fever, chills, or new pain in foot, but states baseline neuropathic pain is present. Reports poor dietary adherence, eating prepackaged foods.' },
             { type: 'header', content: 'Objective' },
             { type: 'paragraphWithLabel', label: 'Vitals (09:30)', content: 'Temp: 37.0°C, HR: 88 bpm, BP: 145/85 mmHg, RR: 18/min, SpO₂: 97% RA. BG: 275 mg/dL (on admission).' },
-            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Alert, oriented x3. Right great toe: 2x2 cm ulcer with mild surrounding erythema, no purulent drainage noted. Warm to touch. Distal pulses palpable (DP/PT 2+ bilaterally). Monofilament testing: absent sensation over right great toe and plantar aspect of foot. Left foot: intact skin, decreased sensation. Nails: Hypertrophic, mycotic on bilateral great toes. Foot deformities: mild hammertoes bilaterally. Heart: RRR. Lungs: CTA bilaterally.' },
+            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Alert, oriented x3. Right great toe: 2x2 cm ulcer with mild surrounding erythema, no purulent drainage noted. Warm to touch. Distal pulses palpable (DP/PT 2+ bilaterally). Monofilament testing: absent sensation over right great toe and plantar aspect of foot. Left foot: intact skin, decreased sensation. Nails: Hypertrophic, mycotic on bilateral great toes. Foot deformities: mild hammertoes bilaterally.' },
             { type: 'paragraphWithLabel', label: 'Labs (09:45)', content: 'Initial BMP drawn. HbA1c pending. Wound culture from right great toe sent.' },
             { type: 'header', content: 'Assessment' },
             { type: 'paragraph', content: '60-year-old male, Type 2 Diabetes Mellitus with chronic poor glycemic control (evident by missed insulin doses and admission BG 275). Presents with infected right great toe diabetic foot ulcer. Also with hypertension and peripheral neuropathy. Currently on contact precautions for MRSA.' },

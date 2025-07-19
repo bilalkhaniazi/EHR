@@ -10,7 +10,7 @@ import {
     type NursingOrderData,
     type MedOrderData,
     type RespiratoryOrderData,
-    type LabratoryOrderData,
+    // type LabratoryOrderData,
 } from "@/components/orderData"
 import { medOrders } from "@/components/orderData"
 import { useState } from "react"
@@ -25,7 +25,7 @@ const OrdersPage = () => {
     const [nursingOrderData, setNursingOrderData] = useState(nursingOrders)
     const [medicationOrderData, setMedicationOrderData] = useState(medOrders)
     const [respiratoryOrderData, setRespiratoryOrderData] = useState(respiratoryOrders)
-    const [labratoryOrderData, setLabratoryOrderData] = useState(labratoryOrders)
+    const [labratoryOrderData] = useState(labratoryOrders)
 
 
     const addOrder = <T extends Record<string, any>>(

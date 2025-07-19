@@ -5,7 +5,7 @@ import type { tableData, chartingOptions } from "./tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
 import { generateInitialVitalsData, getAllInitialHours } from "./tableData";
 import { Input } from "./ui/input";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import CheckBoxList from "./CheckBoxList";
 import { AddTimeColumnButton } from "./addTimeColButton";
 import AssessmentSelect from "./AssessmentSelect";

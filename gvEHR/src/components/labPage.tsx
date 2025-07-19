@@ -4,11 +4,9 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
 import { Toaster, toast } from "sonner";
-import { AddTimeColumnButton } from "./addTimeColButton";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-import { Button } from "./ui/button";
 import AddBgDemo from "./addBgDemo";
 
 // Define the structure for initial lab results when adding a new column
@@ -36,7 +34,6 @@ export function LabPage() {
   const allTimePoints = useMemo(() => generateAllInitialLabTimes(), [])
 
   const [timePoints, setTimePoints] = useState(allTimePoints)
-  const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
 
   // generate inital dataset to be used by PtTable 
   const initialData = useMemo(() => generateInitialLabData(allTimePoints, labTemplate), [allTimePoints]);
@@ -44,19 +41,19 @@ export function LabPage() {
   const [data, setData] = useState<LabTableData[]>(initialData);
 
   // updates Data upon submission of Input or AssessmentSelect component 
-  const onCellUpdate = useCallback((rowId: string, columnId: string, newValue: string | string[]) => {
-    setData(oldData => 
-      oldData.map(row => {
-        if(row.field === rowId) {
-          return {
-            ...row,
-            [columnId]: newValue,
-          };
-        }
-        return row
-      })
-    );
-  },  []);
+  // const onCellUpdate = useCallback((rowId: string, columnId: string, newValue: string | string[]) => {
+  //   setData(oldData => 
+  //     oldData.map(row => {
+  //       if(row.field === rowId) {
+  //         return {
+  //           ...row,
+  //           [columnId]: newValue,
+  //         };
+  //       }
+  //       return row
+  //     })
+  //   );
+  // },  []);
 
 
   const currentDate = useMemo(() => {

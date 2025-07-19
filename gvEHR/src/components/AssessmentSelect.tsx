@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectTrigger, SelectItem, SelectGroup, SelectLabel, SelectValue } from "./ui/select"    
+import { Select, SelectContent, SelectTrigger, SelectItem, SelectGroup, SelectValue } from "./ui/select"    
 import { type chartingOptions} from "@/components/tableData"
 import { cn, } from "@/lib/utils"
 
@@ -16,8 +16,6 @@ export default function AssessmentSelect({
     value,
     onValueChange,
     className,
-    rowId,
-    columnId
 }: AssessmentSelectProps) {
      
     return(
