@@ -1,4 +1,4 @@
-import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTableData } from "./labsData"
+import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTableData, type LabTimePoint } from "./labsData"
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
@@ -8,7 +8,14 @@ import { AddTimeColumnButton } from "./addTimeColButton";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
+import { Button } from "./ui/button";
+import AddBgDemo from "./addBgDemo";
 
+// Define the structure for initial lab results when adding a new column
+export interface NewLabResult {
+  labName: string;
+  value: string;
+}
 
 const columnHelper = createColumnHelper<LabTableData>();
 
@@ -36,45 +43,6 @@ export function LabPage() {
   
   const [data, setData] = useState<LabTableData[]>(initialData);
 
-  // upon change in rows to display, update 
-  const visibleSubsetIds = useMemo(() => {
-    const combinedSet = new Set<string>();
-    Object.values(fieldSelections).forEach(selectedIdsArray => {
-      selectedIdsArray.forEach(id => {
-        // WDL is an option in the checkboxlist but doesn't map to a hideableId row.
-        if (id !== "WDL") {
-          combinedSet.add(id);
-        }
-      });
-    });
-    return combinedSet;
-  }, [fieldSelections]);
-  
-  // construct new data object and map in existing user entries upon addition of rows
-  const updatedData = useMemo(() => {
-    // const filteredData: LabTableData[] = initialData.filter(row => {
-    //   if (row.hideable) {
-    //     // Only show hideable rows if their specific hideableId is in the set
-    //     return row.hideableId && visibleSubsetIds.has(row.hideableId);                       hidden column filter could be removed
-    //   }
-    //   return true; // Always show non-hideable rows
-    // });
-
-    return data.map(row => {
-      const newRow = { ...row };
-      timePoints.forEach(hour => {
-        const matchingRow = data.find(d => d.field === row.field);
-        newRow[hour.dateKey] = matchingRow ? matchingRow[hour.dateKey] : "";
-      });
-      return newRow;
-    });
-  }, [visibleSubsetIds, timePoints]);
-  
-  // set Data upon addition of rows
-  useEffect(() => {
-    setData(updatedData);
-  }, [updatedData]);
-
   // updates Data upon submission of Input or AssessmentSelect component 
   const onCellUpdate = useCallback((rowId: string, columnId: string, newValue: string | string[]) => {
     setData(oldData => 
@@ -91,54 +59,6 @@ export function LabPage() {
   },  []);
 
 
-  const handleSubsetSelection = useCallback((field: string, columnId: string, selectedIdsForField: string[]) => {
-    const selectionKey = `${field}-${columnId}`;
-
-    setFieldSelections(prev => ({
-      ...prev,
-      [selectionKey]: selectedIdsForField // Update only the selections for this specific field
-    }));
-    onCellUpdate(field, columnId, selectedIdsForField)
-  }, []);
-
-
-  // const handleColumnAdd = useCallback((newTime: string) => {
-  //   setTimePoints(prevColumns => {
-  //     const newTimePoint = {newTime, {field: }}
-  //     const updatedColumns = [...prevColumns, newTime].sort();
-  //     return updatedColumns;
-  //   });
-
-  //   setData(prevData =>
-  //     prevData.map(row => {
-  //       const newRow = { ...row };
-  //       newRow[newTime] = '';
-  //       return newRow;
-  //     })
-  //   );
-  // }, []);
-
-  // useEffect(() => {
-  //   let shouldOpen = false;
-  //   for (const tool of assessmentTools) {
-  //     if (visibleSubsetIds.has(tool.name)) {
-  //       shouldOpen = true
-  //       break
-  //     }
-  //   }
-
-  //   if(shouldOpen != isSidebarOpen) {
-  //     setIsSideBarOpen(shouldOpen)
-  //   }
-  //   }, [visibleSubsetIds]);
-
-  // const handleManualToggleSidebar = () => {
-  //   setIsSideBarOpen(prev => !prev);
-  //   console.log("called")
-  // }; 
-  
-  
-
   const currentDate = useMemo(() => {
     const todayDate = new Date()
     return todayDate.toLocaleDateString("en-US", {
@@ -146,6 +66,61 @@ export function LabPage() {
       day: "numeric",
     });
   }, []);
+  
+  console.log(currentDate)
+
+  const handleColumnAdd = useCallback((initialLabResults?: NewLabResult[]) => {
+    const now = new Date();
+    // Format the current date and time to match the existing dateKey format (e.g., "MM/DD/YYYY HH:MM")
+    const newDateKey = now.toLocaleDateString("en-US", {
+      month: "2-digit", // Ensure two digits for month
+      day: "2-digit",   // Ensure two digits for day
+    }) + " " + now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // Use 24-hour format for consistency
+    });
+
+    // Create a new LabTimePoint object for the new column, providing default/derived values
+    const newTimePoint: LabTimePoint = {
+      dateKey: newDateKey,
+      daysOffset: 0, // Default for a newly added column, or calculate based on logic
+      hours: now.getHours(), // Get the current hour
+      labs: [], // Newly added columns don't have predefined lab results in their LabTimePoint object
+    };
+
+    // Update the timePoints state by adding the new time point and sorting them chronologically
+    setTimePoints(prevTimePoints => {
+      const updatedTimePoints = [...prevTimePoints, newTimePoint].sort((a, b) => {
+        const dateA = new Date(a.dateKey);
+        const dateB = new Date(b.dateKey);
+        return dateA.getTime() - dateB.getTime();
+      });
+      return updatedTimePoints;
+    });
+      
+
+    // Update the data state to include the new column and populate it with initial lab results if provided
+    setData(prevData => {
+      return prevData.map(row => {
+        const newRow: LabTableData = { ...row };
+        // Initialize the new column for this row with an empty string
+        newRow[newDateKey] = ""; 
+
+        // If initialLabResults are provided, find a matching lab result for the current row's field
+        if (initialLabResults) {
+          const labResult = initialLabResults.find((lr) => lr.labName === row.field);
+          // If a matching lab result is found, set the new column's value to it
+          if (labResult) {
+            newRow[newDateKey] = labResult.value;
+          }
+        }
+        return newRow;
+      });
+    });
+
+    toast.success(`New column added for ${newDateKey}`);
+  }, []); 
 
   const columns = useMemo(
     () => [
@@ -171,7 +146,7 @@ export function LabPage() {
                 <Tooltip>
                   <TooltipTrigger className="w-full font-normal text-sm text-neutral-700 shadow-none rounded-none">
                     <div className="flex justify-end w-full">
-                      <p className="text-right font-normal px-2 text-sm text-neutral-700"> {field}</p>
+                      <p className="text-right font-normal px-2 text-sm text-neutral-700">{field}</p>
                       {unit && <p className="text-right font-normal pr-2 text-xs text-neutral-400">{unit}</p>}
                     </div>
                   </TooltipTrigger>
@@ -211,7 +186,7 @@ export function LabPage() {
           header: () => {
             const dateAndTime = timePoint.dateKey.split(" ")
             const displayTime = dateAndTime[1].replace(':', '')
-            const displayDate = dateAndTime[0].replace('-', '/')
+            const displayDate = dateAndTime[0]
 
             return (
               <div className="flex flex-col justify-center items-center">
@@ -263,25 +238,20 @@ export function LabPage() {
    
   return (
     <div className="flex flex-col h-screen justify-center items-center p-4 ">
-    <Toaster position="top-right" />
-      <div className="w-full flex justify-between">
-        {/* <AddTimeColumnButton 
-          onColumnAdd={handleColumnAdd}
-          // existingtimePoints={timePoints}
-        />
-         */}
+      <Toaster position="top-right" />
+      <div className="w-full flex justify-between p-4">
+        <AddBgDemo onAddLab={handleColumnAdd} />
       </div>
-      <div className="w-full overflow-auto border-1 border-gray-200 rounded-md ">
-    
-        <Table className="w-full  rounded-md">
+      <div className="w-full border border-gray-200 rounded-md overflow-auto">
+        <Table className="w-full">
           <TableHeader className=" bg-gray-100 sticky top-0">
           {ptTable.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
             {headerGroup.headers.map(header => (
               <TableHead
-              style={getPinnedStyles(header.column)}
-              key={header.id}
-              className="border-b-2 border-gray-200 p-0 "
+                style={getPinnedStyles(header.column)}
+                key={header.id}
+                className="border-b-2 border-gray-200 p-0"
               >
               {/* Render the header content using flexRender */}
               {header.isPlaceholder

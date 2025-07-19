@@ -13,168 +13,139 @@ interface NoteContent {
     label?: string;
 }
 
-export const sampleNotes: NoteData[] = [
+export const sampleNotes = [
+    // --- Day 1 (July 18, 2025) - Current Day Notes (Newest) ---
     {
-        title: "Nursing Note",
-        author: "Marco Arop, RN BSN",
-        specialty: "Nursing",
-        dateOffset: 1, // Corresponds to Hospital Day 3
-        publishTime: "0700",
+        title: "Progress Note",
+        author: "Dr. John Smith, MD",
+        specialty: "Internal Medicine",
+        dateOffset: 0, // Hospital Day 3 (July 18) - Current Day
+        publishTime: "0900", // Matches the initial order time for the "current" day
         noteBody: [
-            {
-                type: 'paragraph',
-                content:
-                    'Overnight shift: Patient initiated on oxygen via 2L NC; SpO₂ ranged between 91–93%. Required multiple nebulizer treatments for wheezing and dyspnea. Cough persistent with moderate yellow sputum; patient instructed on expectoration techniques. Appears fatigued, but alert and oriented x3. Required assist with toileting and repositioning. No acute distress. Completed first doses of prednisone and levofloxacin without issue.'
-            },
-            {
-                type: 'paragraphWithLabel',
-                label: 'Pain',
-                content: '2/10 (mild throat discomfort and chest tightness)'
-            },
-            {
-                type: 'paragraphWithLabel',
-                label: 'Activity',
-                content: 'Limited mobility; repositioned in bed with assistance'
-            }
+            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '3' },
+            { type: 'header', content: "Subjective" },
+            { type: 'paragraph', content: 'Patient continues to report improvement in energy and overall well-being. Foot numbness persists. Right great toe ulcer has no new pain. Patient verbalizes understanding of diabetes management and wound care principles.' },
+            { type: 'header', content: 'Objective' },
+            { type: 'paragraphWithLabel', label: 'Vitals (08:30)', content: 'Temp: 36.9°C, HR: 78 bpm, BP: 128/76 mmHg, RR: 16/min, SpO₂: 98% RA.' },
+            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Right great toe ulcer: 2x2 cm, clean base, good granulation. Erythema nearly resolved. No drainage or odor. Left foot: no changes. Lungs clear, heart RRR.' },
+            { type: 'paragraphWithLabel', label: 'Labs (08:00)', content: 'Daily BMP stable.' },
+            { type: 'header', content: 'Assessment' },
+            { type: 'paragraph', content: '60-year-old male, T2DM with infected right great toe ulcer. Significant improvement in local infection signs and systemic symptoms. Glycemic control is improving. Patient is stable and trending towards discharge.' },
+            { type: 'header', content: 'Plan' },
+            { type: 'paragraph', content: '1. Continue current medical regimen and wound care. 2. Continue daily BMP until 3 days are complete. 3. Continue to encourage progressive ambulation and deep breathing. 4. Case management consult to finalize home health services for wound care post-discharge. Daughter contacted and prepared for discharge. 5. Discuss discharge plan with patient, including medication reconciliation, follow-up with PCP and Podiatry, and signs of worsening infection. 6. Aim for discharge by end of day if home health is confirmed and patient remains stable on room air with good functional mobility.' }
         ]
     },
     {
-        title: "Respiratory Therapy Note",
-        author: "Liam Davis, RRT",
-        specialty: "Respiratory Therapy",
-        dateOffset: 1, // Hospital Day 3
-        publishTime: "1030",
+        title: "Nursing Note",
+        author: "Samantha Bell, RN BSN",
+        specialty: "Nursing",
+        dateOffset: 0, // Hospital Day 3 (July 18) - Current Day
+        publishTime: "0800",
         noteBody: [
-            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '3' },
-            { type: 'paragraph', content: 'Patient assessed for respiratory status. SpO₂ 94% on 2L NC. Breath sounds improved, less wheezing heard bilaterally. Performed bronchodilator treatment (Albuterol/Ipratropium) via nebulizer; patient tolerated well with improved air movement post-treatment. Discussed incentive spirometry technique; patient demonstrating good effort. Will continue to monitor respiratory effort and oxygenation.' },
-            { type: 'paragraphWithLabel', label: 'Treatment', content: 'Nebulizer treatment, Incentive Spirometry education' },
-            { type: 'paragraphWithLabel', label: 'Sputum', content: 'Yellow, moderate amount' }
+            { type: 'paragraph', content: 'Morning shift: Patient awoke alert and oriented. Vital signs stable, within parameters. BG at 07:00 was 155 mg/dL, administered insulin lispro per sliding scale. Assisted with full bed bath and linen change. Right great toe dressing changed, wound site clean and dry, no foul odor noted. Patient states "my foot feels a bit better today." Reinforcement of foot care education provided. Discussed importance of wearing hospital non-skid socks for fall prevention. Tolerated breakfast well.' },
+            { type: 'paragraphWithLabel', label: 'Pain', content: '1/10 (occasional mild aching)' },
+            { type: 'paragraphWithLabel', label: 'Activity', content: 'Up to chair for meals with minimal assist. Ambulated 20ft in room with 1-person assist and walker.' }
+        ]
+    },
+
+    // --- Day 2 (July 17, 2025) - Progress and follow-up ---
+    {
+        title: "Podiatry Progress Note",
+        author: "Dr. Lena Khan, DPM",
+        specialty: "Podiatry",
+        dateOffset: 1, // Hospital Day 2 (July 17)
+        publishTime: "1400",
+        noteBody: [
+            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '2' },
+            { type: 'header', content: "Assessment" },
+            { type: 'paragraph', content: 'Right great toe ulcer re-assessed. Size unchanged (2x2 cm). Surrounding erythema appears diminished compared to yesterday. No new signs of active infection (no increased drainage, odor, or pain). Wound base remains clean and granulating. Performed sharp debridement of peri-wound callus. Reinforced importance of offloading to patient. Discussed potential for specialized diabetic shoes upon discharge with Case Management.' },
+            { type: 'paragraphWithLabel', label: 'Intervention', content: 'Sharp debridement, wound cleansing, offloading reinforcement.' },
+            { type: 'paragraphWithLabel', label: 'Next Steps', content: 'Continue daily wound checks. Re-evaluate Friday (07/18/2025).' }
         ]
     },
     {
         title: "Progress Note",
-        author: "Dr. Bryce Hoppel",
+        author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 1, // Hospital Day 3
-        publishTime: "1501",
-        noteBody: [
-            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '3' },
-            { type: 'header', content: "Subjective" },
-            { type: 'paragraph', content: 'Patient is a 67-year-old male on hospital day 3 for COPD exacerbation, likely secondary to a lower respiratory tract infection. He reports mild improvement in dyspnea since initiation of corticosteroids and antibiotics. Still experiencing a productive cough with yellow sputum. Denies chest pain or hemoptysis. States he is sleeping better but still fatigued. Appetite remains poor.' },
-            { type: 'header', content: 'Objective' },
-            { type: 'paragraphWithLabel', label: 'Vitals', content: 'Temp: 37.2°C, HR: 88 bpm, BP: 132/78 mmHg, RR: 20/min, SpO₂: 94% on 2L nasal cannula.' },
-            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Alert, fatigued. Decreased breath sounds at bases, scattered wheezes, crackles noted bilaterally.' },
-            { type: 'paragraphWithLabel', label: 'Labs', content: 'WBC: 10.2 x10⁹/L, CRP: 55, BMP: Stable, ABG (prior): Mild respiratory acidosis, Sputum culture: Pending' },
-            { type: 'paragraphWithLabel', label: 'Imaging', content: 'CXR shows bilateral infiltrates, hyperinflation consistent with COPD exacerbation.' },
-            { type: 'header', content: 'Assessment' },
-            { type: 'paragraph', content: '67-year-old male with known COPD, presenting with acute exacerbation likely triggered by a lower respiratory infection. Clinical status improving with current therapy. No evidence of acute cardiac process. Monitoring for progression or secondary complications.' },
-            { type: 'header', content: 'Plan' },
-            { type: 'paragraph', content: 'Continue current prednisone taper (40 mg daily)—reassess need based on respiratory status. Continue levofloxacin (Day 3 of 5-day course) with plans to complete the course unless culture results suggest de-escalation. Maintain supplemental oxygen at 2L nasal cannula, titrate to keep SpO₂ ≥ 92%; consider weaning if patient remains stable. Continue chest physiotherapy PRN and encourage incentive spirometry every hour while awake to promote lung expansion and prevent atelectasis. Monitor for fever, increased sputum production, changes in breath sounds, or worsening dyspnea. Reassess sputum culture results upon return and tailor antibiotic therapy accordingly. Initiate nutrition consult to evaluate for caloric and protein needs due to poor appetite. Encourage ambulation with assistance to prevent deconditioning. Evaluate readiness for discharge once patient is stable on room air, has completed antibiotics, and shows functional improvement.' }
-        ]
-    },
-    {
-        title: "Physical Therapy Note",
-        author: "Emily White, DPT",
-        specialty: "Physical Therapy",
-        dateOffset: 2, // Hospital Day 2
-        publishTime: "0900",
-        noteBody: [
-            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '2' },
-            { type: 'paragraph', content: 'Initial PT evaluation completed. Patient presents with generalized weakness and decreased endurance due to prolonged bed rest and respiratory compromise. Functional mobility: MOD assist for bed mobility, MAX assist for sit-to-stand and transfers to chair. Ambulation not attempted today due to dyspnea on exertion. Goals: Improve strength and endurance to allow independent transfers and ambulation of 50 feet with minimal assist.' },
-            { type: 'paragraphWithLabel', label: 'Intervention', content: 'Therapeutic exercise (UE/LE AROM in bed), diaphragmatic breathing exercises, patient education on energy conservation.' },
-            { type: 'paragraphWithLabel', label: 'Tolerance', content: 'Fair, SpO₂ dropped to 89% with exertion but recovered quickly.' }
-        ]
-    },
-    {
-        title: "Nursing Note",
-        author: "David Lee, RN BSN",
-        specialty: "Nursing",
-        dateOffset: 2, // Hospital Day 2
-        publishTime: "0700", // This time is earlier than the PT note, so it appears before it chronologically on the same day.
-        noteBody: [
-            { type: 'paragraph', content: 'Overnight shift: Patient tolerated oxygen at 2L NC, SpO2 maintaining 92-94%. Reports slight improvement in breathing, less effort. Coughing up thick yellow sputum, assisted with expectoration. Completed morning meds, including prednisone and levofloxacin. Skin intact. Encouraged fluid intake. A&O x3. Assisted with ambulation to bathroom.' },
-            { type: 'paragraphWithLabel', label: 'Pain', content: '1/10 (sore throat from cough)' },
-            { type: 'paragraphWithLabel', label: 'Activity', content: 'Assisted with ambulation to bathroom' }
-        ]
-    },
-    {
-        title: "Respiratory Therapy Note",
-        author: "Liam Davis, RRT",
-        specialty: "Respiratory Therapy",
-        dateOffset: 2, // Hospital Day 2
+        dateOffset: 1, // Hospital Day 2 (July 17)
         publishTime: "1100",
         noteBody: [
             { type: 'paragraphWithLabel', label: 'Hospital Day', content: '2' },
-            { type: 'paragraph', content: 'Reviewed patient\'s response to bronchodilator therapy. Patient reports less wheezing and easier breathing compared to yesterday. SpO₂ maintaining 93% on 2L NC during rest. Performed nebulizer treatment. Reinforced coughing and deep breathing techniques. Patient cooperative and motivated. Will continue 2L NC, monitor SpO₂ and respiratory rate.' },
-            { type: 'paragraphWithLabel', label: 'Intervention', content: 'Nebulizer treatment, breathing exercises reinforcement.' },
-            { type: 'paragraphWithLabel', label: 'Tolerance', content: 'Good, no adverse reactions.' }
-        ]
-    },
-    {
-        title: "Progress Note",
-        author: "Dr. Bryce Hoppel",
-        specialty: "Internal Medicine",
-        dateOffset: 2, // Hospital Day 2
-        publishTime: "1135",
-        noteBody: [
-            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '2' },
             { type: 'header', content: "Subjective" },
-            { type: 'paragraph', content: 'Patient reports mild improvement in breathing with less wheezing. Cough remains productive with yellow sputum. Still feeling fatigued and short of breath with exertion. No fevers overnight. Appetite poor.' },
+            { type: 'paragraph', content: 'Patient reports decreased fatigue, improved energy. Numbness in feet remains unchanged. Right great toe ulcer without new pain. Reports good appetite today, tolerating diabetic diet. No fever or chills.' },
             { type: 'header', content: 'Objective' },
-            { type: 'paragraphWithLabel', label: 'Vitals', content: 'Temp: 37.0°C, HR: 90 bpm, BP: 130/80 mmHg, RR: 22/min, SpO₂: 93% on 2L O₂.' },
-            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Breath sounds remain diminished with persistent wheezing and crackles. Less accessory muscle use. No cyanosis. Alert and cooperative.' },
-            { type: 'paragraphWithLabel', label: 'Labs', content: 'WBC: 11.6 x10⁹/L, CRP: 72 (trending down), BMP: unchanged. ABG not repeated. Sputum culture: preliminary results suggest H. influenzae.' },
-            { type: 'paragraphWithLabel', label: 'Imaging', content: 'No new imaging ordered. Previous CXR unchanged.' },
+            { type: 'paragraphWithLabel', label: 'Vitals (10:00)', content: 'Temp: 36.8°C, HR: 80 bpm, BP: 130/78 mmHg, RR: 16/min, SpO₂: 97% RA.' },
+            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Right great toe ulcer: mild erythema, no purulent drainage. Clean base. Distal pulses strong. Left foot: no changes. Lungs clear. Heart RRR.' },
+            { type: 'paragraphWithLabel', label: 'Labs (09:00)', content: 'BMP stable. HbA1c returned at 9.8% (confirming poor glycemic control).' },
             { type: 'header', content: 'Assessment' },
-            { type: 'paragraph', content: 'Day 2 of hospitalization for COPD exacerbation. Gradual clinical improvement with antibiotics and steroids. No signs of decompensation. Awaiting final culture confirmation.' },
+            { type: 'paragraph', content: 'COPD exacerbation (improving). Day 2 of hospitalization. Gradual clinical improvement with antibiotics and steroids. No signs of decompensation. Awaiting final culture confirmation.' },
             { type: 'header', content: 'Plan' },
-            { type: 'paragraph', content: 'Continue current prednisone and levofloxacin regimen. Maintain O₂ at 2L nasal cannula. Encourage use of incentive spirometry and ambulation with staff support. Monitor for signs of worsening respiratory status. Recheck sputum culture for final sensitivity. Consider nutrition consult tomorrow if poor intake persists.' }
-        ]
-    },
-    {
-        title: "Physical Therapy Note",
-        author: "Emily White, DPT",
-        specialty: "Physical Therapy",
-        dateOffset: 3, // Hospital Day 1
-        publishTime: "1000",
-        noteBody: [
-            { type: 'paragraphWithLabel', label: 'Hospital Day', content: '1' },
-            { type: 'paragraph', content: 'Patient admitted due to COPD exacerbation. PT Consult received for impaired mobility. Baseline mobility: ambulates 100ft with rolling walker. Currently unable to ambulate beyond room with assistance due to severe dyspnea on exertion. Plan: Assess functional baseline, initiate breathing exercises and gentle ROM. Education on energy conservation techniques.' },
-            { type: 'paragraphWithLabel', label: 'Intervention', content: 'Bed mobility, AROM/PROM exercises, breathing retraining.' },
-            { type: 'paragraphWithLabel', label: 'Tolerance', content: 'Poor, SpO₂ dropped to 88% with minimal exertion. Patient requires frequent rest breaks.' }
+            { type: 'paragraph', content: '1. Continue current medical regimen. 2. BG control improving with sliding scale insulin, continue close monitoring. 3. Wound healing process appears adequate with current care. 4. Continue MRSA precautions. 5. Patient education reinforced on foot care and medication adherence. 6. Case management actively involved in discharge planning for home health wound care. 7. Podiatry to continue daily follow-up for wound management. 8. Target discharge in 1-2 days if stable and home care secured.' }
         ]
     },
     {
         title: "Nursing Note",
-        author: "Sarah Chen, RN BSN",
+        author: "Chris Johnson, RN",
         specialty: "Nursing",
-        dateOffset: 3, // Hospital Day 1
-        publishTime: "1430", // This time is after the initial RT and PT notes, but before Dr. Hoppel's note
+        dateOffset: 1, // Hospital Day 2 (July 17)
+        publishTime: "0730",
         noteBody: [
-            { type: 'paragraph', content: 'Patient admitted to unit with acute SOB and wheezing. Placed on 2L NC, O2 sats 90% on arrival. Respiratory assessment: coarse breath sounds, productive cough. Assisted with bedside commode. Patient expressed anxiety about breathing. Educated on call light use and importance of deep breathing. Tolerated small sips of water. Dr. Hoppel notified of admission and current status.' },
-            { type: 'paragraphWithLabel', label: 'Pain', content: '0/10' },
-            { type: 'paragraphWithLabel', label: 'Activity', content: 'Bedrest with commode privileges' }
+            { type: 'paragraph', content: 'Overnight: Patient rested well. Vital signs stable, within parameters. BG at 06:00 was 188 mg/dL, administered insulin lispro per sliding scale. Assisted with morning hygiene and partial bed bath. Patient ambulated to bathroom with 1-person assist. Wound dressing dry and intact. No new complaints of pain or dyspnea. Patient states he is "feeling a bit better." Continues to verbalize understanding of MRSA precautions and call light use.' },
+            { type: 'paragraphWithLabel', label: 'Pain', content: '2/10 (managed with Gabapentin)' },
+            { type: 'paragraphWithLabel', label: 'Activity', content: 'Ambulated with 1-person assist' }
+        ]
+    },
+
+    // --- Day 3 (July 16, 2025) - Initial Presentation Notes (Oldest) ---
+    {
+        title: "Podiatry Consult Note",
+        author: "Dr. Lena Khan, DPM",
+        specialty: "Podiatry",
+        dateOffset: 2, // Hospital Day 1 (July 16)
+        publishTime: "1500",
+        noteBody: [
+            { type: 'paragraphWithLabel', label: 'Consult Reason', content: 'Right great toe diabetic foot ulcer with presumed infection.' },
+            { type: 'header', content: 'Subjective' },
+            { type: 'paragraph', content: 'Patient reports chronic foot numbness. Ulcer present for approx. 1 week, gradual onset of redness. Denies purulent drainage at home. Reports difficulty checking foot due to limited mobility. Primary concern is healing and preventing further complications.' },
+            { type: 'header', content: 'Objective' },
+            { type: 'paragraphWithLabel', label: 'Foot Exam', content: 'Right Foot: Great toe, dorsal aspect, 2x2 cm ulcer. Erythema extending 1 cm from wound edge. No fluctuance. Surrounding skin dry, intact. Pulse (DP/PT): 2+ bilaterally. Capillary refill: <3 sec. Protective sensation absent. Left Foot: Intact skin, no open wounds. Protective sensation diminished globally. Nails: Hypertrophic, mycotic on bilateral great toes. Foot deformities: mild hammertoes bilaterally.' },
+            { type: 'paragraphWithLabel', label: 'Wound', content: '2x2 cm, deep to dermis, mild erythema, no purulence, faint odor. Base clean, granulating. Probe to bone negative.' },
+            { type: 'header', content: 'Assessment' },
+            { type: 'paragraph', content: 'Right great toe diabetic foot ulcer, Wagner Grade 1, infected. Background of Type 2 DM with peripheral neuropathy and limited self-care. Given current findings, infection appears localized. Importance of offloading and glycemic control emphasized.' },
+            { type: 'header', content: 'Plan' },
+            { type: 'paragraph', content: '1. Continue current topical antimicrobial per IM team. 2. Daily sterile dressing changes with NS. 3. Strict offloading of right great toe (consider specialized footwear/boot for ambulation). 4. Continue to monitor for signs of worsening infection (cellulitis, purulence). 5. Patient education on daily foot inspection, proper shoe wear, and importance of glycemic control. 6. Follow-up daily while inpatient for wound assessment and debridement as needed. 7. Discuss long-term offloading strategies with patient and care team.' }
         ]
     },
     {
-        title: "Progress Note",
-        author: "Dr. Bryce Hoppel",
+        title: "Nursing Note",
+        author: "Maria Sanchez, RN BSN",
+        specialty: "Nursing",
+        dateOffset: 2, // Hospital Day 1 (July 16)
+        publishTime: "1130",
+        noteBody: [
+            { type: 'paragraph', content: 'Patient admitted from ED with right great toe ulcer. Contact precautions initiated per orders. Oriented to room, call light, and precautions. Initial vital signs stable. BG 275 mg/dL, administered insulin lispro per sliding scale. Assisted patient with changing into hospital gown. Discussed basic foot safety and call light use. Patient expressed understanding of most instructions. Daughter contacted and updated on admission. Wound dressing observed: clean, dry, intact post-ED application.' },
+            { type: 'paragraphWithLabel', label: 'Pain', content: '3/10 (neuropathic baseline)' },
+            { type: 'paragraphWithLabel', label: 'Activity', content: 'Assisted with ambulation to bathroom, steady with help.' }
+        ]
+    },
+    {
+        title: "Admission Note",
+        author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 3, // Hospital Day 1
-        publishTime: "0912", // This time is earlier than the Sarah Chen note, so it appears before it.
+        dateOffset: 2, // Hospital Day 1 (July 16)
+        publishTime: "1000", // Slightly after admission orders
         noteBody: [
             { type: 'paragraphWithLabel', label: 'Hospital Day', content: '1' },
             { type: 'header', content: "Subjective" },
-            { type: 'paragraph', content: 'Patient is a 67-year-old male presenting with increasing shortness of breath, productive cough, and wheezing over the past 3 days. Symptoms unresponsive to home albuterol and nebulizer treatments. Reports fatigue and poor sleep due to nighttime dyspnea. Denies fever or chest pain.' },
+            { type: 'paragraph', content: '60-year-old male with PMH of T2DM, HTN, peripheral neuropathy. Presents with non-healing right great toe ulcer over past week, associated with increasing redness. Reports feeling fatigued and bilateral foot numbness. Admits to inconsistent insulin use (missed doses for last 3 days). Denies fever, chills, or new pain in foot, but states baseline neuropathic pain is present. Reports poor dietary adherence, eating prepackaged foods.' },
             { type: 'header', content: 'Objective' },
-            { type: 'paragraphWithLabel', label: 'Vitals', content: 'Temp: 37.1°C, HR: 94 bpm, BP: 138/82 mmHg, RR: 24/min, SpO₂: 90% on room air.' },
-            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Increased work of breathing. Diffuse wheezes and crackles bilaterally. Mild accessory muscle use noted. No peripheral edema.' },
-            { type: 'paragraphWithLabel', label: 'Labs', content: 'WBC: 13.1 x10⁹/L, CRP: 88, BMP: normal. ABG shows mild respiratory acidosis with hypoxia. Sputum culture sent.' },
-            { type: 'paragraphWithLabel', label: 'Imaging', content: 'CXR: Hyperinflation and patchy infiltrates consistent with COPD exacerbation and possible infection.' },
+            { type: 'paragraphWithLabel', label: 'Vitals (09:30)', content: 'Temp: 37.0°C, HR: 88 bpm, BP: 145/85 mmHg, RR: 18/min, SpO₂: 97% RA. BG: 275 mg/dL (on admission).' },
+            { type: 'paragraphWithLabel', label: 'Physical Exam', content: 'Alert, oriented x3. Right great toe: 2x2 cm ulcer with mild surrounding erythema, no purulent drainage noted. Warm to touch. Distal pulses palpable (DP/PT 2+ bilaterally). Monofilament testing: absent sensation over right great toe and plantar aspect of foot. Left foot: intact skin, decreased sensation. Nails: Hypertrophic, mycotic on bilateral great toes. Foot deformities: mild hammertoes bilaterally. Heart: RRR. Lungs: CTA bilaterally.' },
+            { type: 'paragraphWithLabel', label: 'Labs (09:45)', content: 'Initial BMP drawn. HbA1c pending. Wound culture from right great toe sent.' },
             { type: 'header', content: 'Assessment' },
-            { type: 'paragraph', content: 'COPD exacerbation, likely infectious in origin. Hypoxic and symptomatic despite outpatient management. Requires hospitalization for oxygen support and systemic treatment.' },
+            { type: 'paragraph', content: '60-year-old male, Type 2 Diabetes Mellitus with chronic poor glycemic control (evident by missed insulin doses and admission BG 275). Presents with infected right great toe diabetic foot ulcer. Also with hypertension and peripheral neuropathy. Currently on contact precautions for MRSA.' },
             { type: 'header', content: 'Plan' },
-            { type: 'paragraph', content: 'Initiate prednisone 40 mg daily. Begin levofloxacin empirically for suspected bacterial infection. Start 2L nasal cannula O₂, titrate to SpO₂ ≥ 92%. Albuterol/ipratropium nebulizers every 4 hours. Encourage incentive spirometry. Monitor respiratory status closely. Await sputum culture results. Consider pulmonology consult if symptoms worsen.' }
+            { type: 'paragraph', content: '1. Admit to Internal Medicine service. 2. Continue q4h vital signs, ACHS BG monitoring. Notify parameters as per orders. 3. Activity as tolerated, fall risk precautions. 4. Contact precautions for MRSA. 5. Wound care: Daily NS cleansing, sterile dry dressing, topical antimicrobial. Monitor for worsening infection. 6. Medications: Insulin lispro sliding scale ACHS, Gabapentin 300 mg PO BID, Lisinopril 10 mg PO daily. 7. Nutrition: Diabetic diet, encourage fluids. 8. Labs: Daily BMP x3, HbA1c once (if not recent). 9. Consults: Case Management for discharge planning, Pharmacy for med review, Podiatry for ulcer management. 10. Patient education: Diabetes management, foot care, insulin adherence, MRSA precautions.' }
         ]
     },
 ];

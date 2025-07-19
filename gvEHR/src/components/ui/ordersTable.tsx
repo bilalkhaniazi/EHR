@@ -31,6 +31,7 @@ const OrdersTable = <T extends Record<string, any>>({
   color,
   data 
 }: OrdersTableProps<T>) => {
+  
   const columnHelper = createColumnHelper<T>()
 
   const columns = useMemo(

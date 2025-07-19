@@ -45,7 +45,7 @@ export const generateAllInitialLabTimes = (referenceDate: Date = new Date()) => 
     tempDate.setDate(tempDate.getDate() - entry.daysOffset);
     tempDate.setHours(tempDate.getHours() - entry.hoursOffset);
     
-    const dateKey = `${(tempDate.getMonth() +1).toString().padStart(2, '0')}-${tempDate.getDate().toString().padStart(2, '0')} ${(tempDate.getHours()).toString().padStart(2, '0')}:${(tempDate.getMinutes()).toString().padStart(2, '0')}`;
+    const dateKey = `${(tempDate.getMonth() +1).toString().padStart(2, '0')}/${tempDate.getDate().toString().padStart(2, '0')} ${(tempDate.getHours()).toString().padStart(2, '0')}:${(tempDate.getMinutes()).toString().padStart(2, '0')}`;
     if(!timePoints.has(dateKey)) {
       timePoints.set(dateKey, {dateKey, daysOffset: entry.daysOffset, hours: entry.hoursOffset, labs: entry.labResults })
     }
@@ -95,117 +95,99 @@ export const generateInitialLabData = (
 }
 
 
+export interface PredefinedLabEntry {
+  daysOffset: number,
+  hoursOffset: number,
+  labResults: { labName: string, value: string}[]
+}
+
 export const predefinedLabData: PredefinedLabEntry[] = [
-  // --- Day 0 (Today) - Recent BMP and a few others ---
+  // --- Day 1: Hospital Day (Today - daysOffset: 0) ---
+  // Admission Labs (BMP, CBC, VBG, some Cardiac/Hepatology) - Drawn ~4 hours ago
   {
-    daysOffset: 0, // Today
-    hoursOffset: 1, // 1 hour ago
+    daysOffset: 2, // Today
+    hoursOffset: 1, // Approximately 4 hours ago (e.g., around 2:55 PM if current time is 6:55 PM)
     labResults: [
-      { labName: "Sodium", value: "138" },
-      { labName: "Potassium", value: "4.0" },
-      { labName: "Chlorine", value: "102" },
-      { labName: "BUN", value: "18" },
-      { labName: "Creatinine", value: "1.0" },
-      { labName: "Glucose", value: "95" },
-      { labName: "CO2", value: "26" },
-      { labName: "Calcium", value: "9.2" },
-      { labName: "Troponin", value: "0.03" }, // Slightly elevated for observation
-    ]
-  },
-  {
-    daysOffset: 0, // Today
-    hoursOffset: 6, // 6 hours ago (e.g., morning labs)
-    labResults: [
-      { labName: "Hemoglobin", value: "14.5" },
-      { labName: "WBC", value: "8.2" },
-      { labName: "Platelets", value: "250" },
-    ]
-  },
+      // Basic Metabolic Panel (BMP)
+      { labName: "Sodium", value: "134" }, // Slightly low, common with hyperglycemia
+      { labName: "Potassium", value: "4.8" },
+      { labName: "Chlorine", value: "99" },
+      { labName: "BUN", value: "25" }, // Elevated, mild kidney strain/dehydration
+      { labName: "Creatinine", value: "1.3" }, // Slightly elevated
+      { labName: "Glucose", value: "275" }, // As per HPI
+      { labName: "CO2", value: "24" },
+      { labName: "Calcium", value: "8.9" },
 
-  // --- Day 1 (Yesterday) - Comprehensive Panel (BMP, CBC, VBG) ---
-  {
-    daysOffset: 1, // Yesterday
-    hoursOffset: 2, // 2 hours ago from yesterday's current time (e.g., late night)
-    labResults: [
-      { labName: "Sodium", value: "135" },
-      { labName: "Potassium", value: "3.2" }, // Low
-      { labName: "Chlorine", value: "98" },
-      { labName: "BUN", value: "22" }, // Slightly high
-      { labName: "Creatinine", value: "1.1" },
-      { labName: "Glucose", value: "110" }, // Slightly high
-      { labName: "CO2", value: "28" },
-      { labName: "Calcium", value: "8.8" },
-      { labName: "pH", value: "7.32" }, // Acidotic
-      { labName: "pCO2", value: "52" }, // High
-      { labName: "pO2", value: "35" },
-      { labName: "HCO3", value: "25" },
-    ]
-  },
-  {
-    daysOffset: 1, // Yesterday
-    hoursOffset: 14, // 14 hours ago from yesterday's current time (e.g., morning)
-    labResults: [
-      { labName: "RBC", value: "4.8" },
-      { labName: "WBC", value: "12.5" }, // Elevated
-      { labName: "Platelets", value: "180" },
-      { labName: "Hemoglobin", value: "13.8" },
-      { labName: "Hematocrit", value: "41" },
-      { labName: "MCV", value: "90" },
-      { labName: "MCH", value: "30" },
-      { labName: "MCHC", value: "34" },
-      
-    ]
-  },
+      // Complete Blood Count (CBC)
+      { labName: "RBC", value: "4.5" },
+      { labName: "WBC", value: "11.8" }, // Mildly elevated, consistent with inflammation/infection from ulcer
+      { labName: "Platelets", value: "280" },
+      { labName: "Hemoglobin", value: "14.2" },
+      { labName: "Hematocrit", value: "42" },
+      { labName: "MCV", value: "92" },
+      { labName: "MCH", value: "31" },
+      { labName: "MCHC", value: "33" },
 
-  // --- Day 2 (Two Days Ago) - Follow-up and Cardiac/Hepatology ---
-  {
-    daysOffset: 2, // Two days ago
-    hoursOffset: 8, // 8 hours ago
-    labResults: [
-      { labName: "Troponin", value: "0.06" }, // Higher
-      { labName: "CKMB", value: "5" }, // Elevated
-      { labName: "Myoglobin", value: "100" }, // Elevated
-      { labName: "Total Bilirubin", value: "1.5" }, // Slightly high
-      { labName: "Albumin", value: "3.2" }, // Low
-      { labName: "AST", value: "55" }, // Elevated
-      { labName: "ALT", value: "60" }, // Elevated
-    ]
-  },
-
-  // --- Day 3 (Three Days Ago) - Initial Labs ---
-  {
-    daysOffset: 3, // Three days ago
-    hoursOffset: 10, // 10 hours ago
-    labResults: [
-      { labName: "Sodium", value: "142" },
-      { labName: "Potassium", value: "4.5" },
-      { labName: "BUN", value: "15" },
-      { labName: "Chlorine", value: "100" },
-      { labName: "Creatinine", value: "0.9" },
-      { labName: "Glucose", value: "85" },
-      { labName: "Hemoglobin A1c", value: "6.0" }, // Elevated
-      { labName: "Calcium", value: "8.8" },
-
-    ]
-  },
-
-  // --- Day 4 (Four Days Ago) - Baseline Labs ---
-  {
-    daysOffset: 4, // Four days ago
-    hoursOffset: 18, // 18 hours ago
-    labResults: [
-      { labName: "Sodium", value: "139" },
-      { labName: "Potassium", value: "4.2" },
-      { labName: "Chlorine", value: "100" },
-      { labName: "BUN", value: "12" },
-      { labName: "Creatinine", value: "0.8" },
-      { labName: "Glucose", value: "92" },
-      { labName: "Calcium", value: "8.8" },
-      { labName: "Ammonia", value: "50" }, // Slightly high
-      { labName: "pH", value: "7.40" },
-      { labName: "pCO2", value: "45" },
+      // Venous Blood Gas (VBG) - to check acid-base status given poorly controlled diabetes
+      { labName: "pH", value: "7.35" }, // On the lower end of normal
+      { labName: "pCO2", value: "48" }, // Slightly high, mild respiratory acidosis or compensation
       { labName: "pO2", value: "38" },
-      { labName: "HCO3", value: "24" },
+      { labName: "HCO3", value: "25" },
+
+      // Other relevant labs (e.g., for general assessment)
+      { labName: "Hemoglobin A1c", value: "9.5" }, // Reflects long-term poor control
+      { labName: "AST", value: "35" },
+      { labName: "ALT", value: "40" },
+      { labName: "Troponin", value: "0.01" }, // Within normal limits
+    ]
+  },
+  // Post-Insulin BG Check - Drawn ~1 hour ago
+  {
+    daysOffset: 0, // Today
+    hoursOffset: 1, // Approximately 1 hour ago (e.g., around 5:55 PM)
+    labResults: [
+      { labName: "Glucose", value: "210" }, // Showing some decrease after initial insulin
+    ]
+  },
+  {
+    daysOffset: 1, // Today
+    hoursOffset: 4, // Approximately 1 hour ago (e.g., around 5:55 PM)
+    labResults: [
+      { labName: "Glucose", value: "204" }, // Showing some decrease after initial insulin
+    ]
+  },
+
+  // --- Day 2: Hospital Day 2 (Yesterday - daysOffset: 1) ---
+  // Morning BMP and BG checks - Drawn ~22 hours ago (e.g., 8:55 PM yesterday)
+  {
+    daysOffset: 0, // Yesterday
+    hoursOffset: 4, // Approximately 22 hours ago (e.g., 8:55 PM yesterday)
+    labResults: [
+      // Basic Metabolic Panel (BMP)
+      { labName: "Sodium", value: "136" }, // Improving
+      { labName: "Potassium", value: "4.5" },
+      { labName: "Chlorine", value: "100" },
+      { labName: "BUN", value: "20" }, // Improving
+      { labName: "Creatinine", value: "1.2" }, // Stable
+      { labName: "Glucose", value: "185" }, // Improving, but still elevated
+      { labName: "CO2", value: "25" },
+      { labName: "Calcium", value: "9.0" },
+    ]
+  },
+  // Mid-day BG Check - Drawn ~18 hours ago (e.g., 12:55 PM yesterday)
+  {
+    daysOffset: 1, // Yesterday
+    hoursOffset: 18, // Approximately 18 hours ago (e.g., 12:55 PM yesterday)
+    labResults: [
+      { labName: "Glucose", value: "160" }, // Further improvement
+    ]
+  },
+  // Evening BG Check - Drawn ~14 hours ago (e.g., 4:55 PM yesterday)
+  {
+    daysOffset: 1, // Yesterday
+    hoursOffset: 14, // Approximately 14 hours ago (e.g., 4:55 PM yesterday)
+    labResults: [
+      { labName: "Glucose", value: "195" }, // Slight rise, indicating continued need for management
     ]
   },
 ];
@@ -263,6 +245,12 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: "8.5", high: "10.5" }
+  },
+  {
+    field: "Lactate",
+    unit: "(mmol/L)",
+    rowType: "results",
+    normalRange: { low: "0.5", high: "1.0" } // Resting, venous
   },
   {
     field: "Hematology",
@@ -409,5 +397,185 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mEq/L)",
     rowType: "results",
     normalRange: { low: "22", high: "29" }
+  },
+  {
+    field: "Urinalysis",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "Specific Gravity",
+    unit: "", // Unitless
+    rowType: "results",
+    normalRange: { low: "1.005", high: "1.030" }
+  },
+  {
+    field: "Urine pH",
+    unit: "", // Unitless
+    rowType: "results",
+    normalRange: { low: "4.5", high: "8.0" }
+  },
+  {
+    field: "Protein",
+    unit: "", // Often reported as negative/positive or trace
+    rowType: "results",
+    normalRange: { low: "Negative", high: "Negative" } // Or "0", "Trace" depending on reporting
+  },
+  {
+    field: "Urine Glucose",
+    unit: "", // Often reported as negative/positive
+    rowType: "results",
+    normalRange: { low: "Negative", high: "Negative" }
+  },
+  {
+    field: "Ketones",
+    unit: "", // Often reported as negative/positive
+    rowType: "results",
+    normalRange: { low: "Negative", high: "Negative" }
+  },
+  {
+    field: "Leukocyte Esterase",
+    unit: "", // Often reported as negative/positive
+    rowType: "results",
+    normalRange: { low: "Negative", high: "Negative" }
+  },
+  {
+    field: "Nitrites",
+    unit: "", // Often reported as negative/positive
+    rowType: "results",
+    normalRange: { low: "Negative", high: "Negative" }
+  },
+  {
+    field: "Blood",
+    unit: "", // Often reported as negative/positive
+    rowType: "results",
+    normalRange: { low: "Negative", high: "Negative" }
+  },
+  {
+    field: "Coagulation",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "PT",
+    unit: "(sec)",
+    rowType: "results",
+    normalRange: { low: "11.0", high: "13.5" }
+  },
+  {
+    field: "PTT",
+    unit: "(sec)",
+    rowType: "results",
+    normalRange: { low: "25", high: "35" }
+  },
+  {
+    field: "INR",
+    unit: "", // Unitless
+    rowType: "results",
+    normalRange: { low: "0.8", high: "1.1" } // For non-anticoagulated patients
+  },
+  {
+    field: "Inflammatory Markers",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "CRP",
+    unit: "(mg/L)",
+    rowType: "results",
+    normalRange: { low: "0", high: "10" } // Varies, but common clinical cutoff
+  },
+  {
+    field: "ESR",
+    unit: "(mm/hr)",
+    rowType: "results",
+    normalRange: { low: "0", high: "20" } // Varies by age/sex, general range
+  },
+  // --- NEW ADDITIONS ---
+  {
+    field: "Thyroid Function",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "TSH", // Thyroid Stimulating Hormone
+    unit: "(mIU/L)",
+    rowType: "results",
+    normalRange: { low: "0.4", high: "4.0" }
+  },
+  {
+    field: "Free T3",
+    unit: "(pg/mL)",
+    rowType: "results",
+    normalRange: { low: "2.3", high: "4.2" }
+  },
+  {
+    field: "Free T4",
+    unit: "(ng/dL)",
+    rowType: "results",
+    normalRange: { low: "0.8", high: "1.8" }
+  },
+  {
+    field: "Lipid Panel",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "Total Cholesterol",
+    unit: "(mg/dL)",
+    rowType: "results",
+    normalRange: { low: "125", high: "200" } // Desirable
+  },
+  {
+    field: "HDL Cholesterol", // High-Density Lipoprotein
+    unit: "(mg/dL)",
+    rowType: "results",
+    normalRange: { low: "40", high: "60" } // Desirable, higher is better
+  },
+  {
+    field: "LDL Cholesterol", // Low-Density Lipoprotein
+    unit: "(mg/dL)",
+    rowType: "results",
+    normalRange: { low: "0", high: "100" } // Optimal
+  },
+  {
+    field: "Triglycerides",
+    unit: "(mg/dL)",
+    rowType: "results",
+    normalRange: { low: "0", high: "150" } // Normal
+  },
+  {
+    field: "Additional Electrolytes",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "Magnesium",
+    unit: "(mEq/L)",
+    rowType: "results",
+    normalRange: { low: "1.5", high: "2.5" }
+  },
+  {
+    field: "Phosphate",
+    unit: "(mg/dL)",
+    rowType: "results",
+    normalRange: { low: "2.5", high: "4.5" }
+  },
+  {
+    field: "Pancreatic Enzymes",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "Amylase",
+    unit: "(U/L)",
+    rowType: "results",
+    normalRange: { low: "25", high: "125" }
+  },
+  {
+    field: "Lipase",
+    unit: "(U/L)",
+    rowType: "results",
+    normalRange: { low: "0", high: "160" } // Varies by lab
   },
 ];

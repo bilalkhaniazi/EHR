@@ -4,10 +4,13 @@ import {
     nursingHeaderNames, 
     respiratoryOrders, 
     respHeaderNames, 
-    medHeaderNames, 
+    medHeaderNames,
+    labratoryOrders,
+    labratoryHeaderNames, 
     type NursingOrderData,
     type MedOrderData,
     type RespiratoryOrderData,
+    type LabratoryOrderData,
 } from "@/components/orderData"
 import { medOrders } from "@/components/orderData"
 import { useState } from "react"
@@ -22,6 +25,7 @@ const OrdersPage = () => {
     const [nursingOrderData, setNursingOrderData] = useState(nursingOrders)
     const [medicationOrderData, setMedicationOrderData] = useState(medOrders)
     const [respiratoryOrderData, setRespiratoryOrderData] = useState(respiratoryOrders)
+    const [labratoryOrderData, setLabratoryOrderData] = useState(labratoryOrders)
 
 
     const addOrder = <T extends Record<string, any>>(
@@ -69,6 +73,8 @@ const OrdersPage = () => {
                 <OrdersTable color="bg-blue-300" columnNames={nursingOrderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
                 <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
                 <OrdersTable color="bg-lime-200" columnNames={respOrderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />
+                <OrdersTable color="bg-fuschia-200" columnNames={respOrderColumns} headerNames={labratoryHeaderNames} data={labratoryOrderData} />
+
             </div>
         </div>
     )

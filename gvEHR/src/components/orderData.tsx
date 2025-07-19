@@ -6,64 +6,111 @@ export interface NursingOrderData {
 }
 
 export const nursingOrders: NursingOrderData[] = [
-    
     {
-        displayName: "Vital Signs Monitoring",
+        displayName: "Vital Signs Monitoring (q4h)",
         orderType: "nursing",
-        details: "Monitor temperature, pulse, respiration, and blood pressure per protocol.",
         status: "Active",
+        details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
         duration: "Until cancelled",
-        orderingProvider: "Dr. Azzedine Habz"
-    },
-    {
-        displayName: "Intake and Output",
-        orderType: "nursing",
-        details: "Measure and document all oral intake and urinary output every shift. Maintain strict I&O record.",
-        status: "Active",
-        duration: "Until cancelled",
-        orderingProvider: "Dr. Azzedine Habz"
+        orderingProvider: "Dr. John Smith, MD"
     },
     {
-        displayName: "Wound Care",
+        displayName: "Blood Glucose Monitoring (ACHS)",
         orderType: "nursing",
-        details: "Cleanse wound with normal saline, apply hydrocolloid dressing daily, and assess for signs of infection.",
         status: "Active",
+        details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
         duration: "Until cancelled",
-        orderingProvider: "Dr. Azzedine Habz"
-    },
-        {
-        displayName: "Specimen Collection",
-        orderType: "nursing",
-        details: "Collect R. hip wound culture for sensitivity. Label and send to lab within 30 minutes.",
-        status: "Active",
-        duration: "NOW",
-        orderingProvider: "Dr. Azzedine Habz"
+        orderingProvider: "Dr. John Smith, MD"
     },
     {
-        displayName: "Maintain IV Access",
+        displayName: "Activity: As Tolerated",
         orderType: "nursing",
-        details: "Insert and maintain intravenous access. Change dressing per facility protocol.",
         status: "Active",
+        details: "Encourage patient activity as tolerated. Assist with ambulation as needed.",
         duration: "Until cancelled",
-        orderingProvider: "Dr. Azzedine Habz"
+        orderingProvider: "Dr. John Smith, MD"
     },
     {
-        displayName: "Discharge Readiness Evaluation",
+        displayName: "Fall Risk Precautions",
         orderType: "nursing",
-        details: "Assess patient understanding of discharge instructions, medication regimen, and follow-up appointments.",
         status: "Active",
+        details: "Implement standard fall risk protocol. Ensure bed in low position and call light within reach.",
         duration: "Until cancelled",
-        orderingProvider: "Dr. Azzedine Habz"
+        orderingProvider: "Dr. John Smith, MD"
     },
     {
-        displayName: "Pain Assessment",
+        displayName: "Contact Precautions for MRSA",
         orderType: "nursing",
-        details: "Assess pain level every 4 hours and as needed. Administer PRN analgesics per MAR and evaluate effectiveness within 1 hour.",
         status: "Active",
+        details: "Gown and gloves with all room entry. Use dedicated patient equipment. Strict hand hygiene.",
         duration: "Until cancelled",
-        orderingProvider: "Dr. Azzedine Habz"
+        orderingProvider: "Dr. John Smith, MD"
     },
-]
+    {
+        displayName: "Right Great Toe Wound Care",
+        orderType: "nursing",
+        status: "Active",
+        details: "Daily dressing change with normal saline (NS) wound cleansing and application of sterile dry dressing. Apply topical antimicrobial per wound care protocol. Monitor for signs of infection (increased redness, drainage, odor).",
+        duration: "Daily",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Diabetic Diet",
+        orderType: "nursing",
+        status: "Active",
+        details: "Provide consistent carbohydrate diabetic diet. Encourage fluid intake unless contraindicated.",
+        duration: "Until cancelled",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Patient Education",
+        orderType: "nursing",
+        status: "Active",
+        details: "Educate patient on diabetes management, wound care, and MRSA precautions.",
+        duration: "Once during admission",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Case Management Consult",
+        orderType: "nursing",
+        status: "Active",
+        details: "Consult Case Management for discharge planning and home wound care follow-up.",
+        duration: "Once",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Pharmacy Consult",
+        orderType: "nursing",
+        status: "Active",
+        details: "Consult Pharmacy for medication review.",
+        duration: "Once",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Basic Metabolic Panel (BMP)",
+        orderType: "nursing", // Categorized as nursing as nurses will collect the sample
+        status: "Active",
+        details: "Collect Basic Metabolic Panel (BMP).",
+        duration: "Daily x3 days",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "HbA1c",
+        orderType: "nursing", // Categorized as nursing as nurses will collect the sample
+        status: "Active",
+        details: "Collect HbA1c if not done within last 3 months.",
+        duration: "Once during admission",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Wound Culture",
+        orderType: "nursing", // Categorized as nursing as nurses will collect the sample
+        status: "Active",
+        details: "Collect wound culture if signs of worsening infection.",
+        duration: "PRN",
+        orderingProvider: "Dr. John Smith, MD"
+    }
+];
 
 export const nursingHeaderNames: NursingOrderData = {
         displayName: "Nursing",
@@ -196,22 +243,6 @@ export const respiratoryOrders: RespiratoryOrderData[] = [
     duration: "Until cancelled",
     orderingProvider: "Dr. Azzedine Habz"
   },
-  {
-    displayName: "Continuous Oximetry Monitoring",
-    orderType: "respiratory",
-    details: "Monitor SpO₂ continuously. Document readings every shift and PRN for respiratory changes.",
-    status: "Active",
-    duration: "Until cancelled",
-    orderingProvider: "Dr. Azzedine Habz"
-  },
-  {
-    displayName: "Nebulizer Treatment",
-    orderType: "respiratory",
-    details: "Administer albuterol 2.5 mg via nebulizer every 4 hours PRN for wheezing or shortness of breath.",
-    status: "Active",
-    duration: "Until cancelled",
-    orderingProvider: "Dr. Azzedine Habz"
-  }
 ];
 
 export const respHeaderNames: RespiratoryOrderData = {
@@ -222,3 +253,67 @@ export const respHeaderNames: RespiratoryOrderData = {
         duration: "Duration",
         orderingProvider: "Ordering Provider"
     }
+
+
+
+export interface LabratoryOrderData {
+  displayName: string;
+  orderType: string;
+  details: string;
+  status: string;
+  orderingProvider: string;
+  [key: string]: string;
+}
+
+export const labratoryOrders: LabratoryOrderData[] = [
+  {
+        displayName: "Basic Metabolic Panel (BMP)",
+        orderType: "lab", // Categorized as lab as nurses will collect the sample
+        status: "Active",
+        details: "Collect Basic Metabolic Panel (BMP).",
+        duration: "Daily x3 days",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Complete Blood Count (CBC)",
+        orderType: "lab", // Categorized as lab as nurses will collect the sample
+        status: "Active",
+        details: "Collect Complete Blood Count (CBC).",
+        duration: "Daily x1 days",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "HbA1c",
+        orderType: "lab", // Categorized as lab as nurses will collect the sample
+        status: "Active",
+        details: "Collect HbA1c if not done within last 3 months.",
+        duration: "Once during admission",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Wound Culture",
+        orderType: "lab", // Categorized as lab as nurses will collect the sample
+        status: "Active",
+        details: "Collect wound culture if signs of worsening infection.",
+        duration: "PRN",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+    {
+        displayName: "Blood Glucose Monitoring (ACHS)",
+        orderType: "lab",
+        status: "Active",
+        details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
+        duration: "Until cancelled",
+        orderingProvider: "Dr. John Smith, MD"
+    },
+]
+
+export const labratoryHeaderNames: RespiratoryOrderData = {
+        displayName: "Labratory",
+        orderType: "lab",
+        details: "Details",
+        status: "Status",
+        duration: "Duration",
+        orderingProvider: "Ordering Provider"
+    }
+
