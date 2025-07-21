@@ -22,6 +22,7 @@ export function ChartSidebar() {
   return (
     <Sidebar 
       side="right"
+      className="t-4"
       >
       <SidebarContent className="bg-gray-100">
         <SidebarGroup>

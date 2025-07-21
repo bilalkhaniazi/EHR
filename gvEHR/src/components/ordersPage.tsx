@@ -62,7 +62,7 @@ const OrdersPage = () => {
     };
 
     return (
-        <div className="px-2 w-full h-screen flex flex-col gap-4 justify-start items-center bg-gray-100">
+        <div className="px-2 w-full flex-grow flex flex-col gap-4 justify-start items-center bg-gray-100 overflow-y-auto">
             <Toaster position="top-right" />
             <div className="flex w-full gap-4 justify-center">
                 <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addNursingOrder}>Add Nursing Order</Button>
@@ -73,7 +73,7 @@ const OrdersPage = () => {
                 <OrdersTable color="bg-blue-300" columnNames={nursingOrderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
                 <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
                 <OrdersTable color="bg-lime-200" columnNames={respOrderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />
-                <OrdersTable color="bg-fuschia-200" columnNames={respOrderColumns} headerNames={labratoryHeaderNames} data={labratoryOrderData} />
+                <OrdersTable color="bg-fuchsia-200" columnNames={respOrderColumns} headerNames={labratoryHeaderNames} data={labratoryOrderData} />
 
             </div>
         </div>

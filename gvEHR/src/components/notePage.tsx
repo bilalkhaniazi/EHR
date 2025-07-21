@@ -77,7 +77,7 @@ const NotePage = () => {
   
   
   return (
-    <div className="w-full h-screen overflow-y-auto flex flex-col px-4 gap-3 bg-gray-100">
+    <div className="w-full h-full flex flex-col px-4 gap-3 bg-gray-100">
       <Toaster position="top-right" />
       <div className="w-full flex justify-between">
         <div className="flex flex-col gap-2">
@@ -125,7 +125,7 @@ const NotePage = () => {
         </div>
         <NursingNoteEntry submitNote={onSubmitNote}/>
       </div>
-      <div className="flex flex-col h-full gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
+      <div className="flex flex-col h-auto gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
         {filteredNotesData.map((note, index) => {
           return (
             <NoteDisplay key={index} displayDate={displayDate} note={note} />

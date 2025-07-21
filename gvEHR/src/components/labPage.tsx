@@ -234,12 +234,12 @@ export function LabPage() {
 
    
   return (
-    <div className="flex flex-col h-screen justify-center items-center p-4 ">
-      <Toaster position="top-right" />
+    <div className="flex flex-col h-full bg-gray-100 justify-center items-center p-4 ">
+      {/* <Toaster position="top-right" /> */}
       <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
       </div>
-      <div className="w-full border border-gray-200 rounded-md overflow-auto">
+      <div className="w-full h-full  border border-gray-200 rounded-md overflow-auto">
         <Table className="w-full">
           <TableHeader className=" bg-gray-100 sticky top-0">
           {ptTable.getHeaderGroups().map(headerGroup => (
