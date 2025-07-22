@@ -13,7 +13,7 @@ import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { SidebarInset, SidebarProvider } from "./ui/sidebar";
-import { ChartSidebar } from "./chartSidebar";
+import { assessmentToolSidebar } from "./assessmentToolSidebar";
 import { assessmentTools } from "./tableData";
 import { Button } from "./ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
@@ -321,14 +321,14 @@ export function FlexSheet() {
 
    
     return (
-    <SidebarProvider 
-        className=""
-        open={isSidebarOpen}
-        onOpenChange={setIsSideBarOpen}
-    >
-        <SidebarInset className="flex flex-col h-full p-4">
-            <Toaster position="top-right" />
-            <div className="flex flex-col h-full justify-center items-center p-4 ">
+    // <SidebarProvider 
+    //     className=""
+    //     open={isSidebarOpen}                     // sidebar will have to move up to parent component
+    //     onOpenChange={setIsSideBarOpen}
+    // >
+        <div className="flex flex-col bg-gray-100 h-full p-4">
+            {/* <Toaster position="top-right" /> */}
+            <div className="flex flex-col h-full justify-center items-center ">
                 <div className="w-full flex justify-between">
                     <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
@@ -343,7 +343,7 @@ export function FlexSheet() {
                         }
                     </Button>
                 </div>
-                <div className="w-full overflow-auto border-1 border-gray-200 rounded-md "> 
+                <div className="w-full h-full flex-grow overflow-auto border-1 border-gray-200 rounded-md "> 
                     <Table className="w-full rounded-md">
                         <TableHeader className=" bg-gray-100 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (
@@ -410,8 +410,8 @@ export function FlexSheet() {
                     </Table>
                 </div>
             </div>
-        </SidebarInset>
-        <ChartSidebar  />
-    </SidebarProvider>
+        </div>
+        // <AssessmentToolSidebar  />
+    // </SidebarProvider>
   );
 }

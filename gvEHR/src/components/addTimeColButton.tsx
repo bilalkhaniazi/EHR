@@ -62,15 +62,15 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTim
     
     return (
         <div className="flex gap-4 pl-8">
-            <Button onClick={handleAddTime} className="bg-gray-100 text-black mb-4 hover:bg-gray-200 shadow shadow-black/20">
-                <Plus className="mr-2 h-4 w-4" />
+            <Button onClick={handleAddTime} className="bg-white text-black mb-4 hover:bg-gray-100 shadow shadow-black/20">
+                <Plus className="mr-1" />
                 Add Time
             </Button>
 
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
-                    <Button className="bg-gray-100 text-black mb-4 hover:bg-gray-200 shadow shadow-black/20">
-                        <Clock className="mr-2 h-4 w-4" />
+                    <Button className="bg-white text-black mb-4 hover:bg-gray-100 shadow shadow-black/20">
+                        <Clock className="mr-2" />
                         Insert Time
                     </Button>
                 </PopoverTrigger>
