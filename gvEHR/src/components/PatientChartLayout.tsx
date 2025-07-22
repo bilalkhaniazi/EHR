@@ -6,7 +6,7 @@ import ChartSidebar from "./chartSidebar"
 const PatientChartLayout = () => {
   return (
     <div className="bg-lime-600 h-screen overflow-hidden flex flex-col">
-      {/* <Toaster position="top-right" /> */}
+      <Toaster position="top-right" />
       <ChartNavigationTabs />
 
       <div className="flex w-full h-full">

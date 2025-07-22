@@ -3,7 +3,7 @@ import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type L
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
