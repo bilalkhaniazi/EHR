@@ -53,28 +53,28 @@ const tabs = [
 
 export default function ChartNavigationTabs() {
   return (
-    <div className="flex items-end border-b w-full h-24 flex-shrink-0">
-      <div className="flex h-full justify-center items-center px-4 gap-2">
-        <Stethoscope color="white" size={36} strokeWidth={2.5}/>
-        <h1 className="text-4xl font-bold text-white">
+    <div className="flex items-end border-b border-gray-400 w-full h-16 flex-shrink-0">
+      <div className="flex h-full justify-center items-center pl-8 gap-2">
+        <Stethoscope color="white" size={26} strokeWidth={2.5}/>
+        <h1 className="text-3xl font-bold text-white">
           Flex
           <span className="font-normal">Chart</span>
         </h1>
       </div>
-      <Tabs defaultValue={tabs[6].value} className="w-fit pl-12">
-        <TabsList className="w-full h-10 p-0 bg-lime-600 justify-start rounded-none">
+      <Tabs defaultValue={tabs[6].value} className="w-fit pl-28">
+        <TabsList className="w-full h-8 p-0 bg-lime-600 justify-start rounded-none">
           {tabs.map((tab) => (
             <NavLink
               key={tab.value}
               to={tab.path}
-              className="rounded-none h-full flex items-center" // Added flex for alignment
+              className="rounded-none h-full flex items-center "
             >
               <TabsTrigger
                 value={tab.value}
-                className="rounded-none bg-gray-200/95 p-4 h-full data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300/80 border-b-gray-300 data-[state=active]:border-gray-300 data-[state=active]:border-b-gray-100 data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-lg flex items-center" // Added flex for alignment
+                className="rounded-none bg-gray-200/97 p-3 data-[state=active]:h-10 data-[state=active]:px-4  data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300 border-b-gray-300  data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-lg flex items-center" // Added flex for alignment
               >
                 {tab.icon} {/* Render the icon here */}
-                <p className="text-lg font-normal">{tab.name}</p>
+                <p className="text-md font-normal tracking-tight">{tab.name}</p>
               </TabsTrigger>
             </NavLink>
           ))}

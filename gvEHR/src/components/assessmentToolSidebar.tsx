@@ -17,7 +17,7 @@ import {
 import { type AssessmentTool, assessmentTools as tempData } from "./tableData"
 
 
-export function assessmentToolSidebar() {
+const AssessmentToolSidebar = () => {
   const assessmentTools: AssessmentTool[] = tempData
   return (
     <Sidebar 
@@ -78,3 +78,5 @@ export function assessmentToolSidebar() {
     </Sidebar>
   )
 }
+
+export default AssessmentToolSidebar

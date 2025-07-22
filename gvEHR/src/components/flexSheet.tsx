@@ -12,11 +12,11 @@ import AssessmentSelect from "./AssessmentSelect";
 import { Tooltip, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-// import { SidebarInset, SidebarProvider } from "./ui/sidebar";
-// import { assessmentToolSidebar } from "./assessmentToolSidebar";
+import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 import { assessmentTools } from "./tableData";
 import { Button } from "./ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
+import AssessmentToolSidebar from "./assessmentToolSidebar";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -160,7 +160,7 @@ export function FlexSheet() {
         () => [
             columnHelper.accessor("field", {
                 id: 'pinned',
-                header: () => <h1 className="w-full h-full bg-gray-100"></h1>,
+                header: () => <h1 className="w-full h-full bg-gray-50"></h1>,
                 cell: info => {
                     const rowType = info.row.original.rowType;
                     if (rowType === "titleRow") {
@@ -170,18 +170,18 @@ export function FlexSheet() {
                             return (
                                 <Tooltip>
                                     <TooltipTrigger
-                                        className="px-2 font-medium text-lime-900"
+                                        className="px-2 font-medium text-xs text-lime-900"
                                     >
                                         {info.row.original.field}
                                     </TooltipTrigger>
                                     <TooltipPortal>
                                         <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm">
-                                            <h1 className="text-md font-bold">WDL Criteria</h1>
+                                            <h1 className="text-sm font-bold">WDL Criteria</h1>
                                             <div className="space-y-2">
                                                 {wdlDescription.map((row, index) => (
-                                                    <div key={index} className="text-sm">
-                                                        <p className="pl-2 font-semibold text-gray-800 text-wrap">{row.assessment}:</p>
-                                                        <p className="pl-4 text-gray-600 italic text-wrap">{row.description}</p>
+                                                    <div key={index} className="">
+                                                        <p className="pl-2 text-xs font-semibold text-gray-800 text-wrap">{row.assessment}:</p>
+                                                        <p className="pl-4 text-xs text-gray-600 italic text-wrap">{row.description}</p>
                                                     </div>
                                                 ))}
                                             </div>
@@ -192,7 +192,7 @@ export function FlexSheet() {
                         } else {
                             // If wdlDescription is undefined or empty, just render the field content
                             return (
-                                <p className="min-w-24 h-6 text-left  py-0 pl-2 text-sm px-2 font-medium text-lime-900">
+                                <p className="min-w-24 h-full text-xs text-left py-0 pl-2 px-2 font-medium text-lime-900">
                                     {info.row.original.field}
                                 </p>
                             );
@@ -200,7 +200,7 @@ export function FlexSheet() {
                     } else {
                         // This is for other row types that are not "titleRow"
                         return (
-                            <p className="min-w-24 h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                            <p className="min-w-24 h-full text-left text-xs py-0 pl-4 text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">
                                 {info.getValue()}
                             </p>
                         );
@@ -321,31 +321,31 @@ export function FlexSheet() {
 
    
     return (
-    // <SidebarProvider 
-    //     className=""
-    //     open={isSidebarOpen}                     // sidebar will have to move up to parent component
-    //     onOpenChange={setIsSideBarOpen}
-    // >
-        <div className="flex flex-col bg-gray-100 h-full p-4">
-            {/* <Toaster position="top-right" /> */}
-            <div className="flex flex-col h-full justify-center items-center ">
-                <div className="w-full flex justify-between">
+    <SidebarProvider 
+        className=""
+        open={isSidebarOpen}                     // sidebar will have to move up to parent component
+        onOpenChange={setIsSideBarOpen}
+    >
+        <SidebarInset>
+        <div className="flex flex-col bg-gray-100 w-full h-full p-4">
+            <div className="flex flex-col w-full h-full justify-center items-center ">
+                <div className="w-full flex justify-start pb-2">
                     <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
                         existingTimeColumns={timeColumns}
                     />
                     <Button
                         onClick={handleManualToggleSidebar}
-                        className="bg-gray-100 text-black mb-4 hover:bg-gray-200 shadow shadow-black/20"
+                        className="bg-gray-100 text-black hover:bg-gray-200 shadow shadow-black/20"
                     >
                         {isSidebarOpen ?
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
                     </Button>
                 </div>
-                <div className="w-full h-full flex-grow overflow-auto border-1 border-gray-200 rounded-md "> 
+                <div className="flex-grow w-full pb-20 overflow-auto border border-gray-200 rounded-md "> 
                     <Table className="w-full rounded-md">
-                        <TableHeader className=" bg-gray-100 sticky top-0">
+                        <TableHeader className=" bg-gray-50 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (
                             <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map(header => (
@@ -377,7 +377,7 @@ export function FlexSheet() {
                                 <TableCell
                                     style={getPinnedStyles(cell.column)}
                                     key={`${cell.id}-${row.original.field}`}
-                                    className={`p-0 min-w-32 text-sm text-gray-800 border-separate border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
+                                    className={`p-0 min-w-24 text-gray-800 border-separate border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
                                 >
                                     {/* Render the cell content using flexRender */}
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -411,7 +411,8 @@ export function FlexSheet() {
                 </div>
             </div>
         </div>
-        // <AssessmentToolSidebar  />
-    // </SidebarProvider>
+        </SidebarInset>
+        <AssessmentToolSidebar  />
+    </SidebarProvider>
   );
 }
