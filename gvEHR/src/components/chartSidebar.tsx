@@ -1,79 +1,65 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+import { CircleUserRound } from "lucide-react";
+import { jamesAllen } from "./chartData";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import { type AssessmentTool, assessmentTools as tempData } from "./tableData"
-
-
-export function ChartSidebar() {
-  const assessmentTools: AssessmentTool[] = tempData
+export default function ChartSidebar() {
   return (
-    <Sidebar 
-      side="right"
-      >
-      <SidebarContent className="bg-gray-100">
-        <SidebarGroup>
-          <SidebarGroupLabel>Assessment Descriptions</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <Accordion
-                type="single"
-                collapsible
-                className=""
-              >
-                {assessmentTools.map((tool, index) => (
-                  <AccordionItem
-                    key={index}
-                    value={tool.name}
-                    className="">
-                    <AccordionTrigger className="">{tool.name}</AccordionTrigger>
-                    <AccordionContent className="">
-                      {tool.categories.map((category) => (
-                        <div className="space-y-10"> 
-                          <div className="py-1 border-b-3">
-                              <p className="pl-2 pb-1 font-semibold text-gray-800 text-wrap">{category.name}</p>
-                              {category.scoringOptions.map((option) => (
-                                <div className="flex last:pb-1">
-                                  <p className="pl-5 text-xs text-gray-800 font-medium">{`${option.rating}`}</p>
-                                  <p className="pl-3 text-xs text-gray-600 italic text-wrap">{option.description}</p>
-                                </div>
-                              ))} 
-                          </div>
-                        </div>
-                      ))}
-                      { tool.interpretations && tool.interpretations.length > 0 && (
-                        <div className="">
-                          <h1 className="pl-2 pb-2 font-semibold text-gray-800 text-wrap">Scoring</h1>
-                          {tool.interpretations?.map((interpretation) => 
-                            <div className="flex">
-                              <p className="pl-5 text-xs text-gray-800 text-nowrap  font-medium">{interpretation.result}</p>
-                              <p className="pl-3 text-xs text-gray-600  text-nowrap italic">{interpretation.range}</p>
-                              <p className="pl-3 text-xs text-gray-600 italic text-wrap">{interpretation.description}</p>
-                            </div>
-                          )}
-                        </div>
-                        )}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarRail />
-    </Sidebar>
+    <div className="w-72 h-auto flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+        <span className="rounded-full p-1 bg-gray-100 shadow-md">
+          <CircleUserRound size={116} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white"/>
+        </span>
+        <div className="flex flex-col items-center gap-1">
+          <h1 className="text-purple-900 text-lg font-medium tracking-tight">{jamesAllen.indentifiers.name.value}</h1>
+          <p className="text-purple-900 text-sm font-light tracking-tight">
+            {jamesAllen.indentifiers.dob.label}:
+            <span className="pl-2 font-normal">{jamesAllen.indentifiers.dob.value}</span>
+          </p>
+          <p className="text-purple-900 text-sm font-light tracking-tight">
+            {jamesAllen.indentifiers.mrn.label}:
+            <span className="pl-2 font-normal">{jamesAllen.indentifiers.mrn.value}</span>
+          </p>
+        </div>
+
+        <div className="flex flex-col h-full py-4 px-2 rounded-lg shadow-md mt-4 border gap-6 bg-white overflow-y-auto pb-20">
+          {/*Demographic Data */}
+          <div className="relative flex flex-col border bg-white border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
+            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">Demographics</p>
+            {Object.values(jamesAllen.demographics).map((row) => {
+              return(
+                <p className="text-purple-900 text-xs font-light tracking-tight">
+                  <span className="underline">{row.label}:</span>
+                  <span className="pl-2 font-normal">{row.value}</span>
+                </p>
+              );
+            })}
+          </div>
+
+          {/*Clinical Data */}
+          <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
+            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Clinical Info</p>
+            {Object.values(jamesAllen.clinicalInfo).map((row) => {
+              return(
+                <p className="text-purple-900 text-xs font-light tracking-tight">
+                  <span className="underline">{row.label}:</span>
+                  <span className="pl-2 font-normal decoration-none no-underline">{Array.isArray(row.value) ? row.value.join(", ") : row.value}</span>
+                </p>
+              );
+            })}
+          </div>
+
+          {/*Social Data */}
+          <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
+            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Social Info</p>
+            {Object.values(jamesAllen.socialFactors).map((row) => {
+              return(
+                <p className="text-purple-900 text-xs font-light tracking-tight">
+                  <span className="underline">{row.label}:</span>
+                  <span className="pl-2 font-normal">{row.value}</span>
+                </p>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
   )
 }

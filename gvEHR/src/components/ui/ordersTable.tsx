@@ -64,7 +64,7 @@ const OrdersTable = <T extends Record<string, any>>({
           },
         cell: info => {
           return (
-            <h1 className="text-xs text-right font-medium text-wrap">{info.row.original.displayName}</h1>
+            <h1 className="text-xs text-right font-medium text-wrap tracking-tight">{info.row.original.displayName}</h1>
           )
         }
       }),
@@ -75,13 +75,13 @@ const OrdersTable = <T extends Record<string, any>>({
             id: id,
             header: () => (
               <div className="h-full flex justify-left items-end">
-                <p className="text-sm font-light text-gray-400">{headerNames[id]}</p>
+                <p className="text-sm font-light text-gray-400 tracking-tight">{headerNames[id]}</p>
               </div>
             ),
             cell: ({getValue}) => {
               return (
                 <div className="flex justify-start items-center gap-2">
-                  <p className="text-xs text-wrap text-gray-700">{getValue()}</p>
+                  <p className="text-xs text-wrap text-gray-700 tracking-tight">{getValue()}</p>
                   { id === "status" && <Dot color="#7bc421" size={12} strokeWidth={16} /> }
                </div>
               )

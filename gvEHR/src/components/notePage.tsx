@@ -77,10 +77,9 @@ const NotePage = () => {
   
   
   return (
-    <div className="w-full h-screen overflow-y-auto flex flex-col px-4 gap-3 bg-gray-100">
-      <Toaster position="top-right" />
-      <div className="w-full flex justify-between">
-        <div className="flex flex-col gap-2">
+    <div className="w-full h-full flex flex-col px-4  gap-3 bg-gray-100">
+      <div className="w-full flex flex-shrink-0 justify-between py-2">
+        <div className="flex h-full flex-col gap-2">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="text-xs w-fit h-6">
@@ -125,7 +124,7 @@ const NotePage = () => {
         </div>
         <NursingNoteEntry submitNote={onSubmitNote}/>
       </div>
-      <div className="flex flex-col h-full gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
+      <div className="flex flex-col flex-grow pb-20 gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">  {/*last note is always unreachable, cant scroll far enough down to access*/}
         {filteredNotesData.map((note, index) => {
           return (
             <NoteDisplay key={index} displayDate={displayDate} note={note} />
