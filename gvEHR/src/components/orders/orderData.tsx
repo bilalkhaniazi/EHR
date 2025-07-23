@@ -1,17 +1,18 @@
-export interface NursingOrderData {
-    displayName: string,
-    orderType: string,
-    status: string,
-    [key: string]: string
+export interface OrderData {
+  displayName: string;
+  orderType: string;
+  details: string;
+  status: string;
+  orderingProvider: string;
+  [key: string]: string;
 }
 
-export const nursingOrders: NursingOrderData[] = [
+export const nursingOrders: OrderData[] = [
     {
         displayName: "Vital Signs Monitoring (q4h)",
         orderType: "nursing",
         status: "Active",
         details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
-        duration: "Until cancelled",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -19,7 +20,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
-        duration: "Until cancelled",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -27,7 +27,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Encourage patient activity as tolerated. Assist with ambulation as needed.",
-        duration: "Until cancelled",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -35,7 +34,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Implement standard fall risk protocol. Ensure bed in low position and call light within reach.",
-        duration: "Until cancelled",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -43,7 +41,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Gown and gloves with all room entry. Use dedicated patient equipment. Strict hand hygiene.",
-        duration: "Until cancelled",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -51,7 +48,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Daily dressing change with normal saline (NS) wound cleansing and application of sterile dry dressing. Apply topical antimicrobial per wound care protocol. Monitor for signs of infection (increased redness, drainage, odor).",
-        duration: "Daily",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -59,7 +55,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Provide consistent carbohydrate diabetic diet. Encourage fluid intake unless contraindicated.",
-        duration: "Until cancelled",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -67,7 +62,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Educate patient on diabetes management, wound care, and MRSA precautions.",
-        duration: "Once during admission",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -75,7 +69,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Consult Case Management for discharge planning and home wound care follow-up.",
-        duration: "Once",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -83,7 +76,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Consult Pharmacy for medication review.",
-        duration: "Once",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -91,7 +83,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing", // Categorized as nursing as nurses will collect the sample
         status: "Active",
         details: "Collect Basic Metabolic Panel (BMP).",
-        duration: "Daily x3 days",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -99,7 +90,6 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing", // Categorized as nursing as nurses will collect the sample
         status: "Active",
         details: "Collect HbA1c if not done within last 3 months.",
-        duration: "Once during admission",
         orderingProvider: "Dr. John Smith, MD"
     },
     {
@@ -107,19 +97,17 @@ export const nursingOrders: NursingOrderData[] = [
         orderType: "nursing", // Categorized as nursing as nurses will collect the sample
         status: "Active",
         details: "Collect wound culture if signs of worsening infection.",
-        duration: "PRN",
         orderingProvider: "Dr. John Smith, MD"
     }
 ];
 
-export const nursingHeaderNames: NursingOrderData = {
-        displayName: "Nursing",
-        orderType: "nursing",
-        details: "Details",
-        status: "Status",
-        duration: "Duration",
-        orderingProvider: "Ordering Provider"
-    }
+export const nursingHeaderNames: OrderData = {
+    displayName: "Nursing",
+    orderType: "nursing",
+    details: "Details",
+    status: "Status",
+    orderingProvider: "Ordering Provider"
+}
 
 
 export interface MedOrderData {
@@ -208,26 +196,17 @@ export const medOrders: MedOrderData[] = [
 ];
 
 export const medHeaderNames: MedOrderData = {
-        displayName: "Medication",
-        orderType: "medical",
-        dose: "Dose",
-        route: "Route",
-        frequency: "Frequency",
-        priority: "Priority",
-        administrationInstructions: "Administration Instructions",
-        orderingProvider: "Ordering Provider"
-    }
-
-export interface RespiratoryOrderData {
-  displayName: string;
-  orderType: string;
-  details: string;
-  status: string;
-  orderingProvider: string;
-  [key: string]: string;
+    displayName: "Medication",
+    orderType: "medical",
+    dose: "Dose",
+    route: "Route",
+    frequency: "Frequency",
+    priority: "Priority",
+    administrationInstructions: "Administration Instructions",
+    orderingProvider: "Ordering Provider"
 }
 
-export const respiratoryOrders: RespiratoryOrderData[] = [
+export const respiratoryOrders: OrderData[] = [
   {
     displayName: "Oxygen Therapy",
     orderType: "respiratory",
@@ -245,27 +224,18 @@ export const respiratoryOrders: RespiratoryOrderData[] = [
   },
 ];
 
-export const respHeaderNames: RespiratoryOrderData = {
-        displayName: "Respiratory",
-        orderType: "nursing",
-        details: "Details",
-        status: "Status",
-        duration: "Duration",
-        orderingProvider: "Ordering Provider"
-    }
+export const respHeaderNames: OrderData = {
+      displayName: "Respiratory",
+      orderType: "nursing",
+      details: "Details",
+      status: "Status",
+      duration: "Duration",
+      orderingProvider: "Ordering Provider"
+  }
 
 
 
-export interface LabratoryOrderData {
-  displayName: string;
-  orderType: string;
-  details: string;
-  status: string;
-  orderingProvider: string;
-  [key: string]: string;
-}
-
-export const labratoryOrders: LabratoryOrderData[] = [
+export const labratoryOrders: OrderData[] = [
   {
         displayName: "Basic Metabolic Panel (BMP)",
         orderType: "lab", // Categorized as lab as nurses will collect the sample
@@ -308,7 +278,7 @@ export const labratoryOrders: LabratoryOrderData[] = [
     },
 ]
 
-export const labratoryHeaderNames: RespiratoryOrderData = {
+export const labratoryHeaderNames: OrderData = {
         displayName: "Labratory",
         orderType: "lab",
         details: "Details",

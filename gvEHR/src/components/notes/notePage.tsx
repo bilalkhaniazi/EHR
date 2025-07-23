@@ -1,24 +1,34 @@
 
-import { useState } from "react"
-import { sampleNotes, type NoteData } from "./notesData"
-import NursingNoteEntry from "./nursingNoteEntry"
-import NoteDisplay from "./noteDisplay"
-import { Toaster, toast } from "sonner"
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
-import { Button } from "./ui/button"
-import { Filter } from "lucide-react"
-import { Checkbox } from "./ui/checkbox"
-import { Label } from "./ui/label"
-import FilterBadges from "./filterBadges"
+import { sampleNotes, type NoteData } from "./notesData";
+import NursingNoteEntry from "./nursingNoteEntry";
+import NoteDisplay from "./noteDisplay";
+import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { Filter } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
+import FilterBadges from "./filterBadges";
+
+
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/app/store";
+import {
+  addNote,
+  addSpecialtyFilter,
+  removeSpecialtyFilter,
+  clearSpecialtyFilters
+} from './noteSlice'
 
 const NotePage = () => {
-  const specialties = [...new Set(sampleNotes.map((note) => {
-    return (note.specialty)
-  }))];
+  const dispatch = useDispatch<AppDispatch>();
+  const notesData = useSelector((state: RootState) => state.notes.notesData)
+  const filteredSpecialties = useSelector((state: RootState) => state.notes.filteredSpecialties)
+
+
+  const specialties = [...new Set(sampleNotes.map((note) => (note.specialty)))];
   
-  const [notesData, setNotesData] = useState(sampleNotes)
-  const [filteredSpecialties, setFilteredSpecialties] = useState<string[]>([])
-  
+
   const filteredNotesData = notesData.filter(note => {
     if (filteredSpecialties.length === 0) {
       return true
@@ -28,15 +38,15 @@ const NotePage = () => {
 
   const handleFilterChange = (specialty: string, checked: boolean | "indeterminate") => {
     if (checked) {
-      setFilteredSpecialties(prev => [...prev, specialty]);
+      dispatch(addSpecialtyFilter(specialty));
     } else {
-      setFilteredSpecialties(prev => prev.filter(t => t !== specialty));
+      dispatch(removeSpecialtyFilter(specialty))
       console.log(`Removed ${specialty}`)
     }
   };
   
   const clearAllFilters = () => {
-    setFilteredSpecialties([])
+    dispatch(clearSpecialtyFilters())
   };
 
   const displayDate = (dateOffset: number) => {
@@ -50,30 +60,27 @@ const NotePage = () => {
     });
   };
 
-    const onSubmitNote = (userNoteContent: string) => {
-      const date = new Date()
-      const addedTime = date.toLocaleTimeString("en-GB", {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      }).replace(":", ''); 
+  const onSubmitNote = (userNoteContent: string) => {
+    const date = new Date()
+    const addedTime = date.toLocaleTimeString("en-GB", {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).replace(":", ''); 
 
-      const newNote: NoteData = {
-        title: "Nursing Note",
-        author: "Current User, RN BSN",
-        specialty: "Nursing",
-        dateOffset: 0, 
-        publishTime: addedTime,
-        noteBody: [
-            { type: 'paragraph', content: userNoteContent }
-        ]
-      }
-      setNotesData(prevNotes => {
-        const newNotesData = [newNote, ...prevNotes]
-        return newNotesData
-      })
-      toast.success(`Nursing note submitted for {patient} at ${addedTime}`);
-    };
+    const newNote: NoteData = {
+      title: "Nursing Note",
+      author: "Current User, RN BSN",
+      specialty: "Nursing",
+      dateOffset: 0, 
+      publishTime: addedTime,
+      noteBody: [
+          { type: 'paragraph', content: userNoteContent }
+      ]
+    }
+    dispatch(addNote(newNote))
+    toast.success(`Nursing note submitted for {patient} at ${addedTime}`);
+  };
   
   
   return (
@@ -124,7 +131,7 @@ const NotePage = () => {
         </div>
         <NursingNoteEntry submitNote={onSubmitNote}/>
       </div>
-      <div className="flex flex-col flex-grow pb-20 gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">  {/*last note is always unreachable, cant scroll far enough down to access*/}
+      <div className="flex flex-col flex-grow pb-20 gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">  
         {filteredNotesData.map((note, index) => {
           return (
             <NoteDisplay key={index} displayDate={displayDate} note={note} />

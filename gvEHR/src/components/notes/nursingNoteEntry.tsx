@@ -7,12 +7,12 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose
-} from "./ui/dialog"
+} from "../ui/dialog"
 
-import { Button } from "./ui/button"
-import { Label } from "./ui/label"
+import { Button } from "../ui/button"
+import { Label } from "../ui/label"
 import { PencilLine } from "lucide-react"
-import { Textarea } from "./ui/textarea"
+import { Textarea } from "../ui/textarea"
 import { useState } from "react"
 
 interface NursingNoteEntryProps {

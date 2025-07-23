@@ -3,10 +3,10 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger
-  } from "./ui/collapsible"
-import { Separator } from "./ui/separator"
+  } from "../ui/collapsible"
+import { Separator } from "../ui/separator"
 import type { NoteData } from "./notesData"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import { ChevronDown } from "lucide-react"
 
 interface NoteDisplayProps {

@@ -1,8 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { FlexSheet } from './components/flexSheet.tsx'
-import OrdersPage from './components/ordersPage.tsx'
-import NotePage from './components/notePage.tsx'
-import LabPage from './components/labPage.tsx'
+import OrdersPage from './components/orders/ordersPage.tsx'
+import NotePage from './components/notes/notePage.tsx'
+import LabPage from './components/labs/labPage.tsx'
 import PatientChartLayout from './components/PatientChartLayout'; // The parent component
 
 const router = createBrowserRouter([
@@ -15,7 +15,7 @@ const router = createBrowserRouter([
         element: <OrdersPage />,
       },
       {
-        path: "notes",  // e.g., /patient/123/notes
+        path: "notes",  // e.g., 
         element: <NotePage />,
       },
       {
