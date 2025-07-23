@@ -326,17 +326,17 @@ export function FlexSheet() {
         open={isSidebarOpen}                     // sidebar will have to move up to parent component
         onOpenChange={setIsSideBarOpen}
     >
-        <SidebarInset>
-        <div className="flex flex-col bg-gray-100 w-full h-full p-4">
-            <div className="flex flex-col w-full h-full justify-center items-center ">
-                <div className="w-full flex justify-start pb-2">
+        <SidebarInset className="">
+        <div className="flex flex-col bg-gray-100 w-full h-full px-4">
+            <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
+                <div className="w-full flex justify-start ">
                     <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
                         existingTimeColumns={timeColumns}
                     />
                     <Button
                         onClick={handleManualToggleSidebar}
-                        className="bg-gray-100 text-black hover:bg-gray-200 shadow shadow-black/20"
+                        className="bg-white h-6 w-4 ml-2 text-black hover:bg-gray-200 shadow shadow-black/20"
                     >
                         {isSidebarOpen ?
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />

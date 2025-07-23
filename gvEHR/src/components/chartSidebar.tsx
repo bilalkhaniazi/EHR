@@ -3,7 +3,7 @@ import { jamesAllen } from "./chartData";
 
 export default function ChartSidebar() {
   return (
-    <div className="w-72 h-full flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+    <div className="w-72 h-auto flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <span className="rounded-full p-1 bg-gray-100 shadow-md">
           <CircleUserRound size={116} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white"/>
         </span>

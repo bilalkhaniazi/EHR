@@ -124,13 +124,13 @@ export function LabPage() {
       // first column has unique formatting
       columnHelper.accessor("field", {
         id: 'pinned',
-        header: () => <h1 className="w-full h-full bg-gray-100"></h1>,
+        header: () => <h1 className="w-full h-full bg-gray-50"></h1>,
         cell: info => {
           const rowType = info.row.original.rowType;
           const field = info.row.original.field
           if (rowType === "divider") {
             return (
-              <p className="text-left text-sm py-0 px-2 font-medium text-blue-900">
+              <p className="text-left text-xs py-0 px-2 font-medium text-blue-900">
                 {field}
               </p>
             );
@@ -141,22 +141,22 @@ export function LabPage() {
               const unit = info.row.original?.unit || ''
               return (
                 <Tooltip>
-                  <TooltipTrigger className="w-full font-normal text-sm text-neutral-700 shadow-none rounded-none">
+                  <TooltipTrigger className="w-full font-normal text-xs text-neutral-700 shadow-none rounded-none">
                     <div className="flex justify-end w-full">
-                      <p className="text-right font-normal px-2 text-sm text-neutral-700">{field}</p>
-                      {unit && <p className="text-right font-normal pr-2 text-xs text-neutral-400">{unit}</p>}
+                      <p className="text-right font-normal px-2 text-xs text-neutral-700">{field}</p>
+                      {unit && <p className="text-right font-normal pr-2 text-xs tracking-tight text-neutral-400">{unit}</p>}
                     </div>
                   </TooltipTrigger>
                   <TooltipPortal>
                     <TooltipContent className="bg-white shadow border border-gray-200 rounded-xl ml-4 p-2 z-10">
                       <h1 className="text-md font-semibold">{field}</h1>
                       <div className="space-y-2">
-                        <div className="text-sm">
-                          <p className="pl-2 text-gray-800 text-sm font-medium">
+                        <div className="text-xs">
+                          <p className="pl-2 text-gray-800 text-xs font-medium">
                             <span className="font-normal">Low: </span>
                             &#60;{labRange.low}
                           </p>
-                          <p className="pl-2 text-gray-800 text-sm font-medium">
+                          <p className="pl-2 text-gray-800 text-xs font-medium">
                             <span className="font-normal">High: </span> 
                             &#62;{labRange.high}</p>
                         </div>
@@ -167,7 +167,7 @@ export function LabPage() {
               );
             } 
             return (
-                <p className="h-6 text-left font-normal py-0 pl-4 text-sm text-neutral-600">
+                <p className="h-6 text-left font-normal py-0 pl-4 text-xs text-neutral-600">
                   {field}
                 </p>
               );
@@ -207,7 +207,7 @@ export function LabPage() {
               }
             }
             return (
-              <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
+              <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
             );
           } 
         })
@@ -234,13 +234,13 @@ export function LabPage() {
 
    
   return (
-    <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 ">
-      <div className="w-full flex justify-between p-4">
+    <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2 ">
+      {/* <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
-      </div>
+      </div> */}
       <div className="w-full h-full pb-20 border border-gray-200 rounded-t-lg overflow-auto">
         <Table className="w-full overflow-x-auto">
-          <TableHeader className=" bg-gray-100 sticky top-0">
+          <TableHeader className=" bg-gray-50 sticky top-0">
           {ptTable.getHeaderGroups().map(headerGroup => (
             <TableRow key={headerGroup.id}>
             {headerGroup.headers.map(header => (
@@ -272,7 +272,7 @@ export function LabPage() {
                 <TableCell
                   style={getPinnedStyles(cell.column)}
                   key={`${cell.id}-${row.original.field}`}
-                  className={`p-0 min-w-32 text-sm border-separate border-gray-200 border-b ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                  className={`p-0 min-w-32 border-separate border-gray-200 border-b ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
                 >
                   {/* Render the cell content using flexRender */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -289,7 +289,7 @@ export function LabPage() {
             {footerGroup.headers.map(header => (
               <TableHead 
               key={header.id} 
-              className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-gray-300">
+              className="h-6 p-0 text-left text-gray-700 border-gray-300">
 
               {header.isPlaceholder
                 ? null
