@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { Button } from "./ui/button"; 
+import { Button } from "../ui/button"; 
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"; 
-import { TimePickerInput } from "./ui/time-picker-input"; 
+import { TimePickerInput } from "../ui/time-picker-input"; 
 import { Clock, Plus } from "lucide-react";
 import { toast } from "sonner"; 
 

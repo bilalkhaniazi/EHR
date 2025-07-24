@@ -2,19 +2,19 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { tableData, chartingOptions } from "./tableData";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
-import { generateInitialVitalsData, getAllInitialHours } from "./tableData";
-import { Input } from "./ui/input";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "../ui/table";
+import { generateInitialChartingData, getAllInitialHours } from "./tableData";
+import { Input } from "../ui/input";
 // import { Toaster } from "sonner";
 import CheckBoxList from "./CheckBoxList";
 import { AddTimeColumnButton } from "./addTimeColButton";
 import AssessmentSelect from "./AssessmentSelect";
-import { Tooltip, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-import { SidebarInset, SidebarProvider } from "./ui/sidebar";
+import { SidebarInset, SidebarProvider } from "../ui/sidebar";
 import { assessmentTools } from "./tableData";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import AssessmentToolSidebar from "./assessmentToolSidebar";
 
@@ -35,14 +35,14 @@ function getPinnedStyles(column: any): React.CSSProperties {
 
 export function FlexSheet() {
     // list of predefined and dynamically-generated hours, and map of time-offsets to real-time equivalents
-    const { allTimesColumns, predefinedVitalsTimeMap } = useMemo(() => getAllInitialHours(), [])
+    const { allTimesColumns, predefinedChartingTimeMap } = useMemo(() => getAllInitialHours(), [])
 
     const [timeColumns, setTimeColumns] = useState(allTimesColumns)
     const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
     const [isSidebarOpen, setIsSideBarOpen] = useState<boolean>(false)
 
     // generate inital dataset to be used by PtTable 
-    const initialData = useMemo(() => generateInitialVitalsData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
+    const initialData = useMemo(() => generateInitialChartingData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
     
     const [data, setData] = useState<tableData[]>(initialData);
 

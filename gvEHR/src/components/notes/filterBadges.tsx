@@ -1,6 +1,6 @@
 import { Trash, X } from "lucide-react";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 interface filterBadgesProps {
     activeFilters: string[];

@@ -1,4 +1,4 @@
-import type { AppDispatch, RootState } from "@/app/store"
+import type { AppDispatch  } from "@/app/store"
 import OrdersTable from "./ordersTable"
 import { 
     nursingHeaderNames, 
@@ -7,19 +7,22 @@ import {
     labratoryHeaderNames,
     type OrderData, 
 } from "@/components/orders/orderData"
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch  } from "react-redux"
 import { addOrder } from "./orderSlice"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
 
+import { useGetOrdersQuery } from "@/app/apiSlice"
+import { Skeleton } from "../ui/skeleton"
+
 const OrdersPage = () => {
 
     const dispatch = useDispatch<AppDispatch>()
-
-    const nursingOrderData = useSelector((state: RootState) => state.orders.nursingOrders)
-    const labratoryOrderData = useSelector((state: RootState) => state.orders.labratoryOrders)
-    const medicationOrderData = useSelector((state: RootState) => state.orders.medicationOrders)
-    const respiratoryOrderData = useSelector((state: RootState) => state.orders.respiratoryOrders)
+    const { data, isLoading, isFetching, isError, error } = useGetOrdersQuery();
+    const nursingOrderData = data?.nursingOrders || []
+    const labratoryOrderData = data?.labratoryOrders || []
+    const medicationOrderData = data?.medicationOrders || []
+    const respiratoryOrderData = data?.respiratoryOrders || []
 
     // keys for column header names in OrdersTables
     const orderColumns = ["details", "status", "orderingProvider"]
@@ -58,6 +61,25 @@ const OrdersPage = () => {
     //     addOrder(setRespiratoryOrderData, newOrder);
     //     toast.success(`Added ${newOrder.displayName} to Respiratory`);
     // };
+    if (isLoading || isFetching) {
+        return (
+            <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
+            <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
+            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+            <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="px-2 py-4 w-full flex-grow flex flex-col gap-4 justify-start items-center bg-gray-100 overflow-y-auto">

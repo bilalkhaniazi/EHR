@@ -14,20 +14,24 @@ import FilterBadges from "./filterBadges";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "@/app/store";
 import {
-  addNote,
   addSpecialtyFilter,
   removeSpecialtyFilter,
   clearSpecialtyFilters
 } from './noteSlice'
 
+import { useAddNoteMutation, useGetNotesQuery } from "@/app/apiSlice";
+import { Skeleton } from "../ui/skeleton";
+
 const NotePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const notesData = useSelector((state: RootState) => state.notes.notesData)
+  const { data, isLoading: areNotesLoading, isFetching, isError: notesFetchError, error: fetchErrorDetails } = useGetNotesQuery();
+  const [addNote, { error }] = useAddNoteMutation()
   const filteredSpecialties = useSelector((state: RootState) => state.notes.filteredSpecialties)
 
+  const notesData = data?.notesData || [];
 
+  // get all specialties from RTK queried data
   const specialties = [...new Set(sampleNotes.map((note) => (note.specialty)))];
-  
 
   const filteredNotesData = notesData.filter(note => {
     if (filteredSpecialties.length === 0) {
@@ -41,7 +45,6 @@ const NotePage = () => {
       dispatch(addSpecialtyFilter(specialty));
     } else {
       dispatch(removeSpecialtyFilter(specialty))
-      console.log(`Removed ${specialty}`)
     }
   };
   
@@ -60,7 +63,7 @@ const NotePage = () => {
     });
   };
 
-  const onSubmitNote = (userNoteContent: string) => {
+  const onSubmitNote = async (userNoteContent: string) => {
     const date = new Date()
     const addedTime = date.toLocaleTimeString("en-GB", {
       hour: '2-digit',
@@ -78,10 +81,34 @@ const NotePage = () => {
           { type: 'paragraph', content: userNoteContent }
       ]
     }
-    dispatch(addNote(newNote))
-    toast.success(`Nursing note submitted for {patient} at ${addedTime}`);
+    try {
+      await addNote(newNote).unwrap();
+      toast.success(`Nursing note submitted for {patient} at ${addedTime}`);
+    } catch (err) {
+      toast.error(`Failed to submit note: ${err instanceof Error ? err.message : String(err)}`);
+      console.error("Failed to submit note:", err);
+    }
   };
   
+  if (areNotesLoading || isFetching) {
+    return (
+      <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
+        <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+      </div>
+    );
+  }
+
+  if (notesFetchError) {
+    return (
+      <div className="w-full h-full flex flex-col px-4 gap-3 bg-gray-100 justify-center items-center">
+        <p className="text-red-600">Error loading notes: {fetchErrorDetails ? (fetchErrorDetails as any).message : 'Unknown error'}</p>
+      </div>
+    );
+  }
   
   return (
     <div className="w-full h-full flex flex-col px-4  gap-3 bg-gray-100">

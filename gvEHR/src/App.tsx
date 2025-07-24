@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { FlexSheet } from './components/flexSheet.tsx'
+import { FlexSheet } from './components/flexSheets/flexSheet.tsx'
 import OrdersPage from './components/orders/ordersPage.tsx'
 import NotePage from './components/notes/notePage.tsx'
 import LabPage from './components/labs/labPage.tsx'

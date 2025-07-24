@@ -1,13 +1,16 @@
-import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTableData, type LabTimePoint } from "./labsData"
+import type { LabTableData } from "./labsData"
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-import { useState, useMemo, useCallback, useEffect } from "react";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "./ui/table";
+import { useMemo, useCallback, useEffect } from "react";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "../ui/table";
 import { toast } from "sonner";
-import { Tooltip, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 import AddBgDemo from "./addBgDemo";
+
+import { useGetLabsQuery, useAddLabColumnMutation } from "@/app/apiSlice";
+import { Skeleton } from "../ui/skeleton";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -31,42 +34,15 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function LabPage() {
-  const allTimePoints = useMemo(() => generateAllInitialLabTimes(), [])
+  const { data, isLoading, isFetching, isError, error } = useGetLabsQuery();
 
-  const [timePoints, setTimePoints] = useState(allTimePoints)
+  const [addLabColumn] = useAddLabColumnMutation();
 
-  // generate inital dataset to be used by PtTable 
-  const initialData = useMemo(() => generateInitialLabData(allTimePoints, labTemplate), [allTimePoints]);
+  const labTableData = data?.labTableData || [];
+  const timePoints = data?.timePoints || [];
+
   
-  const [data, setData] = useState<LabTableData[]>(initialData);
-
-  // updates Data upon submission of Input or AssessmentSelect component 
-  // const onCellUpdate = useCallback((rowId: string, columnId: string, newValue: string | string[]) => {
-  //   setData(oldData => 
-  //     oldData.map(row => {
-  //       if(row.field === rowId) {
-  //         return {
-  //           ...row,
-  //           [columnId]: newValue,
-  //         };
-  //       }
-  //       return row
-  //     })
-  //   );
-  // },  []);
-
-
-  const currentDate = useMemo(() => {
-    const todayDate = new Date()
-    return todayDate.toLocaleDateString("en-US", {
-      month: "numeric",
-      day: "numeric",
-    });
-  }, []);
-  
-  console.log(currentDate)
-
-  const handleColumnAdd = useCallback((initialLabResults?: NewLabResult[]) => {
+  const handleColumnAdd = useCallback( async(initialLabResults?: NewLabResult[]) => {
     const now = new Date();
     // Format the current date and time to match the existing dateKey format (e.g., "MM/DD/YYYY HH:MM")
     const newDateKey = now.toLocaleDateString("en-US", {
@@ -78,47 +54,16 @@ export function LabPage() {
       hour12: false, // Use 24-hour format for consistency
     });
 
-    // Create a new LabTimePoint object for the new column, providing default/derived values
-    const newTimePoint: LabTimePoint = {
-      dateKey: newDateKey,
-      daysOffset: 0, // Default for a newly added column, or calculate based on logic
-      hours: now.getHours(), // Get the current hour
-      labs: [], // Newly added columns don't have predefined lab results in their LabTimePoint object
-    };
-
-    // Update the timePoints state by adding the new time point and sorting them chronologically
-    setTimePoints(prevTimePoints => {
-      const updatedTimePoints = [...prevTimePoints, newTimePoint].sort((a, b) => {
-        const dateA = new Date(a.dateKey);
-        const dateB = new Date(b.dateKey);
-        return dateA.getTime() - dateB.getTime();
-      });
-      return updatedTimePoints;
-    });
+    try{
+      await addLabColumn({newDateKey, initialLabResults}).unwrap();
+      toast.success(`New lab added at ${newDateKey}`)
+    } catch (err) {
+      toast.error(`Failed to add column: ${err instanceof Error ? err.message : String(err)}`);
+      console.error('Failed to add column:', err);
+    }
+  }, [addLabColumn]);
+  
       
-
-    // Update the data state to include the new column and populate it with initial lab results if provided
-    setData(prevData => {
-      return prevData.map(row => {
-        const newRow: LabTableData = { ...row };
-        // Initialize the new column for this row with an empty string
-        newRow[newDateKey] = ""; 
-
-        // If initialLabResults are provided, find a matching lab result for the current row's field
-        if (initialLabResults) {
-          const labResult = initialLabResults.find((lr) => lr.labName === row.field);
-          // If a matching lab result is found, set the new column's value to it
-          if (labResult) {
-            newRow[newDateKey] = labResult.value;
-          }
-        }
-        return newRow;
-      });
-    });
-
-    toast.success(`New column added for ${newDateKey}`);
-  }, []); 
-
   const columns = useMemo(
     () => [
       // first column has unique formatting
@@ -217,7 +162,7 @@ export function LabPage() {
   );
 
   const ptTable = useReactTable({
-    data,
+    data: labTableData,
     columns,
     enablePinning: true,
     initialState: {
@@ -232,9 +177,29 @@ export function LabPage() {
     console.log(data)
   }, [data]);
 
-   
+  
+  if (isLoading || isFetching) {
+    return (
+      <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
+        <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+        <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2 ">
+    <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 pt-4 ">
       {/* <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
       </div> */}
@@ -272,7 +237,7 @@ export function LabPage() {
                 <TableCell
                   style={getPinnedStyles(cell.column)}
                   key={`${cell.id}-${row.original.field}`}
-                  className={`p-0 min-w-32 border-separate border-gray-200 border-b ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                  className={`p-0 min-w-24 border-separate border-gray-200 border-b ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
                 >
                   {/* Render the cell content using flexRender */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

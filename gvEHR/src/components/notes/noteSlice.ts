@@ -1,13 +1,10 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { sampleNotes, type NoteData } from "./notesData"
 
 export interface NotesState {
-  notesData: NoteData[];
   filteredSpecialties: string[];
 }
 
 const initialState: NotesState = {
-  notesData: sampleNotes,
   filteredSpecialties: [],
 };
 
@@ -15,9 +12,6 @@ export const noteSlice = createSlice({
   name: 'notes',
   initialState,
   reducers: {
-    addNote: (state, action: PayloadAction<NoteData>) => {
-      state.notesData.unshift(action.payload);
-    },
     addSpecialtyFilter: (state, action: PayloadAction<string>) => {
       if(!state.filteredSpecialties.includes(action.payload)) {
       state.filteredSpecialties.push(action.payload)
@@ -34,5 +28,5 @@ export const noteSlice = createSlice({
   }
 });
 
-export const { addNote, addSpecialtyFilter, removeSpecialtyFilter, clearSpecialtyFilters } = noteSlice.actions
+export const { addSpecialtyFilter, removeSpecialtyFilter, clearSpecialtyFilters } = noteSlice.actions
 export default noteSlice.reducer;

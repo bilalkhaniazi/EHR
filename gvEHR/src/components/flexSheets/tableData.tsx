@@ -50,7 +50,7 @@ export const getPredefinedHoursMap = (currDate: Date) => {
     return predefinedTimesMap
 };
 
-export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVitalsTimeMap: Map<string, number> } => {
+export const getAllInitialHours = (): { allTimesColumns: string[], predefinedChartingTimeMap: Map<string, number> } => {
     const currDate = new Date()
     const currHour = currDate.getHours()
 
@@ -62,11 +62,11 @@ export const getAllInitialHours = (): { allTimesColumns: string[], predefinedVit
 
     return { 
         allTimesColumns: combinedTimes.sort(),
-        predefinedVitalsTimeMap: predefinedVitalsTimeMap
+        predefinedChartingTimeMap: predefinedVitalsTimeMap
     }
 };
 
-export const generateInitialVitalsData = (
+export const generateInitialChartingData = (
     allTimesColumns: string[],
     staticTimesMap: Map<string,number>
 ): tableData[] => {

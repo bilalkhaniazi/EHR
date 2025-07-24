@@ -1,5 +1,4 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { nursingOrders, labratoryOrders, respiratoryOrders, medOrders } from './orderData'
 import type { OrderData, MedOrderData } from "./orderData";
 
 export interface OrdersState {
@@ -10,10 +9,10 @@ export interface OrdersState {
 }
 
 const initialState: OrdersState = {
-  nursingOrders: nursingOrders,
-  labratoryOrders: labratoryOrders,
-  respiratoryOrders: respiratoryOrders,
-  medicationOrders: medOrders,
+  nursingOrders: [],
+  labratoryOrders: [],
+  respiratoryOrders: [],
+  medicationOrders: [],
 };
 
 export const orderSlice = createSlice({
