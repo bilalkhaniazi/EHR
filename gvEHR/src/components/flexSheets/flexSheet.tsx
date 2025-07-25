@@ -1,11 +1,8 @@
-// Resident attempted to wean sedation again, pt subsequently self-extubated, impromptu SBT failed.
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { tableData, chartingOptions } from "./tableData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "../ui/table";
-import { generateInitialChartingData, getAllInitialHours } from "./tableData";
 import { Input } from "../ui/input";
-// import { Toaster } from "sonner";
 import CheckBoxList from "./CheckBoxList";
 import { AddTimeColumnButton } from "./addTimeColButton";
 import AssessmentSelect from "./AssessmentSelect";
@@ -17,6 +14,11 @@ import { assessmentTools } from "./tableData";
 import { Button } from "../ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import AssessmentToolSidebar from "./assessmentToolSidebar";
+import { useAddTimeColumnMutation, useGetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleSidebar, setSideBarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./flexSheetSlice";
+import type { RootState, AppDispatch } from "../../app/store";
+import { toast } from "sonner";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -34,17 +36,33 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function FlexSheet() {
-    // list of predefined and dynamically-generated hours, and map of time-offsets to real-time equivalents
-    const { allTimesColumns, predefinedChartingTimeMap } = useMemo(() => getAllInitialHours(), [])
+    const dispatch = useDispatch<AppDispatch>();
+    
+    const { data, isLoading, isError, error, isFetching } = useGetChartingQuery()
 
-    const [timeColumns, setTimeColumns] = useState(allTimesColumns)
-    const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
-    const [isSidebarOpen, setIsSideBarOpen] = useState<boolean>(false)
+    const [triggerUpdateFlexSheetData, {isLoading: isSaving, isError: saveError, isSuccess: saveSuccess}] = useUpdateFlexSheetDataMutation();
+    const [triggerAddTimeColumn] = useAddTimeColumnMutation();
+
+    const editableData = useSelector((state: RootState) => state.flexSheet.editableData);
+    const fieldSelections = useSelector((state: RootState) => state.flexSheet.fieldSelections);
+    const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen); 
+
+    const timeColumns = data?.timeColumns || [];
+
+    useEffect(() => {
+        if (data?.chartingData && !isSaving) { // Only update if not currently saving (to avoid overwriting unsaved edits)
+            dispatch(initializeEditableData(data.chartingData));
+    }
+    }, [data, isSaving, dispatch]);
+
+    // const [timeColumns, setTimeColumns] = useState(allTimesColumns)
+    // const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
+    // const [isSidebarOpen, setIsSideBarOpen] = useState<boolean>(false)
 
     // generate inital dataset to be used by PtTable 
-    const initialData = useMemo(() => generateInitialChartingData(allTimesColumns, predefinedVitalsTimeMap), [allTimesColumns, predefinedVitalsTimeMap]);
+    // const initialData = useMemo(() => generateInitialChartingData(allTimesColumns, predefinedChartingTimeMap), [allTimesColumns, predefinedChartingTimeMap]);
     
-    const [data, setData] = useState<tableData[]>(initialData);
+    // const [data, setData] = useState<tableData[]>(initialData);
 
     // upon change in rows to display, update 
     const visibleSubsetIds = useMemo(() => {
@@ -59,73 +77,71 @@ export function FlexSheet() {
         });
         return combinedSet;
     }, [fieldSelections]);
-    
-    // construct new data object and map in existing user entries upon addition of rows
-    const updatedData = useMemo(() => {
-        const filteredData: tableData[] = initialData.filter(row => {
-            if (row.hideable) {
-                // Only show hideable rows if their specific hideableId is in the set
-                return row.hideableId && visibleSubsetIds.has(row.hideableId);
-            }
-            return true; // Always show non-hideable rows
-        });
 
-        return filteredData.map(row => {
-            const newRow = { ...row };
-            timeColumns.forEach(hour => {
-                const matchingRow = data.find(d => d.field === row.field);
-                newRow[hour] = matchingRow ? matchingRow[hour] : "";
-            });
-            return newRow;
+    const filteredData = useMemo(() => {
+    // Make sure editableData is available, otherwise default to empty
+        const currentDataToFilter = editableData.length > 0 ? editableData : data?.chartingData || [];
+
+        const filtered = currentDataToFilter.filter(row => {
+            if (row.hideable) {
+                return row.hideableId && visibleSubsetIds.has(row.hideableId);
+        }
+        return true;
         });
-    }, [visibleSubsetIds, timeColumns]);
+        return filtered;
+    }, [visibleSubsetIds, editableData, data?.chartingData]); // Depend on editableData and RTK data
+
+
+    
+    // // construct new data object and map in existing user entries upon addition of rows
+    // const updatedData = useMemo(() => {
+    //     const filteredData: tableData[] = initialData.filter(row => {
+    //         if (row.hideable) {
+    //             // Only show hideable rows if their specific hideableId is in the set
+    //             return row.hideableId && visibleSubsetIds.has(row.hideableId);
+    //         }
+    //         return true; // Always show non-hideable rows
+    //     });
+
+    //     return filteredData.map(row => {
+    //         const newRow = { ...row };
+    //         timeColumns.forEach(hour => {
+    //             const matchingRow = data.find(d => d.field === row.field);
+    //             newRow[hour] = matchingRow ? matchingRow[hour] : "";
+    //         });
+    //         return newRow;
+    //     });
+    // }, [visibleSubsetIds, timeColumns]);
     
     // set Data upon addition of rows
-    useEffect(() => {
-        setData(updatedData);
-    }, [updatedData]);
+    // useEffect(() => {
+    //     setData(updatedData);
+    // }, [updatedData]);
 
     // updates Data upon submission of Input or AssessmentSelect component 
-    const onCellUpdate = useCallback((rowId: string, columnId: string, newValue: string | string[]) => {
-        setData(oldData => 
-            oldData.map(row => {
-                if(row.field === rowId) {
-                    return {
-                        ...row,
-                        [columnId]: newValue,
-                    };
-                }
-                return row
-            })
-        );
-    },  []);
+    const onCellUpdate = (rowId: string, columnId: string, newValue: string | string[]) => {
+        dispatch(updateEditableData({ rowId, columnId, newValue }))
+    }
 
 
     const handleSubsetSelection = useCallback((field: string, columnId: string, selectedIdsForField: string[]) => {
         const selectionKey = `${field}-${columnId}`;
-
-        setFieldSelections(prev => ({
-            ...prev,
-            [selectionKey]: selectedIdsForField // Update only the selections for this specific field
-        }));
+        dispatch(setFieldSelection({ key: selectionKey, selectedIds: selectedIdsForField}))
+     
         onCellUpdate(field, columnId, selectedIdsForField)
     }, []);
 
 
-    const handleColumnAdd = useCallback((newTime: string) => {
-        setTimeColumns(prevColumns => {
-            const updatedColumns = [...prevColumns, newTime].sort();
-            return updatedColumns;
-        });
-
-        setData(prevData =>
-            prevData.map(row => {
-                const newRow = { ...row };
-                newRow[newTime] = '';
-                return newRow;
-            })
-        );
-    }, []);
+    const handleColumnAdd = async (newTime: string) => {
+        try {
+            // You might need to adjust the payload based on your backend needs
+            await triggerAddTimeColumn({ newTime }).unwrap(); // Assuming this mutation exists
+            toast.success(`New time column ${newTime} added.`);
+        } catch (err) {
+            toast.error(`Failed to add column: ${err instanceof Error ? err.message : String(err)}`);
+            console.error('Failed to add time column:', err);
+        }
+    };
 
     useEffect(() => {
         let shouldOpen = false;
@@ -137,14 +153,27 @@ export function FlexSheet() {
         }
 
         if(shouldOpen != isSidebarOpen) {
-            setIsSideBarOpen(shouldOpen)
+            dispatch(setSideBarOpen(shouldOpen))
         }
-        }, [visibleSubsetIds]);
+    }, [visibleSubsetIds]);
 
     const handleManualToggleSidebar = () => {
-        setIsSideBarOpen(prev => !prev);
-        console.log("called")
-    }; 
+        dispatch(toggleSidebar());
+    };
+    
+    const handleSave = useCallback(async () => {
+        try {
+        // Send the current state of editableData to the backend
+        await triggerUpdateFlexSheetData(editableData).unwrap();
+        toast.success("FlexSheet data saved successfully!");
+        // After successful save, RTK Query's invalidatesTags will cause a re-fetch
+        // The useEffect will then re-initialize editableData with the new saved state.
+        } catch (err) {
+        toast.error(`Failed to save data: ${err instanceof Error ? err.message : String(err)}`);
+        console.error("Failed to save FlexSheet data:", err);
+        }
+    }, [editableData, triggerUpdateFlexSheetData]);
+    
     
     
 
@@ -304,7 +333,7 @@ export function FlexSheet() {
     );
 
     const ptTable = useReactTable({
-        data,
+        data: filteredData,
         columns,
         enablePinning: true,
         initialState: {
@@ -315,16 +344,27 @@ export function FlexSheet() {
         getCoreRowModel: getCoreRowModel(), 
     });
 
-    useEffect(() => {
-        console.log(data)
-    }, [data]);
 
-   
+    if (isLoading || isFetching) {
+    return (
+      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+        <p>Loading FlexSheet data...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+        <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+      </div>
+    );
+  }
     return (
     <SidebarProvider 
         className=""
         open={isSidebarOpen}                     // sidebar will have to move up to parent component
-        onOpenChange={setIsSideBarOpen}
+        onOpenChange={(isOpen) => dispatch(setSideBarOpen(isOpen))}
     >
         <SidebarInset className="">
         <div className="flex flex-col bg-gray-100 w-full h-full px-4">
@@ -341,6 +381,13 @@ export function FlexSheet() {
                         {isSidebarOpen ?
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        // disabled={!hasChanges || isSaving}
+                        className="bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded shadow"
+                    >
+                        {isSaving ? "Saving..." : "Save Charting"}
                     </Button>
                 </div>
                 <div className="flex-grow w-full pb-20 overflow-auto border border-gray-200 rounded-md "> 

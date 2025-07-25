@@ -2,10 +2,16 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTimePoint, type LabTableData } from '@/components/labs/labsData'
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
+import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
   timePoints: LabTimePoint[];
+}
+
+interface GetFlexSheetsResponse {
+  chartingData: tableData[];
+  timeColumns: string[]
 }
 
 export interface GetOrdersResponse {
@@ -113,9 +119,47 @@ export const apiSlice = createApi({
           }
         }
       }
-    })
+    }),
+    // could add new order mutation 
+
+    // FlexSheets
+    getCharting: builder.query<GetFlexSheetsResponse, void>({
+      queryFn: async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const { allTimesColumns, predefinedChartingTimeMap } = getAllInitialHours();
+        const initialData = generateInitialChartingData(allTimesColumns, predefinedChartingTimeMap);
+        return { data: { chartingData: initialData, timeColumns: allTimesColumns}}
+      },
+    }),
+    addTimeColumn: builder.mutation<
+      { message: string, newTime: string }, // Expected response
+      { newTime: string } // Payload: just the new time string
+    >({
+      queryFn: async ({ newTime }) => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log(`Mock backend received request to add time column: ${newTime}`);
+        return { data: { message: `Time column ${newTime} added successfully`, newTime } };
+      },
+    }),
+    // 🚨 NEW: Mutation to update/save the entire FlexSheet data
+    updateFlexSheetData: builder.mutation<
+      { message: string, updatedData: tableData[] }, // Expected response from backend
+      tableData[] // Payload: array of modified rows (the full current state of the sheet)
+    >({
+      queryFn: async (updatedRows) => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log("Mock backend received FlexSheet update:", updatedRows);
+        // 🚨 Mock backend logic: For a real backend, you'd save `updatedRows` to your DB.
+        // For our current mock, we'll just return it.
+        return { data: { message: "FlexSheet data updated successfully", updatedData: updatedRows } };
+      },
+      // Invalidate after save so getFlexSheetData re-fetches the latest *saved* state
+      // (This is crucial for ensuring the UI is in sync with the "database" after a save)
+      // invalidatesTags: ['FlexSheetData'],
+    }),
   }),
 });
+
 
 
 export const { 
@@ -123,5 +167,8 @@ export const {
   useAddLabColumnMutation,
   useGetNotesQuery,
   useAddNoteMutation,
-  useGetOrdersQuery
+  useGetOrdersQuery,
+  useGetChartingQuery,
+  useAddTimeColumnMutation,
+  useUpdateFlexSheetDataMutation,
 } = apiSlice
