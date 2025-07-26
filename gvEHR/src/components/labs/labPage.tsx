@@ -7,10 +7,11 @@ import { toast } from "sonner";
 import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-import AddBgDemo from "./addBgDemo";
+// import AddBgDemo from "./addBgDemo";
 
 import { useGetLabsQuery, useAddLabColumnMutation } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
+import ImagingReport from "./imagingReport";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -40,28 +41,32 @@ export function LabPage() {
 
   const labTableData = data?.labTableData || [];
   const timePoints = data?.timePoints || [];
-
   
-  const handleColumnAdd = useCallback( async(initialLabResults?: NewLabResult[]) => {
-    const now = new Date();
-    // Format the current date and time to match the existing dateKey format (e.g., "MM/DD/YYYY HH:MM")
-    const newDateKey = now.toLocaleDateString("en-US", {
-      month: "2-digit", // Ensure two digits for month
-      day: "2-digit",   // Ensure two digits for day
-    }) + " " + now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false, // Use 24-hour format for consistency
-    });
+  useEffect(() =>{
+    console.log(labTableData)
+  }, [labTableData])
 
-    try{
-      await addLabColumn({newDateKey, initialLabResults}).unwrap();
-      toast.success(`New lab added at ${newDateKey}`)
-    } catch (err) {
-      toast.error(`Failed to add column: ${err instanceof Error ? err.message : String(err)}`);
-      console.error('Failed to add column:', err);
-    }
-  }, [addLabColumn]);
+// will need backend to add column,   
+  // const handleColumnAdd = useCallback( async(initialLabResults?: NewLabResult[]) => {
+  //   const now = new Date();
+  //   // Format the current date and time to match the existing dateKey format (e.g., "MM/DD/YYYY HH:MM")
+  //   const newDateKey = now.toLocaleDateString("en-US", {
+  //     month: "2-digit", // Ensure two digits for month
+  //     day: "2-digit",   // Ensure two digits for day
+  //   }) + " " + now.toLocaleTimeString("en-US", {
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     hour12: false, // Use 24-hour format for consistency
+  //   });
+
+  //   try{
+  //     await addLabColumn({newDateKey, initialLabResults}).unwrap();
+  //     toast.success(`New lab added at ${newDateKey}`)
+  //   } catch (err) {
+  //     toast.error(`Failed to add column: ${err instanceof Error ? err.message : String(err)}`);
+  //     console.error('Failed to add column:', err);
+  //   }
+  // }, [addLabColumn]);
   
       
   const columns = useMemo(
@@ -112,7 +117,7 @@ export function LabPage() {
               );
             } 
             return (
-                <p className="h-6 text-left font-normal py-0 pl-4 text-xs text-neutral-600">
+                <p className="text-right font-normal px-2 text-xs text-neutral-700">
                   {field}
                 </p>
               );
@@ -155,11 +160,23 @@ export function LabPage() {
               return (
                 <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
               );
+            } else if (row.original.rowType === "imaging") {
+              const imagingReport = (getValue() as imagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
+              if(!imagingReport.displayName) {
+                return (
+                  <></>
+                )
+              } else {
+                return (
+                  <ImagingReport
+                    key={`${row.id}-${column.id}-${row.original.field}`}
+                    cellName={row.original.field} 
+                    imagingReportContents={imagingReport} 
+                  />
+                )
+              }
             } else {
-              const imagingReport = (getValue() as imagingData) || { technique: "", findings: {}, impressions: ['']}
-              return (
-                <p>{imagingReport.technique}</p>
-              )
+              <></>
             }
            
           } 
@@ -180,10 +197,6 @@ export function LabPage() {
     },
     getCoreRowModel: getCoreRowModel(), 
   });
-
-  useEffect(() => {
-    console.log(data)
-  }, [data]);
 
   
   if (isLoading || isFetching) {

@@ -31,8 +31,25 @@ export const apiSlice = createApi({
         await new Promise(resolve => setTimeout(resolve, 1000));
         const referenceDate = new Date();
         const allTimePoints = generateAllInitialLabTimes(referenceDate);
+        const timeColumnDateKeys = allTimePoints.map(timePoint => timePoint.dateKey)
+        
         const initialLabTableData = generateInitialLabData(allTimePoints, labTemplate);
-        return { data: { labTableData: initialLabTableData, timePoints: allTimePoints }};
+        const filteredLabTableData = 
+          initialLabTableData.filter(row => {
+            if (!row.hideable) {
+              return true
+            }
+            if (row.rowType === "divider") {
+              return true
+            }
+            const allValuesEmpty = timeColumnDateKeys.every(dateKey => {
+              const labValue = row[dateKey]
+              return !labValue
+              }
+            )
+            return !allValuesEmpty
+          })
+        return { data: { labTableData: filteredLabTableData, timePoints: allTimePoints }};
       }
     }),
     addLabColumn: builder.mutation<

@@ -9,15 +9,15 @@ import type { chartingOptions } from "@/components/flexSheets/tableData";
 interface CheckBoxListProps {
     options: chartingOptions[]; // The list of available checkboxes (e.g., WDL, Lung Sounds)
     selectedOptions: string[]; // The currently selected options (values) from the parent
-    field: string;
+    rowId: string;
     columnId: string;
-    onSelectionChange: (field: string, columnId: string, selectedValues: string[]) => void; // Callback to notify parent of changes
+    onSelectionChange: (rowId: string, columnId: string, selectedValues: string[]) => void; // Callback to notify parent of changes
 }
 
 const CheckBoxList: React.FC<CheckBoxListProps> = ({ 
     options,
     selectedOptions,
-    field,
+    rowId,
     onSelectionChange,
     columnId,
 }) => {
@@ -40,7 +40,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
 
     const handleApplyClick = () => {
         // When the "Apply" button is clicked, notify the parent of the final selections
-        onSelectionChange(field, columnId, Array.from(localSelected));
+        onSelectionChange(rowId, columnId, Array.from(localSelected));
         setIsPopoverOpen(false); // Close the popover after applying
     };
 
@@ -63,12 +63,12 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                         const isWDLExcept = option.label === "WDL, except:"
 
                         if (!isWDLExcept) {
-                            const checkboxId = `checkbox-${field}-${columnId}-${option.value}`;
+                            const checkboxId = `checkbox-${rowId}-${columnId}-${option.value}`;
 
                             return (
                                 <Label
                                     htmlFor={checkboxId}
-                                    key={`label-${field}-${columnId}-${option.value}`}
+                                    key={`label-${rowId}-${columnId}-${option.value}`}
                                     className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 "
                                 >
                                     <Checkbox
@@ -86,7 +86,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                             return (
                                 <Label 
                                     className='h-8 pl-4 border-b bg-gray-100 text-xs text-left leading-none font-normal'
-                                    key={`wdl-except-${field}-${columnId}`}
+                                    key={`wdl-except-${rowId}-${columnId}`}
                                 >
                                     WDL, except:
                                 </Label>

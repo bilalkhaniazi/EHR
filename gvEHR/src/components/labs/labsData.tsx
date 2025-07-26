@@ -19,8 +19,10 @@ export interface LabDataTemplate {
   unit?: string,
   rowType: "divider" | "results" | "imaging",
   normalRange?: { low: string, high: string }
+  hideable?: boolean
 }
 export interface imagingData {
+  displayName: string;
   technique: string;
   findings: {
     [area: string]: string
@@ -34,6 +36,7 @@ export interface LabTableData {
     rowType: "divider" | "results" | "imaging";
     unit?: string;
     normalRange?: { low: string, high: string };
+    hideable?: boolean
     [dateKey: string]: string | { labName: string, value: string } | any; 
 }
 
@@ -88,6 +91,7 @@ export const generateInitialLabData = (
       field: templateRow.field,
       rowType: templateRow.rowType,
       ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
+      ...(templateRow.hideable && { hideable: templateRow.hideable}), 
       unit: templateRow.unit 
     };
     if (templateRow.rowType === "results") {
@@ -99,7 +103,7 @@ export const generateInitialLabData = (
     if (templateRow.rowType === "imaging") {
       allTimesColumns.forEach(timePoint => {
         const labValue = labResultsLookup.get(timePoint.dateKey)?.get(templateRow.field);
-        newRow[timePoint.dateKey] = labValue ? labValue.value : { technique: "", findings: {}, impressions: ['']};
+        newRow[timePoint.dateKey] = labValue ? labValue.value : {};
       });
     }
     generatedData.push(newRow)
@@ -180,21 +184,31 @@ export const predefinedLabData: PredefinedLabEntry[] = [
     ]
   },
   {
-    daysOffset: 1, // Yesterday
+    daysOffset: 1, 
     hoursOffset: 18, 
     labResults: [
       { labName: "Glucose", value: "160" },
-      { labName: "CT R. Foot", value: {
-        technique: "bob",
-        findings: {
-          "soft tissue": "bob"
-        },
-        impression: ["bob", "bob"]
-      } } 
+      { labName: "CT R. Foot", 
+        value: {
+          displayName: "CT OF THE RIGHT FOOT",
+          technique: "Non-contrast axial and sagittal CT images of the right foot were obtained. Multiplanar reconstructions performed.",
+          findings: {
+            "Soft Tissue": "There is a focal soft tissue defect overlying the plantar aspect of the right forefoot, measuring approximately 2.8 cm in diameter, with surrounding subcutaneous fat stranding and mild edema.",
+            "Bone Structures": "Cortical irregularity and erosion noted involving the underlying second and third metatarsal heads. Trabecular sclerosis and decreased attenuation suggest early osteomyelitic changes. No definitive intraosseous gas observed.",
+            "Joints": "Mild degenerative changes at the tarsometatarsal joints. No joint effusion",
+            "Vascularity": "Posterior tibial artery calcifications consistent with peripheral vascular disease."
+          },
+          impression: [
+            "Soft tissue ulceration of the right plantar forefoot with adjacent inflammatory changes.",
+            "Findings suggestive of early osteomyelitis involving the second and third metatarsal heads.",
+            "Peripheral vascular calcifications likely related to underlying diabetes."
+          ]
+        }
+      } 
     ]
   },
   {
-    daysOffset: 1, // Yesterday
+    daysOffset: 1, 
     hoursOffset: 14, 
     labResults: [
       { labName: "Glucose", value: "195" },
@@ -427,9 +441,9 @@ export const labTemplate: LabDataTemplate[] = [
   },
   {
     field: "Protein",
-    unit: "", // Often reported as negative/positive or trace
+    unit: "", 
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" } // Or "0", "Trace" depending on reporting
+    normalRange: { low: "Negative", high: "Negative" } 
   },
   {
     field: "Urine Glucose",
@@ -493,37 +507,41 @@ export const labTemplate: LabDataTemplate[] = [
     field: "CRP",
     unit: "(mg/L)",
     rowType: "results",
-    normalRange: { low: "0", high: "10" } // Varies, but common clinical cutoff
+    normalRange: { low: "0", high: "10" },
+    hideable: true
   },
   {
     field: "ESR",
     unit: "(mm/hr)",
     rowType: "results",
-    normalRange: { low: "0", high: "20" } // Varies by age/sex, general range
+    normalRange: { low: "0", high: "20" },
+    hideable: true
   },
-  // --- NEW ADDITIONS ---
   {
     field: "Thyroid Function",
     unit: "",
     rowType: "divider",
   },
   {
-    field: "TSH", // Thyroid Stimulating Hormone
+    field: "TSH", 
     unit: "(mIU/L)",
     rowType: "results",
-    normalRange: { low: "0.4", high: "4.0" }
+    normalRange: { low: "0.4", high: "4.0" },
+    hideable: true
   },
   {
     field: "Free T3",
     unit: "(pg/mL)",
     rowType: "results",
-    normalRange: { low: "2.3", high: "4.2" }
+    normalRange: { low: "2.3", high: "4.2" },
+    hideable: true
   },
   {
     field: "Free T4",
     unit: "(ng/dL)",
     rowType: "results",
-    normalRange: { low: "0.8", high: "1.8" }
+    normalRange: { low: "0.8", high: "1.8" },
+    hideable: true
   },
   {
     field: "Lipid Panel",
@@ -534,25 +552,32 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Total Cholesterol",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "125", high: "200" } // Desirable
+    normalRange: { low: "125", high: "200" },
+    hideable: true
+
   },
   {
     field: "HDL Cholesterol", // High-Density Lipoprotein
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "40", high: "60" } // Desirable, higher is better
+    normalRange: { low: "40", high: "60" },
+    hideable: true
+ // Desirable, higher is better
   },
   {
     field: "LDL Cholesterol", // Low-Density Lipoprotein
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "0", high: "100" } // Optimal
+    normalRange: { low: "0", high: "100" },
+    hideable: true
+
   },
   {
     field: "Triglycerides",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "0", high: "150" } // Normal
+    normalRange: { low: "0", high: "150" },
+    hideable: true
   },
   {
     field: "Additional Electrolytes",
@@ -563,13 +588,16 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Magnesium",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "1.5", high: "2.5" }
+    normalRange: { low: "1.5", high: "2.5" },
+    hideable: true
+
   },
   {
     field: "Phosphate",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "2.5", high: "4.5" }
+    normalRange: { low: "2.5", high: "4.5" },
+    hideable: true
   },
   {
     field: "Pancreatic Enzymes",
@@ -580,13 +608,15 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Amylase",
     unit: "(U/L)",
     rowType: "results",
-    normalRange: { low: "25", high: "125" }
+    normalRange: { low: "25", high: "125" },
+    hideable: true
   },
   {
     field: "Lipase",
     unit: "(U/L)",
     rowType: "results",
-    normalRange: { low: "0", high: "160" } 
+    normalRange: { low: "0", high: "160" },
+    hideable: true
   },
   {
     field: "Imaging",
@@ -597,5 +627,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "CT R. Foot",
     unit: "",
     rowType: "imaging",
+    hideable: true
+
   },
 ];

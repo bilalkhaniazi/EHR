@@ -28,7 +28,7 @@ export const flexSheetSlice = createSlice({
     },
     updateEditableData: (state, action: PayloadAction<{rowId: string, columnId: string, newValue: string | string[]}>) => {
       const { rowId, columnId, newValue } = action.payload
-      const rowIndex = state.editableData.findIndex(row => row.field === rowId);
+      const rowIndex = state.editableData.findIndex(row => row.id === rowId);
       if (rowIndex !== -1) {
         state.editableData[rowIndex] = {
           ...state.editableData[rowIndex],

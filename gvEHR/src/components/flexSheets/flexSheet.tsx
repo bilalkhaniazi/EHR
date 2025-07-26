@@ -47,6 +47,7 @@ export function FlexSheet() {
     const editableData = useSelector((state: RootState) => state.flexSheet.editableData);
     const fieldSelections = useSelector((state: RootState) => state.flexSheet.fieldSelections);
     const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen); 
+    // console.log(editableData)
 
     const timeColumns = data?.timeColumns || [];
 
@@ -72,19 +73,67 @@ export function FlexSheet() {
     }, [fieldSelections]);
 
     const filteredData = useMemo(() => {
-    // Make sure editableData is available, otherwise default to empty
         const currentDataToFilter = editableData.length > 0 ? editableData : data?.chartingData || [];
-
-        const filtered = currentDataToFilter.filter(row => {
-            if (row.hideable) {
-                return row.hideableId && visibleSubsetIds.has(row.hideableId);
-        }
-        return true;
+        
+        // Group rows by their toolName to calculate totals
+        const groupedByTool: Record<string, tableData[]> = {};
+        currentDataToFilter.forEach(row => {
+            if (row.toolName) {
+                if (!groupedByTool[row.toolName]) {
+                    groupedByTool[row.toolName] = [];
+                }
+                groupedByTool[row.toolName].push(row);
+            }
         });
-        return filtered;
-    }, [visibleSubsetIds, editableData, data?.chartingData]); // Depend on editableData and RTK data
+        console.log(groupedByTool)
+        const newFilteredData: tableData[] = [];
 
+        currentDataToFilter.forEach(row => {
+            // Include hideable rows if their hideableId is in visibleSubsetIds
+            if (row.hideable) {
+                if (row.hideableId && visibleSubsetIds.has(row.hideableId)) {
+                    newFilteredData.push(row);
+                }
+            } else {
+                // Always include non-hideable rows (like title rows or vital signs)
+                newFilteredData.push(row);
+            }
 
+            // After adding all rows for a specific tool, add the total score row
+            if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
+                const toolName = row.hideableId; // Assuming hideableId matches toolName for title rows
+                if (groupedByTool[toolName]) {
+                    const totalRow: tableData = {
+                        id: `${toolName}TotalScore`,
+                        field: `${toolName} Total Score`,
+                        componentType: "totalScoreRow", // This will be a static display
+                        rowType: "totalScoreRow", // A new rowType to identify it
+                    };
+
+                    // Calculate total for each time column
+                    timeColumns.forEach(timeCol => {
+                        let totalScore = 0;
+                        let hasEnteredValue = false
+
+                        groupedByTool[toolName].forEach(toolRow => {
+                            const score = parseInt(toolRow[timeCol]);
+                            if (!isNaN(score)) {
+                                totalScore += score;
+                                hasEnteredValue = true
+                            }
+                        });
+                        console.log("total score", totalScore.toString())
+                        totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : ""; // Store as string for consistency
+                    });
+                    newFilteredData.push(totalRow);
+                }
+            }
+        });
+
+        return newFilteredData;
+    }, [visibleSubsetIds, editableData, data?.chartingData, timeColumns]); // Depend on edi
+
+    console.log(filteredData)
 
     // updates Data upon submission of Input or AssessmentSelect component 
     const onCellUpdate = (rowId: string, columnId: string, newValue: string | string[]) => {
@@ -92,16 +141,16 @@ export function FlexSheet() {
     }
 
 
-    const handleSubsetSelection = useCallback((field: string, columnId: string, selectedIdsForField: string[]) => {
-        const selectionKey = `${field}-${columnId}`;
+    const handleSubsetSelection = useCallback((id: string, columnId: string, selectedIdsForField: string[]) => {
+        const selectionKey = `${id}-${columnId}`;
         dispatch(setFieldSelection({ key: selectionKey, selectedIds: selectedIdsForField}))
      
-        onCellUpdate(field, columnId, selectedIdsForField)
+        onCellUpdate(id, columnId, selectedIdsForField)
     }, []);
 
 
     const handleColumnAdd = async (newTime: string) => {
-        // timeColumns would be recalculated upon addition on new column with the mutation marking the data as staleS
+        // timeColumns would be recalculated upon addition on new column with the mutation marking the data as stale
         if (timeColumns.includes(newTime)) {
             toast.error(`A column for time ${newTime} already exists.`);
             return;
@@ -200,7 +249,37 @@ export function FlexSheet() {
                                 </p>
                             );
                         }
-                    } else {
+                    } else if (rowType === "totalScoreRow") { // Handle the new total score row
+                        const toolName = info.row.original.field.replace(' Total Score', '');
+                        const toolInterpretation = assessmentTools.find(tool => tool.name === toolName)?.interpretations;
+                        
+                        // Display total score with interpretation if available
+                        return (
+                            <div className="min-w-24 h-full text-xs text-left py-0 pl-4 font-semibold text-neutral-800">
+                                {info.getValue() && toolInterpretation ? (
+                                    <Tooltip>
+                                        <TooltipTrigger className="cursor-help">
+                                            {info.getValue()} Total
+                                        </TooltipTrigger>
+                                        <TooltipPortal>
+                                            <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm">
+                                                <h1 className="text-sm font-bold">{toolName} Interpretation</h1>
+                                                <div className="pl-2 space-y-2">
+                                                    {toolInterpretation.map((interpretation, index) => (
+                                                        <div key={index}>
+                                                            <p className="text-xs font-semibold text-gray-800">{interpretation.result} ({interpretation.range}):</p>
+                                                            <p className="pl-2 text-xs text-gray-600 italic">{interpretation.description}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </TooltipContent>
+                                        </TooltipPortal>
+                                    </Tooltip>
+                                ) : (
+                                    `${info.getValue()} Total`
+                                )}
+                            </div>
+                        )} else {
                         // This is for other row types that are not "titleRow"
                         return (
                             <p className="min-w-24 h-full text-left text-xs py-0 pl-4 text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">
@@ -229,19 +308,26 @@ export function FlexSheet() {
                             return (
                                 <p></p>
                             );
-                        } else if(componentType === "assessmentselect") {
+                        } else if(componentType === "totalScoreRow") { // Render total score cell
+                            return (
+                                <p className="text-right pr-2 py-0 text-xs font-semibold">
+                                    {initialValue}
+                                </p>
+                            )
+                        } 
+                        else if(componentType === "assessmentselect") {
                             const chartingOptions = (row.original.chartingOptions || []) as chartingOptions[];
 
                             const handleComponentChange = (newValue: string) => {
                                 setValue(newValue); 
-                                onCellUpdate(row.original.field, column.id, newValue); 
+                                onCellUpdate(row.original.id, column.id, newValue); 
                             };
 
                             return (
                                 <AssessmentSelect
                                     options={chartingOptions} 
                                     value={value}
-                                    rowId={row.original.field}
+                                    rowId={row.original.id}
                                     columnId={column.id}
                                     onValueChange={handleComponentChange}
                                     className="p-0 h-6 hover:bg-muted/30"
@@ -251,14 +337,14 @@ export function FlexSheet() {
                             const assessmentSubsets = row.original.assessmentSubsets || [];
                             
                             // unique key because currentSelectedSubsets are coming from fieldSelections, not Data
-                            const selectionKey = `${row.original.field}-${column.id}`
+                            const selectionKey = `${row.original.id}-${column.id}`
                             const currentSelectedSubsets = fieldSelections[selectionKey] || [];
                             
                             return (
                                 <CheckBoxList
                                     options={assessmentSubsets}
                                     selectedOptions={currentSelectedSubsets}
-                                    field={row.original.field}
+                                    rowId={row.original.id}
                                     columnId={column.id}
                                     onSelectionChange={handleSubsetSelection}
                                 />
@@ -275,7 +361,7 @@ export function FlexSheet() {
                             
                             const onBlur = () => {
                                 if(value != initialValue) {
-                                    onCellUpdate(row.original.field, column.id, value);
+                                    onCellUpdate(row.original.id, column.id, value);
                                 }
                             };
 
