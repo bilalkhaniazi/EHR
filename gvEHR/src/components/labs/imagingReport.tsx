@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 import type { imagingData } from "./labsData"
+import { Separator } from "../ui/separator";
 
 interface ImagingReportProps {
   cellName: string;
@@ -19,14 +20,14 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
             <X color="black" />
           </AlertDialogAction>
         </div>
-        <AlertDialogHeader className="p-0 items-start gap-1">
+        <AlertDialogHeader className="p-0 items-start gap-">
           
-            <h1 className="text-md font-medium underline">Technique</h1>
+            <h1 className="text-md font-medium ">Technique</h1>
             <p className="pl-2 text-sm text-left text-gray-700">
               {imagingReportContents.technique}
             </p>
-
-            <h1 className="text-md font-medium underline">Findings</h1>
+            <Separator className="mb-1" />
+            <h1 className="text-md font-medium ">Findings</h1>
             <div className="pl-2">
               {Object.entries(imagingReportContents.findings).map(([key, value], index) => (
                 <div key={index} className="flex items-start gap-1 mb-1">
@@ -37,8 +38,9 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
                 </div>
               ))}
             </div>
+            <Separator className="mb-1" />
 
-            <h1 className="text-md font-medium underline">Impressions</h1>
+            <h1 className="text-md font-medium ">Impressions</h1>
               <ul className="pl-5 list-disc">
                 {imagingReportContents.impression.map((value, index) => (
                   <li key={index} className="text-sm text-left text-gray-700">
