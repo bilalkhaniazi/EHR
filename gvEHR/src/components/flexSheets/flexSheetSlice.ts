@@ -23,7 +23,7 @@ export const flexSheetSlice = createSlice({
     toggleSidebar: (state) => {
       state.isSidebarOpen = !state.isSidebarOpen;
     },
-    setSideBarOpen: (state, action: PayloadAction<boolean>) => {
+    setSidebarOpen: (state, action: PayloadAction<boolean>) => {
       state.isSidebarOpen = action.payload
     },
     updateEditableData: (state, action: PayloadAction<{rowId: string, columnId: string, newValue: string | string[]}>) => {
@@ -45,7 +45,7 @@ export const flexSheetSlice = createSlice({
 export const { 
   setFieldSelection,
   toggleSidebar,
-  setSideBarOpen,
+  setSidebarOpen,
   updateEditableData,
   initializeEditableData
   } = flexSheetSlice.actions

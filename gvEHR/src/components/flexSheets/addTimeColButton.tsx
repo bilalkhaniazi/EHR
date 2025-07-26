@@ -30,7 +30,6 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTim
         }
 
         onColumnAdd(addedTime); 
-        toast.success(`Time column added at ${addedTime}`);
     }, [onColumnAdd, existingTimeColumns]); 
 
     const handleAddUserDefinedTime = useCallback(() => {
@@ -57,20 +56,19 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTim
         onColumnAdd(addedTime); 
         setIsPopoverOpen(false); 
         setSelectedTime(new Date(0,0,0,0,0,0,0)); 
-        toast.success(`Time column added at ${addedTime}`);
     }, [selectedTime, existingTimeColumns, onColumnAdd, setIsPopoverOpen]); 
     
     return (
         <div className="flex gap-4 pl-8">
             <Button onClick={handleAddTime} className="bg-white h-6 text-black text-xs hover:bg-gray-100 shadow shadow-black/20">
-                <Plus className="mr-1" />
+                <Plus className="" />
                 Add Time
             </Button>
 
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
                     <Button className="bg-white h-6 text-black text-xs hover:bg-gray-100 shadow shadow-black/20">
-                        <Clock className="mr-2" />
+                        <Clock className="mr-1" />
                         Insert Time
                     </Button>
                 </PopoverTrigger>

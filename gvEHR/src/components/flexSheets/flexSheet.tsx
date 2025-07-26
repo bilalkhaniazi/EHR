@@ -16,9 +16,10 @@ import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import AssessmentToolSidebar from "./assessmentToolSidebar";
 import { useAddTimeColumnMutation, useGetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleSidebar, setSideBarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./flexSheetSlice";
+import { toggleSidebar, setSidebarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./flexSheetSlice";
 import type { RootState, AppDispatch } from "../../app/store";
 import { toast } from "sonner";
+import { Skeleton } from "../ui/skeleton";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -55,14 +56,6 @@ export function FlexSheet() {
     }
     }, [data, isSaving, dispatch]);
 
-    // const [timeColumns, setTimeColumns] = useState(allTimesColumns)
-    // const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
-    // const [isSidebarOpen, setIsSideBarOpen] = useState<boolean>(false)
-
-    // generate inital dataset to be used by PtTable 
-    // const initialData = useMemo(() => generateInitialChartingData(allTimesColumns, predefinedChartingTimeMap), [allTimesColumns, predefinedChartingTimeMap]);
-    
-    // const [data, setData] = useState<tableData[]>(initialData);
 
     // upon change in rows to display, update 
     const visibleSubsetIds = useMemo(() => {
@@ -92,31 +85,6 @@ export function FlexSheet() {
     }, [visibleSubsetIds, editableData, data?.chartingData]); // Depend on editableData and RTK data
 
 
-    
-    // // construct new data object and map in existing user entries upon addition of rows
-    // const updatedData = useMemo(() => {
-    //     const filteredData: tableData[] = initialData.filter(row => {
-    //         if (row.hideable) {
-    //             // Only show hideable rows if their specific hideableId is in the set
-    //             return row.hideableId && visibleSubsetIds.has(row.hideableId);
-    //         }
-    //         return true; // Always show non-hideable rows
-    //     });
-
-    //     return filteredData.map(row => {
-    //         const newRow = { ...row };
-    //         timeColumns.forEach(hour => {
-    //             const matchingRow = data.find(d => d.field === row.field);
-    //             newRow[hour] = matchingRow ? matchingRow[hour] : "";
-    //         });
-    //         return newRow;
-    //     });
-    // }, [visibleSubsetIds, timeColumns]);
-    
-    // set Data upon addition of rows
-    // useEffect(() => {
-    //     setData(updatedData);
-    // }, [updatedData]);
 
     // updates Data upon submission of Input or AssessmentSelect component 
     const onCellUpdate = (rowId: string, columnId: string, newValue: string | string[]) => {
@@ -133,10 +101,15 @@ export function FlexSheet() {
 
 
     const handleColumnAdd = async (newTime: string) => {
+        // timeColumns would be recalculated upon addition on new column with the mutation marking the data as staleS
+        if (timeColumns.includes(newTime)) {
+            toast.error(`A column for time ${newTime} already exists.`);
+            return;
+        }
         try {
-            // You might need to adjust the payload based on your backend needs
-            await triggerAddTimeColumn({ newTime }).unwrap(); // Assuming this mutation exists
-            toast.success(`New time column ${newTime} added.`);
+
+            const response = await triggerAddTimeColumn({ newTime }).unwrap(); 
+            toast.success(response.message);
         } catch (err) {
             toast.error(`Failed to add column: ${err instanceof Error ? err.message : String(err)}`);
             console.error('Failed to add time column:', err);
@@ -151,9 +124,8 @@ export function FlexSheet() {
                 break
             }
         }
-
         if(shouldOpen != isSidebarOpen) {
-            dispatch(setSideBarOpen(shouldOpen))
+            dispatch(setSidebarOpen(shouldOpen))
         }
     }, [visibleSubsetIds]);
 
@@ -174,8 +146,10 @@ export function FlexSheet() {
         }
     }, [editableData, triggerUpdateFlexSheetData]);
     
-    
-    
+    const hasChanges = useMemo(() => {
+        if (!data?.chartingData || !editableData) return false;
+        return JSON.stringify(editableData) !== JSON.stringify(data.chartingData);
+    }, [editableData, data?.chartingData]);
 
     const displayDate = useMemo(() => {
         const todayDate = new Date()
@@ -346,12 +320,16 @@ export function FlexSheet() {
 
 
     if (isLoading || isFetching) {
-    return (
-      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-        <p>Loading FlexSheet data...</p>
-      </div>
-    );
-  }
+        return (
+            <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
+                <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+            </div>
+        );
+    }
 
   if (isError) {
     return (
@@ -363,32 +341,33 @@ export function FlexSheet() {
     return (
     <SidebarProvider 
         className=""
-        open={isSidebarOpen}                     // sidebar will have to move up to parent component
-        onOpenChange={(isOpen) => dispatch(setSideBarOpen(isOpen))}
+        open={isSidebarOpen}                     
+        onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
     >
         <SidebarInset className="">
         <div className="flex flex-col bg-gray-100 w-full h-full px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
-                <div className="w-full flex justify-start ">
+                <div className="w-full flex justify-start gap-2 ">
                     <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
                         existingTimeColumns={timeColumns}
                     />
                     <Button
+                        onClick={handleSave}
+                        disabled={!hasChanges || isSaving}
+                        className="h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
+                    >
+                        {isSaving ? "Saving..." : "File"}
+                    </Button>
+                    <Button
                         onClick={handleManualToggleSidebar}
-                        className="bg-white h-6 w-4 ml-2 text-black hover:bg-gray-200 shadow shadow-black/20"
+                        className="bg-white h-6 w-4 text-black hover:bg-gray-200 shadow shadow-black/20"
                     >
                         {isSidebarOpen ?
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
                     </Button>
-                    <Button
-                        onClick={handleSave}
-                        // disabled={!hasChanges || isSaving}
-                        className="bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded shadow"
-                    >
-                        {isSaving ? "Saving..." : "Save Charting"}
-                    </Button>
+                    
                 </div>
                 <div className="flex-grow w-full pb-20 overflow-auto border border-gray-200 rounded-md "> 
                     <Table className="w-full rounded-md">

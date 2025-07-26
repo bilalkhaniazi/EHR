@@ -2,7 +2,7 @@
 export interface PredefinedLabEntry {
   daysOffset: number,
   hoursOffset: number,
-  labResults: { labName: string, value: string}[] 
+  labResults: { labName: string, value: string | imagingData}[]
 }
 
 // predefined lab data with an offset time stamp
@@ -10,26 +10,34 @@ export interface LabTimePoint {
   dateKey: string; // e.g., "2025-07-14 01:00"
   daysOffset: number;
   hours: number;
-  labs: { labName: string, value: string}[] 
+  labs: { labName: string, value: string | imagingData }[] 
 }
 
 // info for table row 
 export interface LabDataTemplate {
   field: string,
   unit?: string,
-  rowType: "divider" | "results",
+  rowType: "divider" | "results" | "imaging",
   normalRange?: { low: string, high: string }
+}
+export interface imagingData {
+  technique: string;
+  findings: {
+    [area: string]: string
+  };
+  impression: string[];
 }
 
 // dataset to be used by tanstack table
 export interface LabTableData {
     field: string;
-    rowType: "divider" | "results";
+    rowType: "divider" | "results" | "imaging";
     unit?: string;
     normalRange?: { low: string, high: string };
     [dateKey: string]: string | { labName: string, value: string } | any; 
 }
 
+// if blank columns needed or 
 // export const getInitialDynamicHours = (currHour: number) => {
 //   return Array.from({length: 2}, (_, index) => {
 //       const adjustedHour = (currHour + index) % 24
@@ -65,10 +73,10 @@ export const generateInitialLabData = (
 ) => {
   const generatedData: LabTableData[] = [];
 
-  const labResultsLookup = new Map<string, Map<String, {labName: string, value: string }>>();
+  const labResultsLookup = new Map<string, Map<String, {labName: string, value: string | imagingData }>>();
 
   allTimesColumns.forEach(timePoint => {
-    const labsForThisTime = new Map<string, {labName: string, value: string }>();
+    const labsForThisTime = new Map<string, {labName: string, value: string | imagingData }>();
     timePoint.labs.forEach(lab => {
       labsForThisTime.set(lab.labName, lab);
     })
@@ -88,6 +96,12 @@ export const generateInitialLabData = (
         newRow[timePoint.dateKey] = labValue ? labValue.value : '';
       });
     }
+    if (templateRow.rowType === "imaging") {
+      allTimesColumns.forEach(timePoint => {
+        const labValue = labResultsLookup.get(timePoint.dateKey)?.get(templateRow.field);
+        newRow[timePoint.dateKey] = labValue ? labValue.value : { technique: "", findings: {}, impressions: ['']};
+      });
+    }
     generatedData.push(newRow)
   })
 
@@ -95,32 +109,28 @@ export const generateInitialLabData = (
 }
 
 
-export interface PredefinedLabEntry {
-  daysOffset: number,
-  hoursOffset: number,
-  labResults: { labName: string, value: string}[]
-}
+// export interface PredefinedLabEntry {
+//   daysOffset: number,
+//   hoursOffset: number,
+//   labResults: { labName: string, value: string}[]
+// }
 
 export const predefinedLabData: PredefinedLabEntry[] = [
-  // --- Day 1: Hospital Day (Today - daysOffset: 0) ---
-  // Admission Labs (BMP, CBC, VBG, some Cardiac/Hepatology) - Drawn ~4 hours ago
   {
     daysOffset: 2, // Today
-    hoursOffset: 1, // Approximately 4 hours ago (e.g., around 2:55 PM if current time is 6:55 PM)
+    hoursOffset: 1, 
     labResults: [
-      // Basic Metabolic Panel (BMP)
-      { labName: "Sodium", value: "134" }, // Slightly low, common with hyperglycemia
+      { labName: "Sodium", value: "134" }, 
       { labName: "Potassium", value: "4.8" },
       { labName: "Chlorine", value: "99" },
-      { labName: "BUN", value: "25" }, // Elevated, mild kidney strain/dehydration
-      { labName: "Creatinine", value: "1.3" }, // Slightly elevated
-      { labName: "Glucose", value: "275" }, // As per HPI
+      { labName: "BUN", value: "25" }, 
+      { labName: "Creatinine", value: "1.3" },
+      { labName: "Glucose", value: "275" }, 
       { labName: "CO2", value: "24" },
       { labName: "Calcium", value: "8.9" },
 
-      // Complete Blood Count (CBC)
       { labName: "RBC", value: "4.5" },
-      { labName: "WBC", value: "11.8" }, // Mildly elevated, consistent with inflammation/infection from ulcer
+      { labName: "WBC", value: "11.8" }, 
       { labName: "Platelets", value: "280" },
       { labName: "Hemoglobin", value: "14.2" },
       { labName: "Hematocrit", value: "42" },
@@ -128,37 +138,32 @@ export const predefinedLabData: PredefinedLabEntry[] = [
       { labName: "MCH", value: "31" },
       { labName: "MCHC", value: "33" },
 
-      // Venous Blood Gas (VBG) - to check acid-base status given poorly controlled diabetes
-      { labName: "pH", value: "7.35" }, // On the lower end of normal
-      { labName: "pCO2", value: "48" }, // Slightly high, mild respiratory acidosis or compensation
+      { labName: "pH", value: "7.35" }, 
+      { labName: "pCO2", value: "48" }, 
       { labName: "pO2", value: "38" },
       { labName: "HCO3", value: "25" },
 
-      // Other relevant labs (e.g., for general assessment)
       { labName: "Hemoglobin A1c", value: "9.5" }, // Reflects long-term poor control
       { labName: "AST", value: "35" },
       { labName: "ALT", value: "40" },
       { labName: "Troponin", value: "0.01" }, // Within normal limits
     ]
   },
-  // Post-Insulin BG Check - Drawn ~1 hour ago
   {
     daysOffset: 0, // Today
-    hoursOffset: 1, // Approximately 1 hour ago (e.g., around 5:55 PM)
+    hoursOffset: 1, 
     labResults: [
       { labName: "Glucose", value: "210" }, // Showing some decrease after initial insulin
     ]
   },
   {
     daysOffset: 1, // Today
-    hoursOffset: 4, // Approximately 1 hour ago (e.g., around 5:55 PM)
+    hoursOffset: 4, 
     labResults: [
       { labName: "Glucose", value: "204" }, // Showing some decrease after initial insulin
     ]
   },
 
-  // --- Day 2: Hospital Day 2 (Yesterday - daysOffset: 1) ---
-  // Morning BMP and BG checks - Drawn ~22 hours ago (e.g., 8:55 PM yesterday)
   {
     daysOffset: 0, // Yesterday
     hoursOffset: 4, // Approximately 22 hours ago (e.g., 8:55 PM yesterday)
@@ -174,20 +179,25 @@ export const predefinedLabData: PredefinedLabEntry[] = [
       { labName: "Calcium", value: "9.0" },
     ]
   },
-  // Mid-day BG Check - Drawn ~18 hours ago (e.g., 12:55 PM yesterday)
   {
     daysOffset: 1, // Yesterday
-    hoursOffset: 18, // Approximately 18 hours ago (e.g., 12:55 PM yesterday)
+    hoursOffset: 18, 
     labResults: [
-      { labName: "Glucose", value: "160" }, // Further improvement
+      { labName: "Glucose", value: "160" },
+      { labName: "CT R. Foot", value: {
+        technique: "bob",
+        findings: {
+          "soft tissue": "bob"
+        },
+        impression: ["bob", "bob"]
+      } } 
     ]
   },
-  // Evening BG Check - Drawn ~14 hours ago (e.g., 4:55 PM yesterday)
   {
     daysOffset: 1, // Yesterday
-    hoursOffset: 14, // Approximately 14 hours ago (e.g., 4:55 PM yesterday)
+    hoursOffset: 14, 
     labResults: [
-      { labName: "Glucose", value: "195" }, // Slight rise, indicating continued need for management
+      { labName: "Glucose", value: "195" },
     ]
   },
 ];
@@ -314,7 +324,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Troponin",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: "0", high: "0.04" } // Common cutoff for high-sensitivity Troponin I
+    normalRange: { low: "0", high: "0.04" } 
   },
   {
     field: "CKMB",
@@ -576,6 +586,16 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Lipase",
     unit: "(U/L)",
     rowType: "results",
-    normalRange: { low: "0", high: "160" } // Varies by lab
+    normalRange: { low: "0", high: "160" } 
+  },
+  {
+    field: "Imaging",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "CT R. Foot",
+    unit: "",
+    rowType: "imaging",
   },
 ];

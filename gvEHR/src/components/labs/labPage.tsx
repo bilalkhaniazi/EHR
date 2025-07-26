@@ -1,4 +1,4 @@
-import type { LabTableData } from "./labsData"
+import type { imagingData, LabTableData } from "./labsData"
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useCallback, useEffect } from "react";
@@ -138,22 +138,30 @@ export function LabPage() {
             )
           },
           cell: ({row, column, getValue}) => {
-            const initialValue = (getValue() as string) || '';
-            const labRanges = row.original?.normalRange
-            let alertFlag = false
-            if (labRanges) {
-              const numericValue = parseFloat(initialValue)
-              const numericHigh = parseFloat(labRanges.high)
-              const numericLow = parseFloat(labRanges.low)
+            if (row.original.rowType === "results") {
+              const initialValue = (getValue() as string) || '';
+              const labRanges = row.original?.normalRange
+              let alertFlag = false
+              if (labRanges) {
+                const numericValue = parseFloat(initialValue)
+                const numericHigh = parseFloat(labRanges.high)
+                const numericLow = parseFloat(labRanges.low)
 
-              alertFlag = initialValue < labRanges.low || initialValue > labRanges.high
-              if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
-                alertFlag = numericValue < numericLow || numericValue > numericHigh;
+                alertFlag = initialValue < labRanges.low || initialValue > labRanges.high
+                if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
+                  alertFlag = numericValue < numericLow || numericValue > numericHigh;
+                }
               }
+              return (
+                <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
+              );
+            } else {
+              const imagingReport = (getValue() as imagingData) || { technique: "", findings: {}, impressions: ['']}
+              return (
+                <p>{imagingReport.technique}</p>
+              )
             }
-            return (
-              <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
-            );
+           
           } 
         })
       )
