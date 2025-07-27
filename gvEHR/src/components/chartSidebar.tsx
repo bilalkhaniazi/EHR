@@ -3,7 +3,7 @@ import { jamesAllen } from "./chartData";
 
 export default function ChartSidebar() {
   return (
-    <div className="w-72 h-auto flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+    <div className="w-72 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <span className="rounded-full p-1 bg-gray-100 shadow-md">
           <CircleUserRound size={116} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white"/>
         </span>
@@ -19,7 +19,7 @@ export default function ChartSidebar() {
           </p>
         </div>
 
-        <div className="flex flex-col h-full py-4 px-2 rounded-lg shadow-md mt-4 border gap-6 bg-white overflow-y-auto pb-20">
+        <div className="flex flex-col h-full py-4 px-2 rounded-lg shadow-md mt-4 border gap-6 bg-white overflow-y-auto">
           {/*Demographic Data */}
           <div className="relative flex flex-col border bg-white border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">Demographics</p>

@@ -19,7 +19,7 @@ export const noteSlice = createSlice({
     },
     removeSpecialtyFilter: (state, action: PayloadAction<string>) => {
       state.filteredSpecialties = state.filteredSpecialties.filter((specialty) => {
-        specialty !== action.payload
+        return specialty !== action.payload
       })
     },
     clearSpecialtyFilters: (state) => {

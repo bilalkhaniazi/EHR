@@ -6,7 +6,7 @@ const tabs = [
   {
     name: "Overview",
     value: "Overview",
-    path: "",
+    path: "/patient/:id/overview",
     icon: ''
   },
   {

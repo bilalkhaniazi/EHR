@@ -431,7 +431,7 @@ export function FlexSheet() {
         onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
     >
         <SidebarInset className="">
-        <div className="flex flex-col bg-gray-100 w-full h-full px-4">
+        <div className="flex flex-col bg-gray-100 w-full h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
                 <div className="w-full flex justify-start gap-2 ">
                     <AddTimeColumnButton 
@@ -455,7 +455,7 @@ export function FlexSheet() {
                     </Button>
                     
                 </div>
-                <div className="flex-grow w-full pb-20 overflow-auto border border-gray-200 rounded-md "> 
+                <div className="flex-grow w-full overflow-auto border border-gray-200 rounded-md "> 
                     <Table className="w-full rounded-md">
                         <TableHeader className=" bg-gray-50 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (

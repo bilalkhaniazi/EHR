@@ -220,11 +220,11 @@ export function LabPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 pt-4 ">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
       {/* <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
       </div> */}
-      <div className="w-full h-full pb-20 border border-gray-200 rounded-t-lg overflow-auto">
+      <div className="w-full h-full  border border-gray-200 rounded-t-lg overflow-auto">
         <Table className="w-full overflow-x-auto">
           <TableHeader className=" bg-gray-50 sticky top-0">
           {ptTable.getHeaderGroups().map(headerGroup => (

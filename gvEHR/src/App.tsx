@@ -4,12 +4,18 @@ import OrdersPage from './components/orders/ordersPage.tsx'
 import NotePage from './components/notes/notePage.tsx'
 import LabPage from './components/labs/labPage.tsx'
 import PatientChartLayout from './components/PatientChartLayout'; // The parent component
+import OverviewPage from './components/overview/overviewPage.tsx';
 
 const router = createBrowserRouter([
   {
-    path: "/patient/:patientId", // Parent route
+    path: "/patient/:patientId/", // Parent route
     element: <PatientChartLayout />,
+    // errorElement: <ErrorBoundary />,
     children: [
+      {
+        path: "overview",
+        element: <OverviewPage />
+      },
       {
         path: "orders", // e.g., /patient/123/orders
         element: <OrdersPage />,
