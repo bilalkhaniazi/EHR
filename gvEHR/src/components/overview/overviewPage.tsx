@@ -1,5 +1,5 @@
 import Visitors from "./visitors"
-import { VitalsOverview, vitalsOverviewData } from "./vitalsOverview"
+import { VitalsOverview } from "./vitalsOverview"
 import RecurringOrders from "./recurringOrders"
 import Nutrition from "./nutrition"
 import ActiveProblems from "./activeProblems"

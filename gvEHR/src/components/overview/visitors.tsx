@@ -1,28 +1,11 @@
 import { Phone } from "lucide-react"
 import { Card, CardContent  } from "../ui/card"
+import StyledTitle from "./styledTitle"
 
 const Visitors = () => {
   return(
     <Card className="relative pt-2 overflow-hidden h-fit gap-3">
-        <div className="px-2">
-            <h1 className="text-xl">
-              <span className="relative inline-block px-3 py-1">
-                <span
-                  className={`absolute inset-0 bg-lime-200 rounded-full scale-110`}
-                  style={{
-                    top: '6%',
-                    left: '0%',
-                    minWidth: '2.5rem', 
-                    minHeight: '2.2rem', 
-                  }}
-                ></span>
-                <span className="relative">
-                  C 
-                </span>
-              </span>
-              <span className="-ml-3 relative">ontacts</span>
-            </h1>      
-        </div>     
+      <StyledTitle color="bg-lime-200" firstLetter="C" secondLetter="ontacts" />
      
         <CardContent className="grid gap-4 px-8">
           <div className="flex flex-col w-full items-start gap-1">
@@ -49,7 +32,7 @@ const Visitors = () => {
             </div>
           </div>
         </CardContent>
-      <div className="absolute bottom-0 bg-lime-200 w-full h-4"></div>
+      <div className="absolute bottom-0 bg-lime-200 w-full h-3"></div>
 
     </Card>
   )

@@ -4,7 +4,8 @@ export interface OrderData {
   details: string;
   status: string;
   orderingProvider: string;
-  [key: string]: string;
+  recurring?: boolean
+  [key: string]: string | boolean | undefined;
 }
 
 export const nursingOrders: OrderData[] = [
@@ -13,14 +14,16 @@ export const nursingOrders: OrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD",
+        recurring: true
     },
     {
         displayName: "Blood Glucose Monitoring (ACHS)",
         orderType: "nursing",
         status: "Active",
         details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD",
+        recurring: true
     },
     {
         displayName: "Activity: As Tolerated",
@@ -48,7 +51,8 @@ export const nursingOrders: OrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Daily dressing change with normal saline (NS) wound cleansing and application of sterile dry dressing. Apply topical antimicrobial per wound care protocol. Monitor for signs of infection (increased redness, drainage, odor).",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD",
+        recurring: true
     },
     {
         displayName: "Diabetic Diet",
@@ -62,7 +66,8 @@ export const nursingOrders: OrderData[] = [
         orderType: "nursing",
         status: "Active",
         details: "Educate patient on diabetes management, wound care, and MRSA precautions.",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD",
+        recurring: true
     },
     {
         displayName: "Case Management Consult",
@@ -106,7 +111,7 @@ export const nursingHeaderNames: OrderData = {
     orderType: "nursing",
     details: "Details",
     status: "Status",
-    orderingProvider: "Ordering Provider"
+    orderingProvider: "Ordering Provider",
 }
 
 
@@ -242,7 +247,8 @@ export const labratoryOrders: OrderData[] = [
         status: "Active",
         details: "Collect Basic Metabolic Panel (BMP).",
         duration: "Daily x3 days",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD",
+        recurring: true
     },
     {
         displayName: "Complete Blood Count (CBC)",
@@ -250,7 +256,8 @@ export const labratoryOrders: OrderData[] = [
         status: "Active",
         details: "Collect Complete Blood Count (CBC).",
         duration: "Daily x1 days",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD",
+        recurring: true
     },
     {
         displayName: "HbA1c",
@@ -274,7 +281,8 @@ export const labratoryOrders: OrderData[] = [
         status: "Active",
         details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
         duration: "Until cancelled",
-        orderingProvider: "Dr. John Smith, MD"
+        orderingProvider: "Dr. John Smith, MD", 
+        recurring: true
     },
 ]
 

@@ -45,7 +45,7 @@ export const jamesAllen: ChartData = {
     immunizations: { label: "Immunizations", value: ["Influenza", "Pneumococcal"] },
     attending: { label: "Attending Provider", value: "Dr. Sheila Monroe, PCP" },
     pmh: { label: "Past Medical History", value: [
-      "Type 2 Diabetes Mellitus (diagnosed 12 years ago)",
+      "Type 2 Diabetes Mellitus",
       "Hypertension",
       "Peripheral neuropathy"
     ]}

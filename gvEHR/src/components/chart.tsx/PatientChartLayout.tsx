@@ -4,6 +4,7 @@ import { Toaster } from "sonner"
 import ChartSidebar from "./chartSidebar"
 
 const PatientChartLayout = () => {
+  
   return (
     <div className="bg-lime-600 h-screen w-full overflow-hidden flex flex-col">
       <Toaster position="top-right" />

@@ -17,10 +17,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card } from "../ui/card"
-import { useGetChartingQuery } from "@/app/apiSlice"
+import { useGetFlexSheetChartingQuery } from "@/app/apiSlice"
 import type { tableData } from "../flexSheets/tableData"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import { Skeleton } from "../ui/skeleton"
+import StyledTitle from "./styledTitle"
  
 
 export type vitalsOverviewTable = {
@@ -29,39 +30,6 @@ export type vitalsOverviewTable = {
 }
 const timeColumns = ["1100", "1200", "1300"]
 
-
-export const vitalsOverviewData: vitalsOverviewTable[] = [ // Renamed from Payment to PaymentData to avoid name collision with the type
-  {
-    field: "HR",
-    "1100": "70", 
-    "1200": "75",
-    "1300": "80",
-  },
-  {
-    field: "BP",
-    "1100": "110",
-    "1200": "115",
-    "1300": "120",
-  },
-    {
-    field: "RR",
-    "1100": "16",
-    "1200": "18",
-    "1300": "17",
-  },
-  {
-    field: "SpO2",
-    "1100": "98",
-    "1200": "99",
-    "1300": "97",
-  },
-    {
-    field: "Temp",
-    "1100": "98.6",
-    "1200": "98.2",
-    "1300": "99.0",
-  },
-]
  const vitalSignIds = [
     "hrInput",
     "bpInput",
@@ -74,7 +42,7 @@ export const vitalsOverviewData: vitalsOverviewTable[] = [ // Renamed from Payme
 
 export function VitalsOverview() {
   
-  const { data, isLoading, isError, error, isFetching } = useGetChartingQuery()
+  const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery()
 
   const tableData = useMemo(() => data?.chartingData || [], [data?.chartingData])
   
@@ -127,27 +95,11 @@ export function VitalsOverview() {
 
 
   return (
-    <Card className="relative p-0 gap-3 overflow-hidden">
-      <div className="px-2 pt-2 pb-6">
-        <h1 className="text-xl pb-3">
-          <span className="relative inline-block px-3 py-1">
-            <span
-              className={`absolute inset-0 bg-sky-200 rounded-full scale-110`}
-              style={{
-                top: '6%',
-                left: '0%',
-                minWidth: '2.5rem', 
-                minHeight: '2.2rem', 
-              }}
-            ></span>
-            <span className="relative">
-              R 
-            </span>
-          </span>
-          <span className="-ml-3 relative">ecent Vitals</span>
-        </h1>
-        <div className="rounded-md border border-sky-200">
-          <Table className="rounded-md">
+    <Card className="relative col-span-1 p-0 gap-3 pt-2 h-fit overflow-hidden">
+      <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecent Vitals" />
+      <div className="h-fit px-2 pb-6">
+        <div className="rounded-md border h-full border-sky-200">
+          <Table className="rounded-md h-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-sky-200">
@@ -195,7 +147,7 @@ export function VitalsOverview() {
           </Table>
         </div>
       </div>
-      <div className="absolute bottom-0 bg-sky-200 w-full h-4"></div>
+      <div className="absolute bottom-0 bg-sky-200 w-full h-3"></div>
     </Card>
   )
 }

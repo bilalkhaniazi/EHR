@@ -61,7 +61,7 @@ export default function ChartNavigationTabs() {
           <span className="font-normal">Chart</span>
         </h1>
       </div>
-      <Tabs defaultValue={tabs[6].value} className="w-fit pl-28">
+      <Tabs defaultValue={tabs[0].value} className="w-fit pl-28">
         <TabsList className="w-full h-8 p-0 bg-lime-600 justify-start rounded-none">
           {tabs.map((tab) => (
             <NavLink

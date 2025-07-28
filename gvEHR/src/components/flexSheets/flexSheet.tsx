@@ -14,7 +14,7 @@ import { assessmentTools } from "./tableData";
 import { Button } from "../ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import AssessmentToolSidebar from "./assessmentToolSidebar";
-import { useAddTimeColumnMutation, useGetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
+import { useAddTimeColumnMutation, useGetFlexSheetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar, setSidebarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./flexSheetSlice";
 import type { RootState, AppDispatch } from "../../app/store";
@@ -39,7 +39,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
 export function FlexSheet() {
     const dispatch = useDispatch<AppDispatch>();
     
-    const { data, isLoading, isError, error, isFetching } = useGetChartingQuery()
+    const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery()
 
     const [triggerUpdateFlexSheetData, {isLoading: isSaving, isError: saveError, isSuccess: saveSuccess}] = useUpdateFlexSheetDataMutation();
     const [triggerAddTimeColumn] = useAddTimeColumnMutation();

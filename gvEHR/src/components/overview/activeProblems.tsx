@@ -1,38 +1,74 @@
+import { useGetChartQuery } from "@/app/apiSlice"
 import { Card, CardContent } from "../ui/card"
 import { Separator } from "../ui/separator"
+import StyledTitle from "./styledTitle"
+import CardSkeleton from "./cardSkeleton"
+import type { ChartData } from "../chart.tsx/chartData"
 
 const ActiveProblems = () => {
+  const {data, isLoading, isError, isFetching, error} = useGetChartQuery()
+
+  if (isLoading || (isFetching && !data)) {
+    return (
+      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+        <CardSkeleton />
+      </Card>
+    )
+  }
+
+  // from RTK query docs
+  if (isError) {
+    let errorMessage = "An unknown error occurred.";
+    if (error) {
+      if ('status' in error && error.status) {
+        errorMessage = `Error ${error.status}`;
+        if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
+          errorMessage += `: ${(error.data as any).message}`;
+        }
+      } else if ('message' in error) {
+        errorMessage = `Error: ${error.message}`;
+      } else {
+        errorMessage = `Error: ${JSON.stringify(error)}`;
+      }
+    }
+    console.log(errorMessage)
+    return (
+      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+        <p>Failed to load data</p>
+      </Card>
+
+    )
+  }
+
+  const chartData: ChartData | undefined = data?.chartData
+
+  if (!chartData || Object.keys(chartData).length === 0) {
+    return (
+      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+        <p>No data exists</p>
+      </Card>
+    )
+  }
+
+  const problemData = chartData.clinicalInfo.pmh
+
   return (
-    <Card className="relative col-span-1 p-0 overflow-hidden h-fit">
-      <div className="px-2 pt-2 pb-6">
-        <h1 className="text-xl">
-          <span className="relative inline-block px-3 py-1">
-            <span
-              className={`absolute inset-0 bg-red-200 rounded-full scale-110`}
-              style={{
-                top: '6%',
-                left: '0%',
-                minWidth: '2.5rem', 
-                minHeight: '2.2rem', 
-              }}
-            ></span>
-            <span className="relative">
-              A 
-            </span>
-          </span>
-          <span className="-ml-3 relative">ctive Problems</span>
-        </h1>
-            
-        <CardContent className="py-2 px-2">
-          <div className="flex flex-col gap-">
-              <p className="">Static text</p>
+    <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+      <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+      <CardContent className="px-4 space-y-1">
+        {problemData.value.map(problem => {
+          return(
+            <div className="">
+              <p className="text-sm">{problem}</p>
               <Separator className="bg-red-200" />
-              <p className="">Static text</p>
-              <Separator className="bg-red-200" />
-          </div>
-        </CardContent>
-      </div>
-      <div className="absolute bottom-0 bg-red-200 w-full h-4"></div>
+            </div>
+          )
+        })}
+      </CardContent>
+      <div className="absolute bottom-0 bg-red-200 w-full h-3"></div>
     </Card>
   )
 }

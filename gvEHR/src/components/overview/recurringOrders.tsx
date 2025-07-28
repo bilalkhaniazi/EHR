@@ -2,29 +2,53 @@ import { Tooltip } from "@radix-ui/react-tooltip"
 import { Card, CardContent } from "../ui/card"
 import { Info } from "lucide-react"
 import { TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import StyledTitle from "./styledTitle"
+import { useGetOrdersQuery } from "@/app/apiSlice"
+import CardSkeleton from "./cardSkeleton"
 
 const RecurringOrders = () => {
+  const { data, isLoading, isError, isFetching, error } = useGetOrdersQuery();
+
+  if (isLoading || (isFetching && !data)) {
+    return (
+      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+        <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecurring Orders" /> 
+        <CardSkeleton />
+      </Card>   
+    )
+  }
+
+
+  if (isError) {
+    let errorMessage = "An unknown error occurred.";
+    if (error) {
+      if ('status' in error && error.status) {
+        errorMessage = `Error ${error.status}`;
+        if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
+          errorMessage += `: ${(error.data as any).message}`;
+        }
+      } else if ('message' in error) {
+        errorMessage = `Error: ${error.message}`;
+      } else {
+        errorMessage = `Error: ${JSON.stringify(error)}`;
+      }
+    }
+    console.log(errorMessage)
+    return (
+      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+        <p>Failed to load data</p>
+      </Card>
+    )
+  }
+
+    // const { nursingOrders, labratoryOrders, respiratoryOrders } = data;
+
+
+
   return (
     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-      <div className="px-2">
-          <h1 className="text-xl">
-            <span className="relative inline-block px-3 py-1">
-              <span
-                className={`absolute inset-0 bg-sky-200 rounded-full scale-110`}
-                style={{
-                  top: '6%',
-                  left: '0%',
-                  minWidth: '2.5rem', 
-                  minHeight: '2.2rem', 
-                }}
-              ></span>
-              <span className="relative">
-                R 
-              </span>
-            </span>
-            <span className="-ml-3 relative">ecurring Orders</span>
-          </h1>      
-      </div>     
+      <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecurring Orders" />    
 
       <CardContent className="grid gap-4 px-8">
         <div className="flex flex-col w-full items-start gap-1">
@@ -95,7 +119,7 @@ const RecurringOrders = () => {
         </div>
         
       </CardContent>
-      <div className="absolute bottom-0 bg-sky-200 w-full h-4"></div>
+      <div className="absolute bottom-0 bg-sky-200 w-full h-3"></div>
     </Card>
   )
 }
