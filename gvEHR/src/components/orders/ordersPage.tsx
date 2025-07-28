@@ -84,7 +84,7 @@ const OrdersPage = () => {
     return (
         <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] flex flex-col gap-4 justify-start items-center bg-gray-100 overflow-y-auto">
             <div className="flex w-full gap-4 justify-center">
-                <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addNursingOrder}>Add Nursing Order</Button>
+                {/* <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addNursingOrder}>Add Nursing Order</Button> */}
                 {/* <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addMedicationOrder}>Add Med Order</Button> */}
                 {/* <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addRespiratoryOrder}>Add Respiratory Order</Button> */}
             </div>

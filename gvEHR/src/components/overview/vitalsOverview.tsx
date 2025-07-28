@@ -17,11 +17,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card } from "../ui/card"
+import { useGetChartingQuery } from "@/app/apiSlice"
+import type { tableData } from "../flexSheets/tableData"
+import { useEffect, useMemo } from "react"
+import { Skeleton } from "../ui/skeleton"
  
-interface ataTableProps {
-  // columns: ColumnDef<TData, TValue>[]
-  data: vitalsOverviewTable[]
-}
 
 export type vitalsOverviewTable = {
   field: string
@@ -62,50 +62,68 @@ export const vitalsOverviewData: vitalsOverviewTable[] = [ // Renamed from Payme
     "1300": "99.0",
   },
 ]
-export function VitalsOverview({
-  // columns,
-  data,
-}: ataTableProps) {
-  
+ const vitalSignIds = [
+    "hrInput",
+    "bpInput",
+    "rrInput",
+    "tempInput",
+    "spo2Input",
+    "painInput",
+    "weightKgInput",
+  ];
 
-  const columns: ColumnDef<vitalsOverviewTable>[] = [
+export function VitalsOverview() {
+  
+  const { data, isLoading, isError, error, isFetching } = useGetChartingQuery()
+
+  const tableData = useMemo(() => data?.chartingData || [], [data?.chartingData])
+  
+  // move to backend
+  const filteredData = useMemo(() => tableData.filter(row => {
+    return vitalSignIds.includes(row.id)
+  }), [tableData])
+
+  const columns: ColumnDef<tableData>[] = useMemo(() => [
     {
       accessorKey: "field",
       header: "",
       cell: info => {
         return (
-          <div className="h-full flex justify-center">
-            <p className=" w-full text-left p-0  px-2 text-xs">{info.row.original.field}</p>
-          </div>
+            <p className="text-left pl-2 text-xs">{info.row.original.field}</p>
         )
       }
     },
     ...timeColumns.map(timeKey => {
       return {
         id: timeKey,
-        accessorKey: timeKey as keyof vitalsOverviewTable,
+        accessorKey: timeKey as keyof tableData,
        header: () => (
           <div className="flex flex-col justify-center items-center">
             <h2 className="my-1 text-neutral-500 text-xs font-light">7/29</h2>
             <h1 className="mb-1 text-xs">{timeKey}</h1>
           </div>
         ),
-        cell: ({ row }: { row: Row<vitalsOverviewTable> } ) => {
+        cell: ({ row }: { row: Row<tableData> } ) => {
           return (
-            <div className="h-full flex justify-center">
-              <p className=" w-full text-xs  text-right p-0  px-2">{row.original[timeKey]}</p>
+            <div className="h-full">
+              <p className="text-xs w-full min-w-12 text-right pr-2">12</p> {/*row.original[timekey]*/}
             </div>
           )
         }
       }
     })
-  ]
+  ], [])
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  
+
+
+
 
 
   return (
@@ -163,8 +181,13 @@ export function VitalsOverview({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
+                  <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
+                    <div className="flex flex-col justify-center items-center gap-2 h-full w-full py-2">
+                      <Skeleton className="h-7 w-5/6" />
+                      <Skeleton className="h-5 w-5/6" />
+                      <Skeleton className="h-5 w-5/6" />
+                      <Skeleton className="h-5 w-5/6" />
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

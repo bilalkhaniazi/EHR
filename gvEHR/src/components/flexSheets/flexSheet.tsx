@@ -99,6 +99,7 @@ export function FlexSheet() {
                 newFilteredData.push(row);
             }
 
+            // Handling assessment tools with numeric score totals
             // After adding all rows for a specific tool, add the total score row
             if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
                 const toolName = row.hideableId; // Assuming hideableId matches toolName for title rows
