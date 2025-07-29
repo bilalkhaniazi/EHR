@@ -84,20 +84,6 @@ export const nursingOrders: OrderData[] = [
         orderingProvider: "Dr. John Smith, MD"
     },
     {
-        displayName: "Basic Metabolic Panel (BMP)",
-        orderType: "nursing", // Categorized as nursing as nurses will collect the sample
-        status: "Active",
-        details: "Collect Basic Metabolic Panel (BMP).",
-        orderingProvider: "Dr. John Smith, MD"
-    },
-    {
-        displayName: "HbA1c",
-        orderType: "nursing", // Categorized as nursing as nurses will collect the sample
-        status: "Active",
-        details: "Collect HbA1c if not done within last 3 months.",
-        orderingProvider: "Dr. John Smith, MD"
-    },
-    {
         displayName: "Wound Culture",
         orderType: "nursing", // Categorized as nursing as nurses will collect the sample
         status: "Active",
@@ -261,7 +247,7 @@ export const labratoryOrders: OrderData[] = [
     },
     {
         displayName: "HbA1c",
-        orderType: "lab", // Categorized as lab as nurses will collect the sample
+        orderType: "lab", 
         status: "Active",
         details: "Collect HbA1c if not done within last 3 months.",
         duration: "Once during admission",
@@ -269,7 +255,7 @@ export const labratoryOrders: OrderData[] = [
     },
     {
         displayName: "Wound Culture",
-        orderType: "lab", // Categorized as lab as nurses will collect the sample
+        orderType: "lab", 
         status: "Active",
         details: "Collect wound culture if signs of worsening infection.",
         duration: "PRN",
@@ -294,4 +280,7 @@ export const labratoryHeaderNames: OrderData = {
         duration: "Duration",
         orderingProvider: "Ordering Provider"
     }
+
+
+
 

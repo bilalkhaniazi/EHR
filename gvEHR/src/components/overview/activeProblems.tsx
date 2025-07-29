@@ -8,7 +8,7 @@ import type { ChartData } from "../chart.tsx/chartData"
 const ActiveProblems = () => {
   const {data, isLoading, isError, isFetching, error} = useGetChartQuery()
 
-  if (isLoading || (isFetching && !data)) {
+  if (isLoading || isFetching ) {
     return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
         <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />

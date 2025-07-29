@@ -22,10 +22,16 @@ export type ChartData = {
     insurance: { label: string; value: string };
     language: { label: string; value: string };
     religion: { label: string; value: string };
-    supportPerson: { label: string; value: string };
+    supportPerson: { label: string; value: Contact[] };
     VeteranStatus: { label: string; value: string };
   };
 };
+
+export interface Contact {
+  name: string;
+  relationship: string;
+  phone: string;
+}
 
 
 export const jamesAllen: ChartData = {
@@ -56,7 +62,12 @@ export const jamesAllen: ChartData = {
     insurance: { label: "Insurance", value: "Medicare" },
     language: { label: "Language", value: "English" },
     religion: { label: "Religion", value: "Baptist" },
-    supportPerson: { label: "Support Person", value: "Daughter (Angela Allen, 33)" },
+    supportPerson: { 
+      label: "Support Person", 
+      value: [
+        { name: "Sofia Allen", relationship: "Spouse", phone: "(616) 555-1234" },
+        { name: "Samuel Allen", relationship: "Son", phone: "(616) 555-1234" }
+      ]},
     VeteranStatus: { label: "Veteran Status", value: "No" }
   }
 }

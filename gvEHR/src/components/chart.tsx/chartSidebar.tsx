@@ -1,5 +1,5 @@
 import { CircleUserRound } from "lucide-react";
-import { type ChartData } from "./chartData";
+import { type ChartData, type Contact } from "./chartData";
 import { useGetChartQuery } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
 
@@ -116,14 +116,21 @@ export default function ChartSidebar() {
           {/*Social Data */}
           <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Social Info</p>
+            
+            {/* handle Contact type or string */}
             {Object.values(sidebarData.socialFactors).map((row) => {
+              const isSupportPersonArray = Array.isArray(row.value);
+              const displayValue = isSupportPersonArray
+                ? (row.value as Contact[]).map(person => person.name).join(', ')
+                : String(row.value); 
               return(
                 <p className="text-purple-900 text-xs font-light tracking-tight">
                   <span className="underline">{row.label}:</span>
-                  <span className="pl-2 font-normal">{row.value}</span>
+                  <span className="pl-2 font-normal">{displayValue}</span>
                 </p>
-              );
+              )
             })}
+              
           </div>
         </div>
 
