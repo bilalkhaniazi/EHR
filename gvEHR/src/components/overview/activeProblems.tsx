@@ -61,7 +61,7 @@ const ActiveProblems = () => {
       <CardContent className="px-4 space-y-1">
         {problemData.value.map(problem => {
           return(
-            <div className="">
+            <div key={problem} className="">
               <p className="text-sm">{problem}</p>
               <Separator className="bg-red-200" />
             </div>

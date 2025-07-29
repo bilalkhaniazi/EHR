@@ -1,5 +1,5 @@
 export interface chartingOptions {
-    value: string;
+    subsetId: string;
     label: string;
 };
 
@@ -13,7 +13,7 @@ export interface tableData {
     normalRange?: {low: number, high: number},
     hideable?: boolean,
     hideableId?: string,
-    assessmentSubsets?: { value: string, label: string }[];
+    assessmentSubsets?: { subsetId: string, label: string }[];
     toolName?: string;
     [key: string]: any;
 
@@ -70,7 +70,7 @@ export const getAllInitialHours = (): { allTimesColumns: string[], predefinedCha
 
 export const generateInitialChartingData = (
     allTimesColumns: string[],
-    staticTimesMap: Map<string,number>
+    staticTimesMap: Map<string, number>
 ): tableData[] => {
     const generatedData: tableData[] = []
 
@@ -90,18 +90,33 @@ export const generateInitialChartingData = (
 
         };
 
+        let hasPrefinedValue = false;
+
         allTimesColumns.forEach(hour => {
             const correspondingMinuteOffset = staticTimesMap.get(hour)
 
             let predefinedValue: string | undefined
 
             if ( correspondingMinuteOffset !== undefined) {
-                predefinedValue = predefinedVitalsData[templateRow.field]?.[correspondingMinuteOffset];
+                const valueFromPredefined = predefinedVitalsData[templateRow.field]?.[correspondingMinuteOffset];
+                if (valueFromPredefined !== undefined && valueFromPredefined !== null && valueFromPredefined !== '') {
+                    predefinedValue = valueFromPredefined
+                    hasPrefinedValue = true
+                } else {
+                    predefinedValue = ''
+                }
             } else {
                 predefinedValue = ''
             }
-            newRow[hour] = predefinedValue !== undefined ? predefinedValue : '';
+            newRow[hour] = predefinedValue;
         });
+
+        if (hasPrefinedValue) {
+            newRow.hideable = false;
+        } else {
+            newRow.hideable = templateRow.hideable !== undefined ? templateRow.hideable : false;
+        }
+
         generatedData.push(newRow)
     });
     return generatedData
@@ -126,7 +141,7 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
 
 const vitalsTemplate: tableData[] = [
     { 
-        id: "generalAppearanceTitle", // Unique ID
+        id: "generalAppearanceTitle", 
         field: "General Appearance",
         componentType: "static",
         rowType: "titleRow",
@@ -136,32 +151,32 @@ const vitalsTemplate: tableData[] = [
         ] 
     },
     {
-        id: "generalAppearanceCheckbox", // Unique ID
+        id: "generalAppearanceCheckbox", 
         field: "General Appearance", 
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Appearance", label: "Appearance" },
-            { value: "Safety Checks", label: "Safety Checks" },
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Appearance", label: "Appearance" },
+            { subsetId: "Safety Checks", label: "Safety Checks" },
         ]
     },
     { 
-        id: "appearanceInput", // Unique ID
+        id: "appearanceInput", 
         field: "Appearance", 
         componentType: "input", 
         hideable: true,
         hideableId: "Appearance" 
     },
     { 
-        id: "safetyCheckInput", // Unique ID
+        id: "safetyCheckInput", 
         field: "Safety Check", 
         componentType: "input",
         hideable: true,
         hideableId: "Safety Checks" 
     },
     { 
-        id: "psychosocialAssessmentTitle", // Unique ID
+        id: "psychosocialAssessmentTitle", 
         field: "Psychosocial Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -174,114 +189,114 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "psychosocialStatusCheckbox", // Unique ID (corrected typo from Pyschosocial)
+        id: "psychosocialStatusCheckbox",  
         field: "Psychosocial Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Mood & Affect", label: "Mood & Affect" },
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Mood & Affect", label: "Mood & Affect" },
         ]
     },
     {
-        id: "moodAffectInput", // Unique ID
+        id: "moodAffectInput", 
         field: "Mood & Affect",
         componentType: "input",
         hideable: true, 
         hideableId: "Mood & Affect"
     },
     { 
-        id: "vitalSignsTitle", // Unique ID
+        id: "vitalSignsTitle", 
         field: "Vital Signs",
         componentType: "static",
         rowType: "titleRow" 
     },
     { 
-        id: "hrInput", // Unique ID
+        id: "hrInput", 
         field: "HR", 
         componentType: "input", 
         normalRange: {low: 60, high: 100 }
     },
     { 
-        id: "hrSourceSelect", // Unique ID
+        id: "hrSourceSelect", 
         field: "HR Source", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "Apical", label: "Apical" },
-            { value: "Brachial", label: "Brachial" },
-            { value: "Dorsalis pedis", label: "Dorsalis pedis" },
-            { value: "Femoral", label: "Femoral" },
-            { value: "Monitor", label: "Monitor" },
-            { value: "Popliteal", label: "Popliteal" },
-            { value: "Radial", label: "Radial" },
+            { subsetId: "Apical", label: "Apical" },
+            { subsetId: "Brachial", label: "Brachial" },
+            { subsetId: "Dorsalis pedis", label: "Dorsalis pedis" },
+            { subsetId: "Femoral", label: "Femoral" },
+            { subsetId: "Monitor", label: "Monitor" },
+            { subsetId: "Popliteal", label: "Popliteal" },
+            { subsetId: "Radial", label: "Radial" },
         ]
     },
     { 
-        id: "bpInput", // Unique ID
+        id: "bpInput", 
         field: "BP", 
         componentType: "input"
     },
     { 
-        id: "bpSourceSelect", // Unique ID
+        id: "bpSourceSelect", 
         field: "BP Source", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "Left upper arm", label: "Left upper arm" },
-            { value: "Right upper arm", label: "Right upper arm" },
-            { value: "Left lower arm", label: "Left lower arm" },
-            { value: "Right lower arm", label: "Right lower arm" },
-            { value: "Left thigh", label: "Left thigh" },
-            { value: "Right thigh", label: "Right thigh" },
-            { value: "Left lower leg", label: "Left lower leg" },
-            { value: "Right lower leg", label: "Right lower leg" },
-            { value: "Arterial line", label: "Arterial line" },
-            { value: "Other", label: "Other" },
+            { subsetId: "Left upper arm", label: "Left upper arm" },
+            { subsetId: "Right upper arm", label: "Right upper arm" },
+            { subsetId: "Left lower arm", label: "Left lower arm" },
+            { subsetId: "Right lower arm", label: "Right lower arm" },
+            { subsetId: "Left thigh", label: "Left thigh" },
+            { subsetId: "Right thigh", label: "Right thigh" },
+            { subsetId: "Left lower leg", label: "Left lower leg" },
+            { subsetId: "Right lower leg", label: "Right lower leg" },
+            { subsetId: "Arterial line", label: "Arterial line" },
+            { subsetId: "Other", label: "Other" },
         ],
     },
     { 
-        id: "rrInput", // Unique ID
+        id: "rrInput", 
         field: "RR",
         componentType: "input",
         normalRange: {low: 12, high: 20}
     },
     { 
-        id: "tempInput", // Unique ID
+        id: "tempInput", 
         field: "Temp",
         componentType: "input", 
         normalRange: { low: 36.6, high: 37.2}
     },
     { 
-        id: "tempSourceSelect", // Unique ID
+        id: "tempSourceSelect", 
         field: "Temp Source", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "Oral", label: "Oral" },
-            { value: "Axillary", label: "Axillary" },
-            { value: "Rectal", label: "Rectal" },
-            { value: "Tympanic", label: "Tympanic" },
-            { value: "Temporal", label: "Temporal" },
-            { value: "Bladder", label: "Bladder" },
-            { value: "Other", label: "Other" },
+            { subsetId: "Oral", label: "Oral" },
+            { subsetId: "Axillary", label: "Axillary" },
+            { subsetId: "Rectal", label: "Rectal" },
+            { subsetId: "Tympanic", label: "Tympanic" },
+            { subsetId: "Temporal", label: "Temporal" },
+            { subsetId: "Bladder", label: "Bladder" },
+            { subsetId: "Other", label: "Other" },
         ]
     },
     { 
-        id: "spo2Input", // Unique ID
+        id: "spo2Input", 
         field: "SpO2",
         componentType: "input", 
         normalRange: { low: 95, high: 100 }
     },
     { 
-        id: "painInput", // Unique ID
+        id: "painInput", 
         field: "Pain",
         componentType: "input", 
     },
     { 
-        id: "weightKgInput", // Unique ID
+        id: "weightKgInput", 
         field: "Weight (kg)",
         componentType: "input", 
     },
     { 
-        id: "heentAssessmentTitle", // Unique ID
+        id: "heentAssessmentTitle", 
         field: "HEENT Assessment",
         componentType: "static", 
         rowType: "titleRow",
@@ -294,56 +309,56 @@ const vitalsTemplate: tableData[] = [
         ] 
     },
     {
-        id: "heentStatusCheckbox", // Unique ID
+        id: "heentStatusCheckbox", 
         field: "HEENT Status", 
         componentType: "checkboxlist",
         assessmentSubsets: [ 
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Head & Scalp", label: "Head & Scalp" },
-            { value: "Eyes", label: "Eyes" },
-            { value: "Ears", label: "Ears" },
-            { value: "Nose", label: "Nose" },
-            { value: "Mouth & Throat", label: "Mouth & Throat" },
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Head & Scalp", label: "Head & Scalp" },
+            { subsetId: "Eyes", label: "Eyes" },
+            { subsetId: "Ears", label: "Ears" },
+            { subsetId: "Nose", label: "Nose" },
+            { subsetId: "Mouth & Throat", label: "Mouth & Throat" },
         ]
     },
     {
-        id: "headScalpInput", // Unique ID
+        id: "headScalpInput", 
         field: "Head & Scalp", 
         componentType: "input",
         hideable: true,
         hideableId: "Head & Scalp"
     },
     {
-        id: "eyesInput", // Unique ID
+        id: "eyesInput", 
         field: "Eyes", 
         componentType: "input",
         hideable: true,
         hideableId: "Eyes"
     },
     {
-        id: "earsInput", // Unique ID
+        id: "earsInput", 
         field: "Ears", 
         componentType: "input",
         hideable: true,
         hideableId: "Ears"
     },
     {
-        id: "noseInput", // Unique ID
+        id: "noseInput", 
         field: "Nose", 
         componentType: "input",
         hideable: true,
         hideableId: "Nose"
     },
     {
-        id: "mouthThroatInput", // Unique ID
+        id: "mouthThroatInput", 
         field: "Mouth & Throat", 
         componentType: "input",
         hideable: true,
         hideableId: "Mouth & Throat"
     },
     {
-        id: "neurologicalAssessmentTitle", // Unique ID
+        id: "neurologicalAssessmentTitle", 
         field: "Neurological Assessment",
         componentType: "static",
         rowType: "titleRow", 
@@ -354,40 +369,40 @@ const vitalsTemplate: tableData[] = [
         ] 
     },
     {
-        id: "neurologicalStatusCheckbox", // Unique ID
+        id: "neurologicalStatusCheckbox", 
         field: "Neurological Status", // Corrected field name
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Orientation", label: "Orientation" }, 
-            { value: "Speech", label: "Speech" },
-            { value: "Motor Function", label: "Motor Function"}
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Orientation", label: "Orientation" }, 
+            { subsetId: "Speech", label: "Speech" },
+            { subsetId: "Motor Function", label: "Motor Function"}
         ]
     },
     {
-        id: "neurologicalOrientationInput", // Unique ID for Neuro Orientation
+        id: "neurologicalOrientationInput",  
         field: "Orientation", 
         componentType: "input",
         hideable: true,
         hideableId: "Orientation"
     },
     {
-        id: "speechInput", // Unique ID
+        id: "speechInput", 
         field: "Speech", 
         componentType: "input",
         hideable: true,
         hideableId: "Speech"
     },
     {
-        id: "motorFunctionInput", // Unique ID
+        id: "motorFunctionInput", 
         field: "Motor Function", 
         componentType: "input",
         hideable: true,
         hideableId: "Motor Function"
     },
     {
-        id: "integumentaryAssessmentTitle", // Unique ID
+        id: "integumentaryAssessmentTitle", 
         field: "Integumentary Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -398,48 +413,48 @@ const vitalsTemplate: tableData[] = [
         ]
     },
     {
-        id: "integumentStatusCheckbox", // Unique ID
+        id: "integumentStatusCheckbox", 
         field: "Integument Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Skin", label: "Skin" }, 
-            { value: "Hair & Nails", label: "Hair & Nails" },
-            { value: "Turgor", label: "Turgor"},
-            { value: "Wound", label: "Wound" }
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Skin", label: "Skin" }, 
+            { subsetId: "Hair & Nails", label: "Hair & Nails" },
+            { subsetId: "Turgor", label: "Turgor"},
+            { subsetId: "Wound", label: "Wound" }
         ]
     },
     {
-        id: "skinInput", // Unique ID
+        id: "skinInput", 
         field: "Skin",
         componentType: "input",
         hideable: true,
         hideableId: "Skin" 
     },
     {
-        id: "hairNailsInput", // Unique ID
+        id: "hairNailsInput", 
         field: "Hair & Nails",
         componentType: "input",
         hideable: true,
         hideableId: "Hair & Nails" 
     },
     {
-        id: "turgorInput", // Unique ID
+        id: "turgorInput", 
         field: "Turgor",
         componentType: "input",
         hideable: true,
         hideableId: "Turgor" 
     },
     {
-        id: "woundInput", // Unique ID
+        id: "woundInput", 
         field: "Wound",
         componentType: "input",
         hideable: true,
         hideableId: "Wound" 
     },
     {
-        id: "cardiovascularAssessmentTitle", // Unique ID
+        id: "cardiovascularAssessmentTitle", 
         field: "Cardiovascular Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -450,40 +465,40 @@ const vitalsTemplate: tableData[] = [
         ]
     },
     {
-        id: "cardiovascularStatusCheckbox", // Unique ID
+        id: "cardiovascularStatusCheckbox", 
         field: "Cardiovascular Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Heart Sounds", label: "Heart Sounds" }, 
-            { value: "Extremities", label: "Extremities" },
-            { value: "Jugular Distention", label: "Jugular Distention"},
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Heart Sounds", label: "Heart Sounds" }, 
+            { subsetId: "Extremities", label: "Extremities" },
+            { subsetId: "Jugular Distention", label: "Jugular Distention"},
         ]
     },
     {
-        id: "heartSoundsInput", // Unique ID
+        id: "heartSoundsInput", 
         field: "Heart Sounds",
         componentType: "input",
         hideable: true,
         hideableId: "Heart Sounds" 
     },
     {
-        id: "extremitiesInput", // Unique ID
+        id: "extremitiesInput", 
         field: "Extremities",
         componentType: "input",
         hideable: true,
         hideableId: "Extremities" 
     },
     {
-        id: "jugularDistentionInput", // Unique ID
+        id: "jugularDistentionInput", 
         field: "Jugular Distention",
         componentType: "input",
         hideable: true,
         hideableId: "Jugular Distention" 
     },
     {
-        id: "respiratoryAssessmentTitle", // Unique ID
+        id: "respiratoryAssessmentTitle", 
         field: "Respiratory Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -493,32 +508,32 @@ const vitalsTemplate: tableData[] = [
         ]
     },
     {
-        id: "respiratoryStatusCheckbox", // Unique ID
+        id: "respiratoryStatusCheckbox", 
         field: "Respiratory Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Chest Appearance", label: "Chest Appearance" }, 
-            { value: "Lung Sounds", label: "Lung Sounds" },
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Chest Appearance", label: "Chest Appearance" }, 
+            { subsetId: "Lung Sounds", label: "Lung Sounds" },
         ]
     },
     {
-        id: "chestAppearanceInput", // Unique ID
+        id: "chestAppearanceInput", 
         field: "Chest Appearance",
         componentType: "input",
         hideable: true,
         hideableId: "Chest Appearance" 
     },
     {
-        id: "lungSoundsInput", // Unique ID
+        id: "lungSoundsInput", 
         field: "Lung Sounds",
         componentType: "input",
         hideable: true,
         hideableId: "Lung Sounds" 
     },
     {
-        id: "giAssessmentTitle", // Unique ID
+        id: "giAssessmentTitle", 
         field: "GI Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -529,40 +544,40 @@ const vitalsTemplate: tableData[] = [
         ]
     },
     {
-        id: "giStatusCheckbox", // Unique ID
+        id: "giStatusCheckbox", 
         field: "GI Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Abdomen", label: "Abdomen" }, 
-            { value: "Bowel Sounds", label: "Bowel Sounds" },
-            { value: "Nausea", label: "Bowel Sounds"}
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Abdomen", label: "Abdomen" }, 
+            { subsetId: "Bowel Sounds", label: "Bowel Sounds" },
+            { subsetId: "Nausea", label: "Bowel Sounds"}
         ]
     },
     {
-        id: "abdomenInput", // Unique ID
+        id: "abdomenInput", 
         field: "Abdomen",
         componentType: "input",
         hideable: true,
         hideableId: "Abdomen" 
     },
     {
-        id: "bowelSoundsInput", // Unique ID
+        id: "bowelSoundsInput", 
         field: "Bowel Sounds",
         componentType: "input",
         hideable: true,
         hideableId: "Bowel Sounds" 
     },
     {
-        id: "nauseaInput", // Unique ID
+        id: "nauseaInput", 
         field: "Nausea",
         componentType: "input",
         hideable: true,
         hideableId: "Nausea" 
     },
     {
-        id: "musculoskeletalAssessmentTitle", // Unique ID
+        id: "musculoskeletalAssessmentTitle", 
         field: "Musculoskeletal Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -572,32 +587,32 @@ const vitalsTemplate: tableData[] = [
         ]
     },
     {
-        id: "musculoskeletalStatusCheckbox", // Unique ID
+        id: "musculoskeletalStatusCheckbox", 
         field: "Musculoskeletal Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Extremity ROM", label: "Extremity ROM" },
-            { value: "Gait", label: "Gait" }, 
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Extremity ROM", label: "Extremity ROM" },
+            { subsetId: "Gait", label: "Gait" }, 
         ]
     },
     {
-        id: "extremityRomInput", // Unique ID
+        id: "extremityRomInput", 
         field: "Extremity ROM",
         componentType: "input",
         hideable: true,
         hideableId: "Extremity ROM" 
     },
     {
-        id: "musculoskeletalGaitInput", // Unique ID (distinguishes from Morse Fall Risk Gait)
+        id: "musculoskeletalGaitInput",  
         field: "Gait",
         componentType: "input",
         hideable: true,
         hideableId: "Gait" 
     },
     {
-        id: "genitourinaryAssessmentTitle", // Unique ID
+        id: "genitourinaryAssessmentTitle", 
         field: "Genitourinary Assessment",
         componentType: "static",
         rowType: "titleRow",
@@ -607,81 +622,190 @@ const vitalsTemplate: tableData[] = [
         ]
     },
     {
-        id: "genitourinaryStatusCheckbox", // Unique ID
+        id: "genitourinaryStatusCheckbox", 
         field: "Genitourinary Status",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "WDL", label: "WDL" },
-            { value: "WDL, except:", label: "WDL, except:" },
-            { value: "Voiding", label: "Voiding" },
-            { value: "Urine", label: "Urine" }, 
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Voiding", label: "Voiding" },
+            { subsetId: "Urine", label: "Urine" }, 
         ]
     },
     {
-        id: "voidingInput", // Unique ID
+        id: "voidingInput", 
         field: "Voiding",
         componentType: "input",
         hideable: true,
         hideableId: "Voiding" 
     },
     {
-        id: "urineInput", // Unique ID
+        id: "urineInput", 
         field: "Urine",
         componentType: "input",
         hideable: true,
         hideableId: "Urine" 
     },
     {
-        id: "ivAssessmentTitle", // Unique ID
+        id: "ivAssessmentTitle", 
         field: "IV Assessment",
         componentType: "static",
         rowType: "titleRow"
     },
     {
-        id: "ivSiteInput", // Unique ID
+        id: "ivSiteInput", 
         field: "IV Site",
         componentType: "input"
     },
     {
-        id: "ivTypeInput", // Unique ID
+        id: "ivTypeInput", 
         field: "IV Type",
         componentType: "input"
     },
     {
-        id: "ivLocationInput", // Unique ID
+        id: "ivLocationInput", 
         field: "IV Location",
         componentType: 'input'
     },
     {
-        id: "nursingCareTitle", // Unique ID
+        id: "nursingCareTitle", 
         field: "Nursing Care",
         componentType: "static",
         rowType: "titleRow"
     },
     {
-        id: "nursingCareProvidedInput", // Unique ID
+        id: "nursingCareProvidedInput", 
         field: "Nursing Care Provided",
         componentType: "input"
     },
     {
-        id: "assessmentToolsTitle", // Unique ID
+        id: "intakeTitle",
+        field: "Intake",
+        componentType: "static",
+        rowType: "titleRow",
+        // hideableId: "intakeTitle" // not being used for hiding the row.. Matches with toolName of rows whose values are to be totaled
+    },
+    {
+        id: "intakeCheckbox", 
+        field: "Intake Fields",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { subsetId: "Oral", label: "Oral" },
+            { subsetId: "Intravenous", label: "Intravenous" },
+            { subsetId: "Parenteral Nutrition", label: "Parenteral Nutrition"},
+            { subsetId: "Enteral Nutrition", label: "Enteral Nutrition"},
+        ]
+    },
+    {
+        id: "oralIntake", 
+        field: "Oral",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Oral",
+        // toolName: "intakeTitle"
+    },
+    {
+        id: "ivIntakeInput", 
+        field: "Intravenous",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Intravenous",
+        // toolName: "intakeTitle"
+
+    },
+    {
+        id: "enteralNutritionInput", 
+        field: "Enteral Nutrition",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Enteral Nutrition",
+        // toolName: "intakeTitle"
+
+
+    },
+    {
+        id: "parenteralNutritionInput", 
+        field: "Parenteral Nutrition",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Parenteral Nutrition",
+        // toolName: "intakeTitle"
+
+
+    },
+    {
+        id: "outputTitle",
+        field: "Output",
+        componentType: "static",
+        rowType: "titleRow",
+        // toolName: "intakeTitle"
+    },
+    {
+        id: "outputCheckbox", 
+        field: "Output Fields",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { subsetId: "ioUrine", label: "Urine" },
+            { subsetId: "ioEmesis", label: "Emesis" },
+            { subsetId: "ioStool", label: "Stool" },
+            { subsetId: "Wound Drainage", label: "Wound Drainage"},
+            { subsetId: "Enteral Output", label: "Enteral Output"},
+        ]
+    },
+    {
+        id: "urineInput", 
+        field: "Urine",
+        componentType: "input",
+        hideable: true,
+        hideableId: "ioUrine"
+    },
+    {
+        id: "emesisInput", 
+        field: "Emesis",
+        componentType: "input",
+        hideable: true,
+        hideableId: "ioEmesis"
+    },
+    {
+        id: "stoolInputt", 
+        field: "Stool",
+        componentType: "input",
+        hideable: true,
+        hideableId: "ioStool"
+    },
+    {
+        id: "woundDrainageInput", 
+        field: "Wound Drainage",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Wound Drainage"
+    }, 
+    {
+        id: "enteralDrainageInput", 
+        field: "Enteral Output",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Enteral Output"
+    }, 
+    {
+        id: "assessmentToolsTitle", 
         field: "Assessment Tools",
         componentType: "static",
         rowType: "titleRow"
     },
     {
-        id: "additionalToolsCheckbox", // Unique ID
+        id: "additionalToolsCheckbox", 
         field: "Additional Tools",
         componentType: "checkboxlist",
         assessmentSubsets: [
-            { value: "CIWA-Ar", label: "CIWA-Ar"},
-            { value: "Morse Fall Risk", label: "Morse Fall Risk"},
-            { value: "Braden Scale", label: "Braden Scale"},
-            { value: "PAINAD", label: "PAINAD"}
+            { subsetId: "CIWA-Ar", label: "CIWA-Ar"},
+            { subsetId: "Morse Fall Risk", label: "Morse Fall Risk"},
+            { subsetId: "Braden Scale", label: "Braden Scale"},
+            { subsetId: "PAINAD", label: "PAINAD"}
         ]
     },
     {
-        id: "ciwaArSectionTitle", // Unique ID for CIWA-Ar section title
+        id: "ciwaArSectionTitle",  
         field: "CIWA-Ar",
         componentType: "static",
         rowType: "titleRow",
@@ -689,166 +813,166 @@ const vitalsTemplate: tableData[] = [
         hideableId: "CIWA-Ar"
     },
     { 
-        id: "ciwaArNauseaVomitingSelect", // Unique ID for CIWA-Ar Nausea & Vomiting
+        id: "ciwaArNauseaVomitingSelect",  
         field: "Nausea & Vomiting", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No nausea or vomitting" },
-            { value: "1", label: "1 - Mild nausea with no vomiting" },
-            { value: "2", label: "2" },
-            { value: "3", label: "3" },
-            { value: "4", label: "4 - Intermittent nausea with no vomiting" },
-            { value: "5", label: "5" },
-            { value: "6", label: "6" },
-            { value: "7", label: "7 - Constant nausea, frequent dry heaves and vomiting" }
+            { subsetId: "0", label: "0 - No nausea or vomitting" },
+            { subsetId: "1", label: "1 - Mild nausea with no vomiting" },
+            { subsetId: "2", label: "2" },
+            { subsetId: "3", label: "3" },
+            { subsetId: "4", label: "4 - Intermittent nausea with no vomiting" },
+            { subsetId: "5", label: "5" },
+            { subsetId: "6", label: "6" },
+            { subsetId: "7", label: "7 - Constant nausea, frequent dry heaves and vomiting" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArTremorSelect", // Unique ID
+        id: "ciwaArTremorSelect", 
         field: "Tremor", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No tremor" },
-            { value: "1", label: "1 - Not visible, but can be felt fingertip to fingertip" },
-            { value: "2", label: "2" },
-            { value: "3", label: "3" },
-            { value: "4", label: "4 - Moderate, with patient's arms extended" },
-            { value: "5", label: "5" },
-            { value: "6", label: "6" },
-            { value: "7", label: "7 - Severe, even with arms not extended" }
+            { subsetId: "0", label: "0 - No tremor" },
+            { subsetId: "1", label: "1 - Not visible, but can be felt fingertip to fingertip" },
+            { subsetId: "2", label: "2" },
+            { subsetId: "3", label: "3" },
+            { subsetId: "4", label: "4 - Moderate, with patient's arms extended" },
+            { subsetId: "5", label: "5" },
+            { subsetId: "6", label: "6" },
+            { subsetId: "7", label: "7 - Severe, even with arms not extended" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArParoxysmalSweatsSelect", // Unique ID
+        id: "ciwaArParoxysmalSweatsSelect", 
         field: "Paroxysmal Sweats", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No sweat visible" },
-            { value: "1", label: "1 - Barely perceptible sweating, palms moist" },
-            { value: "2", label: "2" },
-            { value: "3", label: "3" },
-            { value: "4", label: "4 - Beads of sweat obvious on forehead" },
-            { value: "5", label: "5" },
-            { value: "6", label: "6" },
-            { value: "7", label: "7 - Drenching sweats" }
+            { subsetId: "0", label: "0 - No sweat visible" },
+            { subsetId: "1", label: "1 - Barely perceptible sweating, palms moist" },
+            { subsetId: "2", label: "2" },
+            { subsetId: "3", label: "3" },
+            { subsetId: "4", label: "4 - Beads of sweat obvious on forehead" },
+            { subsetId: "5", label: "5" },
+            { subsetId: "6", label: "6" },
+            { subsetId: "7", label: "7 - Drenching sweats" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArAnxietySelect", // Unique ID
+        id: "ciwaArAnxietySelect", 
         field: "Anxiety", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No anxiety, at ease" },
-            { value: "1", label: "1 - Mildly anxious" },
-            { value: "2", label: "2" },
-            { value: "3", label: "3" },
-            { value: "4", label: "4 - Moderately anxious, or guarded, so anxiety is inferred" },
-            { value: "5", label: "5" },
-            { value: "6", label: "6" },
-            { value: "7", label: "7 - Equivalent to acute panic states" }
+            { subsetId: "0", label: "0 - No anxiety, at ease" },
+            { subsetId: "1", label: "1 - Mildly anxious" },
+            { subsetId: "2", label: "2" },
+            { subsetId: "3", label: "3" },
+            { subsetId: "4", label: "4 - Moderately anxious, or guarded, so anxiety is inferred" },
+            { subsetId: "5", label: "5" },
+            { subsetId: "6", label: "6" },
+            { subsetId: "7", label: "7 - Equivalent to acute panic states" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArAgitationSelect", // Unique ID
+        id: "ciwaArAgitationSelect", 
         field: "Agitation", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Normal activity" },
-            { value: "1", label: "1 - Somewhat more than normal activity" },
-            { value: "2", label: "2" },
-            { value: "3", label: "3" },
-            { value: "4", label: "4  - Moderately fidgety and restless" },
-            { value: "5", label: "5" },
-            { value: "6", label: "6" },
-            { value: "7", label: "7 - Paces back and forth during most of the interview, or constantly thrashes about" }
+            { subsetId: "0", label: "0 - Normal activity" },
+            { subsetId: "1", label: "1 - Somewhat more than normal activity" },
+            { subsetId: "2", label: "2" },
+            { subsetId: "3", label: "3" },
+            { subsetId: "4", label: "4  - Moderately fidgety and restless" },
+            { subsetId: "5", label: "5" },
+            { subsetId: "6", label: "6" },
+            { subsetId: "7", label: "7 - Paces back and forth during most of the interview, or constantly thrashes about" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArTactileDisturbancesSelect", // Unique ID
+        id: "ciwaArTactileDisturbancesSelect", 
         field: "Tactile Disturbances", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - None" },
-            { value: "1", label: "1 - Very mild itching, pins and needles, burning, or numbness" },
-            { value: "2", label: "2 - Mild itching, pins and needles, burning, or numbness" },
-            { value: "3", label: "3 - Moderate itching, pins and needles, burning, or numbness" },
-            { value: "4", label: "4 - Moderately severe hallucinations" },
-            { value: "5", label: "5 - Severe hallucinations" },
-            { value: "6", label: "6 - Extremely severe hallucinations" },
-            { value: "7", label: "7 - Continuous hallucinations" }
+            { subsetId: "0", label: "0 - None" },
+            { subsetId: "1", label: "1 - Very mild itching, pins and needles, burning, or numbness" },
+            { subsetId: "2", label: "2 - Mild itching, pins and needles, burning, or numbness" },
+            { subsetId: "3", label: "3 - Moderate itching, pins and needles, burning, or numbness" },
+            { subsetId: "4", label: "4 - Moderately severe hallucinations" },
+            { subsetId: "5", label: "5 - Severe hallucinations" },
+            { subsetId: "6", label: "6 - Extremely severe hallucinations" },
+            { subsetId: "7", label: "7 - Continuous hallucinations" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArVisualDisturbancesSelect", // Unique ID
+        id: "ciwaArVisualDisturbancesSelect", 
         field: "Visual Disturbances", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Not present" },
-            { value: "1", label: "1 - Very mild sensitivity" },
-            { value: "2", label: "2" },
-            { value: "3", label: "3" },
-            { value: "4", label: "4 - Moderately severe hallucinations" },
-            { value: "5", label: "5" },
-            { value: "6", label: "6" },
-            { value: "7", label: "7 - Continuous hallucinations" }
+            { subsetId: "0", label: "0 - Not present" },
+            { subsetId: "1", label: "1 - Very mild sensitivity" },
+            { subsetId: "2", label: "2" },
+            { subsetId: "3", label: "3" },
+            { subsetId: "4", label: "4 - Moderately severe hallucinations" },
+            { subsetId: "5", label: "5" },
+            { subsetId: "6", label: "6" },
+            { subsetId: "7", label: "7 - Continuous hallucinations" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArHeadacheSelect", // Unique ID
+        id: "ciwaArHeadacheSelect", 
         field: "Headache", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Not Present" },
-            { value: "1", label: "1 - Very mild" },
-            { value: "2", "label": "2" },
-            { value: "3", "label": "3" },
-            { value: "4", label: "4 - Moderately severe" },
-            { value: "5", "label": "5" },
-            { value: "6", "label": "6" },
-            { value: "7", label: "7 - Extremely severe" }
+            { subsetId: "0", label: "0 - Not Present" },
+            { subsetId: "1", label: "1 - Very mild" },
+            { subsetId: "2", "label": "2" },
+            { subsetId: "3", "label": "3" },
+            { subsetId: "4", label: "4 - Moderately severe" },
+            { subsetId: "5", "label": "5" },
+            { subsetId: "6", "label": "6" },
+            { subsetId: "7", label: "7 - Extremely severe" }
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     { 
-        id: "ciwaArOrientationSelect", // Unique ID for CIWA-Ar Orientation
+        id: "ciwaArOrientationSelect",  
         field: "Orientation", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Oriented, can do serial additions" },
-            { value: "1", label: "1 - Cannot do serial additions or is uncertain about date" },
-            { value: "2", label: "2 - Disoriented for date by no more than 2 calendar days" },
-            { value: "3", label: "3 - Disoriented for date by more than 2 calendar days" },
-            { value: "4", label: "4 - Disoriented to place or person" },
+            { subsetId: "0", label: "0 - Oriented, can do serial additions" },
+            { subsetId: "1", label: "1 - Cannot do serial additions or is uncertain about date" },
+            { subsetId: "2", label: "2 - Disoriented for date by no more than 2 calendar days" },
+            { subsetId: "3", label: "3 - Disoriented for date by more than 2 calendar days" },
+            { subsetId: "4", label: "4 - Disoriented to place or person" },
         ],
         hideable: true,
         hideableId: "CIWA-Ar",
         toolName: "CIWA-Ar"
     },
     {
-        id: "morseFallRiskTitle", // Unique ID
+        id: "morseFallRiskTitle", 
         field: "Morse Fall Risk",
         componentType: "static",
         rowType: "titleRow",
@@ -856,12 +980,12 @@ const vitalsTemplate: tableData[] = [
         hideableId: "Morse Fall Risk"
     },
     { 
-        id: "morseHistoryOfFallingSelect", // Unique ID
+        id: "morseHistoryOfFallingSelect", 
         field: "History of Falling", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No falls" },
-            { value: "25", label: "25 - Has fallen within 3 months" },
+            { subsetId: "0", label: "0 - No falls" },
+            { subsetId: "25", label: "25 - Has fallen within 3 months" },
         ],
         hideable: true,
         hideableId: "Morse Fall Risk",
@@ -869,12 +993,12 @@ const vitalsTemplate: tableData[] = [
 
     },
     { 
-        id: "morseSecondaryDiagnosisSelect", // Unique ID
+        id: "morseSecondaryDiagnosisSelect", 
         field: "Secondary Diagnosis", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No" },
-            { value: "15", label: "15 - Yes" },
+            { subsetId: "0", label: "0 - No" },
+            { subsetId: "15", label: "15 - Yes" },
         ],
         hideable: true,
         hideableId: "Morse Fall Risk",
@@ -882,25 +1006,25 @@ const vitalsTemplate: tableData[] = [
 
     },
     { 
-        id: "morseAmbulatoryAidSelect", // Unique ID
+        id: "morseAmbulatoryAidSelect", 
         field: "Ambulatory Aid", 
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Bedrest/nurse assist" },
-            { value: "15", label: "15 - Crutches/cane/walker" },
-            { value: "25", label: "25 - Clutches furniture or support"}
+            { subsetId: "0", label: "0 - Bedrest/nurse assist" },
+            { subsetId: "15", label: "15 - Crutches/cane/walker" },
+            { subsetId: "25", label: "25 - Clutches furniture or support"}
         ],
         hideable: true,
         hideableId: "Morse Fall Risk",
         toolName: "Morse Fall Risk"
     },
     {
-        id: "morseIvTherapySelect", // Unique ID
+        id: "morseIvTherapySelect", 
         field: "IV Therapy/Heparin Lock",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No" },
-            { value: "20", label: "20 - Yes" },
+            { subsetId: "0", label: "0 - No" },
+            { subsetId: "20", label: "20 - Yes" },
         ],
         hideable: true,
         hideableId: "Morse Fall Risk",
@@ -908,13 +1032,13 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "morseGaitSelect", // Unique ID for Morse Fall Risk Gait
+        id: "morseGaitSelect",  
         field: "Gait",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Normal/Bedrest/Wheelchair" },
-            { value: "10", label: "10 - Weak" },
-            { value: "20", label: "20 - Impaired" }
+            { subsetId: "0", label: "0 - Normal/Bedrest/Wheelchair" },
+            { subsetId: "10", label: "10 - Weak" },
+            { subsetId: "20", label: "20 - Impaired" }
         ],
         hideable: true,
         hideableId: "Morse Fall Risk",
@@ -922,19 +1046,19 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "morseMentalStatusSelect", // Unique ID
+        id: "morseMentalStatusSelect", 
         field: "Mental Status",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Oriented to own abilities" },
-            { value: "15", label: "15 - Overestimates or forgets limitations" },
+            { subsetId: "0", label: "0 - Oriented to own abilities" },
+            { subsetId: "15", label: "15 - Overestimates or forgets limitations" },
         ],
         hideable: true,
         hideableId: "Morse Fall Risk",
         toolName: "Morse Fall Risk"
     },
     {
-        id: "bradenScaleTitle", // Unique ID
+        id: "bradenScaleTitle", 
         field: "Braden Scale",
         componentType: "static",
         rowType: "titleRow",
@@ -943,14 +1067,14 @@ const vitalsTemplate: tableData[] = [
         
     },
     {
-        id: "bradenSensoryPerceptionSelect", // Unique ID
+        id: "bradenSensoryPerceptionSelect", 
         field: "Sensory Perception",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "1", label: "1 - Completely Limited" },
-            { value: "2", label: "2 - Very Limited" },
-            { value: "3", label: "3 - Slightly Limited" },
-            { value: "4", label: "4 - No Impairment" },
+            { subsetId: "1", label: "1 - Completely Limited" },
+            { subsetId: "2", label: "2 - Very Limited" },
+            { subsetId: "3", label: "3 - Slightly Limited" },
+            { subsetId: "4", label: "4 - No Impairment" },
         ],
         hideable: true,
         hideableId: "Braden Scale",
@@ -958,14 +1082,14 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "bradenMoistureSelect", // Unique ID
+        id: "bradenMoistureSelect", 
         field: "Moisture",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "1", label: "1 - Constantly Moist" },
-            { value: "2", label: "2 - Very Moist" },
-            { value: "3", label: "3 - Occasionally Moist" },
-            { value: "4", label: "4 - Rarely Moist" },
+            { subsetId: "1", label: "1 - Constantly Moist" },
+            { subsetId: "2", label: "2 - Very Moist" },
+            { subsetId: "3", label: "3 - Occasionally Moist" },
+            { subsetId: "4", label: "4 - Rarely Moist" },
         ],
         hideable: true,
         hideableId: "Braden Scale",
@@ -973,14 +1097,14 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "bradenActivitySelect", // Unique ID
+        id: "bradenActivitySelect", 
         field: "Activity",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "1", label: "1 - Bedfast" },
-            { value: "2", label: "2 - Chairfast" },
-            { value: "3", label: "3 - Walks Occasionally." },
-            { value: "4", label: "4 - Walks Frequently" },
+            { subsetId: "1", label: "1 - Bedfast" },
+            { subsetId: "2", label: "2 - Chairfast" },
+            { subsetId: "3", label: "3 - Walks Occasionally." },
+            { subsetId: "4", label: "4 - Walks Frequently" },
         ],
         hideable: true,
         hideableId: "Braden Scale",
@@ -988,14 +1112,14 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "bradenMobilitySelect", // Unique ID
+        id: "bradenMobilitySelect", 
         field: "Mobility",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "1", label: "1 - Completely Immobile" },
-            { value: "2", label: "2 - Very Limited" },
-            { value: "3", label: "3 - Slightly Limited" },
-            { value: "4", label: "4 - No Limitations" },
+            { subsetId: "1", label: "1 - Completely Immobile" },
+            { subsetId: "2", label: "2 - Very Limited" },
+            { subsetId: "3", label: "3 - Slightly Limited" },
+            { subsetId: "4", label: "4 - No Limitations" },
         ],
         hideable: true,
         hideableId: "Braden Scale",
@@ -1003,14 +1127,14 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "bradenNutritionSelect", // Unique ID
+        id: "bradenNutritionSelect", 
         field: "Nutrition",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "1", label: "1 - Very Poor" },
-            { value: "2", label: "2 - Probably Inadequate" },
-            { value: "3", label: "3 - Adequate" },
-            { value: "4", label: "4 - Excellent" },
+            { subsetId: "1", label: "1 - Very Poor" },
+            { subsetId: "2", label: "2 - Probably Inadequate" },
+            { subsetId: "3", label: "3 - Adequate" },
+            { subsetId: "4", label: "4 - Excellent" },
         ],
         hideable: true,
         hideableId: "Braden Scale",
@@ -1018,20 +1142,20 @@ const vitalsTemplate: tableData[] = [
 
     },
     {
-        id: "bradenFrictionAndShearSelect", // Unique ID
+        id: "bradenFrictionAndShearSelect", 
         field: "Friction and Shear",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "1", label: "1 - Problem" },
-            { value: "2", label: "2 - Potential Problem" },
-            { value: "3", label: "3 - No Apparent Problem" },
+            { subsetId: "1", label: "1 - Problem" },
+            { subsetId: "2", label: "2 - Potential Problem" },
+            { subsetId: "3", label: "3 - No Apparent Problem" },
         ],
         hideable: true,
         hideableId: "Braden Scale",
         toolName: "Braden Scale"
     },
     {
-        id: "painadTitle", // Unique ID
+        id: "painadTitle", 
         field: "PAINAD",
         componentType: "static",
         rowType: "titleRow",
@@ -1039,65 +1163,65 @@ const vitalsTemplate: tableData[] = [
         hideableId: "PAINAD",
     },
     {
-        id: "painadBreathingSelect", // Unique ID
+        id: "painadBreathingSelect", 
         field: "Breathing (Independent of Vocalization)",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Normal" },
-            { value: "1", label: "1 - Occasional labored breathing, short periods of hyperventilation" },
-            { value: "2", label: "2 - Noisy labored breathing, long periods of hyperventilation, Cheyne-Stokes" },
+            { subsetId: "0", label: "0 - Normal" },
+            { subsetId: "1", label: "1 - Occasional labored breathing, short periods of hyperventilation" },
+            { subsetId: "2", label: "2 - Noisy labored breathing, long periods of hyperventilation, Cheyne-Stokes" },
         ],
         hideable: true,
         hideableId: "PAINAD",
         toolName: "PAINAD"
     },
     {
-        id: "painadNegativeVocalizationSelect", // Unique ID
+        id: "painadNegativeVocalizationSelect", 
         field: "Negative Vocalization",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - None" },
-            { value: "1", label: "1 - Occasional moan or groan, low-level speech with a negative or disapproving quality" },
-            { value: "2", label: "2 - Repeated troubled calling out, loud moaning or groaning, crying" },
+            { subsetId: "0", label: "0 - None" },
+            { subsetId: "1", label: "1 - Occasional moan or groan, low-level speech with a negative or disapproving quality" },
+            { subsetId: "2", label: "2 - Repeated troubled calling out, loud moaning or groaning, crying" },
         ],
         hideable: true,
         hideableId: "PAINAD",
         toolName: "PAINAD"
     },
     {
-        id: "painadFacialExpressionSelect", // Unique ID
+        id: "painadFacialExpressionSelect", 
         field: "Facial Expression",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Smiling or inexpressive" },
-            { value: "1", label: "1 - Sad, frightened, frown" },
-            { value: "2", label: "2 - Facial grimacing" },
+            { subsetId: "0", label: "0 - Smiling or inexpressive" },
+            { subsetId: "1", label: "1 - Sad, frightened, frown" },
+            { subsetId: "2", label: "2 - Facial grimacing" },
         ],
         hideable: true,
         hideableId: "PAINAD",
         toolName: "PAINAD"
     },
     {
-        id: "painadBodyLanguageSelect", // Unique ID
+        id: "painadBodyLanguageSelect", 
         field: "Body Language",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - Relaxed" },
-            { value: "1", label: "1 - Tense, distressed pacing, fidgeting" },
-            { value: "2", label: "2 - Rigid, fists clenched, knees pulled up or pushing away, striking out" },
+            { subsetId: "0", label: "0 - Relaxed" },
+            { subsetId: "1", label: "1 - Tense, distressed pacing, fidgeting" },
+            { subsetId: "2", label: "2 - Rigid, fists clenched, knees pulled up or pushing away, striking out" },
         ],
         hideable: true,
         hideableId: "PAINAD",
         toolName: "PAINAD"
     },
     {
-        id: "painadConsolabilitySelect", // Unique ID
+        id: "painadConsolabilitySelect", 
         field: "Consolability",
         componentType: "assessmentselect",
         chartingOptions: [
-            { value: "0", label: "0 - No need to console" },
-            { value: "1", label: "1 - Distracted or reassured by voice or touch" },
-            { value: "2", label: "2 - Unable to console, distract, or reassure" },
+            { subsetId: "0", label: "0 - No need to console" },
+            { subsetId: "1", label: "1 - Distracted or reassured by voice or touch" },
+            { subsetId: "2", label: "2 - Unable to console, distract, or reassure" },
         ],
         hideable: true,
         hideableId: "PAINAD",

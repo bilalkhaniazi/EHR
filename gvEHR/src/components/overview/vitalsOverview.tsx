@@ -77,7 +77,7 @@ export function VitalsOverview() {
         cell: ({ row }: { row: Row<tableData> } ) => {
           return (
             <div className="h-full">
-              <p className="text-xs w-full min-w-12 text-right pr-2">12</p> {/*row.original[timekey]*/}
+              <p className="text-xs w-full min-w-12 text-right pr-2">~</p> {/*row.original[timekey]*/}
             </div>
           )
         }
@@ -102,9 +102,9 @@ export function VitalsOverview() {
               <Skeleton className="h-6 col-span-1" />
               <Skeleton className="h-6 col-span-1" />
               <Skeleton className="h-6 col-span-1" />
-              {Array.from({length: 20}, (_) => {
+              {Array.from({length: 20}, (_, index) => {
                 return (
-                  <Skeleton className="h-4 col-span-1" />
+                  <Skeleton key={index} className="h-4 col-span-1" />
                 )
               })}
 

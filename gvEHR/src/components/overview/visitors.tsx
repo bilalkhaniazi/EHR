@@ -57,10 +57,10 @@ const Visitors = () => {
 
         <CardContent className="grid gap-4 px-8">
 
-          {contacts.map(person => {
+          {contacts.map((person, index) => {
 
             return (
-              <div className="flex flex-col w-full items-start gap-1">
+              <div key={`${person.name}-${index}`} className="flex flex-col w-full items-start gap-1">
                 <p className="text-md font-medium leading-none">{person.name}</p>
                 <div className="flex pl-2 gap-3">
                   <p className="text-sm text-neutral-500 tracking-tight">Relationship:</p>

@@ -63,18 +63,18 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                         const isWDLExcept = option.label === "WDL, except:"
 
                         if (!isWDLExcept) {
-                            const checkboxId = `checkbox-${rowId}-${columnId}-${option.value}`;
+                            const checkboxId = `checkbox-${rowId}-${columnId}-${option.subsetId}`;
 
                             return (
                                 <Label
                                     htmlFor={checkboxId}
-                                    key={`label-${rowId}-${columnId}-${option.value}`}
+                                    key={`label-${rowId}-${columnId}-${option.subsetId}`}
                                     className="hover:bg-accent/50 flex items-left gap-3 border-b p-2 last:border-b-0 has-[[aria-checked=true]]:bg-blue-50 "
                                 >
                                     <Checkbox
                                         id={checkboxId}
-                                        checked={localSelected.has(option.value)}
-                                        onCheckedChange={(checked) => handleCheckboxChange(option.value, checked as boolean)}
+                                        checked={localSelected.has(option.subsetId)}
+                                        onCheckedChange={(checked) => handleCheckboxChange(option.subsetId, checked as boolean)}
                                         className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white "
                                     />
                                     <p className="text-xs text-left leading-none font-normal">
@@ -83,6 +83,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                                 </Label>
                             )
                         } else {
+                            // WDL option does not correspond to any rows to open
                             return (
                                 <Label 
                                     className='h-8 pl-4 border-b bg-gray-100 text-xs text-left leading-none font-normal'
@@ -99,14 +100,14 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                         variant="outline"
                         size="sm"
                         onClick={handleCancelClick}
-                        className='text-xs py-1 px-2'
+                        className='text-xs py-1 px-2 h-6'
                     >
                         Cancel
                     </Button>
                     <Button
                         size="sm"
                         onClick={handleApplyClick}
-                        className='text-xs py-1 px-2 bg-lime-700'
+                        className='text-xs py-1 px-2 h-6 shadow shadow-black/25 bg-lime-600 hover:bg-lime-700'
                     >
                         Apply
                     </Button>

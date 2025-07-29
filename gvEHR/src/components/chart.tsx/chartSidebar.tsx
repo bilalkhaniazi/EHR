@@ -92,7 +92,7 @@ export default function ChartSidebar() {
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">Demographics</p>
             {Object.values(sidebarData.demographics).map((row) => {
               return(
-                <p className="text-purple-900 text-xs font-light tracking-tight">
+                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight">
                   <span className="underline">{row.label}:</span>
                   <span className="pl-2 font-normal">{row.value}</span>
                 </p>
@@ -105,7 +105,7 @@ export default function ChartSidebar() {
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Clinical Info</p>
             {Object.values(sidebarData.clinicalInfo).map((row) => {
               return(
-                <p className="text-purple-900 text-xs font-light tracking-tight">
+                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight">
                   <span className="underline">{row.label}:</span>
                   <span className="pl-2 font-normal decoration-none no-underline">{Array.isArray(row.value) ? row.value.join(", ") : row.value}</span>
                 </p>
@@ -124,7 +124,7 @@ export default function ChartSidebar() {
                 ? (row.value as Contact[]).map(person => person.name).join(', ')
                 : String(row.value); 
               return(
-                <p className="text-purple-900 text-xs font-light tracking-tight">
+                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight">
                   <span className="underline">{row.label}:</span>
                   <span className="pl-2 font-normal">{displayValue}</span>
                 </p>

@@ -67,7 +67,7 @@ const RecurringOrders = () => {
               const isRecurring = order?.recurring
               if (isRecurring && isRecurring === true) {
                 return (
-                  <div className="flex pl-2 gap-3 items-center">
+                  <div key={order.displayName} className="flex pl-2 gap-3 items-center">
                     <p className="text-xs text-neutral-500 tracking-tight">{order.displayName}</p>
                     <TooltipProvider>
                       <Tooltip>
@@ -90,7 +90,7 @@ const RecurringOrders = () => {
               const isRecurring = order?.recurring
               if (isRecurring && isRecurring === true) {
                 return (
-                  <div className="flex pl-2 gap-3 items-center">
+                  <div key={order.displayName} className="flex pl-2 gap-3 items-center">
                     <p className="text-xs text-neutral-500 tracking-tight">{order.displayName}</p>
                     <TooltipProvider>
                       <Tooltip>

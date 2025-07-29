@@ -36,6 +36,32 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
+    export function calculateColTotal(toolName: string, grouped: tableData[], timeColumns: string[]) {
+        const totalRow: tableData = {
+            id: `${toolName}TotalScore`,
+            field: `${toolName} Total Score`,
+            componentType: "totalScoreRow", // This will be a static display
+            rowType: "totalScoreRow", // A new rowType to identify it
+        };
+
+        // Calculate total for each time column
+        timeColumns.forEach(timeCol => {
+            let totalScore = 0;
+            let hasEnteredValue = false
+
+            grouped.forEach(toolRow => {
+                const score = parseInt(toolRow[timeCol]);
+                if (!isNaN(score)) {
+                    totalScore += score;
+                    hasEnteredValue = true
+                }
+            });
+            console.log("total score", totalScore.toString())
+            totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : "";
+        });
+        return totalRow
+    }
+
 export function FlexSheet() {
     const dispatch = useDispatch<AppDispatch>();
     
@@ -104,35 +130,23 @@ export function FlexSheet() {
             if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
                 const toolName = row.hideableId; // Assuming hideableId matches toolName for title rows
                 if (groupedByTool[toolName]) {
-                    const totalRow: tableData = {
-                        id: `${toolName}TotalScore`,
-                        field: `${toolName} Total Score`,
-                        componentType: "totalScoreRow", // This will be a static display
-                        rowType: "totalScoreRow", // A new rowType to identify it
-                    };
-
-                    // Calculate total for each time column
-                    timeColumns.forEach(timeCol => {
-                        let totalScore = 0;
-                        let hasEnteredValue = false
-
-                        groupedByTool[toolName].forEach(toolRow => {
-                            const score = parseInt(toolRow[timeCol]);
-                            if (!isNaN(score)) {
-                                totalScore += score;
-                                hasEnteredValue = true
-                            }
-                        });
-                        console.log("total score", totalScore.toString())
-                        totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : ""; // Store as string for consistency
-                    });
+                    const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeColumns);
                     newFilteredData.push(totalRow);
                 }
             }
+
+            // if (row.id === "intakeTitle" || row.Id === "outputTitle") {
+            //     const toolName = row.id
+            //     if (groupedByTool[toolName] && groupedByTool[toolName].some(r => r.hideableId && visibleSubsetIds.has(r.hideableId))) {
+            //         const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeColumns);
+            //         totalRow.id = `${toolName}TotalRow`
+            //         newFilteredData.push(totalRow)
+            //     }
+            // }
         });
 
         return newFilteredData;
-    }, [visibleSubsetIds, editableData, data?.chartingData, timeColumns]); // Depend on edi
+    }, [visibleSubsetIds, editableData, data?.chartingData, timeColumns]); 
 
     console.log(filteredData)
 

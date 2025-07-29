@@ -22,6 +22,7 @@ import type { tableData } from "../flexSheets/tableData"
 import { useMemo } from "react"
 import { Skeleton } from "../ui/skeleton"
 import StyledTitle from "./styledTitle"
+import CardSkeleton from "./cardSkeleton"
  
 
 export type vitalsOverviewTable = {
@@ -43,6 +44,8 @@ const timeColumns = ["1100", "1200", "1300"]
 export function VitalsOverview() {
   
   const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery()
+
+
 
   const tableData = useMemo(() => data?.chartingData || [], [data?.chartingData])
   
@@ -74,7 +77,7 @@ export function VitalsOverview() {
         cell: ({ row }: { row: Row<tableData> } ) => {
           return (
             <div className="h-full">
-              <p className="text-xs w-full min-w-12 text-right pr-2">12</p> {/*row.original[timekey]*/}
+              <p className="text-xs w-full min-w-12 text-right pr-2">~</p> {/*row.original[timekey]*/}
             </div>
           )
         }
@@ -82,17 +85,89 @@ export function VitalsOverview() {
     })
   ], [])
 
+
   const table = useReactTable({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  
+  const renderTableContent = () => {
+    if (isLoading || isFetching) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
+            <div className="w-full h-full grid grid-cols-4 gap-2 p-2">
+              <Skeleton className="h-6 col-span-1" />
+              <Skeleton className="h-6 col-span-1" />
+              <Skeleton className="h-6 col-span-1" />
+              <Skeleton className="h-6 col-span-1" />
+              {Array.from({length: 20}, (_) => {
+                return (
+                  <Skeleton className="h-4 col-span-1" />
+                )
+              })}
 
+            </div>
+          </TableCell>
+        </TableRow>
+      )
+    }
 
+    // from RTK query docs
+    if (isError) {
+      let errorMessage = "An unknown error occurred.";
+      if (error) {
+        if ('status' in error && error.status) {
+          errorMessage = `Error ${error.status}`;
+          if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
+            errorMessage += `: ${(error.data as any).message}`;
+          }
+        } else if ('message' in error) {
+          errorMessage = `Error: ${error.message}`;
+        } else {
+          errorMessage = `Error: ${JSON.stringify(error)}`;
+        }
+      }
+      console.log(errorMessage)
 
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
+            <div className="flex flex-col justify-center items-center gap-2 h-full w-full py-2">
+              <p>Error loading vitals data</p>
+            </div>
+          </TableCell>
+        </TableRow>
+      )
+    }
 
+    if (table.getRowModel().rows?.length) {
+      return table.getRowModel().rows.map((row) => (
+        <TableRow
+          key={row.id} 
+          className="h-6 border-sky-200"
+        >
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id} className="border-sky-200 first:border-0 border-l p-0">
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
+          <div className="flex flex-col justify-center items-center gap-2 h-full w-full py-2">
+            <p className="text-sm text-neutral-500">No vitals data available</p>
+          </div>
+        </TableCell>
+      </TableRow>
+    )
+    
+  }  
 
   return (
     <Card className="relative col-span-1 p-0 gap-3 pt-2 h-fit overflow-hidden">
@@ -119,30 +194,7 @@ export function VitalsOverview() {
               ))}
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id} className="h-6 border-sky-200"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="border-sky-200 first:border-0 border-l p-0">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
-                    <div className="flex flex-col justify-center items-center gap-2 h-full w-full py-2">
-                      <Skeleton className="h-7 w-5/6" />
-                      <Skeleton className="h-5 w-5/6" />
-                      <Skeleton className="h-5 w-5/6" />
-                      <Skeleton className="h-5 w-5/6" />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
+              {renderTableContent()}
             </TableBody>
           </Table>
         </div>
