@@ -42,9 +42,9 @@ export const apiSlice = createApi({
             if (!row.hideable) {
               return true
             }
-            if (row.rowType === "divider") {
-              return true
-            }
+            // if (row.rowType === "divider") {
+            //   return true
+            // }
             const allValuesEmpty = timeColumnDateKeys.every(dateKey => {
               const labValue = row[dateKey]
               return !labValue

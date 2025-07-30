@@ -4,7 +4,7 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
-  type Row,
+  // type Row,
   useReactTable,
 } from "@tanstack/react-table"
  
@@ -22,7 +22,6 @@ import type { tableData } from "../flexSheets/tableData"
 import { useMemo } from "react"
 import { Skeleton } from "../ui/skeleton"
 import StyledTitle from "./styledTitle"
-import CardSkeleton from "./cardSkeleton"
  
 
 export type vitalsOverviewTable = {
@@ -74,7 +73,7 @@ export function VitalsOverview() {
             <h1 className="mb-1 text-xs">{timeKey}</h1>
           </div>
         ),
-        cell: ({ row }: { row: Row<tableData> } ) => {
+        cell: ( ) => {   // { row }: { row: Row<tableData> }
           return (
             <div className="h-full">
               <p className="text-xs w-full min-w-12 text-right pr-2">~</p> {/*row.original[timekey]*/}

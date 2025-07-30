@@ -3,7 +3,7 @@ import { Card, CardContent } from "../ui/card"
 import { Info } from "lucide-react"
 import { TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import StyledTitle from "./styledTitle"
-import { useGetOrdersQuery, type GetOrdersResponse } from "@/app/apiSlice"
+import { useGetOrdersQuery } from "@/app/apiSlice"
 import CardSkeleton from "./cardSkeleton"
 
 const RecurringOrders = () => {
@@ -51,7 +51,7 @@ const RecurringOrders = () => {
     )
   }
 
-    const { nursingOrders, labratoryOrders, respiratoryOrders } = data;
+    const { nursingOrders, labratoryOrders } = data;
 
 
 

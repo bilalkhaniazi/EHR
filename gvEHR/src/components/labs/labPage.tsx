@@ -1,4 +1,4 @@
-import type { imagingData, LabTableData } from "./labsData"
+import type { ImagingData, LabTableData, PathologyReportData } from "./labsData"
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useCallback, useEffect } from "react";
@@ -12,6 +12,7 @@ import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { useGetLabsQuery, useAddLabColumnMutation } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
 import ImagingReport from "./imagingReport";
+import PathologyReport from "./pathologyReport";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -143,7 +144,8 @@ export function LabPage() {
             )
           },
           cell: ({row, column, getValue}) => {
-            if (row.original.rowType === "results") {
+            const rowType = row.original.rowType
+            if (rowType === "results") {
               const initialValue = (getValue() as string) || '';
               const labRanges = row.original?.normalRange
               let alertFlag = false
@@ -152,7 +154,6 @@ export function LabPage() {
                 const numericHigh = parseFloat(labRanges.high)
                 const numericLow = parseFloat(labRanges.low)
 
-                alertFlag = initialValue < labRanges.low || initialValue > labRanges.high
                 if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
                   alertFlag = numericValue < numericLow || numericValue > numericHigh;
                 }
@@ -160,8 +161,8 @@ export function LabPage() {
               return (
                 <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
               );
-            } else if (row.original.rowType === "imaging") {
-              const imagingReport = (getValue() as imagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
+            } else if (rowType === "imaging") {
+              const imagingReport = (getValue() as ImagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
               if(!imagingReport.displayName) {
                 return (
                   <></>
@@ -175,10 +176,22 @@ export function LabPage() {
                   />
                 )
               }
-            } else {
-              <></>
+            } else if (rowType === "pathology") {
+              const pathologyReport = (getValue() as PathologyReportData) || {}
+              if(Object.keys(pathologyReport).length === 0) {
+                return (
+                  <></>
+                )
+              } else {
+                return (
+                  <PathologyReport
+                    key={`${row.id}-${column.id}-${row.original.field}`}
+                    report={pathologyReport}
+                    cellLabel={row.original.field}
+                  />
+                )
+              }
             }
-           
           } 
         })
       )

@@ -1,15 +1,10 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import {
   type ChartConfig,
@@ -49,27 +44,34 @@ export function IntakeOutput() {
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
+            <YAxis 
+              axisLine={false}
+              tickLine={false} 
+              unit="mL"
+              className=""/>
             <XAxis
               dataKey="month"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value.slice(0,4)}
+              className="text-wrap"
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend className="text-xs  pt-1 text-neutral-700" content={<ChartLegendContent />} />
+             <Bar
+              dataKey="output"
+              stackId="a"
+              fill="#fef08a"
+              radius={[0, 0, 4, 4]}
+            />
             <Bar
               dataKey="intake"
               stackId="a"
               fill="#bae6fd"
-              radius={[0, 0, 4, 4]}
-            />
-            <Bar
-              dataKey="output"
-              stackId="a"
-              fill="#fef08a"
               radius={[4, 4, 0, 0]}
             />
+           
           </BarChart>
         </ChartContainer>
       </CardContent>
