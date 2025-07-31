@@ -1,39 +1,27 @@
-import type { AppDispatch  } from "@/app/store"
 import OrdersTable from "./ordersTable"
 import { 
     nursingHeaderNames, 
     respHeaderNames, 
     medHeaderNames,
     labratoryHeaderNames,
-    type OrderData, 
 } from "@/components/orders/orderData"
-import { useDispatch  } from "react-redux"
-import { addOrder } from "./orderSlice"
-import { toast } from "sonner"
+
 
 import { useGetOrdersQuery } from "@/app/apiSlice"
 import { Skeleton } from "../ui/skeleton"
 
 const OrdersPage = () => {
 
-    // const dispatch = useDispatch<AppDispatch>()
     const { data, isLoading, isFetching, isError, error } = useGetOrdersQuery();
     const nursingOrderData = data?.nursingOrders || []
     const labratoryOrderData = data?.labratoryOrders || []
     const medicationOrderData = data?.medicationOrders || []
     const respiratoryOrderData = data?.respiratoryOrders || []
 
-    const respOrderColumns = ["details", "status", "duration", "orderingProvider"] // keys of columns to iterate over in OrdersTable
+    // const respOrderColumns = ["details", "status", "duration", "orderingProvider"] 
     const orderColumns = ["details", "status", "orderingProvider"]
     const medOrderColumns = ["dose",  "route", "frequency", "priority", "administrationInstructions", "orderingProvider"]
     
-    // demo new order
-    // const addNursingOrder = () => {
-    //     const newOrder: OrderData = { displayName: "Turning/Positioning", orderType: "nursing", details: "Reposition patient a minimum of every 2 hours off of pressure points.", status: "Active", orderingProvider: "Dr. Sammy ZamZam"}
-    //     toast.success(`Added ${newOrder.displayName} to Nursing`);
-    //     dispatch(addOrder(newOrder))
-    // };
-
     if (isLoading || isFetching) {
         return (
             <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
@@ -65,7 +53,7 @@ const OrdersPage = () => {
                 <OrdersTable color="bg-blue-300" columnNames={orderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
                 <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
                 <OrdersTable color="bg-lime-200" columnNames={orderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />
-                <OrdersTable color="bg-fuchsia-200" columnNames={respOrderColumns} headerNames={labratoryHeaderNames} data={labratoryOrderData} />
+                <OrdersTable color="bg-fuchsia-200" columnNames={orderColumns} headerNames={labratoryHeaderNames} data={labratoryOrderData} />
 
             </div>
         </div>

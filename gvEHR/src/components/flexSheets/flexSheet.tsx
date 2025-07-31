@@ -67,7 +67,7 @@ export function FlexSheet() {
     
     const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery()
 
-    const [triggerUpdateFlexSheetData, {isLoading: isSaving, isError: saveError, isSuccess: saveSuccess}] = useUpdateFlexSheetDataMutation();
+    const [triggerUpdateFlexSheetData, {isLoading: isSaving }] = useUpdateFlexSheetDataMutation();      // isError: saveError, isSuccess: saveSuccess
     const [triggerAddTimeColumn] = useAddTimeColumnMutation();
 
     const editableData = useSelector((state: RootState) => state.flexSheet.editableData);
@@ -432,13 +432,13 @@ export function FlexSheet() {
         );
     }
 
-  if (isError) {
-    return (
-      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-        <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
-      </div>
-    );
-  }
+    if (isError) {
+        return (
+        <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+            <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+        </div>
+        );
+    }
     return (
     <SidebarProvider 
         className=""
@@ -446,7 +446,7 @@ export function FlexSheet() {
         onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
     >
         <SidebarInset className="">
-        <div className="flex flex-col bg-gray-100 w-full h-[calc(100vh-4rem)] px-4">
+        <div className="flex flex-col bg-gray-100 w-[calc(100vw-18rem)] h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
                 <div className="w-full flex justify-start gap-2 ">
                     <AddTimeColumnButton 
@@ -468,7 +468,6 @@ export function FlexSheet() {
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
                     </Button>
-                    
                 </div>
                 <div className="flex-grow w-full overflow-auto border border-gray-200 rounded-md "> 
                     <Table className="w-full rounded-md">

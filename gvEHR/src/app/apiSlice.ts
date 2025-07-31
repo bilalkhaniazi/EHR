@@ -3,7 +3,7 @@ import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type L
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
-import { jamesAllen, type ChartData } from '@/components/chart.tsx/chartData';
+import { jamesAllen, type ChartSidebarData } from '@/components/chart.tsx/chartData';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
@@ -142,7 +142,7 @@ export const apiSlice = createApi({
     }),
     // could add new order mutation
     
-    getChart: builder.query<{chartData: ChartData}, void>({
+    getChart: builder.query<{chartData: ChartSidebarData}, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         return { data: { chartData: jamesAllen }

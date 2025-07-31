@@ -3,7 +3,7 @@ import { Card, CardContent } from "../ui/card"
 import { Separator } from "../ui/separator"
 import StyledTitle from "./styledTitle"
 import CardSkeleton from "./cardSkeleton"
-import type { ChartData } from "../chart.tsx/chartData"
+import type { ChartSidebarData, StringArrayValueItem } from "../chart.tsx/chartData"
 
 const ActiveProblems = () => {
   const {data, isLoading, isError, isFetching, error} = useGetChartQuery()
@@ -42,7 +42,7 @@ const ActiveProblems = () => {
     )
   }
 
-  const chartData: ChartData | undefined = data?.chartData
+  const chartData: ChartSidebarData | undefined = data?.chartData
 
   if (!chartData || Object.keys(chartData).length === 0) {
     return (
@@ -53,13 +53,18 @@ const ActiveProblems = () => {
     )
   }
 
-  const problemData = chartData.clinicalInfo.pmh
+  const isPmhArray = (item: any): item is StringArrayValueItem => {
+    return item?.id === "pmh" && Array.isArray(item?.value);
+  }
+
+  const pmh = chartData.clinicalInfo.find(item => item.id === "pmh");
+  const problems = isPmhArray(pmh) ? pmh.value : [];
 
   return (
     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
       <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
       <CardContent className="px-4 space-y-1">
-        {problemData.value.map(problem => {
+        {problems.map(problem => {
           return(
             <div key={problem} className="">
               <p className="text-sm">{problem}</p>

@@ -15,14 +15,7 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
         {cellName}
       </DialogTrigger>
       <DialogContent className="px-4 py-6 sm:max-w-3/4 xl:max-w-4xl overflow-y-auto gap-0" id="asdf" aria-describedby="asdf">
-        <div className="flex justify-between w-full">
-          <DialogTitle>{imagingReportContents.displayName}</DialogTitle>
-          {/* <Button 
-            className="bg-transparent shadow-none outline-none ring-0 hover:bg-transparent p-1"
-            onClick={() => setOpen(false)}
-          >
-          </Button> */}
-        </div>
+          <DialogTitle className="pb-4">{imagingReportContents.displayName}</DialogTitle>
           
             <h1 className="text-md font-medium ">Technique</h1>
             <p className="pl-2 text-sm text-left text-gray-700">

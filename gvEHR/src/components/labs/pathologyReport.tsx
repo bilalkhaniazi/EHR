@@ -19,7 +19,7 @@ export default function PathologyReport({ report, cellLabel }: PathologyReportPr
       </DialogTrigger>
       <DialogContent className="p-4 sm:max-w-3/4 xl:max-w-4xl overflow-y-auto gap-0">
         <div className="flex justify-between w-full">
-          <DialogTitle className="flex h-fit items-baseline gap-2">
+          <DialogTitle className="flex h-fit items-baseline gap-2 pb-2">
             {report.critical && <OctagonAlert size={18} color="#e60000" />}{report.sampleType}
             <span className="pl-3 text-sm text-gray-900 font-light">(Status: Final)</span>
           </DialogTitle>

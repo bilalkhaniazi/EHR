@@ -25,7 +25,7 @@ import { Skeleton } from "../ui/skeleton";
 const NotePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data, isLoading: areNotesLoading, isFetching, isError: notesFetchError, error: fetchErrorDetails } = useGetNotesQuery();
-  const [addNote, { error }] = useAddNoteMutation()
+  const [addNote] = useAddNoteMutation() 
   const filteredSpecialties = useSelector((state: RootState) => state.notes.filteredSpecialties)
 
   const notesData = data?.notesData || [];

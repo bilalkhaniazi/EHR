@@ -1,15 +1,14 @@
 import type { ImagingData, LabTableData, PathologyReportData } from "./labsData"
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "../ui/table";
-import { toast } from "sonner";
 import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 // import AddBgDemo from "./addBgDemo";
 
-import { useGetLabsQuery, useAddLabColumnMutation } from "@/app/apiSlice";
+import { useGetLabsQuery  } from "@/app/apiSlice";   //useAddLabColumnMutation
 import { Skeleton } from "../ui/skeleton";
 import ImagingReport from "./imagingReport";
 import PathologyReport from "./pathologyReport";
@@ -38,7 +37,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
 export function LabPage() {
   const { data, isLoading, isFetching, isError, error } = useGetLabsQuery();
 
-  const [addLabColumn] = useAddLabColumnMutation();
+  // const [addLabColumn] = useAddLabColumnMutation();
 
   const labTableData = data?.labTableData || [];
   const timePoints = data?.timePoints || [];
@@ -233,7 +232,7 @@ export function LabPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
+    <div className="flex flex-col h-[calc(100vh-4rem)] w-[calc(100vw-18rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
       {/* <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
       </div> */}

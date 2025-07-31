@@ -1,7 +1,8 @@
-import { CircleUserRound } from "lucide-react";
-import { type ChartData, type Contact } from "./chartData";
+import { CircleUserRound, Info } from "lucide-react";
+import { type ChartSidebarData, type Contact, type StringValueItem } from "./chartData";
 import { useGetChartQuery } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 
 function ChartSidebarSkeleton() {
@@ -57,7 +58,7 @@ export default function ChartSidebar() {
   }
 
 
-  const sidebarData: ChartData | undefined = data?.chartData;
+  const sidebarData: ChartSidebarData | undefined = data?.chartData;
 
   if (!sidebarData || Object.keys(sidebarData).length === 0) {
     return (
@@ -67,7 +68,9 @@ export default function ChartSidebar() {
     )
   }
 
-  const identifiers = sidebarData?.indentifiers
+  const nameItem = sidebarData.identifiers.find(item => item.id === 'name') as StringValueItem | undefined;
+  const dobItem = sidebarData.identifiers.find(item => item.id === 'dob') as StringValueItem | undefined;
+  const mrnItem = sidebarData.identifiers.find(item => item.id === 'mrn') as StringValueItem | undefined;
 
   return (
     <div className="w-72 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
@@ -75,14 +78,16 @@ export default function ChartSidebar() {
           <CircleUserRound size={116} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white"/>
         </span>
         <div className="flex flex-col items-center gap-1">
-          <h1 className="text-purple-900 text-lg font-medium tracking-tight">{identifiers.name.value}</h1>
+          <h1 className="text-purple-900 text-lg font-medium tracking-tight">
+            {nameItem?.value ?? "N/A"}
+          </h1>
           <p className="text-purple-900 text-sm font-light tracking-tight">
-            {identifiers.dob.label}:
-            <span className="pl-2 font-normal">{identifiers.dob.value}</span>
+            {dobItem?.label ?? "N/A"}
+            <span className="pl-2 font-normal">{dobItem?.value ?? "N/A"}</span>
           </p>
           <p className="text-purple-900 text-sm font-light tracking-tight">
-            {identifiers.mrn.label}:
-            <span className="pl-2 font-normal">{identifiers.mrn.value}</span>
+            {mrnItem?.label ?? 'N/A'}:
+            <span className="pl-2 font-normal">{mrnItem?.value ?? "N/A"}</span>
           </p>
         </div>
 
@@ -104,10 +109,28 @@ export default function ChartSidebar() {
           <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Clinical Info</p>
             {Object.values(sidebarData.clinicalInfo).map((row) => {
+              const isIsolationRow = row.id === "isolation";
+
               return(
-                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight">
-                  <span className="underline">{row.label}:</span>
-                  <span className="pl-2 font-normal decoration-none no-underline">{Array.isArray(row.value) ? row.value.join(", ") : row.value}</span>
+                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight  ">
+                  <span className="underline pr-2 text-nowrap">{row.label}:</span>
+                  <span className={`font-normal decoration-none no-underline ${isIsolationRow ? 'px-2 bg-yellow-200 rounded-md' : ''}`}>
+                    {Array.isArray(row.value) ? row.value.join(", ") : row.value}
+                  </span>
+                  {isIsolationRow && 'tooltip' in row &&
+                    <span className="pl-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Info size={14} color="oklch(38.1% 0.176 304.987)" />
+                          </TooltipTrigger>
+                          <TooltipContent className="w-fit">
+                            <p className="max-w-120 text-wrap">{row.tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </span>
+                  }
                 </p>
               );
             })}

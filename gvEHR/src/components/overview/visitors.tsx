@@ -3,7 +3,7 @@ import { Card, CardContent  } from "../ui/card"
 import StyledTitle from "./styledTitle"
 import { useGetChartQuery } from "@/app/apiSlice"
 import CardSkeleton from "./cardSkeleton"
-import type { ChartData } from "../chart.tsx/chartData"
+import type { ChartSidebarData, ContactItem } from "../chart.tsx/chartData"
 
 const Visitors = () => {
   const { data, isLoading, isError, isFetching, error } = useGetChartQuery();
@@ -40,17 +40,25 @@ const Visitors = () => {
     )
   }
 
-  const chartData: ChartData | undefined  = data?.chartData
+  const chartData: ChartSidebarData | undefined  = data?.chartData
 
   if (!chartData || Object.keys(chartData).length === 0 ) {
     return(
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+        <StyledTitle color="bg-red-200" firstLetter="C" secondLetter="ontacts" />
         <p>No contact info</p>
       </Card>
     )
   }
-  const contacts = chartData.socialFactors.supportPerson.value
+
+  // type guard
+  const isContactItem = (item: any): item is ContactItem => {
+    return item?.id === "supportPersons" && Array.isArray(item?.value);
+  };
+
+  const contactItem = chartData.socialFactors.find(item => item.id === "supportPersons");
+  const contacts = isContactItem(contactItem) ? contactItem.value : [];
+
   return (
     <Card className="relative pt-2 overflow-hidden h-fit gap-3">
       <StyledTitle color="bg-lime-200" firstLetter="C" secondLetter="ontacts" />

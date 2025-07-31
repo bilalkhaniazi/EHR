@@ -113,7 +113,7 @@ export function SelectedLabs() {
 
           
           return (
-            <div className="grid grid-cols-2 rounded-md">
+            <div key={labData.field} className="grid grid-cols-2 rounded-md">
               <div className="p-1 rounded-t-lg col-span-2 border bg-sky-200 border-sky-200 flex justify-center items-center gap-3">
                 <h2 className="text-xs text-neutral-800 overflow-hidden">{displayDate}</h2>
                 <h1 className="text-xs text-neutral-800 font-medium overflow-hidden">{displayTime}</h1>

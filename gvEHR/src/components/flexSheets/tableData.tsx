@@ -140,71 +140,7 @@ const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
 }
 
 const vitalsTemplate: tableData[] = [
-    { 
-        id: "generalAppearanceTitle", 
-        field: "General Appearance",
-        componentType: "static",
-        rowType: "titleRow",
-        wdlDescription: [
-            { assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
-            { assessment: "Safety", description: "call-light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
-        ] 
-    },
-    {
-        id: "generalAppearanceCheckbox", 
-        field: "General Appearance", 
-        componentType: "checkboxlist",
-        assessmentSubsets: [
-            { subsetId: "WDL", label: "WDL" },
-            { subsetId: "WDL, except:", label: "WDL, except:" },
-            { subsetId: "Appearance", label: "Appearance" },
-            { subsetId: "Safety Checks", label: "Safety Checks" },
-        ]
-    },
-    { 
-        id: "appearanceInput", 
-        field: "Appearance", 
-        componentType: "input", 
-        hideable: true,
-        hideableId: "Appearance" 
-    },
-    { 
-        id: "safetyCheckInput", 
-        field: "Safety Check", 
-        componentType: "input",
-        hideable: true,
-        hideableId: "Safety Checks" 
-    },
-    { 
-        id: "psychosocialAssessmentTitle", 
-        field: "Psychosocial Assessment",
-        componentType: "static",
-        rowType: "titleRow",
-        wdlDescription: [
-            { 
-                assessment: "Mood & Affect",
-                description: "Appropriate, consistent with situation. Speech coherent, hygiene appropriate, denies suicidal/homicidal ideation."
-            },
-        ]
-
-    },
-    {
-        id: "psychosocialStatusCheckbox",  
-        field: "Psychosocial Status",
-        componentType: "checkboxlist",
-        assessmentSubsets: [
-            { subsetId: "WDL", label: "WDL" },
-            { subsetId: "WDL, except:", label: "WDL, except:" },
-            { subsetId: "Mood & Affect", label: "Mood & Affect" },
-        ]
-    },
-    {
-        id: "moodAffectInput", 
-        field: "Mood & Affect",
-        componentType: "input",
-        hideable: true, 
-        hideableId: "Mood & Affect"
-    },
+    
     { 
         id: "vitalSignsTitle", 
         field: "Vital Signs",
@@ -294,6 +230,180 @@ const vitalsTemplate: tableData[] = [
         id: "weightKgInput", 
         field: "Weight (kg)",
         componentType: "input", 
+    },
+    {
+        id: "intakeTitle",
+        field: "Intake",
+        componentType: "static",
+        rowType: "titleRow",
+        // hideableId: "intakeTitle" // not being used for hiding the row.. Matches with toolName of rows whose values are to be totaled
+    },
+    {
+        id: "intakeCheckbox", 
+        field: "Intake Fields",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { subsetId: "Oral", label: "Oral" },
+            { subsetId: "Intravenous", label: "Intravenous" },
+            { subsetId: "Parenteral Nutrition", label: "Parenteral Nutrition"},
+            { subsetId: "Enteral Nutrition", label: "Enteral Nutrition"},
+        ]
+    },
+    {
+        id: "oralIntake", 
+        field: "Oral",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Oral",
+        // toolName: "intakeTitle"
+    },
+    {
+        id: "ivIntakeInput", 
+        field: "Intravenous",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Intravenous",
+        // toolName: "intakeTitle"
+
+    },
+    {
+        id: "enteralNutritionInput", 
+        field: "Enteral Nutrition",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Enteral Nutrition",
+        // toolName: "intakeTitle"
+
+
+    },
+    {
+        id: "parenteralNutritionInput", 
+        field: "Parenteral Nutrition",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Parenteral Nutrition",
+        // toolName: "intakeTitle"
+
+
+    },
+    {
+        id: "outputTitle",
+        field: "Output",
+        componentType: "static",
+        rowType: "titleRow",
+        // toolName: "intakeTitle"
+    },
+    {
+        id: "outputCheckbox", 
+        field: "Output Fields",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { subsetId: "ioUrine", label: "Urine" },
+            { subsetId: "ioEmesis", label: "Emesis" },
+            { subsetId: "ioStool", label: "Stool" },
+            { subsetId: "Wound Drainage", label: "Wound Drainage"},
+            { subsetId: "Enteral Output", label: "Enteral Output"},
+        ]
+    },
+    {
+        id: "urineInput", 
+        field: "Urine",
+        componentType: "input",
+        hideable: true,
+        hideableId: "ioUrine"
+    },
+    {
+        id: "emesisInput", 
+        field: "Emesis",
+        componentType: "input",
+        hideable: true,
+        hideableId: "ioEmesis"
+    },
+    {
+        id: "stoolInputt", 
+        field: "Stool",
+        componentType: "input",
+        hideable: true,
+        hideableId: "ioStool"
+    },
+    {
+        id: "woundDrainageInput", 
+        field: "Wound Drainage",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Wound Drainage"
+    }, 
+    {
+        id: "enteralDrainageInput", 
+        field: "Enteral Output",
+        componentType: "input",
+        hideable: true,
+        hideableId: "Enteral Output"
+    }, 
+    { 
+        id: "generalAppearanceTitle", 
+        field: "General Appearance",
+        componentType: "static",
+        rowType: "titleRow",
+        wdlDescription: [
+            { assessment: "General Appeareance", description: "Patient appears their stated age, A&O × 4, no acute distress and is cooperative."},
+            { assessment: "Safety", description: "call-light within reach, bed lowest/locked, side‑rails appropriate, room clutter‑free, non-slip socks applied, personal belongings in reach, bed alarm on"}
+        ] 
+    },
+    {
+        id: "generalAppearanceCheckbox", 
+        field: "General Appearance", 
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Appearance", label: "Appearance" },
+            { subsetId: "Safety Checks", label: "Safety Checks" },
+        ]
+    },
+    { 
+        id: "appearanceInput", 
+        field: "Appearance", 
+        componentType: "input", 
+        hideable: true,
+        hideableId: "Appearance" 
+    },
+    { 
+        id: "safetyCheckInput", 
+        field: "Safety Check", 
+        componentType: "input",
+        hideable: true,
+        hideableId: "Safety Checks" 
+    },
+    { 
+        id: "psychosocialAssessmentTitle", 
+        field: "Psychosocial Assessment",
+        componentType: "static",
+        rowType: "titleRow",
+        wdlDescription: [
+            { 
+                assessment: "Mood & Affect",
+                description: "Appropriate, consistent with situation. Speech coherent, hygiene appropriate, denies suicidal/homicidal ideation."
+            },
+        ]
+
+    },
+    {
+        id: "psychosocialStatusCheckbox",  
+        field: "Psychosocial Status",
+        componentType: "checkboxlist",
+        assessmentSubsets: [
+            { subsetId: "WDL", label: "WDL" },
+            { subsetId: "WDL, except:", label: "WDL, except:" },
+            { subsetId: "Mood & Affect", label: "Mood & Affect" },
+        ]
+    },
+    {
+        id: "moodAffectInput", 
+        field: "Mood & Affect",
+        componentType: "input",
+        hideable: true, 
+        hideableId: "Mood & Affect"
     },
     { 
         id: "heentAssessmentTitle", 
@@ -678,115 +788,7 @@ const vitalsTemplate: tableData[] = [
         field: "Nursing Care Provided",
         componentType: "input"
     },
-    {
-        id: "intakeTitle",
-        field: "Intake",
-        componentType: "static",
-        rowType: "titleRow",
-        // hideableId: "intakeTitle" // not being used for hiding the row.. Matches with toolName of rows whose values are to be totaled
-    },
-    {
-        id: "intakeCheckbox", 
-        field: "Intake Fields",
-        componentType: "checkboxlist",
-        assessmentSubsets: [
-            { subsetId: "Oral", label: "Oral" },
-            { subsetId: "Intravenous", label: "Intravenous" },
-            { subsetId: "Parenteral Nutrition", label: "Parenteral Nutrition"},
-            { subsetId: "Enteral Nutrition", label: "Enteral Nutrition"},
-        ]
-    },
-    {
-        id: "oralIntake", 
-        field: "Oral",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Oral",
-        // toolName: "intakeTitle"
-    },
-    {
-        id: "ivIntakeInput", 
-        field: "Intravenous",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Intravenous",
-        // toolName: "intakeTitle"
-
-    },
-    {
-        id: "enteralNutritionInput", 
-        field: "Enteral Nutrition",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Enteral Nutrition",
-        // toolName: "intakeTitle"
-
-
-    },
-    {
-        id: "parenteralNutritionInput", 
-        field: "Parenteral Nutrition",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Parenteral Nutrition",
-        // toolName: "intakeTitle"
-
-
-    },
-    {
-        id: "outputTitle",
-        field: "Output",
-        componentType: "static",
-        rowType: "titleRow",
-        // toolName: "intakeTitle"
-    },
-    {
-        id: "outputCheckbox", 
-        field: "Output Fields",
-        componentType: "checkboxlist",
-        assessmentSubsets: [
-            { subsetId: "ioUrine", label: "Urine" },
-            { subsetId: "ioEmesis", label: "Emesis" },
-            { subsetId: "ioStool", label: "Stool" },
-            { subsetId: "Wound Drainage", label: "Wound Drainage"},
-            { subsetId: "Enteral Output", label: "Enteral Output"},
-        ]
-    },
-    {
-        id: "urineInput", 
-        field: "Urine",
-        componentType: "input",
-        hideable: true,
-        hideableId: "ioUrine"
-    },
-    {
-        id: "emesisInput", 
-        field: "Emesis",
-        componentType: "input",
-        hideable: true,
-        hideableId: "ioEmesis"
-    },
-    {
-        id: "stoolInputt", 
-        field: "Stool",
-        componentType: "input",
-        hideable: true,
-        hideableId: "ioStool"
-    },
-    {
-        id: "woundDrainageInput", 
-        field: "Wound Drainage",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Wound Drainage"
-    }, 
-    {
-        id: "enteralDrainageInput", 
-        field: "Enteral Output",
-        componentType: "input",
-        hideable: true,
-        hideableId: "Enteral Output"
-    }, 
+    
     {
         id: "assessmentToolsTitle", 
         field: "Assessment Tools",
