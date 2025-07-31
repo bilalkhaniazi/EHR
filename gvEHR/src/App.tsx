@@ -5,6 +5,7 @@ import NotePage from './components/notes/notePage.tsx'
 import LabPage from './components/labs/labPage.tsx'
 import PatientChartLayout from './components/chart.tsx/PatientChartLayout.tsx'; // The parent component
 import OverviewPage from './components/overview/overviewPage.tsx';
+import Mar from './components/mar.tsx/Mar.tsx';
 
 const router = createBrowserRouter([
   {
@@ -17,16 +18,20 @@ const router = createBrowserRouter([
         element: <OverviewPage />
       },
       {
+        path: "labs",
+        element: <LabPage />,
+      },
+      {
         path: "orders", 
         element: <OrdersPage />,
       },
       {
-        path: "notes",   
-        element: <NotePage />,
+        path: "mar",
+        element: <Mar />
       },
       {
-        path: "labs",
-        element: <LabPage />,
+        path: "notes",   
+        element: <NotePage />,
       },
       {
         path: "charting",
@@ -34,7 +39,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // ... other routes
 ]);
 
 function App() {

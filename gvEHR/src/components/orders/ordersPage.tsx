@@ -25,11 +25,11 @@ const OrdersPage = () => {
     if (isLoading || isFetching) {
         return (
             <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
-            <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
-            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-            <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
+                <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
             </div>
         );
     }
@@ -49,7 +49,7 @@ const OrdersPage = () => {
                 {/* <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addMedicationOrder}>Add Med Order</Button> */}
                 {/* <Button className="bg-gray-200 shadow shadow-black/30 text-black hover:bg-gray-300" onClick={addRespiratoryOrder}>Add Respiratory Order</Button> */}
             </div>
-            <div className="flex w-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+            <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
                 <OrdersTable color="bg-blue-300" columnNames={orderColumns} headerNames={nursingHeaderNames} data={nursingOrderData} />
                 <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medicationOrderData} />
                 <OrdersTable color="bg-lime-200" columnNames={orderColumns} headerNames={respHeaderNames} data={respiratoryOrderData} />

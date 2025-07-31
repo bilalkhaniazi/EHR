@@ -33,7 +33,7 @@ const tabs = [
     name: "MAR",
     value: "MAR",
     icon: <Pill />,
-    path: "/" 
+    path: "/mar" 
 
   },
   {
