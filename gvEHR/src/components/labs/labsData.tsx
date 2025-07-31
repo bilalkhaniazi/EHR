@@ -1,8 +1,12 @@
+
+export interface Lab {
+    labName: string, value: string | ImagingData | PathologyReportData
+}
 // initial data to be created by nursing faculty
 export interface PredefinedLabEntry {
   daysOffset: number,
   hoursOffset: number,
-  labResults: { labName: string, value: string | imagingData}[]
+  labs: Lab[]
 }
 
 // predefined lab data with an offset time stamp
@@ -10,18 +14,18 @@ export interface LabTimePoint {
   dateKey: string; // e.g., "2025-07-14 01:00"
   daysOffset: number;
   hours: number;
-  labs: { labName: string, value: string | imagingData }[] 
+  labs: Lab[] 
 }
 
 // info for table row 
 export interface LabDataTemplate {
   field: string,
   unit?: string,
-  rowType: "divider" | "results" | "imaging",
+  rowType: "divider" | "results" | "imaging" | "pathology",
   normalRange?: { low: string, high: string }
   hideable?: boolean
 }
-export interface imagingData {
+export interface ImagingData {
   displayName: string;
   technique: string;
   findings: {
@@ -30,10 +34,21 @@ export interface imagingData {
   impression: string[];
 }
 
+export interface PathologyReportData {
+  sampleType: string;
+  appearance: string;
+  microscopy: string;
+  culture: string;
+  sensitivity: string;
+  comments: string;
+  reporter: string;
+  critical: true;
+}
+
 // dataset to be used by tanstack table
 export interface LabTableData {
     field: string;
-    rowType: "divider" | "results" | "imaging";
+    rowType: "divider" | "results" | "imaging"  | "pathology";
     unit?: string;
     normalRange?: { low: string, high: string };
     hideable?: boolean
@@ -58,7 +73,7 @@ export const generateAllInitialLabTimes = (referenceDate: Date = new Date()) => 
     
     const dateKey = `${(tempDate.getMonth() +1).toString().padStart(2, '0')}/${tempDate.getDate().toString().padStart(2, '0')} ${(tempDate.getHours()).toString().padStart(2, '0')}:${(tempDate.getMinutes()).toString().padStart(2, '0')}`;
     if(!timePoints.has(dateKey)) {
-      timePoints.set(dateKey, {dateKey, daysOffset: entry.daysOffset, hours: entry.hoursOffset, labs: entry.labResults })
+      timePoints.set(dateKey, {dateKey, daysOffset: entry.daysOffset, hours: entry.hoursOffset, labs: entry.labs })
     }
   })
   const sortedTimePoints = Array.from(timePoints.values()).sort((a, b) => {
@@ -76,10 +91,10 @@ export const generateInitialLabData = (
 ) => {
   const generatedData: LabTableData[] = [];
 
-  const labResultsLookup = new Map<string, Map<String, {labName: string, value: string | imagingData }>>();
+  const labResultsLookup = new Map<string, Map<String, Lab>>();
 
   allTimesColumns.forEach(timePoint => {
-    const labsForThisTime = new Map<string, {labName: string, value: string | imagingData }>();
+    const labsForThisTime = new Map<string, Lab>();
     timePoint.labs.forEach(lab => {
       labsForThisTime.set(lab.labName, lab);
     })
@@ -106,6 +121,12 @@ export const generateInitialLabData = (
         newRow[timePoint.dateKey] = labValue ? labValue.value : {};
       });
     }
+     if (templateRow.rowType === "pathology") {
+      allTimesColumns.forEach(timePoint => {
+        const labValue = labResultsLookup.get(timePoint.dateKey)?.get(templateRow.field);
+        newRow[timePoint.dateKey] = labValue ? labValue.value : {};
+      });
+    }
     generatedData.push(newRow)
   })
 
@@ -123,7 +144,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
   {
     daysOffset: 2, // Today
     hoursOffset: 1, 
-    labResults: [
+    labs: [
       { labName: "Sodium", value: "134" }, 
       { labName: "Potassium", value: "4.8" },
       { labName: "Chlorine", value: "99" },
@@ -147,38 +168,37 @@ export const predefinedLabData: PredefinedLabEntry[] = [
       { labName: "pO2", value: "38" },
       { labName: "HCO3", value: "25" },
 
-      { labName: "Hemoglobin A1c", value: "9.5" }, // Reflects long-term poor control
+      { labName: "Hemoglobin A1c", value: "9.5" }, 
       { labName: "AST", value: "35" },
       { labName: "ALT", value: "40" },
-      { labName: "Troponin", value: "0.01" }, // Within normal limits
+      { labName: "Troponin", value: "0.01" }, 
     ]
   },
   {
     daysOffset: 0, // Today
     hoursOffset: 1, 
-    labResults: [
-      { labName: "Glucose", value: "210" }, // Showing some decrease after initial insulin
+    labs: [
+      { labName: "Glucose", value: "210" }, 
     ]
   },
   {
     daysOffset: 1, // Today
     hoursOffset: 4, 
-    labResults: [
-      { labName: "Glucose", value: "204" }, // Showing some decrease after initial insulin
+    labs: [
+      { labName: "Glucose", value: "204" }, 
     ]
   },
 
   {
-    daysOffset: 0, // Yesterday
-    hoursOffset: 4, // Approximately 22 hours ago (e.g., 8:55 PM yesterday)
-    labResults: [
-      // Basic Metabolic Panel (BMP)
-      { labName: "Sodium", value: "136" }, // Improving
+    daysOffset: 0, 
+    hoursOffset: 4, 
+    labs: [
+      { labName: "Sodium", value: "136" }, 
       { labName: "Potassium", value: "4.5" },
       { labName: "Chlorine", value: "100" },
-      { labName: "BUN", value: "20" }, // Improving
-      { labName: "Creatinine", value: "1.2" }, // Stable
-      { labName: "Glucose", value: "185" }, // Improving, but still elevated
+      { labName: "BUN", value: "20" }, 
+      { labName: "Creatinine", value: "1.2" }, 
+      { labName: "Glucose", value: "185" }, 
       { labName: "CO2", value: "25" },
       { labName: "Calcium", value: "9.0" },
     ]
@@ -186,7 +206,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
   {
     daysOffset: 1, 
     hoursOffset: 18, 
-    labResults: [
+    labs: [
       { labName: "Glucose", value: "160" },
       { labName: "CT R. Foot", 
         value: {
@@ -204,13 +224,26 @@ export const predefinedLabData: PredefinedLabEntry[] = [
             "Peripheral vascular calcifications likely related to underlying diabetes."
           ]
         }
+      },
+      {
+        labName: "Wound Culture",
+        value: {
+          sampleType: "Wound Culture – Right Great Toe",
+          appearance: "Purulent drainage noted, surrounding erythema",
+          microscopy: "Gram stain: Moderate gram-positive cocci in clusters, few PMNs",
+          culture: "Staphylococcus aureus (moderate growth)",
+          sensitivity: "Methicillin (R), Clindamycin (S), Vancomycin (S)",
+          comments: "Likely MRSA involvement. Consider empiric coverage with vancomycin. Poor healing noted in context of suboptimal glycemic control.",
+          reporter: "AC, Microbiology Lab – St. Jude Medical Center",
+          critical: true
+        }
       } 
     ]
   },
   {
     daysOffset: 1, 
     hoursOffset: 14, 
-    labResults: [
+    labs: [
       { labName: "Glucose", value: "195" },
     ]
   },
@@ -274,7 +307,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Lactate",
     unit: "(mmol/L)",
     rowType: "results",
-    normalRange: { low: "0.5", high: "1.0" } // Resting, venous
+    normalRange: { low: "0.5", high: "1.0" } 
   },
   {
     field: "Hematology",
@@ -496,12 +529,15 @@ export const labTemplate: LabDataTemplate[] = [
     field: "INR",
     unit: "", // Unitless
     rowType: "results",
-    normalRange: { low: "0.8", high: "1.1" } // For non-anticoagulated patients
+    normalRange: { low: "0.8", high: "1.1" },
+    hideable: true
   },
   {
     field: "Inflammatory Markers",
     unit: "",
     rowType: "divider",
+    hideable: true
+
   },
   {
     field: "CRP",
@@ -521,6 +557,8 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Thyroid Function",
     unit: "",
     rowType: "divider",
+    hideable: true
+
   },
   {
     field: "TSH", 
@@ -547,6 +585,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Lipid Panel",
     unit: "",
     rowType: "divider",
+    hideable: true
   },
   {
     field: "Total Cholesterol",
@@ -557,15 +596,14 @@ export const labTemplate: LabDataTemplate[] = [
 
   },
   {
-    field: "HDL Cholesterol", // High-Density Lipoprotein
+    field: "HDL Cholesterol", 
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: "40", high: "60" },
     hideable: true
- // Desirable, higher is better
   },
   {
-    field: "LDL Cholesterol", // Low-Density Lipoprotein
+    field: "LDL Cholesterol", 
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: "0", high: "100" },
@@ -583,6 +621,8 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Additional Electrolytes",
     unit: "",
     rowType: "divider",
+    hideable: true
+
   },
   {
     field: "Magnesium",
@@ -603,6 +643,8 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Pancreatic Enzymes",
     unit: "",
     rowType: "divider",
+    hideable: true
+
   },
   {
     field: "Amylase",
@@ -630,4 +672,14 @@ export const labTemplate: LabDataTemplate[] = [
     hideable: true
 
   },
+  {
+    field: "Pathology",
+    unit: "",
+    rowType: "divider",
+  },
+  {
+    field: "Wound Culture",
+    unit: "",
+    rowType: "pathology"
+  }
 ];

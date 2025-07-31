@@ -17,7 +17,6 @@ export default function AssessmentSelect({
     onValueChange,
     className,
 }: AssessmentSelectProps) {
-     
     return(
         <div className={cn("flex items-center h-6 w-full", className)}>
             <Select value={value} onValueChange={onValueChange}>
@@ -30,8 +29,8 @@ export default function AssessmentSelect({
                 <SelectGroup className="p-0 ">
                     {options.map((option) => (
                         <SelectItem 
-                            key={option.value}
-                            value={option.value}
+                            key={option.subsetId}
+                            value={option.subsetId}
                             className="w-full text-xs h-6 m-0 border-b first:focus:rounded-2xl last:border-b-0 rounded-none"
                         >
                             {option.label}

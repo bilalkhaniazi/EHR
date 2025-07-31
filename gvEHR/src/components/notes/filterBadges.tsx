@@ -22,7 +22,7 @@ const FilterBadges = ( { activeFilters, handleFilterChange, handleClearFilters }
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-3 w-3"
+                    className="h-3 w-3 hover:bg-transparent"
                     onClick={() => handleFilterChange(filter, false)}
                 >
                     <X className="" />

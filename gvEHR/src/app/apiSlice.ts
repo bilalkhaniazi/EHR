@@ -3,6 +3,7 @@ import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type L
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
+import { jamesAllen, type ChartSidebarData } from '@/components/chart.tsx/chartData';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
@@ -13,6 +14,8 @@ interface GetFlexSheetsResponse {
   chartingData: tableData[];
   timeColumns: string[]
 }
+
+
 
 export interface GetOrdersResponse {
   nursingOrders: OrderData[];
@@ -39,9 +42,9 @@ export const apiSlice = createApi({
             if (!row.hideable) {
               return true
             }
-            if (row.rowType === "divider") {
-              return true
-            }
+            // if (row.rowType === "divider") {
+            //   return true
+            // }
             const allValuesEmpty = timeColumnDateKeys.every(dateKey => {
               const labValue = row[dateKey]
               return !labValue
@@ -137,10 +140,18 @@ export const apiSlice = createApi({
         }
       }
     }),
-    // could add new order mutation 
+    // could add new order mutation
+    
+    getChart: builder.query<{chartData: ChartSidebarData}, void>({
+      queryFn: async () => {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return { data: { chartData: jamesAllen }
+        }
+      }
+  }),
 
     // FlexSheets
-    getCharting: builder.query<GetFlexSheetsResponse, void>({
+    getFlexSheetCharting: builder.query<GetFlexSheetsResponse, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         const { allTimesColumns, predefinedChartingTimeMap } = getAllInitialHours();
@@ -185,7 +196,8 @@ export const {
   useGetNotesQuery,
   useAddNoteMutation,
   useGetOrdersQuery,
-  useGetChartingQuery,
+  useGetFlexSheetChartingQuery,
   useAddTimeColumnMutation,
   useUpdateFlexSheetDataMutation,
+  useGetChartQuery,
 } = apiSlice

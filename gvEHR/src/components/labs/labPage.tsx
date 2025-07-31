@@ -1,17 +1,17 @@
-import type { imagingData, LabTableData } from "./labsData"
+import type { ImagingData, LabTableData, PathologyReportData } from "./labsData"
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "../ui/table";
-import { toast } from "sonner";
 import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 // import AddBgDemo from "./addBgDemo";
 
-import { useGetLabsQuery, useAddLabColumnMutation } from "@/app/apiSlice";
+import { useGetLabsQuery  } from "@/app/apiSlice";   //useAddLabColumnMutation
 import { Skeleton } from "../ui/skeleton";
 import ImagingReport from "./imagingReport";
+import PathologyReport from "./pathologyReport";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -37,7 +37,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
 export function LabPage() {
   const { data, isLoading, isFetching, isError, error } = useGetLabsQuery();
 
-  const [addLabColumn] = useAddLabColumnMutation();
+  // const [addLabColumn] = useAddLabColumnMutation();
 
   const labTableData = data?.labTableData || [];
   const timePoints = data?.timePoints || [];
@@ -143,7 +143,8 @@ export function LabPage() {
             )
           },
           cell: ({row, column, getValue}) => {
-            if (row.original.rowType === "results") {
+            const rowType = row.original.rowType
+            if (rowType === "results") {
               const initialValue = (getValue() as string) || '';
               const labRanges = row.original?.normalRange
               let alertFlag = false
@@ -152,7 +153,6 @@ export function LabPage() {
                 const numericHigh = parseFloat(labRanges.high)
                 const numericLow = parseFloat(labRanges.low)
 
-                alertFlag = initialValue < labRanges.low || initialValue > labRanges.high
                 if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
                   alertFlag = numericValue < numericLow || numericValue > numericHigh;
                 }
@@ -160,8 +160,8 @@ export function LabPage() {
               return (
                 <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
               );
-            } else if (row.original.rowType === "imaging") {
-              const imagingReport = (getValue() as imagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
+            } else if (rowType === "imaging") {
+              const imagingReport = (getValue() as ImagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
               if(!imagingReport.displayName) {
                 return (
                   <></>
@@ -175,10 +175,22 @@ export function LabPage() {
                   />
                 )
               }
-            } else {
-              <></>
+            } else if (rowType === "pathology") {
+              const pathologyReport = (getValue() as PathologyReportData) || {}
+              if(Object.keys(pathologyReport).length === 0) {
+                return (
+                  <></>
+                )
+              } else {
+                return (
+                  <PathologyReport
+                    key={`${row.id}-${column.id}-${row.original.field}`}
+                    report={pathologyReport}
+                    cellLabel={row.original.field}
+                  />
+                )
+              }
             }
-           
           } 
         })
       )
@@ -220,11 +232,11 @@ export function LabPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 pt-4 ">
+    <div className="flex flex-col h-[calc(100vh-4rem)] w-[calc(100vw-18rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
       {/* <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
       </div> */}
-      <div className="w-full h-full pb-20 border border-gray-200 rounded-t-lg overflow-auto">
+      <div className="w-full h-full  border border-gray-200 rounded-t-lg overflow-auto">
         <Table className="w-full overflow-x-auto">
           <TableHeader className=" bg-gray-50 sticky top-0">
           {ptTable.getHeaderGroups().map(headerGroup => (

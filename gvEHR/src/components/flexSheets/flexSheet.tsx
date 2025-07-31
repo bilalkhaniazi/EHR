@@ -14,7 +14,7 @@ import { assessmentTools } from "./tableData";
 import { Button } from "../ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import AssessmentToolSidebar from "./assessmentToolSidebar";
-import { useAddTimeColumnMutation, useGetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
+import { useAddTimeColumnMutation, useGetFlexSheetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar, setSidebarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./flexSheetSlice";
 import type { RootState, AppDispatch } from "../../app/store";
@@ -36,12 +36,38 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
+    export function calculateColTotal(toolName: string, grouped: tableData[], timeColumns: string[]) {
+        const totalRow: tableData = {
+            id: `${toolName}TotalScore`,
+            field: `${toolName} Total Score`,
+            componentType: "totalScoreRow", // This will be a static display
+            rowType: "totalScoreRow", // A new rowType to identify it
+        };
+
+        // Calculate total for each time column
+        timeColumns.forEach(timeCol => {
+            let totalScore = 0;
+            let hasEnteredValue = false
+
+            grouped.forEach(toolRow => {
+                const score = parseInt(toolRow[timeCol]);
+                if (!isNaN(score)) {
+                    totalScore += score;
+                    hasEnteredValue = true
+                }
+            });
+            console.log("total score", totalScore.toString())
+            totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : "";
+        });
+        return totalRow
+    }
+
 export function FlexSheet() {
     const dispatch = useDispatch<AppDispatch>();
     
-    const { data, isLoading, isError, error, isFetching } = useGetChartingQuery()
+    const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery()
 
-    const [triggerUpdateFlexSheetData, {isLoading: isSaving, isError: saveError, isSuccess: saveSuccess}] = useUpdateFlexSheetDataMutation();
+    const [triggerUpdateFlexSheetData, {isLoading: isSaving }] = useUpdateFlexSheetDataMutation();      // isError: saveError, isSuccess: saveSuccess
     const [triggerAddTimeColumn] = useAddTimeColumnMutation();
 
     const editableData = useSelector((state: RootState) => state.flexSheet.editableData);
@@ -99,39 +125,28 @@ export function FlexSheet() {
                 newFilteredData.push(row);
             }
 
+            // Handling assessment tools with numeric score totals
             // After adding all rows for a specific tool, add the total score row
             if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
                 const toolName = row.hideableId; // Assuming hideableId matches toolName for title rows
                 if (groupedByTool[toolName]) {
-                    const totalRow: tableData = {
-                        id: `${toolName}TotalScore`,
-                        field: `${toolName} Total Score`,
-                        componentType: "totalScoreRow", // This will be a static display
-                        rowType: "totalScoreRow", // A new rowType to identify it
-                    };
-
-                    // Calculate total for each time column
-                    timeColumns.forEach(timeCol => {
-                        let totalScore = 0;
-                        let hasEnteredValue = false
-
-                        groupedByTool[toolName].forEach(toolRow => {
-                            const score = parseInt(toolRow[timeCol]);
-                            if (!isNaN(score)) {
-                                totalScore += score;
-                                hasEnteredValue = true
-                            }
-                        });
-                        console.log("total score", totalScore.toString())
-                        totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : ""; // Store as string for consistency
-                    });
+                    const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeColumns);
                     newFilteredData.push(totalRow);
                 }
             }
+
+            // if (row.id === "intakeTitle" || row.Id === "outputTitle") {
+            //     const toolName = row.id
+            //     if (groupedByTool[toolName] && groupedByTool[toolName].some(r => r.hideableId && visibleSubsetIds.has(r.hideableId))) {
+            //         const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeColumns);
+            //         totalRow.id = `${toolName}TotalRow`
+            //         newFilteredData.push(totalRow)
+            //     }
+            // }
         });
 
         return newFilteredData;
-    }, [visibleSubsetIds, editableData, data?.chartingData, timeColumns]); // Depend on edi
+    }, [visibleSubsetIds, editableData, data?.chartingData, timeColumns]); 
 
     console.log(filteredData)
 
@@ -417,13 +432,13 @@ export function FlexSheet() {
         );
     }
 
-  if (isError) {
-    return (
-      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-        <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
-      </div>
-    );
-  }
+    if (isError) {
+        return (
+        <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+            <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+        </div>
+        );
+    }
     return (
     <SidebarProvider 
         className=""
@@ -431,7 +446,7 @@ export function FlexSheet() {
         onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
     >
         <SidebarInset className="">
-        <div className="flex flex-col bg-gray-100 w-full h-full px-4">
+        <div className="flex flex-col bg-gray-100 w-[calc(100vw-18rem)] h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
                 <div className="w-full flex justify-start gap-2 ">
                     <AddTimeColumnButton 
@@ -453,9 +468,8 @@ export function FlexSheet() {
                             <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
                         }
                     </Button>
-                    
                 </div>
-                <div className="flex-grow w-full pb-20 overflow-auto border border-gray-200 rounded-md "> 
+                <div className="flex-grow w-full overflow-auto border border-gray-200 rounded-md "> 
                     <Table className="w-full rounded-md">
                         <TableHeader className=" bg-gray-50 sticky top-0">
                         {ptTable.getHeaderGroups().map(headerGroup => (

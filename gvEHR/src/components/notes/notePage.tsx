@@ -25,7 +25,7 @@ import { Skeleton } from "../ui/skeleton";
 const NotePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data, isLoading: areNotesLoading, isFetching, isError: notesFetchError, error: fetchErrorDetails } = useGetNotesQuery();
-  const [addNote, { error }] = useAddNoteMutation()
+  const [addNote] = useAddNoteMutation() 
   const filteredSpecialties = useSelector((state: RootState) => state.notes.filteredSpecialties)
 
   const notesData = data?.notesData || [];
@@ -111,7 +111,7 @@ const NotePage = () => {
   }
   
   return (
-    <div className="w-full h-full flex flex-col px-4  gap-3 bg-gray-100">
+    <div className="w-full h-[calc(100vh-4rem)] flex flex-col px-4  gap-3 bg-gray-100">
       <div className="w-full flex flex-shrink-0 justify-between py-2">
         <div className="flex h-full flex-col gap-2">
           <Popover>
@@ -158,7 +158,7 @@ const NotePage = () => {
         </div>
         <NursingNoteEntry submitNote={onSubmitNote}/>
       </div>
-      <div className="flex flex-col flex-grow pb-20 gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">  
+      <div className="flex flex-col flex-grow gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">  
         {filteredNotesData.map((note, index) => {
           return (
             <NoteDisplay key={index} displayDate={displayDate} note={note} />
