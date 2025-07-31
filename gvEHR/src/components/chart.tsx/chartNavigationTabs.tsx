@@ -6,47 +6,47 @@ const tabs = [
   {
     name: "Overview",
     value: "Overview",
-    path: "/patient/:id/overview",
+    path: "/",
     icon: ''
   },
   {
     name: "Labs",
     value: "Labs",
     icon: <TestTubeDiagonal />,
-    path: '/patient/:id/labs'
+    path: '/labs'
 
   },
   {
     name: "Avatar",
     value: "Avatar",
     icon: <User />,
-    path: '/patient/:id/'
+    path: '/'
   },
   {
     name: "Orders",
     value: "Orders",
     icon: <Clipboard />,
-    path: "/patient/:id/orders" 
+    path: "/orders" 
 
   },
   {
     name: "MAR",
     value: "MAR",
     icon: <Pill />,
-    path: "" 
+    path: "/" 
 
   },
   {
     name: "Notes",
     value: "Notes",
     icon: <NotebookText />,
-    path: "/patient/:id/notes", 
+    path: "/notes", 
   },
   {
     name: "FlexSheets",
     value: "FlexSheets",
     icon: "",
-    path: '/patient/:id/charting'
+    path: '/charting'
 
   },
 ];

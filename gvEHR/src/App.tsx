@@ -8,20 +8,20 @@ import OverviewPage from './components/overview/overviewPage.tsx';
 
 const router = createBrowserRouter([
   {
-    path: "/patient/:patientId/", // Parent route
+    path: "/", 
     element: <PatientChartLayout />,
     // errorElement: <ErrorBoundary />,
     children: [
       {
-        path: "overview",
+        index: true,
         element: <OverviewPage />
       },
       {
-        path: "orders", // e.g., /patient/123/orders
+        path: "orders", 
         element: <OrdersPage />,
       },
       {
-        path: "notes",  // e.g., 
+        path: "notes",   
         element: <NotePage />,
       },
       {
