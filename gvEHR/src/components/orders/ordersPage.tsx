@@ -13,6 +13,8 @@ import { Skeleton } from "../ui/skeleton"
 const OrdersPage = () => {
 
     const { data, isLoading, isFetching, isError, error } = useGetOrdersQuery();
+    
+    //could be moved below checks
     const nursingOrderData = data?.nursingOrders || []
     const labratoryOrderData = data?.labratoryOrders || []
     const medicationOrderData = data?.medicationOrders || []

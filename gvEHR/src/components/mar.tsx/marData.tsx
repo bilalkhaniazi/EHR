@@ -19,7 +19,6 @@ interface OralMedication extends BaseMedication {
   takeWithFood?: boolean;
 }
 
-
 interface IvMedication extends BaseMedication {
   route: "IV"; // Discriminator
   infusionRate?: number;
@@ -38,7 +37,6 @@ interface InjectableMedication extends BaseMedication {
   reconstitutionRequired: boolean; // For powdered medications
   reconstitutionInstructions?: string; // If reconstitutionRequired is true
 }
-
 
 interface TopicalMedication extends BaseMedication {
   route: "Topical" | "TD"; // Discriminator
@@ -60,51 +58,116 @@ interface InhalerMedication extends BaseMedication {
   nebulizerDurationMinutes?: number;
 }
 
-type AllMedicationTypes = 
+export type AllMedicationTypes =     // route property acts as discriminator
   OralMedication |
   IvMedication |
   InjectableMedication | 
   TopicalMedication | 
   InhalerMedication;
 
-interface MedicationOrder {
+export interface MedicationOrder {
   id: string;
-  medication: AllMedicationTypes;
+  medicationId: string;
   doseValue: number;
   doseUnit: string;
   frequency: string; 
   priority: "STAT" | "NOW" |"ROUTINE";
   instructions?: string;
-  orderDate: Date;
+  // orderDate: Date;
+  indication: string;
   status: "active" | "completed" | "held" | "cancelled"
 }
 
+export interface MedAdministrationInstance {
+  medicationOrderId: string;    // link to specific med order
+  administratorId: string;      // who gave the med
+  adminTimeMinuteOffset: number;
+  status: 'given' | 'held' | 'missed' | 'refused';
+  notes?: string; 
+}
 
 
-const metoprolol25mgTablet: OralMedication = { 
-  id: "med123",
-  genericName: "Metoprolol Succinate",
-  brandName: "Toprol XL",
-  route: "PO", // This matches the discriminator for OralMedication
-  strength: 25,
-  strengthUnit: "mg",
-  orderableUnit: "Tablet", 
-  availableDosages: [1, 2],
-  administrationFrequencies: ["QD", "BID"],
-  // Properties specific to OralMedication:
-  form: "tablet", 
-  canBeCrushedOrSplit: false, 
-  takeWithFood: true, 
-};
+export const allMedications: AllMedicationTypes[] = [
+  { 
+    id: "medMetoprololOral25",
+    genericName: "metoprolol succinate",
+    brandName: "Toprol XL",
+    route: "PO", // This matches the discriminator for OralMedication
+    strength: 25,
+    strengthUnit: "mg",
+    orderableUnit: "Tablet", 
+    availableDosages: [1, 2],
+    administrationFrequencies: ["QD", "BID"],
+    // Properties specific to OralMedication:
+    form: "tablet", 
+    canBeCrushedOrSplit: false, 
+    takeWithFood: true, 
+  },
+  {
+    id: "medAmoxIv",
+    genericName: "amoxicillin",
+    brandName: "Amoxil IV", 
+    route: "IV", 
+    strength: 500,
+    strengthUnit: "mg",
+    orderableUnit: "Vial",                          // should match (replace) doseUnit in MedicationOrder 
+    availableDosages: [500, 1000], 
+    administrationFrequencies: ["Q6H", "Q8H"], 
+    // --- IVMedication specific properties ---
+    infusionRate: undefined, 
+    infusionRateUnit: undefined, 
+    diluent: "Normal Saline 0.9%", 
+    totalVolume: 50, 
+    infusionDurationHours: 0.5, 
+    requiresPump: true, 
+  }
+];
 
-const patientMetoprololOrder: MedicationOrder = {
-  id: "order456",
-  medication: metoprolol25mgTablet,
-  doseValue: 2,
-  doseUnit: "tablet",
-  frequency: "QD",
-  priority: "ROUTINE",
-  orderDate: new Date(),
-  status: "active",
-  instructions: "Take with food",
-};
+export const medicationOrders: MedicationOrder[] = [
+  {
+    id: "orderAmoxIv",
+    medicationId: "medAmoxIv", 
+    doseValue: 2, 
+    doseUnit: "Vial", 
+    frequency: "Q8H",
+    priority: "ROUTINE",
+    instructions: "Administer over 30 minutes via infusion pump.",
+    indication: "Infection",
+    status: "active",
+  },
+  {
+    id: "orderMetoprololOral25",
+    medicationId: "medMetoprololOral25",
+    doseValue: 2,
+    doseUnit: "Tablet",
+    frequency: "Twice Daily",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Blood Pressure",
+    instructions: "Check HR and BP within 30 minutes of administration.",
+  }
+]
+
+export const medAdministrations: MedAdministrationInstance[] = [
+  {
+    medicationOrderId: "orderMetoprololOral25", // Metoprolol
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -120, 
+    status: 'given',
+    notes: "Routine AM dose."
+  },
+  {
+    medicationOrderId: "orderAmoxIv", // Amoxicillin
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -15, 
+    status: 'given',
+    notes: "Just given before handover."
+  },
+  {
+    medicationOrderId: "orderMetoprololOral25", 
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -750, 
+    status: 'given',
+    notes: "Previous evening dose."
+  },
+]

@@ -4,6 +4,7 @@ import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
 import { jamesAllen, type ChartSidebarData } from '@/components/chart.tsx/chartData';
+import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar.tsx/marData';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
@@ -15,13 +16,18 @@ interface GetFlexSheetsResponse {
   timeColumns: string[]
 }
 
-
-
 export interface GetOrdersResponse {
   nursingOrders: OrderData[];
   labratoryOrders: OrderData[];
   respiratoryOrders: OrderData[];
   medicationOrders: MedOrderData[];
+}
+
+interface GetMarResponse {
+  allMedications: AllMedicationTypes[];
+  medicationOrders: MedicationOrder[];
+  medAdministrations: MedAdministrationInstance[];
+  sessionStartDateString: string;
 }
 
 export const apiSlice = createApi({
@@ -129,7 +135,7 @@ export const apiSlice = createApi({
     // OrderPage
     getOrders: builder.query<GetOrdersResponse, void> ({
       queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         return {data: 
           {
             nursingOrders: nursingOrders, 
@@ -144,7 +150,7 @@ export const apiSlice = createApi({
     
     getChart: builder.query<{chartData: ChartSidebarData}, void>({
       queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 500));
         return { data: { chartData: jamesAllen }
         }
       }
@@ -169,13 +175,12 @@ export const apiSlice = createApi({
         return { data: { message: `Time column ${newTime} added successfully`, newTime } };
       },
     }),
-    //  Mutation to update/save the entire FlexSheet data
     updateFlexSheetData: builder.mutation<
       { message: string, updatedData: tableData[] }, // Expected response from backend
       tableData[] // Payload: array of modified rows (the full current state of the sheet)
     >({
       queryFn: async (updatedRows) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         console.log("Mock backend received FlexSheet update:", updatedRows);
         // 🚨 Mock backend logic: For a real backend, you'd save `updatedRows` to your DB.
         // For our current mock, we'll just return it.
@@ -185,6 +190,18 @@ export const apiSlice = createApi({
       // (This is crucial for ensuring the UI is in sync with the "database" after a save)
       // invalidatesTags: ['FlexSheetData'],
     }),
+    getMar: builder.query<GetMarResponse, void>({
+      queryFn: async () => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const allMedAdministrations: MedAdministrationInstance[] = medAdministrations
+        const ptMedicationOrders: MedicationOrder[] = medicationOrders
+        const allPtMedications: AllMedicationTypes[] = allMedications
+        const simStartTime = new Date().toISOString()
+
+        return { data: { medicationOrders: ptMedicationOrders, medAdministrations: allMedAdministrations, allMedications: allPtMedications, sessionStartDateString: simStartTime}}
+      }
+    })
   }),
 });
 
@@ -200,4 +217,5 @@ export const {
   useAddTimeColumnMutation,
   useUpdateFlexSheetDataMutation,
   useGetChartQuery,
+  useGetMarQuery,
 } = apiSlice
