@@ -4,15 +4,28 @@ import MedCard from "./medCard";
 import { Skeleton } from "../ui/skeleton";
 import { useEffect, useMemo, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance } from "./marData";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/app/store";
+import { handleMedicationSelectionChange } from "./marSlice";
 
 export interface MedCardColumns { 
   startTime: Date;
   endTime: Date; 
   colHeader: string;
+  associatedAdministrations?: MedAdministrationInstance[];
 }
 
 
 export default function Mar() {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const selectedIds = useSelector((state: RootState) => state.mar.selectedMeds);
+  const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
+
+
+  const handleMedChange = (payload: { id: string, checked: boolean }) => {
+    dispatch(handleMedicationSelectionChange(payload));
+  };
 
   const { data, isLoading, isFetching, isError, error } = useGetMarQuery()
   const [realWorldNow, setRealWorldNow] = useState(new Date());
@@ -39,7 +52,8 @@ export default function Mar() {
       return acc;
     }, {} as { [id: string]: AllMedicationTypes });
   }, [allMedications]);
-  console.log(medLookupMap)
+
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setRealWorldNow(new Date());
@@ -98,7 +112,8 @@ export default function Mar() {
       )
     }
 
-  // const sessionStartDate = new Date(sessionStartDateString)
+  const sessionStartDateString = new Date(data.sessionStartDateString).getTime();
+
 
   const columnAnchorTime = new Date(
     realWorldNow.getFullYear(),
@@ -113,19 +128,24 @@ export default function Mar() {
 
   for (let i = 0; i < columnCount; i++ ) {
     const colStartTime = new Date(columnAnchorTime.getTime() - ((i - 2) * 60 * 60 * 1000));
-    const colEndTime = new Date(columnAnchorTime.getTime() - ((i - 3) * 60 * 60 * 1000) - 1);
+    const colEndTime = new Date(colStartTime.getTime() + (60 * 60 * 1000) - 1);
     const colHeader = format(colStartTime, 'HH00');
 
-    displayColumns.push({ startTime: colStartTime, endTime: colEndTime, colHeader: colHeader })
-
+    displayColumns.unshift({
+      startTime: colStartTime,
+      endTime: colEndTime,
+      colHeader: colHeader 
+    })
   }
 
   return (
-    <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
-      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+    <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 pb-0 bg-gray-100 overflow-y-auto">
+      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-t-lg inset-shadow-sm">
         {medicationOrders.map((order) => {
+          const isSelected = selectedMeds.has(order.id);
+
           const associatedMedication = medLookupMap[order.medicationId]
-          const orderSpecifcAdministrations = groupedAdministrationsMap[order.id]
+          const orderSpecifcAdministrations = groupedAdministrationsMap[order.id] || [];
           if (!associatedMedication) {
             console.log(order.id, '!!!')
 
@@ -140,6 +160,9 @@ export default function Mar() {
               administrations={orderSpecifcAdministrations}
               order={order}
               columns={displayColumns}
+              sessionStartTime={sessionStartDateString}
+              onSelectionChange={handleMedChange}
+              isSelected={isSelected}
 
                />      
           )

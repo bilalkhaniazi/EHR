@@ -3,6 +3,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import notesReducer from "../components/notes/noteSlice.ts"
 import ordersReducer from "../components/orders/orderSlice.ts"
 import flexSheetReducer from "../components/flexSheets/flexSheetSlice.ts"
+import marReducer from "../components/mar/marSlice.tsx"
 import { apiSlice } from './apiSlice.ts'
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
     notes: notesReducer,
     orders: ordersReducer,
     flexSheet: flexSheetReducer,
+    mar: marReducer,
     [apiSlice.reducerPath]: apiSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>

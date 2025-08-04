@@ -80,7 +80,7 @@ export function FlexSheet() {
     useEffect(() => {
         if (data?.chartingData && !isSaving) { // Only update if not currently saving (to avoid overwriting unsaved edits)
             dispatch(initializeEditableData(data.chartingData));
-    }
+        }
     }, [data, isSaving, dispatch]);
 
 

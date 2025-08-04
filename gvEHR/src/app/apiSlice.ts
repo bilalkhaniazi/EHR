@@ -4,7 +4,7 @@ import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
 import { jamesAllen, type ChartSidebarData } from '@/components/chart.tsx/chartData';
-import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar.tsx/marData';
+import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];

@@ -75,14 +75,14 @@ export interface MedicationOrder {
   instructions?: string;
   // orderDate: Date;
   indication: string;
-  status: "active" | "completed" | "held" | "cancelled"
+  status: "active" | "completed" | "Held" | "cancelled"
 }
 
 export interface MedAdministrationInstance {
   medicationOrderId: string;    // link to specific med order
   administratorId: string;      // who gave the med
   adminTimeMinuteOffset: number;
-  status: 'given' | 'held' | 'missed' | 'refused';
+  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due";
   notes?: string; 
 }
 
@@ -99,27 +99,59 @@ export const allMedications: AllMedicationTypes[] = [
     availableDosages: [1, 2],
     administrationFrequencies: ["QD", "BID"],
     // Properties specific to OralMedication:
-    form: "tablet", 
+    form: "tablet",         // dup of orderableUnit
     canBeCrushedOrSplit: false, 
     takeWithFood: true, 
   },
   {
-    id: "medAmoxIv",
+    id: "medAmoxIv",              // links to order
     genericName: "amoxicillin",
     brandName: "Amoxil IV", 
     route: "IV", 
     strength: 500,
     strengthUnit: "mg",
-    orderableUnit: "Vial",                          // should match (replace) doseUnit in MedicationOrder 
+    orderableUnit: "Vial",                          // should match (or be replaced by) doseUnit in MedicationOrder 
     availableDosages: [500, 1000], 
     administrationFrequencies: ["Q6H", "Q8H"], 
     // --- IVMedication specific properties ---
-    infusionRate: undefined, 
-    infusionRateUnit: undefined, 
+    infusionRate: 100, 
+    infusionRateUnit: 'mL/hr', 
     diluent: "Normal Saline 0.9%", 
     totalVolume: 50, 
     infusionDurationHours: 0.5, 
     requiresPump: true, 
+  },
+  {
+    id: "medLisinoprilOral10",
+    genericName: "lisinopril",
+    brandName: "Zestril",
+    route: "PO",
+    strength: 10,
+    strengthUnit: "mg",
+    orderableUnit: "Tablet",
+    availableDosages: [1, 2], // Order 1 or 2 tablets (10mg or 20mg)
+    administrationFrequencies: ["QD"], // Once daily
+    form: "tablet",
+    canBeCrushedOrSplit: true, // Example: Lisinopril can often be crushed
+    takeWithFood: false, // Can be taken without regard to food
+  },
+  // --- NEW IV MEDICATION ---
+  {
+    id: "medVancomycinIv",
+    genericName: "vancomycin",
+    brandName: "Vancocin IV",
+    route: "IV",
+    strength: 1000, // 1000mg per dose/vial
+    strengthUnit: "mg",
+    orderableUnit: "Bag", // Often pre-mixed in a bag
+    availableDosages: [1], // Typically ordered as 1 bag of 1000mg
+    administrationFrequencies: ["Q12H", "Q24H"], // Common frequencies
+    infusionRate: 250, // Example: 1000mg in 250mL infused over 2 hours (125 mL/hr) or 4 hours (250 mL/hr)
+    infusionRateUnit: 'mL/hr',
+    diluent: "Dextrose 5% in Water", // Common diluent for Vancomycin
+    totalVolume: 250, // Often comes in 250mL bags
+    infusionDurationHours: 2, 
+    requiresPump: true,
   }
 ];
 
@@ -127,7 +159,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderAmoxIv",
     medicationId: "medAmoxIv", 
-    doseValue: 2, 
+    doseValue: 1, 
     doseUnit: "Vial", 
     frequency: "Q8H",
     priority: "ROUTINE",
@@ -145,6 +177,29 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Blood Pressure",
     instructions: "Check HR and BP within 30 minutes of administration.",
+  },
+  {
+    id: "orderLisinoprilOral10",
+    medicationId: "medLisinoprilOral10",
+    doseValue: 1, // Ordering 1 Tablet (10mg)
+    doseUnit: "Tablet",
+    frequency: "QD",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Hypertension",
+    instructions: "Monitor blood pressure daily.",
+  },
+  // --- NEW IV MEDICATION ORDER ---
+  {
+    id: "orderVancomycinIv",
+    medicationId: "medVancomycinIv",
+    doseValue: 1, // Ordering 1 Bag (1000mg)
+    doseUnit: "Bag",
+    frequency: "Q12H",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Severe Bacterial Infection",
+    instructions: "Infuse over 2 hours. Monitor for Red Man Syndrome. Obtain trough level before 4th dose.",
   }
 ]
 
@@ -152,22 +207,36 @@ export const medAdministrations: MedAdministrationInstance[] = [
   {
     medicationOrderId: "orderMetoprololOral25", // Metoprolol
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: -120, 
-    status: 'given',
-    notes: "Routine AM dose."
+    adminTimeMinuteOffset: -180, 
+    status: 'Given',
+    notes: "-60 metoprolol"
   },
   {
     medicationOrderId: "orderAmoxIv", // Amoxicillin
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: -15, 
-    status: 'given',
-    notes: "Just given before handover."
+    adminTimeMinuteOffset: -31, 
+    status: 'Given',
+    notes: "-61 amox."
+  },
+    {
+    medicationOrderId: "orderAmoxIv", // Amoxicillin
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: 60, 
+    status: 'Due',
+    notes: "-61 amox."
   },
   {
     medicationOrderId: "orderMetoprololOral25", 
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: -750, 
-    status: 'given',
-    notes: "Previous evening dose."
+    adminTimeMinuteOffset: -121, 
+    status: 'Given',
+    notes: "-121 metoprolol dose."
+  },
+  {
+    medicationOrderId: "orderMetoprololOral25", 
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -121, 
+    status: 'Held',
+    notes: "-121 metoprolol dose."
   },
 ]
