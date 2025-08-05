@@ -212,14 +212,14 @@ export const medAdministrations: MedAdministrationInstance[] = [
     notes: "-60 metoprolol"
   },
   {
-    medicationOrderId: "orderAmoxIv", // Amoxicillin
+    medicationOrderId: "orderAmoxIv", 
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -31, 
     status: 'Given',
     notes: "-61 amox."
   },
     {
-    medicationOrderId: "orderAmoxIv", // Amoxicillin
+    medicationOrderId: "orderAmoxIv", 
     administratorId: "RN Smith",
     adminTimeMinuteOffset: 60, 
     status: 'Due',
@@ -237,6 +237,13 @@ export const medAdministrations: MedAdministrationInstance[] = [
     administratorId: "RN Jones",
     adminTimeMinuteOffset: -121, 
     status: 'Held',
+    notes: "-121 metoprolol dose."
+  },
+  {
+    medicationOrderId: "orderLisinoprilOral10", 
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -121, 
+    status: 'Missed',
     notes: "-121 metoprolol dose."
   },
 ]

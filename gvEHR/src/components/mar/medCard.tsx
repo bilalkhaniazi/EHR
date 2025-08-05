@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { Separator } from "../ui/separator"
-import type { MedCardColumns } from "./Mar";
+import type { MedCardColumns } from "./mar";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData"
 import { Checkbox } from "../ui/checkbox";
 
@@ -30,7 +30,6 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
       const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
-      console.log(col.startTime,"\n", col.endTime, "\n", adminAbsoluteTime, '\n', col.colHeader)
       return adminAbsoluteTime >= col.startTime && adminAbsoluteTime <= col.endTime;
     })
 
@@ -55,9 +54,6 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     return format(lastAdminTime, 'HHmm')
 
   }
-
-  console.log(columns)
-
 
   const renderMedCardDetails = () => {
     switch (medication.route) {
@@ -100,10 +96,11 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
           <CardHeader className="">
             <CardTitle className="pb-1 flex gap-2 h-6">
               <Checkbox
-              onCheckedChange={handleCheckboxChange}
-              checked={isSelected}
-              id={`checkbox-${order.id}`}
-              className="" />
+                onCheckedChange={handleCheckboxChange}
+                checked={isSelected}
+                id={`checkbox-${order.id}`}
+                className="" 
+              />
               <span>{medication.genericName}</span>
               {medication.brandName && (
                 <span>({medication.brandName})</span>
@@ -151,8 +148,11 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
                         admin.status === "Due" ? "bg-blue-200" :
                         "bg-gray-200"; 
                       return (
-                        <div className={`flex flex-col justify-center items-center py-1 px-2 rounded-lg  ${statusColorClass}`}>
-                          <p className="text-xs font-medium">{displayTime}</p>
+                        <div 
+                          key={`${admin.medicationOrderId}-${admin.adminTimeMinuteOffset}-${admin.status}`} 
+                          className={`flex flex-col justify-center items-center py-1 px-2 rounded-lg  ${statusColorClass}`}
+                        >
+                          <p className="text-center text-xs font-medium">{displayTime}</p>
                           <p className="text-xs font-normal">{admin.status}</p>
                         </div>
                       )

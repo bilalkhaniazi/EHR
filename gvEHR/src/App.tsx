@@ -5,7 +5,7 @@ import NotePage from './components/notes/notePage.tsx'
 import LabPage from './components/labs/labPage.tsx'
 import PatientChartLayout from './components/chart.tsx/PatientChartLayout.tsx'; // The parent component
 import OverviewPage from './components/overview/overviewPage.tsx';
-import Mar from './components/mar/Mar.tsx';
+import Mar from './components/mar/mar.tsx';
 
 const router = createBrowserRouter([
   {

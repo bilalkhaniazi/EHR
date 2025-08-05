@@ -1,12 +1,12 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export interface MarState {
-  selectedMeds: Set<string>;
+  selectedMeds: string[];
   isSelected: boolean
 }
 
 const initialState: MarState = {
-  selectedMeds: new Set(),
+  selectedMeds: [],
   isSelected: false
 };
 
@@ -17,9 +17,9 @@ export const marSlice = createSlice({
     handleMedicationSelectionChange: (state, action: PayloadAction<{id: string, checked: boolean}>) => {
       const {id, checked} = action.payload
       if (checked) {
-        state.selectedMeds.add(id);
+        state.selectedMeds.push(id);
       } else {
-        state.selectedMeds.delete(id);
+        state.selectedMeds = state.selectedMeds.filter(medId => medId !== id);
       }
     }
   }

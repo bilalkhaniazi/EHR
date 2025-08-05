@@ -7,6 +7,7 @@ import type { AllMedicationTypes, MedAdministrationInstance } from "./marData";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/app/store";
 import { handleMedicationSelectionChange } from "./marSlice";
+import MedAdministrationPanel from "./medAdministrationPanel";
 
 export interface MedCardColumns { 
   startTime: Date;
@@ -17,11 +18,11 @@ export interface MedCardColumns {
 
 
 export default function Mar() {
-
   const dispatch = useDispatch<AppDispatch>();
-  const selectedIds = useSelector((state: RootState) => state.mar.selectedMeds);
-  const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
 
+  // const isSelected = useSelector((state: RootState) => state.mar.isSelected);
+  const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
+  console.log(selectedMeds)
 
   const handleMedChange = (payload: { id: string, checked: boolean }) => {
     dispatch(handleMedicationSelectionChange(payload));
@@ -34,8 +35,8 @@ export default function Mar() {
   const allMedications = data?.allMedications || []; 
   const medAdministrations = data?.medAdministrations || [];
 
-  // lookup map grouping all administrations by order id
-  const groupedAdministrationsMap = useMemo(() => {
+  // lookup map grouping all administrations by order id, so each med card gets only the data it needs
+  const groupedAdministrationsByOrder = useMemo(() => {
     return medAdministrations.reduce((acc, admin) => {
       if (!acc[admin.medicationOrderId]) {
         acc[admin.medicationOrderId] = [];
@@ -45,8 +46,8 @@ export default function Mar() {
     }, {} as { [orderId: string]: MedAdministrationInstance[] })
   }, [medAdministrations])
 
-  // map only needs to be created if a new med and order are added to the sim by a prof
-  const medLookupMap = useMemo(() => {
+  // object only needs to be created if a new med and order are added to the sim by a prof
+  const medsById = useMemo(() => {
     return allMedications.reduce((acc, med) => {
       acc[med.id] = med;
       return acc;
@@ -60,10 +61,6 @@ export default function Mar() {
     }, 60 * 1000)
     return () => clearInterval(intervalId);
   }, []);
-
-
-
-
 
   if (isLoading || isFetching) {
     return (
@@ -102,18 +99,17 @@ export default function Mar() {
     )
   }
 
-    if (!data || Object.keys(data).length === 0) {
-      return(
-       <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
-        <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-          <p>No med data exists</p>
-        </div>
-      </div> 
-      )
-    }
+  if (!data || Object.keys(data).length === 0) {
+    return(
+      <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
+      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+        <p>No med data exists</p>
+      </div>
+    </div> 
+    )
+  }
 
-  const sessionStartDateString = new Date(data.sessionStartDateString).getTime();
-
+  const sessionStartDateNumber = new Date(data.sessionStartDateString).getTime();
 
   const columnAnchorTime = new Date(
     realWorldNow.getFullYear(),
@@ -140,15 +136,20 @@ export default function Mar() {
 
   return (
     <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 pb-0 bg-gray-100 overflow-y-auto">
-      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-t-lg inset-shadow-sm">
+      <MedAdministrationPanel 
+        selectedMedIds={selectedMeds} 
+        allOrders={medicationOrders} 
+        medicationLookup={medsById}
+        administrationsLookup={groupedAdministrationsByOrder}
+        sessionStartTime={sessionStartDateNumber}
+      />
+      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
         {medicationOrders.map((order) => {
-          const isSelected = selectedMeds.has(order.id);
+          const isSelected = selectedMeds.includes(order.id);
+          const associatedMedication = medsById[order.medicationId]
+          const orderSpecifcAdministrations = groupedAdministrationsByOrder[order.id] || [];
 
-          const associatedMedication = medLookupMap[order.medicationId]
-          const orderSpecifcAdministrations = groupedAdministrationsMap[order.id] || [];
           if (!associatedMedication) {
-            console.log(order.id, '!!!')
-
             console.warn(`Med ${order.medicationId} not found for order ${order.id}`)
             return null
           }
@@ -160,11 +161,11 @@ export default function Mar() {
               administrations={orderSpecifcAdministrations}
               order={order}
               columns={displayColumns}
-              sessionStartTime={sessionStartDateString}
+              sessionStartTime={sessionStartDateNumber}
               onSelectionChange={handleMedChange}
               isSelected={isSelected}
 
-               />      
+            />      
           )
         })}
       </div>
