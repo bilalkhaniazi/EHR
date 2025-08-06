@@ -4,6 +4,7 @@ import { Separator } from "../ui/separator"
 import { medActionSelections, medRouteSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData"
 import MedAdminCardSelector from "./medAdminCardSelector";
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 interface MedAdminCardProps {
   medication: AllMedicationTypes;
@@ -125,7 +126,7 @@ const MedAdminCard = ({medication, administrations, order, sessionStartTime, onS
           
         </div>
 
-        <div className="grid grid-cols-3 py-4">
+        <div className="grid grid-cols-3 py-4 px-2">
           <MedAdminCardSelector 
             options={medActionSelections}
             value={currentStatus}
@@ -138,7 +139,17 @@ const MedAdminCard = ({medication, administrations, order, sessionStartTime, onS
             value={medication.route}
             label="Route"
           />
-          <Input className="border h-fit" />
+          <div className="space-y-1">
+            <Label>Dose</Label>
+            <Input 
+              className="text-sm "
+              value={`${order.doseValue * medication.strength}${medication.strengthUnit}`}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Comments</Label>
+            <Input className="text-sm w-auto" />
+          </div>
           {/* Other selectors and input boxes here */}
         </div>      
       </div>

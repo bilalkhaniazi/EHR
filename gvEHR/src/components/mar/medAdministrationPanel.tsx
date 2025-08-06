@@ -11,7 +11,7 @@ import { PencilLine } from "lucide-react"
 import { useState } from "react"
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData";
 import MedAdminCard from "./medAdminCard";
-import { updateNewAdministration, clearNewAdminstrations } from "./marSlice";
+import { updateNewAdministration, clearNewAdminstrations, clearSelectedMedications } from "./marSlice";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/app/store";
 import { useSubmitNewAdministrationsMutation } from "@/app/apiSlice";
@@ -67,6 +67,8 @@ const MedAdministrationPanel = ({
       await submitNewAdministrations({administrations: payload}).unwrap();    // dummy rtk query updating marSlice administrations array
       dispatch(clearNewAdminstrations());
       setIsOpen(false);
+      dispatch(clearSelectedMedications())
+
     } catch (err) {
       console.error("Failed to save administrations", err);
     }

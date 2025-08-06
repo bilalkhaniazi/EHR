@@ -30,6 +30,9 @@ export const marSlice = createSlice({
         state.selectedMeds = state.selectedMeds.filter(medId => medId !== id);
       }
     },
+    clearSelectedMedications: (state) => {
+      state.selectedMeds = []
+    },
     updateNewAdministration: (state, action: PayloadAction<{
       medicationOrderId: string;
       field: keyof MedAdministrationInstance;
@@ -48,5 +51,10 @@ export const marSlice = createSlice({
  
 });
 
-export const { handleMedicationSelectionChange, updateNewAdministration, clearNewAdminstrations } = marSlice.actions
+export const { 
+  handleMedicationSelectionChange,
+  updateNewAdministration,
+  clearNewAdminstrations,
+  clearSelectedMedications 
+} = marSlice.actions
 export default marSlice.reducer;
