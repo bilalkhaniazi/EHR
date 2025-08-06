@@ -1,13 +1,21 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+import type { MedAdministrationInstance } from "./marData";
+
+
+export interface NewAdministrationData {
+  [medOrderId: string]: Partial<MedAdministrationInstance>;
+}
 
 export interface MarState {
   selectedMeds: string[];
-  isSelected: boolean
+  isSelected: boolean;
+  newAdministrations: NewAdministrationData
 }
 
 const initialState: MarState = {
   selectedMeds: [],
-  isSelected: false
+  isSelected: false,
+  newAdministrations: {}
 };
 
 export const marSlice = createSlice({
@@ -21,9 +29,24 @@ export const marSlice = createSlice({
       } else {
         state.selectedMeds = state.selectedMeds.filter(medId => medId !== id);
       }
+    },
+    updateNewAdministration: (state, action: PayloadAction<{
+      medicationOrderId: string;
+      field: keyof MedAdministrationInstance;
+      value: any;
+    }>) => {
+      const { medicationOrderId, field, value } = action.payload;
+      if (!state.newAdministrations[medicationOrderId]) {
+        state.newAdministrations[medicationOrderId] = {}
+      }
+      (state.newAdministrations[medicationOrderId])[field] = value
+    },
+    clearNewAdminstrations: (state) => {
+      state.newAdministrations = {}
     }
-  }
+  },
+ 
 });
 
-export const { handleMedicationSelectionChange } = marSlice.actions
+export const { handleMedicationSelectionChange, updateNewAdministration, clearNewAdminstrations } = marSlice.actions
 export default marSlice.reducer;

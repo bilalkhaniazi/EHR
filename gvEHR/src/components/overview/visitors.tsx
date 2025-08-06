@@ -3,7 +3,7 @@ import { Card, CardContent  } from "../ui/card"
 import StyledTitle from "./styledTitle"
 import { useGetChartQuery } from "@/app/apiSlice"
 import CardSkeleton from "./cardSkeleton"
-import type { ChartSidebarData, ContactItem } from "../chart.tsx/chartData"
+import type { ChartData } from "../chart.tsx/chartData"
 
 const Visitors = () => {
   const { data, isLoading, isError, isFetching, error } = useGetChartQuery();
@@ -40,7 +40,7 @@ const Visitors = () => {
     )
   }
 
-  const chartData: ChartSidebarData | undefined  = data?.chartData
+  const chartData: ChartData | undefined  = data?.chartData
 
   if (!chartData || Object.keys(chartData).length === 0 ) {
     return(
@@ -51,22 +51,13 @@ const Visitors = () => {
     )
   }
 
-  // type guard
-  const isContactItem = (item: any): item is ContactItem => {
-    return item?.id === "supportPersons" && Array.isArray(item?.value);
-  };
-
-  const contactItem = chartData.socialFactors.find(item => item.id === "supportPersons");
-  const contacts = isContactItem(contactItem) ? contactItem.value : [];
+  const contactItems = chartData.supportPersons.value
 
   return (
     <Card className="relative pt-2 overflow-hidden h-fit gap-3">
       <StyledTitle color="bg-lime-200" firstLetter="C" secondLetter="ontacts" />
-
         <CardContent className="grid gap-4 px-8">
-
-          {contacts.map((person, index) => {
-
+          {contactItems.map((person, index) => {
             return (
               <div key={`${person.name}-${index}`} className="flex flex-col w-full items-start gap-1">
                 <p className="text-md font-medium leading-none">{person.name}</p>

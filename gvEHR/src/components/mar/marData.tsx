@@ -87,6 +87,9 @@ export interface MedAdministrationInstance {
 }
 
 
+// interface medAdminPanelSelections
+
+
 export const allMedications: AllMedicationTypes[] = [
   { 
     id: "medMetoprololOral25",
@@ -247,3 +250,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     notes: "-121 metoprolol dose."
   },
 ]
+
+
+export const medRouteSelections: string[] = ["PO", "IV", "SC", "Topical", "Inhalation", "IM", "SL", "Otic", "Ophthalmic"]
+export const medActionSelections: string[] = ["Given", "Held", "Refused", "Patient Administered", "Override"]
+

@@ -1,41 +1,40 @@
 import { format } from "date-fns";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { Separator } from "../ui/separator"
-import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { ChevronDown } from "lucide-react";
+import { medActionSelections, medRouteSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData"
+import MedAdminCardSelector from "./medAdminCardSelector";
+import { Input } from "../ui/input";
 
 interface MedAdminCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
   sessionStartTime: number;
+  onStatusChange: (status: string) => void;
+  currentStatus: string
 }
-// export interface MedAdministrationInstance {
-//   medicationOrderId: string;    // link to specific med order
-//   administratorId: string;      // who gave the med
-//   adminTimeMinuteOffset: number;
-//   status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due";
-//   notes?: string; 
-// }
-  // get the last time the med was given - important from nursing standpoint
-  const getThreePrevAdministrations = (administrations: MedAdministrationInstance[], sessionStartDateNumber: Number) => {
-    if (!administrations || administrations.length === 0) {
-      return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
-    }
-    administrations.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
-    return administrations.slice(-3)
+
+// helper function to get the last few times the med was given - important from nursing standpoint
+const getThreePrevAdministrations = (administrations: MedAdministrationInstance[]) => {
+  if (!administrations || administrations.length === 0) {
+    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
+  }
+  administrations.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
+  return administrations.slice(-3)
+}
+
+const MedAdminCard = ({medication, administrations, order, sessionStartTime, onStatusChange, currentStatus }: MedAdminCardProps) => {
+  const handleChange = (newStatus: string) => {
+    onStatusChange(newStatus)
   }
 
-const MedAdminCard = ({medication, administrations, order, sessionStartTime }: MedAdminCardProps) => {
-
+  
   // very temp solution
   const pluralize = (unitsOrdered: number, unitName: string) => {
     return unitsOrdered > 1 ? unitName + 's' : unitName
-  }
+  };
 
-  const threePrevAdministrations = getThreePrevAdministrations(administrations, sessionStartTime);
-
+  const threePrevAdministrations = getThreePrevAdministrations(administrations);
 
   // based on med route, card display may have to be unique. Different meds types have different info
   const renderMedCardDetails = () => {
@@ -70,8 +69,6 @@ const MedAdminCard = ({medication, administrations, order, sessionStartTime }: M
     }
   }
 
-
-
   return (
     <Card className="w-full p-0 overflow-hidden flex-shrink-0">
       <div className="grid grid-cols-2">
@@ -101,7 +98,7 @@ const MedAdminCard = ({medication, administrations, order, sessionStartTime }: M
           </div>
 
           <div className="pl-6">
-            <h2 className="font-light">Previous Administrations:</h2>
+            <h2 className="font-light pb-1">Previous Administrations:</h2>
             <div className="flex gap-4 pl-2">
               {threePrevAdministrations.map((admin, index) => {
                 // if no administrations recorded for this medication
@@ -127,24 +124,22 @@ const MedAdminCard = ({medication, administrations, order, sessionStartTime }: M
           </div>
           
         </div>
-        <div className="grid grid-cols-3 py-4  ">
-          <Select>
-            <SelectTrigger className="">
-              <SelectValue placeholder="Select a fruit" />
-              <ChevronDown />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Fruits</SelectLabel>
-                <SelectItem value="apple">Apple</SelectItem>
-                <SelectItem value="banana">Banana</SelectItem>
-                <SelectItem value="blueberry">Blueberry</SelectItem>
-                <SelectItem value="grapes">Grapes</SelectItem>
-                <SelectItem value="pineapple">Pineapple</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          
+
+        <div className="grid grid-cols-3 py-4">
+          <MedAdminCardSelector 
+            options={medActionSelections}
+            value={currentStatus}
+            onValueChange={handleChange} 
+            label="Action"
+
+          />
+          <MedAdminCardSelector
+            options={medRouteSelections}
+            value={medication.route}
+            label="Route"
+          />
+          <Input className="border h-fit" />
+          {/* Other selectors and input boxes here */}
         </div>      
       </div>
     </Card>

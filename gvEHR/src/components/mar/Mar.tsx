@@ -22,7 +22,6 @@ export default function Mar() {
 
   // const isSelected = useSelector((state: RootState) => state.mar.isSelected);
   const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
-  console.log(selectedMeds)
 
   const handleMedChange = (payload: { id: string, checked: boolean }) => {
     dispatch(handleMedicationSelectionChange(payload));
@@ -122,6 +121,7 @@ export default function Mar() {
   const columnCount = 6
   const displayColumns = [] as MedCardColumns[]
 
+  // create 6 columns, 2 future hours, one current hour, and three past hours
   for (let i = 0; i < columnCount; i++ ) {
     const colStartTime = new Date(columnAnchorTime.getTime() - ((i - 2) * 60 * 60 * 1000));
     const colEndTime = new Date(colStartTime.getTime() + (60 * 60 * 1000) - 1);
@@ -142,6 +142,7 @@ export default function Mar() {
         medicationLookup={medsById}
         administrationsLookup={groupedAdministrationsByOrder}
         sessionStartTime={sessionStartDateNumber}
+        realWorldTime={realWorldNow}
       />
       <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
         {medicationOrders.map((order) => {

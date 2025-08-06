@@ -3,7 +3,7 @@ import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type L
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
-import { jamesAllen, type ChartSidebarData } from '@/components/chart.tsx/chartData';
+import { jamesAllen, type ChartData } from '@/components/chart.tsx/chartData';
 import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
 
 interface GetLabsResponse {
@@ -104,7 +104,7 @@ export const apiSlice = createApi({
     }),
 
     // NotesPage
-   getNotes: builder.query<{notesData: NoteData[]}, void>({
+    getNotes: builder.query<{notesData: NoteData[]}, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return { data: { notesData: sampleNotes } };
@@ -148,7 +148,7 @@ export const apiSlice = createApi({
     }),
     // could add new order mutation
     
-    getChart: builder.query<{chartData: ChartSidebarData}, void>({
+    getChart: builder.query<{chartData: ChartData}, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return { data: { chartData: jamesAllen }
@@ -201,7 +201,40 @@ export const apiSlice = createApi({
 
         return { data: { medicationOrders: ptMedicationOrders, medAdministrations: allMedAdministrations, allMedications: allPtMedications, sessionStartDateString: simStartTime}}
       }
-    })
+    }),
+
+    submitNewAdministrations: builder.mutation<
+      { newAdministrations: MedAdministrationInstance[] },
+      { administrations: MedAdministrationInstance[] }
+    >({
+      // The queryFn simulates an API call
+      queryFn: async (payload) => {
+        // Simulate a network delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // A real backend would return a success message and the new data.
+        // For this mock, we'll just return the payload as the new data.
+        return { data: { newAdministrations: payload.administrations } };
+      },
+
+      // onQueryStarted is used for the optimistic update
+      async onQueryStarted({ administrations }, { dispatch, queryFulfilled }) {
+        // Update the 'getMar' query cache optimistically
+        const patchResult = dispatch(
+          apiSlice.util.updateQueryData('getMar', undefined, (draft) => {
+            // Append the new administrations to the existing array
+            draft.medAdministrations.push(...administrations);
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          // If the API call fails, revert the optimistic update
+          patchResult.undo();
+        }
+      },
+    }),
   }),
 });
 
@@ -218,4 +251,5 @@ export const {
   useUpdateFlexSheetDataMutation,
   useGetChartQuery,
   useGetMarQuery,
+  useSubmitNewAdministrationsMutation
 } = apiSlice

@@ -1,33 +1,41 @@
+import { ChevronDown } from "lucide-react";
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectGroup, SelectValue } from "../ui/select"    
+import { Label } from "../ui/label";
 
 interface AssessmentSelectProps {
     options: string[];
     value: string;
     onValueChange: (newValue: string) => void;
     className?: string;
+    label: string;
 }
-export default function AssessmentSelect({ 
+
+
+export default function MedAdminCardSelector({ 
     options,
     value,
     onValueChange,
+    label
 }: AssessmentSelectProps) {
     return(
-        <div>
-            <Select value={value} onValueChange={onValueChange}>
+        <div className="space-y-1">
+            <Label>{label}</Label>
+            <Select value={value} onValueChange={onValueChange} >
             <SelectTrigger className="">
                 <SelectValue className="text-xs w-full">
                     {value}
                 </SelectValue>
+                <ChevronDown />
             </SelectTrigger>
             <SelectContent className="">
                 <SelectGroup className="p-0 ">
                     {options.map((option) => (
                         <SelectItem 
-                            key={option.subsetId}
-                            value={option.subsetId}
-                            className="w-full text-xs h-6 m-0 border-b first:focus:rounded-2xl last:border-b-0 rounded-none"
+                            key={option}
+                            value={option}
+                            className=""
                         >
-                            {option.label}
+                            {option}
                         </SelectItem>
                     ))}
                 </SelectGroup>
