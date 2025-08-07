@@ -15,6 +15,8 @@ import { updateNewAdministration, clearNewAdminstrations, clearSelectedMedicatio
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/app/store";
 import { useSubmitNewAdministrationsMutation } from "@/app/apiSlice";
+import { differenceInMinutes } from "date-fns";
+import { toast } from "sonner";
 
 interface MedAdministrationProps {
   selectedMedIds: string[];
@@ -45,13 +47,13 @@ const MedAdministrationPanel = ({
       return order
     }
   })
-  const [submitNewAdministrations] = useSubmitNewAdministrationsMutation();
+  const [submitNewAdministrations, {isLoading}] = useSubmitNewAdministrationsMutation();
 
   const handleSubmit = async () => {
     // Logic to assemble the final payload, adding the time offset and student ID
     const payload = Object.keys(newAdministrations).map(orderId => {
       const currentAdmin = newAdministrations[orderId];
-      const offset = Math.floor((realWorldTime.getTime() - sessionStartTime) / 60000);
+      const offset = differenceInMinutes(realWorldTime, sessionStartTime);
 
       return {
         ...currentAdmin,
@@ -61,13 +63,13 @@ const MedAdministrationPanel = ({
         status: currentAdmin.status ?? "Held" // need to add check that status is never undefined
       };
     });
-    console.log(payload)
 
     try {
       await submitNewAdministrations({administrations: payload}).unwrap();    // dummy rtk query updating marSlice administrations array
       dispatch(clearNewAdminstrations());
       setIsOpen(false);
       dispatch(clearSelectedMedications())
+      toast.success("Medications successfully documented");
 
     } catch (err) {
       console.error("Failed to save administrations", err);
@@ -93,7 +95,7 @@ const MedAdministrationPanel = ({
       </div>
 
       <DialogContent className="flex flex-col md:max-w-3xl xl:max-w-5xl h-[96vh] bg-gray-200">
-        <h1 className="text-lg  font-medium">Medication Something</h1>
+        <h1 className="text-lg font-medium">Medication Something</h1>
         <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300">
           <div className="grid gap-4 w-full p-2 ">
             {selectedMedOrders.map(order => {
@@ -103,6 +105,7 @@ const MedAdministrationPanel = ({
                   medication={medicationLookup[order.medicationId]}
                   administrations={administrationsLookup[order.id]}
                   sessionStartTime={sessionStartTime}
+                  realWorldNow={realWorldTime}
                   onStatusChange={(value) => {
                     dispatch(updateNewAdministration({
                       medicationOrderId: order.id,
@@ -110,7 +113,7 @@ const MedAdministrationPanel = ({
                       value: value,
                     }))
                   }}
-                  currentStatus={newAdministrations[order.id]?.status || "Given"}
+                  currentStatus={newAdministrations[order.id].status ?? "Given"}    // will always be "Given" by default, set in MarSlice
                 />
               )
             })}
@@ -118,7 +121,7 @@ const MedAdministrationPanel = ({
         </div>
         
         <DialogFooter className="items-center h-fit">
-          <Button variant="outline" onClick={handleSubmit}>Accept</Button>
+          <Button variant="outline" disabled={isLoading} onClick={handleSubmit}>{isLoading ? "Saving..." : "Accept"}</Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>

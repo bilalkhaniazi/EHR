@@ -232,7 +232,7 @@ export function LabPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] w-[calc(100vw-18rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
+    <div className="flex flex-col h-[calc(100vh-4rem)] w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
       {/* <div className="w-full flex justify-between p-4">
         <AddBgDemo onAddLab={handleColumnAdd} />
       </div> */}

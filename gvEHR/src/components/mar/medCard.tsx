@@ -43,16 +43,19 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     if (!administrations || administrations.length === 0) {
       return "Never";
     }
-    const lastAdmin = administrations.reduce((latest, current) => {
-      if (current.status === "Due") {
-        return latest
-      } 
-      return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest; 
-    })
-    const lastAdminTime = new Date(sessionStartTime + lastAdmin.adminTimeMinuteOffset * 60 * 1000);
+    const filteredAdmins = administrations.filter(admin => admin.status === "Given" || admin.status === 'Patient Administered')
+    if (filteredAdmins.length !== 0) {
+      const lastAdmin = filteredAdmins.reduce((latest, current) => {
+        if (current.status === "Due" || current.status === "Held" || current.status === "Missed") {
+          return latest
+        } 
+        return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest; 
+      })
+      const lastAdminTime = new Date(sessionStartTime + lastAdmin.adminTimeMinuteOffset * 60 * 1000);
 
-    return format(lastAdminTime, 'HHmm')
-
+      return format(lastAdminTime, 'HHmm')
+    }
+    return "Never"
   }
 
   const renderMedCardDetails = () => {
@@ -86,8 +89,6 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
       )
     }
   }
-
-
 
   return (
     <Card className="w-full p-0 overflow-hidden flex-shrink-0">
@@ -128,14 +129,11 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
           </CardContent>
         </div>
         <div className="grid grid-cols-6">
-          
           {processedColumns.map((col, index) => {
             const hasAdministrations = col.associatedAdministrations.length > 0;
-
-
             return (
-              <div key={`${index}-${medication.id}`} className='flex flex-col items-center border-l'>
-                <p className="font-medium text-sm">{col.colHeader}</p>
+              <div key={`${index}-${medication.id}`} className="flex flex-col items-center border-l">
+                <p className={` text-sm  ${index === 3 ? "font-bold underline" : "font-medium"}`}>{col.colHeader}</p>
                 {hasAdministrations && (
                   <div className="h-full flex flex-col justify-center items-center gap-1">
                     {col.associatedAdministrations.map(admin => {

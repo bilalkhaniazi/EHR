@@ -5,6 +5,7 @@ import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedO
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
 import { jamesAllen, type ChartData } from '@/components/chart.tsx/chartData';
 import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
+import { differenceInMinutes } from 'date-fns';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
@@ -219,10 +220,30 @@ export const apiSlice = createApi({
 
       // onQueryStarted is used for the optimistic update
       async onQueryStarted({ administrations }, { dispatch, queryFulfilled }) {
+
+
+
         // Update the 'getMar' query cache optimistically
         const patchResult = dispatch(
           apiSlice.util.updateQueryData('getMar', undefined, (draft) => {
-            // Append the new administrations to the existing array
+            const newAdminTimes = new Map(administrations.map(admin => [admin.medicationOrderId, admin.adminTimeMinuteOffset]));
+
+            const filteredAdministrations = draft.medAdministrations.filter(existingAdmin => {
+              if (existingAdmin.status !== "Due"){
+                return true;
+              }
+
+              const newAdminTime = newAdminTimes.get(existingAdmin.medicationOrderId);
+
+              if (newAdminTime === undefined) {
+                return true;
+              }
+              const minuteDifference = Math.abs(differenceInMinutes(newAdminTime, existingAdmin.adminTimeMinuteOffset));
+              return minuteDifference > 60
+            })
+
+            draft.medAdministrations = filteredAdministrations;
+
             draft.medAdministrations.push(...administrations);
           })
         );

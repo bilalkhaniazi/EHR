@@ -82,7 +82,7 @@ export interface MedAdministrationInstance {
   medicationOrderId: string;    // link to specific med order
   administratorId: string;      // who gave the med
   adminTimeMinuteOffset: number;
-  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due";
+  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" | "Patient Administered";
   notes?: string; 
 }
 
@@ -210,9 +210,9 @@ export const medAdministrations: MedAdministrationInstance[] = [
   {
     medicationOrderId: "orderMetoprololOral25", // Metoprolol
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: -180, 
+    adminTimeMinuteOffset: -200, 
     status: 'Given',
-    notes: "-60 metoprolol"
+    notes: " metoprolol"
   },
   {
     medicationOrderId: "orderAmoxIv", 
@@ -224,22 +224,15 @@ export const medAdministrations: MedAdministrationInstance[] = [
     {
     medicationOrderId: "orderAmoxIv", 
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: 60, 
-    status: 'Due',
+    adminTimeMinuteOffset: -180, 
+    status: 'Held',
     notes: "-61 amox."
   },
   {
     medicationOrderId: "orderMetoprololOral25", 
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: -121, 
-    status: 'Given',
-    notes: "-121 metoprolol dose."
-  },
-  {
-    medicationOrderId: "orderMetoprololOral25", 
-    administratorId: "RN Jones",
-    adminTimeMinuteOffset: -121, 
-    status: 'Held',
+    adminTimeMinuteOffset: 0, 
+    status: 'Due',
     notes: "-121 metoprolol dose."
   },
   {
@@ -247,6 +240,27 @@ export const medAdministrations: MedAdministrationInstance[] = [
     administratorId: "RN Jones",
     adminTimeMinuteOffset: -121, 
     status: 'Missed',
+    notes: "-121 metoprolol dose."
+  },
+  {
+    medicationOrderId: "orderLisinoprilOral10", 
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: 60, 
+    status: 'Due',
+    notes: "-121 metoprolol dose."
+  },
+  {
+    medicationOrderId: "orderVancomycinIv", 
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: 60, 
+    status: 'Due',
+    notes: "-121 metoprolol dose."
+  },
+  {
+    medicationOrderId: "orderVancomycinIv", 
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -140, 
+    status: 'Refused',
     notes: "-121 metoprolol dose."
   },
 ]
