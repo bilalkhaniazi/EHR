@@ -3,7 +3,9 @@ import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type L
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
-import { jamesAllen, type ChartSidebarData } from '@/components/chart.tsx/chartData';
+import { jamesAllen, type ChartData } from '@/components/chart.tsx/chartData';
+import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
+import { differenceInMinutes } from 'date-fns';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
@@ -15,13 +17,18 @@ interface GetFlexSheetsResponse {
   timeColumns: string[]
 }
 
-
-
 export interface GetOrdersResponse {
   nursingOrders: OrderData[];
   labratoryOrders: OrderData[];
   respiratoryOrders: OrderData[];
   medicationOrders: MedOrderData[];
+}
+
+interface GetMarResponse {
+  allMedications: AllMedicationTypes[];
+  medicationOrders: MedicationOrder[];
+  medAdministrations: MedAdministrationInstance[];
+  sessionStartDateString: string;
 }
 
 export const apiSlice = createApi({
@@ -98,7 +105,7 @@ export const apiSlice = createApi({
     }),
 
     // NotesPage
-   getNotes: builder.query<{notesData: NoteData[]}, void>({
+    getNotes: builder.query<{notesData: NoteData[]}, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return { data: { notesData: sampleNotes } };
@@ -129,7 +136,7 @@ export const apiSlice = createApi({
     // OrderPage
     getOrders: builder.query<GetOrdersResponse, void> ({
       queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         return {data: 
           {
             nursingOrders: nursingOrders, 
@@ -142,9 +149,9 @@ export const apiSlice = createApi({
     }),
     // could add new order mutation
     
-    getChart: builder.query<{chartData: ChartSidebarData}, void>({
+    getChart: builder.query<{chartData: ChartData}, void>({
       queryFn: async () => {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 500));
         return { data: { chartData: jamesAllen }
         }
       }
@@ -169,13 +176,12 @@ export const apiSlice = createApi({
         return { data: { message: `Time column ${newTime} added successfully`, newTime } };
       },
     }),
-    //  Mutation to update/save the entire FlexSheet data
     updateFlexSheetData: builder.mutation<
       { message: string, updatedData: tableData[] }, // Expected response from backend
       tableData[] // Payload: array of modified rows (the full current state of the sheet)
     >({
       queryFn: async (updatedRows) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
         console.log("Mock backend received FlexSheet update:", updatedRows);
         // 🚨 Mock backend logic: For a real backend, you'd save `updatedRows` to your DB.
         // For our current mock, we'll just return it.
@@ -184,6 +190,71 @@ export const apiSlice = createApi({
       // Invalidate after save so getFlexSheetData re-fetches the latest *saved* state
       // (This is crucial for ensuring the UI is in sync with the "database" after a save)
       // invalidatesTags: ['FlexSheetData'],
+    }),
+    getMar: builder.query<GetMarResponse, void>({
+      queryFn: async () => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const allMedAdministrations: MedAdministrationInstance[] = medAdministrations
+        const ptMedicationOrders: MedicationOrder[] = medicationOrders
+        const allPtMedications: AllMedicationTypes[] = allMedications
+        const simStartTime = new Date().toISOString()
+
+        return { data: { medicationOrders: ptMedicationOrders, medAdministrations: allMedAdministrations, allMedications: allPtMedications, sessionStartDateString: simStartTime}}
+      }
+    }),
+
+    submitNewAdministrations: builder.mutation<
+      { newAdministrations: MedAdministrationInstance[] },
+      { administrations: MedAdministrationInstance[] }
+    >({
+      // The queryFn simulates an API call
+      queryFn: async (payload) => {
+        // Simulate a network delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // A real backend would return a success message and the new data.
+        // For this mock, we'll just return the payload as the new data.
+        return { data: { newAdministrations: payload.administrations } };
+      },
+
+      // onQueryStarted is used for the optimistic update
+      async onQueryStarted({ administrations }, { dispatch, queryFulfilled }) {
+
+
+
+        // Update the 'getMar' query cache optimistically
+        const patchResult = dispatch(
+          apiSlice.util.updateQueryData('getMar', undefined, (draft) => {
+            const newAdminTimes = new Map(administrations.map(admin => [admin.medicationOrderId, admin.adminTimeMinuteOffset]));
+
+            const filteredAdministrations = draft.medAdministrations.filter(existingAdmin => {
+              if (existingAdmin.status !== "Due"){
+                return true;
+              }
+
+              const newAdminTime = newAdminTimes.get(existingAdmin.medicationOrderId);
+
+              if (newAdminTime === undefined) {
+                return true;
+              }
+              const minuteDifference = Math.abs(differenceInMinutes(newAdminTime, existingAdmin.adminTimeMinuteOffset));
+              return minuteDifference > 60
+            })
+
+            draft.medAdministrations = filteredAdministrations;
+
+            draft.medAdministrations.push(...administrations);
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          // If the API call fails, revert the optimistic update
+          patchResult.undo();
+        }
+      },
     }),
   }),
 });
@@ -200,4 +271,6 @@ export const {
   useAddTimeColumnMutation,
   useUpdateFlexSheetDataMutation,
   useGetChartQuery,
+  useGetMarQuery,
+  useSubmitNewAdministrationsMutation
 } = apiSlice

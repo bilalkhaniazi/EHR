@@ -80,7 +80,7 @@ export function FlexSheet() {
     useEffect(() => {
         if (data?.chartingData && !isSaving) { // Only update if not currently saving (to avoid overwriting unsaved edits)
             dispatch(initializeEditableData(data.chartingData));
-    }
+        }
     }, [data, isSaving, dispatch]);
 
 
@@ -446,7 +446,7 @@ export function FlexSheet() {
         onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
     >
         <SidebarInset className="">
-        <div className="flex flex-col bg-gray-100 w-[calc(100vw-18rem)] h-[calc(100vh-4rem)] px-4">
+        <div className="flex flex-col bg-gray-100 w-[calc(100vw-16rem)] h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
                 <div className="w-full flex justify-start gap-2 ">
                     <AddTimeColumnButton 

@@ -33,15 +33,15 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" onClick={() => setIsOpen(true)} className="hover:bg-black/5">
-        <PencilLine />
-        Add Note
-      </Button>
+          <PencilLine />
+          Add Note
+        </Button>
       </DialogTrigger>
       <DialogContent className="md:max-w-2xl xl:max-w-4xl">
         <DialogHeader>
         <DialogTitle>Nursing Note</DialogTitle>
         <DialogDescription>
-          
+          Prompt here
         </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">

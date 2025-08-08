@@ -1,8 +1,9 @@
 import { CircleUserRound, Info } from "lucide-react";
-import { type ChartSidebarData, type Contact, type StringValueItem } from "./chartData";
+import type { ChartData } from "./chartData";
 import { useGetChartQuery } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { format, subDays, subYears } from "date-fns";
 
 
 function ChartSidebarSkeleton() {
@@ -27,7 +28,7 @@ export default function ChartSidebar() {
 
   if (isLoading || isFetching && !data) {
     return (
-      <div className="w-72 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+      <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <ChartSidebarSkeleton  />
       </div>
     )
@@ -50,110 +51,138 @@ export default function ChartSidebar() {
     }
     console.log(errorMessage)
     return (
-      <div className="w-72 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+      <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <p>Failed to load data</p>
       </div>
 
     )
   }
 
+  const sidebarData: ChartData | undefined = data?.chartData;
 
-  const sidebarData: ChartSidebarData | undefined = data?.chartData;
 
   if (!sidebarData || Object.keys(sidebarData).length === 0) {
     return (
-      <div className="w-72 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+      <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <p>No patient data.</p>
       </div>
     )
   }
 
-  const nameItem = sidebarData.identifiers.find(item => item.id === 'name') as StringValueItem | undefined;
-  const dobItem = sidebarData.identifiers.find(item => item.id === 'dob') as StringValueItem | undefined;
-  const mrnItem = sidebarData.identifiers.find(item => item.id === 'mrn') as StringValueItem | undefined;
+  const displayDob = (age: number) => {
+    const date = new Date();
+    const birthDate = subYears(date, age);
+    return format(birthDate, 'P')
+  };
+  
+  const displayAdmissionDate = (daysIp: number) => {
+    const date = new Date();
+    const admissionDate = subDays(date, daysIp)
+    return format(admissionDate, "P")
+  };
 
   return (
-    <div className="w-72 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
+    <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <span className="rounded-full p-1 bg-gray-100 shadow-md">
-          <CircleUserRound size={116} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white"/>
+          <CircleUserRound size={100} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white"/>
         </span>
-        <div className="flex flex-col items-center gap-1">
-          <h1 className="text-purple-900 text-lg font-medium tracking-tight">
-            {nameItem?.value ?? "N/A"}
-          </h1>
-          <p className="text-purple-900 text-sm font-light tracking-tight">
-            {dobItem?.label ?? "N/A"}
-            <span className="pl-2 font-normal">{dobItem?.value ?? "N/A"}</span>
+        <div className="flex flex-col items-center">
+          <h1 className="text-purple-900 text-lg font-medium tracking-tight">{sidebarData.name.value}</h1>
+          <p className="text-purple-900 text-sm tracking-tight">
+            {sidebarData.gender.value},
+            <span className="pl-2 font-normal">{sidebarData.age.value} y.o.</span>
           </p>
           <p className="text-purple-900 text-sm font-light tracking-tight">
-            {mrnItem?.label ?? 'N/A'}:
-            <span className="pl-2 font-normal">{mrnItem?.value ?? "N/A"}</span>
+            {sidebarData.age.label}:
+            <span className="pl-2 font-normal">{displayDob(sidebarData.age.value)}</span>
+          </p>
+          <p className="text-purple-900 text-sm font-light tracking-tight">
+            {sidebarData.mrn.label ?? 'N/A'}:
+            <span className="pl-2 font-normal">{sidebarData.mrn.value ?? "N/A"}</span>
+          </p>
+        
+          <p className="text-purple-900 text-sm font-light tracking-tight">
+            {sidebarData.code.label}:
+            <span className="pl-2 font-normal">{sidebarData.code.value}</span>
           </p>
         </div>
 
         <div className="flex flex-col h-fit max-h-full py-4 px-2 rounded-lg shadow-md mt-4 border gap-6 bg-white overflow-y-auto">
-          {/*Demographic Data */}
+          {/* Current Admission Data */}
           <div className="relative flex flex-col border bg-white border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
-            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">Demographics</p>
-            {Object.values(sidebarData.demographics).map((row) => {
-              return(
-                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight">
-                  <span className="underline">{row.label}:</span>
-                  <span className="pl-2 font-normal">{row.value}</span>
-                </p>
-              );
-            })}
+            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">This Admission</p>
+          
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline">{sidebarData.admissionDate.label}</span>
+              <span className="pl-2 font-normal">{displayAdmissionDate(sidebarData.admissionDate.value)}</span>
+            </p>
+             <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline">{sidebarData.attending.label}:</span>
+              <span className="pl-2 font-normal">{sidebarData.attending.value}</span>
+            </p>
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline">{sidebarData.location.label}</span>
+              <span className="pl-2 font-normal">{sidebarData.location.value}</span>
+            </p>
           </div>
 
-          {/*Clinical Data */}
+          {/* Clinical Info */}
           <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Clinical Info</p>
-            {Object.values(sidebarData.clinicalInfo).map((row) => {
-              const isIsolationRow = row.id === "isolation";
-
-              return(
-                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight  ">
-                  <span className="underline pr-2 text-nowrap">{row.label}:</span>
-                  <span className={`font-normal decoration-none no-underline ${isIsolationRow ? 'px-2 bg-yellow-200 rounded-md' : ''}`}>
-                    {Array.isArray(row.value) ? row.value.join(", ") : row.value}
-                  </span>
-                  {isIsolationRow && 'tooltip' in row &&
-                    <span className="pl-1">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <Info size={14} color="oklch(38.1% 0.176 304.987)" />
-                          </TooltipTrigger>
-                          <TooltipContent className="w-fit">
-                            <p className="max-w-120 text-wrap">{row.tooltip}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </span>
-                  }
-                </p>
-              );
-            })}
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+                  <span className="underline">{sidebarData.height.label}:</span>
+                  <span className="pl-2 font-normal">{sidebarData.height.value}</span>
+            </p>
+             <p className="text-purple-900 text-xs font-light tracking-tight">
+                  <span className="underline">{sidebarData.weight.label}:</span>
+                  <span className="pl-2 font-normal">{sidebarData.weight.value}</span>
+            </p>
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline text-nowrap">{sidebarData.isolation.label}:</span>
+              <span className="pl-2 font-normal">{sidebarData.isolation.value}</span>
+                {/* <span className='font-normal decoration-none no-underline px-2 bg-yellow-200 rounded-md'>
+                  {sidebarData.isolation.value.join(", ") : row.value}
+                </span> */}
+              <span className="pl-1">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info size={14} color="oklch(38.1% 0.176 304.987)" />
+                    </TooltipTrigger>
+                    <TooltipContent className="w-fit">
+                      <p className="max-w-120 text-wrap">{sidebarData.isolation.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </span>
+            </p>
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline pr-2 text-nowrap">{sidebarData.allergies.label}:</span>
+              <span className='font-normal decoration-none no-underline px-2 bg-yellow-200 rounded-md'>
+                {sidebarData.allergies.value.join(", ")}
+              </span>
+            </p>
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline pr-2 text-nowrap">{sidebarData.pmh.label}:</span>
+              <span className='font-normal decoration-none no-underline rounded-md'>
+                {sidebarData.pmh.value.join(", ")}
+              </span>
+            </p>
+            
           </div>
 
-          {/*Social Data */}
+          {/* MAR */}
           <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
-            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Social Info</p>
-            
-            {/* handle Contact type or string */}
-            {Object.values(sidebarData.socialFactors).map((row) => {
-              const isSupportPersonArray = Array.isArray(row.value);
-              const displayValue = isSupportPersonArray
-                ? (row.value as Contact[]).map(person => person.name).join(', ')
-                : String(row.value); 
-              return(
-                <p key={row.label} className="text-purple-900 text-xs font-light tracking-tight">
-                  <span className="underline">{row.label}:</span>
-                  <span className="pl-2 font-normal">{displayValue}</span>
-                </p>
-              )
-            })}
-              
+            <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">MAR</p>
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline">Scheduled</span>
+              <span className="pl-2 font-normal">{sidebarData.location.value}</span>
+            </p>
+            <p className="text-purple-900 text-xs font-light tracking-tight">
+              <span className="underline">PRN</span>
+              <span className="pl-2 font-normal">{sidebarData.location.value}</span>
+            </p>
+      
           </div>
         </div>
 

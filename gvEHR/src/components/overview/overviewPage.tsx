@@ -7,6 +7,7 @@ import Alerts from "./alerts"
 import CareTeam from "./careTeam"
 import { IntakeOutput } from "./intakeOutput"
 import { SelectedLabs } from "./selectedLabs"
+import MarSnapshot from "./marSnapshot"
 
 const OverviewPage = () => {
   return (
@@ -22,6 +23,7 @@ const OverviewPage = () => {
           <CareTeam />
           <IntakeOutput />
           <SelectedLabs />
+          <MarSnapshot />
           <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
           <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
           <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>

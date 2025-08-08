@@ -21,32 +21,42 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
     onSelectionChange,
     columnId,
 }) => {
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(selectedOptions));
     // Local state to manage the checkboxes within the popover
-    const [localSelected, setLocalSelected] = useState<Set<string>>(new Set(selectedOptions));
+    const [selectedLabels, setSelectedLabels] = useState<Set<string>>(new Set(selectedOptions));
+
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-    const handleCheckboxChange = (value: string, checked: boolean) => {
-        setLocalSelected(prev => {
-            const newSet = new Set(prev);
+    const handleCheckboxChange = (id: string, label: string, checked: boolean) => {
+        setSelectedIds(prev => {
+            const newIdSet = new Set(prev);
             if (checked) {
-                newSet.add(value);
+                newIdSet.add(id);
             } else {
-                newSet.delete(value);
+                newIdSet.delete(id);
             }
-            console.log(newSet)
-            return newSet;
+            return newIdSet;
         });
+        setSelectedLabels(prev => {
+            const newLabelSet = new Set(prev);
+            if (checked) {
+                newLabelSet.add(label);
+            } else {
+                newLabelSet.delete(label);
+            }
+            return newLabelSet;
+        })
     };
 
     const handleApplyClick = () => {
         // When the "Apply" button is clicked, notify the parent of the final selections
-        onSelectionChange(rowId, columnId, Array.from(localSelected));
+        onSelectionChange(rowId, columnId, Array.from(selectedLabels));
         setIsPopoverOpen(false); // Close the popover after applying
     };
 
     const handleCancelClick = () => {
-        // If "Cancel" is clicked, revert to the parent's current selections and close
-        setLocalSelected(new Set(selectedOptions)); // Revert local changes
+        // If "Cancel" is clicked, revert to the parent's current selections and close. Does not update labels yet though..
+        setSelectedIds(new Set(selectedOptions));
         setIsPopoverOpen(false);
     };
 
@@ -54,7 +64,7 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}> 
             <PopoverTrigger asChild className='justify-start w-full gap-0 px-0'>
                 <Button className="h-6 w-full rounded-none px-2 overflow-hidden bg-transparent shadow-none hover:bg-muted/30 font-normal text-xs text-black">
-                    {[...localSelected].join(', ') || ""}
+                    {[...selectedLabels].join(', ') || ""}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full bg-white p-0 shadow-md shadow-black/30 border rounded-xl overflow-hidden">
@@ -73,8 +83,8 @@ const CheckBoxList: React.FC<CheckBoxListProps> = ({
                                 >
                                     <Checkbox
                                         id={checkboxId}
-                                        checked={localSelected.has(option.subsetId)}
-                                        onCheckedChange={(checked) => handleCheckboxChange(option.subsetId, checked as boolean)}
+                                        checked={selectedIds.has(option.subsetId)}
+                                        onCheckedChange={(checked) => handleCheckboxChange(option.subsetId, option.label, checked as boolean)}
                                         className="data-[state=checked]:border-gray-600 data-[state=checked]:bg-gray-600 data-[state=checked]:text-white "
                                     />
                                     <p className="text-xs text-left leading-none font-normal">
