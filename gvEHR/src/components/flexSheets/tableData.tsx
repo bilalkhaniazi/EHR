@@ -19,59 +19,24 @@ export interface tableData {
 
 };
 
-const formatTime = (date: Date): string => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}${minutes}`;
+// an array of all numeric time offsets is needed because tanstack table needs to iterate through them to display each time column
+// a time offset is either derived from the prefined data (numeric keys) or generated dynamically to fall exactly on the hour (1300, 1400, etc.)
+export const getAllTimeOffsets = () => {
+    const currDate = new Date()             // on session start
+    const minutes = currDate.getMinutes()
+    console.log(minutes)
+    const dynamicTimeOffsets = Array.from({ length: 2 }, (_, index) => {
+        return 0 - minutes + (60 * index)
+    })
+
+    const predefinedTimeOffsets = Object.keys(predefinedVitalsData2).map(Number)
+
+    const allTimeOffsets = [... new Set([...dynamicTimeOffsets, ...predefinedTimeOffsets])];
+
+    return allTimeOffsets.sort((a, b) => b - a)
 };
 
-export const getInitialDynamicHours = (currHour: number) => {
-    return Array.from({length: 2}, (_, index) => {
-        const adjustedHour = (currHour + index) % 24
-        return `${adjustedHour.toString().padStart(2, "0")}00`
-    }); 
-};
-
-export const getPredefinedHoursMap = (currDate: Date) => {
-    const predefinedTimesMap= new Map<string, number>();
-
-    const allOffsetTimes = new Set<number>()
-    Object.values(predefinedVitalsData).forEach(fieldData => {
-        Object.keys(fieldData).forEach(minuteOffsetStr => {
-            allOffsetTimes.add(parseInt(minuteOffsetStr))
-        });
-    });
-
-    Array.from(allOffsetTimes).sort((a, b) => a - b).forEach(minutesOffset => {
-        const tempDate = new Date(currDate)
-        tempDate.setMinutes(currDate.getMinutes() - minutesOffset);
-        const formattedTime = formatTime(tempDate)
-        predefinedTimesMap.set(formattedTime, minutesOffset)
-    });
-            
-    return predefinedTimesMap
-};
-
-export const getAllInitialHours = (): { allTimesColumns: string[], predefinedChartingTimeMap: Map<string, number> } => {
-    const currDate = new Date()
-    const currHour = currDate.getHours()
-
-    const dynamicTimes = getInitialDynamicHours(currHour);
-
-    const predefinedVitalsTimeMap = getPredefinedHoursMap(currDate);
-    const predefinedTimes = Array.from(predefinedVitalsTimeMap.keys())
-    const combinedTimes = [... new Set([...dynamicTimes, ...predefinedTimes])];
-
-    return { 
-        allTimesColumns: combinedTimes.sort(),
-        predefinedChartingTimeMap: predefinedVitalsTimeMap
-    }
-};
-
-export const generateInitialChartingData = (
-    allTimesColumns: string[],
-    staticTimesMap: Map<string, number>
-): tableData[] => {
+export const generateInitialChartingData = (allTimeOffsets: number[]): tableData[] => {
     const generatedData: tableData[] = []
 
     vitalsTemplate.forEach(templateRow => {
@@ -87,30 +52,20 @@ export const generateInitialChartingData = (
             ...(templateRow.assessmentSubsets && { assessmentSubsets: templateRow.assessmentSubsets}),
             ...(templateRow.wdlDescription && { wdlDescription: templateRow.wdlDescription }),
             ...(templateRow.toolName && { toolName: templateRow.toolName})
-
         };
 
         let hasPrefinedValue = false;
 
-        allTimesColumns.forEach(hour => {
-            const correspondingMinuteOffset = staticTimesMap.get(hour)
-
-            let predefinedValue: string | undefined
-
-            if ( correspondingMinuteOffset !== undefined) {
-                const valueFromPredefined = predefinedVitalsData[templateRow.field]?.[correspondingMinuteOffset];
-                if (valueFromPredefined !== undefined && valueFromPredefined !== null && valueFromPredefined !== '') {
-                    predefinedValue = valueFromPredefined
-                    hasPrefinedValue = true
-                } else {
-                    predefinedValue = ''
-                }
-            } else {
-                predefinedValue = ''
+        // if a predefined value exists at the corresping time offset for a specific row (HR, BP, etc), assign it to the row with time offset as the key 
+        allTimeOffsets.forEach(offset => {
+            const predefinedValue = predefinedVitalsData2[offset]?.[templateRow.id] 
+            if (predefinedValue) {
+                hasPrefinedValue = true;
             }
-            newRow[hour] = predefinedValue;
+            newRow[offset] = predefinedValue
         });
 
+        // if a hideable row has a predefined value, the row should be displayed 
         if (hasPrefinedValue) {
             newRow.hideable = false;
         } else {
@@ -122,22 +77,43 @@ export const generateInitialChartingData = (
     return generatedData
 };
 
-const predefinedVitalsData: { [field: string]: { [time: number]: string } } = {
-    "HR" : {90: "112", 60: "88"},
-    "HR Source": {90: "Monitor", 60: "Radial"},
-    "BP": {90: "112/68", 60: "124/72"},
-    "BP Source": {90: "Left upper arm", 60: "Left upper arm"},
-    "RR": {90: "21", 60: "20"},
-    "Temp": {90: "37.4", 60: "36.8"},
-    "Temp Source": {90: "Oral", 60: "Oral"},
-    "SpO2": {90: "91", 60: "98"},
-    "Pain": {90: "2"},
-    "Weight (kg)": {90: "76.4 kg"},
-    "Lung Sounds" : {90: "Clear"},
-    "Heart Sounds": {90: "S1, S2. No mumur noted"},
-    "Extremities": {90: "+2 pitting edema in BLE"}
 
-}
+type PredefinedVitalsEvent = {
+    [field: string]: string;
+};
+
+// Type for the main data object, keyed by the minute offset
+type PredefinedDataByTime = {
+    [timeOffset: number]: PredefinedVitalsEvent;
+};
+
+const predefinedVitalsData2: PredefinedDataByTime = {
+    10000: { // Data from 60 minutes ago
+        "hrInput": "88",
+        "hrSourceSelect": "Radial",
+        "bpSourceSelect": "124/72",
+        "BP Source": "Left upper arm",
+        "rrInput": "20",
+        "tempInput": "36.8",
+        "tempSourceSelect": "Oral",
+        "spo2Input": "98"
+    },
+    90: { // Data from 90 minutes ago
+        "hrInput": "112",
+        "hrSourceSelect": "Monitor",
+        "bpInput": "112/68",
+        "bpSourceSelect": "Left upper arm",
+        "rrInput": "21",
+        "tempInput": "37.4",
+        "tempSourceSelect": "Oral",
+        "spo2Input": "91",
+        "painInput": "2",
+        "weightKgInput": "76.4 kg",
+        "lungSoundsInput": "Clear",
+        "heartSoundsInput": "S1, S2. No mumur noted",
+        "extremitiesInput": "+2 pitting edema in BLE"
+    }
+};
 
 const vitalsTemplate: tableData[] = [
     

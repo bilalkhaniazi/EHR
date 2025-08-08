@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTimePoint, type LabTableData } from '@/components/labs/labsData'
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
-import { generateInitialChartingData, getAllInitialHours, type tableData } from '@/components/flexSheets/tableData';
+import { generateInitialChartingData, getAllTimeOffsets, type tableData } from '@/components/flexSheets/tableData';
 import { jamesAllen, type ChartData } from '@/components/chart.tsx/chartData';
 import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
 import { differenceInMinutes } from 'date-fns';
@@ -14,7 +14,7 @@ interface GetLabsResponse {
 
 interface GetFlexSheetsResponse {
   chartingData: tableData[];
-  timeColumns: string[]
+  timeOffsets: number[]
 }
 
 export interface GetOrdersResponse {
@@ -161,19 +161,36 @@ export const apiSlice = createApi({
     getFlexSheetCharting: builder.query<GetFlexSheetsResponse, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const { allTimesColumns, predefinedChartingTimeMap } = getAllInitialHours();
-        const initialData = generateInitialChartingData(allTimesColumns, predefinedChartingTimeMap);
-        return { data: { chartingData: initialData, timeColumns: allTimesColumns}}
+        const allTimeOffsets = getAllTimeOffsets();
+        const initialData = generateInitialChartingData(allTimeOffsets);
+        return { data: { chartingData: initialData, timeOffsets: allTimeOffsets}}
       },
     }),
     addTimeColumn: builder.mutation<
-      { message: string, newTime: string }, // Expected response
-      { newTime: string } // Payload: just the new time string
+      { message: string, newTimeOffset: number }, // Expected response
+      { newTimeOffset: number } // Payload: just the new time string
     >({
-      queryFn: async ({ newTime }) => {
+      queryFn: async ({ newTimeOffset }) => {
         await new Promise(resolve => setTimeout(resolve, 500));
-        console.log(`Mock backend received request to add time column: ${newTime}`);
-        return { data: { message: `Time column ${newTime} added successfully`, newTime } };
+        console.log(`Mock backend received request to add time column: ${newTimeOffset}`);
+        return { data: { message: `Time column ${newTimeOffset} added successfully`, newTimeOffset } };
+      
+      
+      // pre-redux column adding logic
+      //   const handleColumnAdd = useCallback((newTime: string) => {
+      //     setTimeColumns(prevColumns => {
+      //         const updatedColumns = [...prevColumns, newTime].sort();
+      //         return updatedColumns;
+      //     });
+
+      //     setData(prevData =>
+      //         prevData.map(row => {
+      //             const newRow = { ...row };
+      //             newRow[newTime] = '';
+      //             return newRow;
+      //         })
+      //     );
+      // }, []);
       },
     }),
     updateFlexSheetData: builder.mutation<

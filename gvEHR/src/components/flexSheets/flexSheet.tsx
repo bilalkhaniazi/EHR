@@ -36,31 +36,51 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
-    export function calculateColTotal(toolName: string, grouped: tableData[], timeColumns: string[]) {
-        const totalRow: tableData = {
-            id: `${toolName}TotalScore`,
-            field: `${toolName} Total Score`,
-            componentType: "totalScoreRow", // This will be a static display
-            rowType: "totalScoreRow", // A new rowType to identify it
-        };
+const formatTimeFromOffset = (offsetMinutes: number) => {
+    const now = new Date();
+    // Subtract the offset from the current time
+    const targetTime = new Date(now.getTime() - offsetMinutes * 60 * 1000);
 
-        // Calculate total for each time column
-        timeColumns.forEach(timeCol => {
-            let totalScore = 0;
-            let hasEnteredValue = false
+    const time = targetTime.toLocaleTimeString("en-US", {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    }).replace(':', '');
 
-            grouped.forEach(toolRow => {
-                const score = parseInt(toolRow[timeCol]);
-                if (!isNaN(score)) {
-                    totalScore += score;
-                    hasEnteredValue = true
-                }
-            });
-            console.log("total score", totalScore.toString())
-            totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : "";
+    const date = targetTime.toLocaleDateString("en-US", {
+        month: "numeric",
+        day: "numeric",
+    });
+
+    return { time, date };
+};
+
+
+export function calculateColTotal(toolName: string, grouped: tableData[], timeOffsets: number[]) {
+    const totalRow: tableData = {
+        id: `${toolName}TotalScore`,
+        field: `${toolName} Total Score`,
+        componentType: "totalScoreRow", // This will be a static display
+        rowType: "totalScoreRow", // A new rowType to identify it
+    };
+
+    // Calculate total for each time column
+    timeOffsets.forEach(timeCol => {
+        let totalScore = 0;
+        let hasEnteredValue = false
+
+        grouped.forEach(toolRow => {
+            const score = parseInt(toolRow[timeCol]);
+            if (!isNaN(score)) {
+                totalScore += score;
+                hasEnteredValue = true
+            }
         });
-        return totalRow
-    }
+        console.log("total score", totalScore.toString())
+        totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : "";
+    });
+    return totalRow
+}
 
 export function FlexSheet() {
     const dispatch = useDispatch<AppDispatch>();
@@ -75,7 +95,7 @@ export function FlexSheet() {
     const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen); 
     // console.log(editableData)
 
-    const timeColumns = data?.timeColumns || [];
+    const timeOffsets = data?.timeOffsets || [];
 
     useEffect(() => {
         if (data?.chartingData && !isSaving) { // Only update if not currently saving (to avoid overwriting unsaved edits)
@@ -130,7 +150,7 @@ export function FlexSheet() {
             if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
                 const toolName = row.hideableId; // Assuming hideableId matches toolName for title rows
                 if (groupedByTool[toolName]) {
-                    const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeColumns);
+                    const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeOffsets);
                     newFilteredData.push(totalRow);
                 }
             }
@@ -138,7 +158,7 @@ export function FlexSheet() {
             // if (row.id === "intakeTitle" || row.Id === "outputTitle") {
             //     const toolName = row.id
             //     if (groupedByTool[toolName] && groupedByTool[toolName].some(r => r.hideableId && visibleSubsetIds.has(r.hideableId))) {
-            //         const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeColumns);
+            //         const totalRow = calculateColTotal(toolName, groupedByTool[toolName], timeOffsets);
             //         totalRow.id = `${toolName}TotalRow`
             //         newFilteredData.push(totalRow)
             //     }
@@ -146,7 +166,7 @@ export function FlexSheet() {
         });
 
         return newFilteredData;
-    }, [visibleSubsetIds, editableData, data?.chartingData, timeColumns]); 
+    }, [visibleSubsetIds, editableData, data?.chartingData, timeOffsets]); 
 
     console.log(filteredData)
 
@@ -164,15 +184,15 @@ export function FlexSheet() {
     }, []);
 
 
-    const handleColumnAdd = async (newTime: string) => {
-        // timeColumns would be recalculated upon addition on new column with the mutation marking the data as stale
-        if (timeColumns.includes(newTime)) {
-            toast.error(`A column for time ${newTime} already exists.`);
+    const handleColumnAdd = async (newTimeOffset: number) => {
+        // timeOffsets would be recalculated upon addition on new column with the mutation marking the data as stale
+        if (timeOffsets.includes(newTimeOffset)) {
+            toast.error(`A column for time ${newTimeOffset} already exists.`);
             return;
         }
         try {
 
-            const response = await triggerAddTimeColumn({ newTime }).unwrap(); 
+            const response = await triggerAddTimeColumn({ newTimeOffset }).unwrap(); 
             toast.success(response.message);
         } catch (err) {
             toast.error(`Failed to add column: ${err instanceof Error ? err.message : String(err)}`);
@@ -215,13 +235,13 @@ export function FlexSheet() {
         return JSON.stringify(editableData) !== JSON.stringify(data.chartingData);
     }, [editableData, data?.chartingData]);
 
-    const displayDate = useMemo(() => {
-        const todayDate = new Date()
-        return todayDate.toLocaleDateString("en-US", {
-            month: "numeric",
-            day: "numeric",
-        });
-    }, []);
+    // const displayDate = useMemo(() => {
+    //     const todayDate = new Date()
+    //     return todayDate.toLocaleDateString("en-US", {
+    //         month: "numeric",
+    //         day: "numeric",
+    //     });
+    // }, []);
 
     const columns = useMemo(
         () => [
@@ -305,13 +325,14 @@ export function FlexSheet() {
                 },
             }),
 
-            ...timeColumns.map(timeKey =>
-                columnHelper.accessor(timeKey, {
-                    id: timeKey,
+            ...timeOffsets.map(offsetKey => {
+                const { time: displayTime, date: displayDate } = formatTimeFromOffset(offsetKey);
+                return columnHelper.accessor(row => row[offsetKey], {
+                    id: String(offsetKey),
                     header: () => (
                         <div className="flex flex-col justify-center items-center">
                             <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
-                            <h1 className="mb-1">{timeKey}</h1>
+                            <h1 className="mb-1">{displayTime}</h1>
                         </div>
                     ),
                     cell: ({row, column, getValue}) => {
@@ -399,12 +420,12 @@ export function FlexSheet() {
                             )
                         };
                     }
-                }),
-            )
+                })
+            })
             
             
         ],
-        [timeColumns]
+        [timeOffsets]
     );
 
     const ptTable = useReactTable({
@@ -449,10 +470,10 @@ export function FlexSheet() {
         <div className="flex flex-col bg-gray-100 w-[calc(100vw-16rem)] h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
                 <div className="w-full flex justify-start gap-2 ">
-                    <AddTimeColumnButton 
+                    {/* <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
-                        existingTimeColumns={timeColumns}
-                    />
+                        existingTimeColumns={timeOffsets}
+                    /> */}
                     <Button
                         onClick={handleSave}
                         disabled={!hasChanges || isSaving}

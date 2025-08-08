@@ -6,8 +6,8 @@ import { Clock, Plus } from "lucide-react";
 import { toast } from "sonner"; 
 
 interface AddTimeColumnButtonProps {
-    onColumnAdd: (timeString: string) => void;
-    existingTimeColumns: string[];
+    onColumnAdd: (timeString: number) => void;
+    existingTimeColumns: number[];
 }
 
 export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTimeColumnButtonProps) {
