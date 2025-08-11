@@ -1,3 +1,4 @@
+import { getMinutes } from "date-fns";
 export interface chartingOptions {
     subsetId: string;
     label: string;
@@ -21,12 +22,15 @@ export interface tableData {
 
 // an array of all numeric time offsets is needed because tanstack table needs to iterate through them to display each time column
 // a time offset is either derived from the prefined data (numeric keys) or generated dynamically to fall exactly on the hour (1300, 1400, etc.)
-export const getAllTimeOffsets = () => {
-    const currDate = new Date()             // on session start
-    const minutes = currDate.getMinutes()
-    console.log(minutes)
-    const dynamicTimeOffsets = Array.from({ length: 2 }, (_, index) => {
-        return 0 - minutes + (60 * index)
+// negative time is in the present, prefined charting data's postive time is in the past, could flip for clarity
+export const getAllTimeOffsets = (simulationNow: number) => {
+
+    const minutesPastTheHour = getMinutes(simulationNow)
+    // console.log(minutes)
+    const dynamicTimeOffsets = Array.from({ length: 4 }, (_, index) => {
+        const temp =  minutesPastTheHour - (60 * index)
+        console.log(temp)
+        return temp
     })
 
     const predefinedTimeOffsets = Object.keys(predefinedVitalsData2).map(Number)

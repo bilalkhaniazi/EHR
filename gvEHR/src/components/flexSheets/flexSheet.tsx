@@ -20,6 +20,7 @@ import { toggleSidebar, setSidebarOpen, updateEditableData, setFieldSelection, i
 import type { RootState, AppDispatch } from "../../app/store";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
+import { differenceInMilliseconds, format } from "date-fns";
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -36,21 +37,17 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
-const formatTimeFromOffset = (offsetMinutes: number) => {
-    const now = new Date();
+// not currently using global time from timeSlice because of forcing a rerender every second
+const formatTimeFromOffset = (offsetMinutes: number, nowTimestamp: number | null) => {
+    if (!nowTimestamp) {
+        return { error: { status: 'CUSTOM_ERROR', data: 'Time has not been initialized.' } }; 
+    }
+    // const now = Date.now()
     // Subtract the offset from the current time
-    const targetTime = new Date(now.getTime() - offsetMinutes * 60 * 1000);
-
-    const time = targetTime.toLocaleTimeString("en-US", {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    }).replace(':', '');
-
-    const date = targetTime.toLocaleDateString("en-US", {
-        month: "numeric",
-        day: "numeric",
-    });
+    const targetTime = differenceInMilliseconds(nowTimestamp, (offsetMinutes * 60 * 1000));
+    
+    const time = format(targetTime, 'HHmm')
+    const date = format(targetTime, 'MM/dd')
 
     return { time, date };
 };
@@ -76,7 +73,6 @@ export function calculateColTotal(toolName: string, grouped: tableData[], timeOf
                 hasEnteredValue = true
             }
         });
-        console.log("total score", totalScore.toString())
         totalRow[timeCol] = hasEnteredValue ? totalScore.toString() : "";
     });
     return totalRow
@@ -92,9 +88,10 @@ export function FlexSheet() {
 
     const editableData = useSelector((state: RootState) => state.flexSheet.editableData);
     const fieldSelections = useSelector((state: RootState) => state.flexSheet.fieldSelections);
-    const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen); 
-    // console.log(editableData)
-
+    const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen);
+    // const simTime = useSelector((state: RootState) => state.time.simulationNow);
+    const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime) 
+ 
     const timeOffsets = data?.timeOffsets || [];
 
     useEffect(() => {
@@ -131,7 +128,6 @@ export function FlexSheet() {
                 groupedByTool[row.toolName].push(row);
             }
         });
-        console.log(groupedByTool)
         const newFilteredData: tableData[] = [];
 
         currentDataToFilter.forEach(row => {
@@ -166,7 +162,7 @@ export function FlexSheet() {
         });
 
         return newFilteredData;
-    }, [visibleSubsetIds, editableData, data?.chartingData, timeOffsets]); 
+    }, [visibleSubsetIds, editableData, data?.chartingData]); 
 
     console.log(filteredData)
 
@@ -200,6 +196,7 @@ export function FlexSheet() {
         }
     };
 
+    // opening of sidebar reference for assessment tools
     useEffect(() => {
         let shouldOpen = false;
         for (const tool of assessmentTools) {
@@ -235,13 +232,6 @@ export function FlexSheet() {
         return JSON.stringify(editableData) !== JSON.stringify(data.chartingData);
     }, [editableData, data?.chartingData]);
 
-    // const displayDate = useMemo(() => {
-    //     const todayDate = new Date()
-    //     return todayDate.toLocaleDateString("en-US", {
-    //         month: "numeric",
-    //         day: "numeric",
-    //     });
-    // }, []);
 
     const columns = useMemo(
         () => [
@@ -326,7 +316,7 @@ export function FlexSheet() {
             }),
 
             ...timeOffsets.map(offsetKey => {
-                const { time: displayTime, date: displayDate } = formatTimeFromOffset(offsetKey);
+                const { time: displayTime, date: displayDate } = formatTimeFromOffset(offsetKey, sessionStartTime);
                 return columnHelper.accessor(row => row[offsetKey], {
                     id: String(offsetKey),
                     header: () => (
@@ -470,10 +460,10 @@ export function FlexSheet() {
         <div className="flex flex-col bg-gray-100 w-[calc(100vw-16rem)] h-[calc(100vh-4rem)] px-4">
             <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
                 <div className="w-full flex justify-start gap-2 ">
-                    {/* <AddTimeColumnButton 
+                    <AddTimeColumnButton 
                         onColumnAdd={handleColumnAdd}
                         existingTimeColumns={timeOffsets}
-                    /> */}
+                    />
                     <Button
                         onClick={handleSave}
                         disabled={!hasChanges || isSaving}

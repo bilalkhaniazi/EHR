@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import Header from "./components/chart.tsx/Header";
+import Header from "./components/chart/Header";
 
 export default function Layout() {
     return (

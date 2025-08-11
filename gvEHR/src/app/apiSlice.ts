@@ -3,9 +3,10 @@ import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type L
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllTimeOffsets, type tableData } from '@/components/flexSheets/tableData';
-import { jamesAllen, type ChartData } from '@/components/chart.tsx/chartData';
+import { jamesAllen, type ChartData } from '@/components/chart/chartData';
 import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
 import { differenceInMinutes } from 'date-fns';
+import type { RootState } from './store';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
@@ -159,9 +160,17 @@ export const apiSlice = createApi({
 
     // FlexSheets
     getFlexSheetCharting: builder.query<GetFlexSheetsResponse, void>({
-      queryFn: async () => {
+      queryFn: async (_arg, { getState }) => {
+        const state = getState() as RootState;
+        const { simulationNow } = state.time;
+
+        if (!simulationNow) {
+          return { error: { status: 'CUSTOM_ERROR', message: 'Time has not been initialized.' } };
+        }
+        const nowTimestamp = simulationNow;
+
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const allTimeOffsets = getAllTimeOffsets();
+        const allTimeOffsets = getAllTimeOffsets(nowTimestamp);
         const initialData = generateInitialChartingData(allTimeOffsets);
         return { data: { chartingData: initialData, timeOffsets: allTimeOffsets}}
       },
