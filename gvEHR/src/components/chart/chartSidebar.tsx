@@ -4,6 +4,8 @@ import { useGetChartQuery } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { format, subDays, subYears } from "date-fns";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store";
 
 
 function ChartSidebarSkeleton() {
@@ -24,9 +26,10 @@ function ChartSidebarSkeleton() {
 } 
 
 export default function ChartSidebar() {
-  const { data, isLoading, isError, error, isFetching } = useGetChartQuery()
+  const { data, isLoading, isError, error, isFetching } = useGetChartQuery();
+  const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
 
-  if (isLoading || isFetching && !data) {
+  if (isLoading || isFetching || !sessionStartTime) {
     return (
       <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <ChartSidebarSkeleton  />
@@ -69,15 +72,13 @@ export default function ChartSidebar() {
     )
   }
 
-  const displayDob = (age: number) => {
-    const date = new Date();
-    const birthDate = subYears(date, age);
+  const displayDob = (sessionStartDate: number, age: number) => {
+    const birthDate = subYears(sessionStartDate, age);
     return format(birthDate, 'P')
   };
   
-  const displayAdmissionDate = (daysIp: number) => {
-    const date = new Date();
-    const admissionDate = subDays(date, daysIp)
+  const displayAdmissionDate = (currDate: number, daysIp: number) => {
+    const admissionDate = subDays(currDate, daysIp)
     return format(admissionDate, "P")
   };
 
@@ -94,7 +95,7 @@ export default function ChartSidebar() {
           </p>
           <p className="text-purple-900 text-sm font-light tracking-tight">
             {sidebarData.age.label}:
-            <span className="pl-2 font-normal">{displayDob(sidebarData.age.value)}</span>
+            <span className="pl-2 font-normal">{displayDob(sessionStartTime, sidebarData.age.value)}</span>
           </p>
           <p className="text-purple-900 text-sm font-light tracking-tight">
             {sidebarData.mrn.label ?? 'N/A'}:
@@ -114,7 +115,7 @@ export default function ChartSidebar() {
           
             <p className="text-purple-900 text-xs font-light tracking-tight">
               <span className="underline">{sidebarData.admissionDate.label}</span>
-              <span className="pl-2 font-normal">{displayAdmissionDate(sidebarData.admissionDate.value)}</span>
+              <span className="pl-2 font-normal">{displayAdmissionDate(sessionStartTime, sidebarData.admissionDate.value)}</span>
             </p>
              <p className="text-purple-900 text-xs font-light tracking-tight">
               <span className="underline">{sidebarData.attending.label}:</span>
@@ -174,14 +175,19 @@ export default function ChartSidebar() {
           {/* MAR */}
           <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">MAR</p>
-            <p className="text-purple-900 text-xs font-light tracking-tight">
-              <span className="underline">Scheduled</span>
-              <span className="pl-2 font-normal">{sidebarData.location.value}</span>
+            <p className="text-purple-900 text-xs tracking-tight">
+              <span className="underline">Scheduled:</span>
+              <span className="pl-2 font-medium">8 order</span>
             </p>
-            <p className="text-purple-900 text-xs font-light tracking-tight">
-              <span className="underline">PRN</span>
-              <span className="pl-2 font-normal">{sidebarData.location.value}</span>
+            <p className="text-purple-900 text-xs tracking-tight">
+              <span className="underline">PRN:</span>
+              <span className="pl-2 font-medium">3 orders</span>
             </p>
+            <p className="text-purple-900 text-xs tracking-tight">
+              <span className="underline">Continuous:</span>
+              <span className="pl-2 font-medium">1 orders</span>
+            </p>
+      
       
           </div>
         </div>

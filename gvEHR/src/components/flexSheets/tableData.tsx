@@ -95,8 +95,8 @@ const predefinedVitalsData2: PredefinedDataByTime = {
     10000: { // Data from 60 minutes ago
         "hrInput": "88",
         "hrSourceSelect": "Radial",
-        "bpSourceSelect": "124/72",
-        "BP Source": "Left upper arm",
+        "bpInput": "124/72",
+        "bpSourceSelect": "Left upper arm",
         "rrInput": "20",
         "tempInput": "36.8",
         "tempSourceSelect": "Oral",
