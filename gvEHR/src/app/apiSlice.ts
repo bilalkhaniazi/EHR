@@ -165,7 +165,7 @@ export const apiSlice = createApi({
         const { simulationNow } = state.time;
 
         if (!simulationNow) {
-          return { error: { status: 'CUSTOM_ERROR', message: 'Time has not been initialized.' } };
+          return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };
         }
         const nowTimestamp = simulationNow;
 

@@ -390,113 +390,123 @@ export function FlexSheet() {
     }
 
     if (isError) {
+        let errorMessage = "An unknown error occurred.";
+        if (error) {
+            if ('error' in error) {
+                errorMessage = String(error.error);
+            } else if ('message' in error) {
+                errorMessage = String(error.message); 
+            }
+        }
+        console.log(errorMessage);
         return (
-        <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-            <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
-        </div>
+            <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
+                <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+            </div>
         );
     }
+
     return (
-    <SidebarProvider 
-        className=""
-        open={isSidebarOpen}                     
-        onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
-    >
-        <SidebarInset className="">
-        <div className="flex flex-col bg-gray-100 w-[calc(100vw-16rem)] h-[calc(100vh-4rem)] px-4">
-            <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
-                <div className="w-full flex justify-start gap-2 ">
-                    <AddTimeColumnButton 
-                        onColumnAdd={handleColumnAdd}
-                        existingTimeColumns={timeOffsets}
-                        sessionStartTime={sessionStartTime}
-                    />
-                    <Button
-                        onClick={handleSave}
-                        disabled={!hasChanges || isSaving}
-                        className="h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
-                    >
-                        {isSaving ? "Saving..." : "File"}
-                    </Button>
-                    <Button
-                        onClick={handleManualToggleSidebar}
-                        className="bg-white h-6 w-4 text-black hover:bg-gray-200 shadow shadow-black/20"
-                    >
-                        {isSidebarOpen ?
-                            <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
-                        }
-                    </Button>
+        <SidebarProvider 
+            className=""
+            open={isSidebarOpen}                     
+            onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
+        >
+            <SidebarInset className="">
+                <div className="flex flex-col bg-gray-100 w-[calc(100vw-16rem)] h-[calc(100vh-4rem)] px-4">
+                    <div className="flex flex-col w-full h-full justify-center items-center gap-2 pt-2 ">
+                        <div className="w-full flex justify-start gap-2 ">
+                            <AddTimeColumnButton 
+                                onColumnAdd={handleColumnAdd}
+                                existingTimeColumns={timeOffsets}
+                                sessionStartTime={sessionStartTime}
+                            />
+                            <Button
+                                onClick={handleSave}
+                                disabled={!hasChanges || isSaving}
+                                className="h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
+                            >
+                                {isSaving ? "Saving..." : "File"}
+                            </Button>
+                            <Button
+                                onClick={handleManualToggleSidebar}
+                                className="bg-white h-6 w-4 text-black hover:bg-gray-200 shadow shadow-black/20"
+                            >
+                                {isSidebarOpen ?
+                                    <PanelLeftOpenIcon /> : <PanelLeftCloseIcon />
+                                }
+                            </Button>
+                        </div>
+                        <div className="flex-grow w-full overflow-auto border border-gray-200 rounded-md "> 
+                            <Table className="w-full rounded-md">
+                                <TableHeader className=" bg-gray-50 sticky top-0">
+                                {ptTable.getHeaderGroups().map(headerGroup => (
+                                    <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map(header => (
+                                        <TableHead
+                                        style={getPinnedStyles(header.column)}
+                                        key={header.id}
+                                        className="border-b-2 p-0 border-gray-200 "
+                                        >
+                                        {/* Render the header content using flexRender */}
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                        </TableHead>
+                                    ))}
+                                    </TableRow>
+                                ))}
+                                </TableHeader>
+
+                                <TableBody>
+                                {ptTable.getRowModel().rows.map(row => (
+                                    <TableRow key={row.id} className="h-6">
+                                    {row.getVisibleCells().map(cell => {
+                                        const rowType = row.original.rowType
+                                        
+                                        return(
+                                        <TableCell
+                                            style={getPinnedStyles(cell.column)}
+                                            key={`${cell.id}-${row.original.field}`}
+                                            className={`p-0 min-w-24 text-gray-800 border-separate border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
+                                        >
+                                            {/* Render the cell content using flexRender */}
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                        )
+                                    })}
+                                    </TableRow>
+                                ))}
+                                </TableBody>
+
+                                <TableFooter className="bg-gray-100">
+                                {ptTable.getFooterGroups().map(footerGroup => (
+                                    <TableRow key={footerGroup.id}>
+                                    {footerGroup.headers.map(header => (
+                                        <TableHead 
+                                        key={header.id} 
+                                        className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-gray-300">
+
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.footer,
+                                                header.getContext()
+                                            )}
+                                        </TableHead>
+                                    ))}
+                                    </TableRow>
+                                ))}
+                                </TableFooter>
+                            </Table>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex-grow w-full overflow-auto border border-gray-200 rounded-md "> 
-                    <Table className="w-full rounded-md">
-                        <TableHeader className=" bg-gray-50 sticky top-0">
-                        {ptTable.getHeaderGroups().map(headerGroup => (
-                            <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map(header => (
-                                <TableHead
-                                style={getPinnedStyles(header.column)}
-                                key={header.id}
-                                className="border-b-2 p-0 border-gray-200 "
-                                >
-                                {/* Render the header content using flexRender */}
-                                {header.isPlaceholder
-                                    ? null
-                                    : flexRender(
-                                        header.column.columnDef.header,
-                                        header.getContext()
-                                    )}
-                                </TableHead>
-                            ))}
-                            </TableRow>
-                        ))}
-                        </TableHeader>
-
-                        <TableBody>
-                        {ptTable.getRowModel().rows.map(row => (
-                            <TableRow key={row.id} className="h-6">
-                            {row.getVisibleCells().map(cell => {
-                                const rowType = row.original.rowType
-                                
-                                return(
-                                <TableCell
-                                    style={getPinnedStyles(cell.column)}
-                                    key={`${cell.id}-${row.original.field}`}
-                                    className={`p-0 min-w-24 text-gray-800 border-separate border-gray-200 border-b ${rowType === "titleRow" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
-                                >
-                                    {/* Render the cell content using flexRender */}
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </TableCell>
-                                )
-                            })}
-                            </TableRow>
-                        ))}
-                        </TableBody>
-
-                        <TableFooter className="bg-gray-100">
-                        {ptTable.getFooterGroups().map(footerGroup => (
-                            <TableRow key={footerGroup.id}>
-                            {footerGroup.headers.map(header => (
-                                <TableHead 
-                                key={header.id} 
-                                className="h-6 p-0 text-left text-sm font-semibold text-gray-700 border-gray-300">
-
-                                {header.isPlaceholder
-                                    ? null
-                                    : flexRender(
-                                        header.column.columnDef.footer,
-                                        header.getContext()
-                                    )}
-                                </TableHead>
-                            ))}
-                            </TableRow>
-                        ))}
-                        </TableFooter>
-                    </Table>
-                </div>
-            </div>
-        </div>
-        </SidebarInset>
-        <AssessmentToolSidebar  />
-    </SidebarProvider>
-  );
+            </SidebarInset>
+            <AssessmentToolSidebar  />
+        </SidebarProvider>
+    );
 }

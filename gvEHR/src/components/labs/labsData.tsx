@@ -1,30 +1,4 @@
 
-export interface Lab {
-    labName: string, value: string | ImagingData | PathologyReportData
-}
-// initial data to be created by nursing faculty
-export interface PredefinedLabEntry {
-  daysOffset: number,
-  hoursOffset: number,
-  labs: Lab[]
-}
-
-// predefined lab data with an offset time stamp
-export interface LabTimePoint {
-  dateKey: string; // e.g., "2025-07-14 01:00"
-  daysOffset: number;
-  hours: number;
-  labs: Lab[] 
-}
-
-// info for table row 
-export interface LabDataTemplate {
-  field: string,
-  unit?: string,
-  rowType: "divider" | "results" | "imaging" | "pathology",
-  normalRange?: { low: string, high: string }
-  hideable?: boolean
-}
 export interface ImagingData {
   displayName: string;
   technique: string;
@@ -45,6 +19,36 @@ export interface PathologyReportData {
   critical: true;
 }
 
+export interface Lab {
+    labName: string; 
+    value: string | ImagingData | PathologyReportData;
+}
+
+export interface PredefinedLabEntry {
+  daysOffset: number,
+  hoursOffset: number,
+  labs: Lab[]
+}
+
+// predefined lab data with an offset time stamp
+export interface LabTimePoint {
+  dateKey: string; 
+  daysOffset: number;
+  hours: number;
+  labs: Lab[] 
+}
+
+// info for table row 
+export interface LabDataTemplate {
+  field: string,
+  unit?: string,
+  rowType: "divider" | "results" | "imaging" | "pathology",
+  normalRange?: { low: string, high: string }
+  criticalRange?: { low: number, high: number }
+  hideable?: boolean
+}
+
+
 // dataset to be used by tanstack table
 export interface LabTableData {
     field: string;
@@ -55,13 +59,6 @@ export interface LabTableData {
     [dateKey: string]: string | { labName: string, value: string } | any; 
 }
 
-// if blank columns needed or 
-// export const getInitialDynamicHours = (currHour: number) => {
-//   return Array.from({length: 2}, (_, index) => {
-//       const adjustedHour = (currHour + index) % 24
-//       return `${adjustedHour.toString().padStart(2, "0")}00`
-//   }); 
-// };
 
 export const generateAllInitialLabTimes = (referenceDate: Date = new Date()) => {
   const timePoints = new Map<string, LabTimePoint>()

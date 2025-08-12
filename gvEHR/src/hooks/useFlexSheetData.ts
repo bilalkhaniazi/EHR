@@ -1,7 +1,10 @@
+// custom hook, made FlexSheet very slow so this code is still in FlexSheet
+
+
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
-import { calculateColTotal } from '../components/flexSheets/flexSheet'; // Assuming you export it
+import { calculateColTotal } from '../components/flexSheets/flexSheet'; 
 import type { tableData } from '../components/flexSheets/tableData';
 
 export function useFlexSheetData(chartingData: tableData[] = [], timeOffsets: number[] = []) {

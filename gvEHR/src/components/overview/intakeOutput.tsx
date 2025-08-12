@@ -15,50 +15,94 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import StyledTitle from "./styledTitle"
-
-export const description = "A stacked bar chart with a legend"
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store";
+import { format } from "date-fns"
+import CardSkeleton from "./cardSkeleton"
 
 const chartData = [
-  { month: "0000-0800", intake: 886, output: 400 },
-  { month: "0801-1600", intake: 405, output: 290 },
-  { month: "1601-0000", intake: 837, output: 420 },
-  { month: "0001-0800", intake: 730, output: 390 },
+  { timeId: "day1-morning", startTime: "0000", endTime: "1159", intake: 886, output: 400 },
+  { timeId: "day1-evening", startTime: "1200", endTime: "2359", intake: 405, output: 290 },
+  { timeId: "day2-morning", startTime: "0000", endTime: "1159", intake: 837, output: 420 },
+  { timeId: "day2-evening", startTime: "1200", endTime: "2359", intake: 730, output: 390 },
 ]
 
 const chartConfig = {
   intake: {
     label: "Intake",
-    color: "#fef08a",
+    color: "#bae6fd",
   },
   output: {
     label: "Output",
-    color: "#bae6fd",
+    color: "#fef08a",
   },
 } satisfies ChartConfig
 
+interface CustomTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: any;
+    [key: string]: any;
+  };
+}
+
 export function IntakeOutput() {
+  const simStartTime = useSelector((state: RootState) => state.time.sessionStartTime) // timeStamp
+  // RTK queries
+
+  if (!simStartTime) {
+    return CardSkeleton
+  }
+
+
+  const MultiLineTick = (props: CustomTickProps) => {
+    const { x, y, payload } = props;
+    
+    if (!payload || !payload.value) return null;
+    const row = chartData.find(row => row.timeId === payload.value)
+    if (!row) return null;
+    
+    const displayDate = format(simStartTime, "MM/dd")
+    return (
+      <text
+        x={x}
+        y={y}
+        textAnchor="middle"
+        fill="#666"
+        fontSize="11"
+        className="recharts-text recharts-cartesian-axis-tick-value"
+      >
+        <tspan fill="black" x={x} dy={'0.6em'}>{displayDate}</tspan>
+        <tspan x={x} dy="1.1em">{row?.startTime} -</tspan>
+        <tspan x={x} dy="1.1em">{row?.endTime}</tspan>
+      </text>
+    );
+  };
+
   return (
     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
       <StyledTitle color="bg-sky-200" firstLetter="I" secondLetter="ntake/Output" />
       <CardContent className="grid gap-2 px-4">
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false}/>
             <YAxis 
               axisLine={false}
               tickLine={false} 
               unit="mL"
-              className=""/>
+            />
             <XAxis
-              dataKey="month"
+              dataKey="timeId"
               tickLine={false}
-              tickMargin={10}
+              tickMargin={6}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0,4)}
-              className="text-wrap"
+              tick={(props => <MultiLineTick {...props} />)}   
+              height={35}
+              interval={0}          
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-            <ChartLegend className="text-xs  pt-1 text-neutral-700" content={<ChartLegendContent />} />
+            <ChartLegend className="text-xs pt-3 text-neutral-700" content={<ChartLegendContent />} />
              <Bar
               dataKey="output"
               stackId="a"
