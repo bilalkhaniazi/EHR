@@ -52,7 +52,12 @@ export function IntakeOutput() {
   // RTK queries
 
   if (!simStartTime) {
-    return CardSkeleton
+    return (
+      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+        <StyledTitle color="bg-sky-200" firstLetter="I" secondLetter="ntake/Output" />
+        <CardSkeleton />
+      </Card>
+    )
   }
 
 

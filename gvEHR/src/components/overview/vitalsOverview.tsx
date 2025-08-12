@@ -45,7 +45,7 @@ const vitalSignIds = [
 export function VitalsOverview() {
   const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
   const skip = !sessionStartTime
-  const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(undefined, { skip })
+  const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip })
 
   const timeOffsets = data?.timeOffsets.slice(-3) || [];
 

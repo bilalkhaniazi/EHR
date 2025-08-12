@@ -1,16 +1,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTimePoint, type LabTableData } from '@/components/labs/labsData'
+import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTableData } from '@/components/labs/labsData'
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
 import { generateInitialChartingData, getAllTimeOffsets, type tableData } from '@/components/flexSheets/tableData';
 import { jamesAllen, type ChartData } from '@/components/chart/chartData';
 import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
 import { differenceInMinutes } from 'date-fns';
-import type { RootState } from './store';
 
 interface GetLabsResponse {
   labTableData: LabTableData[];
-  timePoints: LabTimePoint[];
+  timePoints: number[];
 }
 
 interface GetFlexSheetsResponse {
@@ -37,11 +36,13 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({baseUrl: '/'}),
   endpoints: (builder) => ({
     // LabPage
-    getLabs: builder.query<GetLabsResponse, void>({
-      queryFn: async () => {
+    getLabs: builder.query<GetLabsResponse, number | null>({
+      queryFn: async (simStartTime) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const referenceDate = new Date();
-        const allTimePoints = generateAllInitialLabTimes(referenceDate);
+        if ( !simStartTime) {
+          return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };        
+        }
+        const allTimePoints = generateAllInitialLabTimes(simStartTime);
         const timeColumnDateKeys = allTimePoints.map(timePoint => timePoint.dateKey)
         
         const initialLabTableData = generateInitialLabData(allTimePoints, labTemplate);
@@ -60,50 +61,50 @@ export const apiSlice = createApi({
             )
             return !allValuesEmpty
           })
-        return { data: { labTableData: filteredLabTableData, timePoints: allTimePoints }};
+        return { data: { labTableData: filteredLabTableData, timePoints: timeColumnDateKeys }};
       }
     }),
-    addLabColumn: builder.mutation<
-      { message: string},
-      { newDateKey: string, initialLabResults?: {labName: string, value: string }[] }
-    >({ 
-      queryFn: async({ newDateKey }) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { data: { message:  `Column ${newDateKey} added successfully`}}
-      },
-      async onQueryStarted({ newDateKey, initialLabResults }, { dispatch, queryFulfilled }) {
-        // Optimistic update for the mock
-        const patchResult = dispatch(
-          apiSlice.util.updateQueryData('getLabs', undefined, (draft) => {
-            // Apply the column addition logic directly to the cached data
-            const now = new Date();
-            //object containing whatever new labs are being populated
-            const newTimePoint = {
-              dateKey: newDateKey,
-              daysOffset: 0,
-              hours: now.getHours(),
-              labs: initialLabResults || [],
-            };
-            draft.timePoints.push(newTimePoint);
-            draft.timePoints.sort((a: LabTimePoint , b: LabTimePoint) => {
-              const dateA = new Date(a.dateKey.replace('/', '-').replace(' ', 'T'));
-              const dateB = new Date(b.dateKey.replace('/', '-').replace(' ', 'T'));
-              return dateA.getTime() - dateB.getTime();
-            });
+    // addLabColumn: builder.mutation<
+    //   { message: string},
+    //   { newDateKey: string, initialLabResults?: {labName: string, value: string }[] }
+    // >({ 
+    //   queryFn: async({ newDateKey }) => {
+    //     await new Promise(resolve => setTimeout(resolve, 500));
+    //     return { data: { message:  `Column ${newDateKey} added successfully`}}
+    //   },
+    //   async onQueryStarted({ newDateKey, initialLabResults }, { dispatch, queryFulfilled }) {
+    //     // Optimistic update for the mock
+    //     const patchResult = dispatch(
+    //       apiSlice.util.updateQueryData('getLabs', undefined, (draft) => {
+    //         // Apply the column addition logic directly to the cached data
+    //         const now = new Date();
+    //         //object containing whatever new labs are being populated
+    //         const newTimePoint = {
+    //           dateKey: newDateKey,
+    //           daysOffset: 0,
+    //           hours: now.getHours(),
+    //           labs: initialLabResults || [],
+    //         };
+    //         draft.timePoints.push(newTimePoint);
+    //         draft.timePoints.sort((a: LabTimePoint , b: LabTimePoint) => {
+    //           const dateA = new Date(a.dateKey.replace('/', '-').replace(' ', 'T'));
+    //           const dateB = new Date(b.dateKey.replace('/', '-').replace(' ', 'T'));
+    //           return dateA.getTime() - dateB.getTime();
+    //         });
 
-            draft.labTableData.forEach((row: LabTableData) => {
-              const matchingResult = initialLabResults?.find(lr => lr.labName === row.field);
-              row[newDateKey] = matchingResult ? matchingResult.value : '';
-            });
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
-    }),
+    //         draft.labTableData.forEach((row: LabTableData) => {
+    //           const matchingResult = initialLabResults?.find(lr => lr.labName === row.field);
+    //           row[newDateKey] = matchingResult ? matchingResult.value : '';
+    //         });
+    //       })
+    //     );
+    //     try {
+    //       await queryFulfilled;
+    //     } catch {
+    //       patchResult.undo();
+    //     }
+    //   },
+    // }),
 
     // NotesPage
     getNotes: builder.query<{notesData: NoteData[]}, void>({
@@ -159,15 +160,13 @@ export const apiSlice = createApi({
   }),
 
     // FlexSheets
-    getFlexSheetCharting: builder.query<GetFlexSheetsResponse, void>({
-      queryFn: async (_arg, { getState }) => {
-        const state = getState() as RootState;
-        const { simulationNow } = state.time;
+    getFlexSheetCharting: builder.query<GetFlexSheetsResponse, number | null>({
+      queryFn: async (sessionStartDate) => {
 
-        if (!simulationNow) {
+        if (!sessionStartDate) {
           return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };
         }
-        const nowTimestamp = simulationNow;
+        const nowTimestamp = sessionStartDate;
 
         await new Promise(resolve => setTimeout(resolve, 1000));
         const allTimeOffsets = getAllTimeOffsets(nowTimestamp);
@@ -289,7 +288,7 @@ export const apiSlice = createApi({
 
 export const { 
   useGetLabsQuery,
-  useAddLabColumnMutation,
+  // useAddLabColumnMutation,
   useGetNotesQuery,
   useAddNoteMutation,
   useGetOrdersQuery,

@@ -39,7 +39,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
-const formatTimeFromOffset = (offsetMinutes: number, nowTimestamp: number | null) => {
+export const formatTimeFromOffset = (offsetMinutes: number, nowTimestamp: number | null) => {
     if (!nowTimestamp) {
         return { error: { status: 'TIME_ERROR', data: 'Time has not been initialized.' } }; 
     }
@@ -84,7 +84,7 @@ export function FlexSheet() {
     const skip = !sessionStartTime;
 
     
-    const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(undefined, { skip })
+    const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip })
 
     const [triggerUpdateFlexSheetData, {isLoading: isSaving }] = useUpdateFlexSheetDataMutation();      // isError: saveError, isSuccess: saveSuccess
     const [triggerAddTimeColumn] = useAddTimeColumnMutation();

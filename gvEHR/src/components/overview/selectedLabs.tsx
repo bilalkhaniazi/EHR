@@ -2,6 +2,9 @@ import { Card, CardContent } from "../ui/card"
 import { useGetLabsQuery } from "@/app/apiSlice"
 import StyledTitle from "./styledTitle"
 import CardSkeleton from "./cardSkeleton"
+import { useSelector } from "react-redux"
+import type { RootState } from "@/app/store"
+import { formatTimeFromOffset } from "../flexSheets/flexSheet"
  
 
 export type vitalsOverviewTable = {
@@ -20,13 +23,15 @@ const vitalSignIds = [
   ];
 
 export function SelectedLabs() {
+  const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
+  const skip = ! sessionStartTime
   
-  const { data, isLoading, isError, error, isFetching } = useGetLabsQuery()
+  const { data, isLoading, isError, error, isFetching } = useGetLabsQuery(sessionStartTime, { skip })
 
-  if (isLoading || isFetching) {
+  if (isLoading || isFetching || skip) {
     return (
       <Card className="relative pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-lime-200" firstLetter="C" secondLetter="ontacts" />
+        <StyledTitle color="bg-lime-200" firstLetter="S" secondLetter="elected Labs" />
         <CardSkeleton />
       </Card>
     )
@@ -48,9 +53,10 @@ export function SelectedLabs() {
       }
     }
     console.log(errorMessage)
+
     return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="C" secondLetter="ontacts" />
+        <StyledTitle color="bg-red-200" firstLetter="S" secondLetter="elected Labs" />
         <p>Error: {errorMessage}</p>
       </Card>
     )
@@ -73,11 +79,11 @@ export function SelectedLabs() {
   })
 
   const selectedLabData = filteredData.map(row => {
-    const selectedLab = {field: row.field, dateKey: '', value: '', normalRange: row.normalRange}
+    const selectedLab = {field: row.field, dateKey: 0, value: '', normalRange: row.normalRange}
     timePoints.forEach(timePoint => {
-      if (row[timePoint.dateKey]) {
-        selectedLab.value = row[timePoint.dateKey] as string; // technically could be imagingData or pathologyReport but those would never be 
-        selectedLab.dateKey = timePoint.dateKey
+      if (row[timePoint]) {
+        selectedLab.value = row[timePoint] as string; // technically could be imagingData or pathologyReport but those would never be 
+        selectedLab.dateKey = timePoint
       }
     })
     if (selectedLab.value) {
@@ -96,15 +102,13 @@ export function SelectedLabs() {
         {selectedLabData.map(labData => {
           if (!labData) return null
 
-          const dateAndTime = labData.dateKey.split(" ")
-          const displayTime = dateAndTime[1].replace(':', '')
-          const displayDate = dateAndTime[0]
+          const {date: displayDate, time: displayTime} = formatTimeFromOffset(labData.dateKey, sessionStartTime)
 
           let alertFlag = false
           if (labData.normalRange) {
                 const numericValue = parseFloat(labData.value)
-                const numericHigh = parseFloat(labData.normalRange.high)
-                const numericLow = parseFloat(labData.normalRange.low)
+                const numericHigh = labData.normalRange.high
+                const numericLow = labData.normalRange.low
 
                 if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
                   alertFlag = numericValue < numericLow || numericValue > numericHigh;
