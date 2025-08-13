@@ -3,7 +3,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger
-  } from "../ui/collapsible"
+} from "../ui/collapsible"
 import { Separator } from "../ui/separator"
 import type { NoteData } from "./notesData"
 import { Button } from "../ui/button"
@@ -15,7 +15,9 @@ interface NoteDisplayProps {
 }
  
 const NoteDisplay = ({ note, displayDate }: NoteDisplayProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const noteType = note.title;
+
   return (
     <Collapsible 
       open={isOpen} 
@@ -35,25 +37,13 @@ const NoteDisplay = ({ note, displayDate }: NoteDisplayProps) => {
       <CollapsibleContent className="data-[state=open]:animate-in  data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
         <Separator className="my-2 bg-gray-300" />
         <div className="w-full">
-          {note.noteBody.map((row, index) => {
-            if(row.type === "header") {
-              return (
-                <h1 key={index} className="text-sm font-medium mt-2"><u>{row.content}</u></h1>
-              )
-            } else if (row.type === "paragraphWithLabel") {
-              return (
-                <div key={index} className="flex gap-1">
-                  <h1 className="text-sm font-medium">{row.label}:</h1>
-                  <p className="text-sm">{row.content}</p>
-                </div>
-              )
-            } else {
-              return (
-                <p key={index} className="text-sm">{row.content}</p>
-              )
-            }
-          }
+          {noteType === "Nursing Note" ? (
+            <p className="text-sm">{note.noteBody}</p>
+          ) :
+          (
+            <p>{note.noteBody.assessment}</p>
           )}
+          
         </div>
       </CollapsibleContent>
       <div className="flex justify-center">

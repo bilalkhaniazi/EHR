@@ -6,6 +6,8 @@ import LabPage from './components/labs/labPage.tsx'
 import PatientChartLayout from './components/chart/PatientChartLayout.tsx'; // The parent component
 import OverviewPage from './components/overview/overviewPage.tsx';
 import Mar from './components/mar/mar.tsx';
+import AdminLayout from './components/admin/adminLayout.tsx';
+import Formulary from './components/admin/formulary.tsx';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +41,16 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <Formulary />
+      },
+    ]
+  }
 ]);
 
 function App() {
