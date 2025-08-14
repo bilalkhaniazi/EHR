@@ -1,18 +1,19 @@
 import { Outlet } from "react-router-dom"
-import ChartNavigationTabs from "./chartNavigationTabs"
+import ChartTabs from "./chartTabs.tsx"
 import { Toaster } from "sonner"
 import ChartSidebar from "./chartSidebar"
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { initializeTime, updateSimulationTime } from './timeSlice.ts';
 import type { AppDispatch } from '../../app/store.ts'
+import Header from "../admin/header.tsx";
 
 
 const PatientChartLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  // timer setting the sessionStartTime and updating the simulation time
   useEffect(() => {
-    
     dispatch(initializeTime());
 
     const interval = setInterval(() => {
@@ -23,9 +24,9 @@ const PatientChartLayout = () => {
   }, []);
 
   return (
-    <div className="bg-lime-600 h-screen w-full overflow-hidden flex flex-col">
+    <div className="bg-lime-600 h-screen w-full overflow-hidden flex flex-col [--header-height:calc(--spacing(16))]">
       <Toaster position="top-right" />
-      <ChartNavigationTabs />
+      <Header tabs={<ChartTabs />} />
       <div className="flex w-full h-full">
         <ChartSidebar />
         <div className="flex flex-col w-full h-full">

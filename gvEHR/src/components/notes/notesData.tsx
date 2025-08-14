@@ -7,7 +7,7 @@ export interface BaseNote {
     publishTime: string;
 }
 
-interface soapNote {
+export interface SoapNoteData {
     subjective?: string;
     objective?: string;
     assessment: string;
@@ -21,7 +21,7 @@ interface NursingNote extends BaseNote {
 
 interface ProviderNote extends BaseNote {
     title: "Progress Note" | "Admission Note" | "Consult Note" ;
-    noteBody: soapNote;
+    noteBody: SoapNoteData;
 }
 
 export type NoteData = NursingNote | ProviderNote;

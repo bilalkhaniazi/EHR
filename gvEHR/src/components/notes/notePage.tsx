@@ -9,8 +9,6 @@ import { Filter } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import FilterBadges from "./filterBadges";
-
-
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "@/app/store";
 import {
@@ -18,7 +16,6 @@ import {
   removeSpecialtyFilter,
   clearSpecialtyFilters
 } from './noteSlice'
-
 import { useAddNoteMutation, useGetNotesQuery } from "@/app/apiSlice";
 import { Skeleton } from "../ui/skeleton";
 
@@ -75,11 +72,10 @@ const NotePage = () => {
       title: "Nursing Note",
       author: "Current User, RN BSN",
       specialty: "Nursing",
-      dateOffset: 0, 
+      dateOffset: 0,
+      hospitalDay: "3", 
       publishTime: addedTime,
-      noteBody: [
-          { type: 'paragraph', content: userNoteContent }
-      ]
+      noteBody: userNoteContent 
     }
     try {
       await addNote(newNote).unwrap();

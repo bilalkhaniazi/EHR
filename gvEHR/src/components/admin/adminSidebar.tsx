@@ -8,28 +8,37 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
+import { Minus, Plus } from "lucide-react"
 
-// This is sample data.
 const data = {
   navMain: [
     {
-      title: "Medications",
+      title: "Student Performance",
       url: "#",
       items: [
         {
-          title: "Label Printing",
+          title: "Charting Report",
           url: "#",
         },
         {
-          title: "Edit Medications",
+          title: "Timing Report",
           url: "#",
         },
       ],
-    },
+    }
+  ],
+}
+
+const collapsibleData = {
+  navMain: [
     {
-      title: "Simulation",
+      title: "Sim Design",
       url: "#",
       items: [
         {
@@ -39,18 +48,59 @@ const data = {
         {
           title: "Edit Sim",
           url: "#",
-          isActive: true,
+        },
+      ],
+    },
+    {
+      title: "Medications",
+      url: "#",
+      items: [
+        {
+          title: "Label Printing",
+          url: "/admin/formulary",
         },
         {
-          title: "Preview Sim",
+          title: "Edit Medications",
+          url: "#",
+        },
+        
+      ],
+    },
+    {
+      title: "Select Cohort",
+      url: "#",
+      items: [
+        {
+          title: "NUR 350",
+          url: "#",
+        },
+        {
+          title: "NUR 3??",
+          url: "#",
+        },
+        {
+          title: "NUR 4??",
+          url: "#",
+        },
+        {
+          title: "NUR 4??",
           url: "#",
         },
       ],
     },
-    
-    
+    {
+      title: "Settings",
+      url: "#",
+      items: [
+        {
+          title: "?",
+          url: "#",
+        },
+      ],
+    },
   ],
 }
+console.log(location.pathname)
 
 export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -67,7 +117,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
               <SidebarMenu className="pl-2">
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
+                    <SidebarMenuButton asChild>
                       <a href={item.url}>{item.title}</a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -76,6 +126,42 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+        <SidebarGroup>
+          <SidebarMenu>
+            {collapsibleData.navMain.map((item) => (
+              <Collapsible
+                key={item.title}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      {item.title}{" "}
+                      <Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+                      <Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  {item.items?.length ? (
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items.map((item) => (
+                          <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={location.pathname === item.url}
+                            >
+                              <a href={item.url}>{item.title}</a>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  ) : null}
+                </SidebarMenuItem>
+              </Collapsible>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

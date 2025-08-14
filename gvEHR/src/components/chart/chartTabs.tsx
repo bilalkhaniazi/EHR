@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clipboard, NotebookText, Pill, Stethoscope, TestTubeDiagonal, User } from "lucide-react";
+import { Clipboard, NotebookText, Pill, TestTubeDiagonal, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const tabs = [
@@ -51,17 +51,9 @@ const tabs = [
   },
 ];
 
-export default function ChartNavigationTabs() {
+export default function ChartTabs() {
   return (
-    <div className="flex items-end border-b w-full h-16 flex-shrink-0">
-      <div className="flex h-full justify-center items-center pl-8 gap-2">
-        <Stethoscope color="white" size={26} strokeWidth={2.5}/>
-        <h1 className="text-3xl font-bold text-white">
-          Flex
-          <span className="font-normal">Chart</span>
-        </h1>
-      </div>
-      <Tabs defaultValue={tabs[0].value} className="w-fit pl-28">
+      <Tabs defaultValue={tabs[0].value} className="w-fit pl-10 mt-auto ">
         <TabsList className="w-full h-8 p-0 bg-lime-600 justify-start rounded-none">
           {tabs.map((tab) => (
             <NavLink
@@ -80,6 +72,5 @@ export default function ChartNavigationTabs() {
           ))}
         </TabsList>
       </Tabs>
-    </div>
   );
 }

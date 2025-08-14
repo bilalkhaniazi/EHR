@@ -405,7 +405,6 @@ export const medicationOrders: MedicationOrder[] = [
     indication: "Hypertension",
     instructions: "Monitor blood pressure daily.",
   },
-  // --- NEW IV MEDICATION ORDER ---
   {
     id: "orderVancomycinIv",
     medicationId: "medVancomycinIv1000",
@@ -416,7 +415,40 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Severe Bacterial Infection",
     instructions: "Infuse over 2 hours. Monitor for Red Man Syndrome. Obtain trough level before 4th dose.",
-  }
+  },
+  {
+    id: "orderAtorvastatinOral40",
+    medicationId: "medAtorvastatinOral40",
+    doseValue: 1,
+    doseUnit: "Tablet",
+    frequency: "QD",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Hyperlipidemia",
+    instructions: "Administer in the evening.",
+  },
+  {
+    id: "orderAcetaminophenOral650",
+    medicationId: "medAcetaminophenOral650",
+    doseValue: 1,
+    doseUnit: "Tablet",
+    frequency: "PRN",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Pain",
+    instructions: "For pain of 4/10 or greater. Max dose of 4 tablets per 24 hours.",
+  },
+  {
+    id: "orderInsulinGlargineSc",
+    medicationId: "medInsulinGlargineSc",
+    doseValue: 15,
+    doseUnit: "Unit",
+    frequency: "QD",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Type 2 Diabetes",
+    instructions: "Administer at bedtime.",
+  },
 ]
 
 export const medAdministrations: MedAdministrationInstance[] = [

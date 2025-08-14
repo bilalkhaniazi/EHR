@@ -8,6 +8,7 @@ import { Separator } from "../ui/separator"
 import type { NoteData } from "./notesData"
 import { Button } from "../ui/button"
 import { ChevronDown } from "lucide-react"
+import SoapNote from "./soapNote"
 
 interface NoteDisplayProps {
   note: NoteData,
@@ -27,9 +28,9 @@ const NoteDisplay = ({ note, displayDate }: NoteDisplayProps) => {
       <div className="flex justify-between">
         <h1 className="text-lg font-medium">{note.title}</h1>
         <div className="flex items-center">
-          <p className="text-md">{note.publishTime}</p>
+          <p className="text-md font-light">{note.publishTime}</p>
           <Separator className="mx-3  bg-gray-200" orientation="vertical"></Separator>
-          <p className="text-md">{displayDate(note.dateOffset)}</p>
+          <p className="text-md font-light">{displayDate(note.dateOffset)}</p>
         </div>
       </div>
       <h2 className="text-sm">{note.specialty}</h2>
@@ -41,7 +42,7 @@ const NoteDisplay = ({ note, displayDate }: NoteDisplayProps) => {
             <p className="text-sm">{note.noteBody}</p>
           ) :
           (
-            <p>{note.noteBody.assessment}</p>
+            <SoapNote note={note.noteBody} />
           )}
           
         </div>

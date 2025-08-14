@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "../ui/sidebar";
-import AdminHeader from "./adminHeader";
+import Header from "./header";
 import { AdminSidebar } from "./adminSidebar";
 
-const AdminLayout = () => {
+const MainLayout = () => {
   return (
     <div className="bg-lime-600 h-screen w-full overflow-hidden flex flex-col [--header-height:calc(--spacing(16))]">
       <SidebarProvider className="flex flex-col">
-        <AdminHeader />
+        <Header />
 
         <div className="flex w-full flex-1">
           <AdminSidebar />          
@@ -19,12 +19,7 @@ const AdminLayout = () => {
         </div>
       </SidebarProvider>
     </div>
-
-
-
-
-    
   );
 }
 
-export default AdminLayout
+export default MainLayout
