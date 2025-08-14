@@ -12,11 +12,30 @@ import { useGetLabsQuery  } from "@/app/apiSlice";   //useAddLabColumnMutation
 import { Skeleton } from "../ui/skeleton";
 import ImagingReport from "./imagingReport";
 import PathologyReport from "./pathologyReport";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store";
+import { formatTimeFromOffset } from "../flexSheets/flexSheet";
+import { ShieldAlert } from "lucide-react";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
   labName: string;
   value: string;
+}
+
+const getResultStatus = (initialValue: string, abnormalRange: {low: number, high: number} | undefined, criticalRange: {low: number, high: number} | undefined) => {
+  const numericValue = parseFloat(initialValue)
+
+  if (isNaN(numericValue)) {
+    return 'invalid';
+  }
+  if (criticalRange && (numericValue < criticalRange.low || numericValue > criticalRange.high)) {
+    return "critical";
+  }
+  if (abnormalRange && (numericValue < abnormalRange.low || numericValue > abnormalRange.high)) {
+    return "abnormal";
+  }
+  return "normal";
 }
 
 const columnHelper = createColumnHelper<LabTableData>();
@@ -35,7 +54,10 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function LabPage() {
-  const { data, isLoading, isFetching, isError, error } = useGetLabsQuery();
+  const simStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
+  const skip = !simStartTime
+  
+  const { data, isLoading, isFetching, isError, error } = useGetLabsQuery(simStartTime, { skip });
 
   // const [addLabColumn] = useAddLabColumnMutation();
 
@@ -127,14 +149,13 @@ export function LabPage() {
       ),
 
       // map out remaining columns
-      ...timePoints.map(timePoint =>
-        columnHelper.accessor(timePoint.dateKey, {
-          id: timePoint.dateKey,
+      ...timePoints.map(timePoint => {
+        const { time: displayTime, date: displayDate } = formatTimeFromOffset(timePoint, simStartTime);
+        return(
+      
+        columnHelper.accessor(row => row[timePoint], {
+          id: String(timePoint),
           header: () => {
-            const dateAndTime = timePoint.dateKey.split(" ")
-            const displayTime = dateAndTime[1].replace(':', '')
-            const displayDate = dateAndTime[0]
-
             return (
               <div className="flex flex-col justify-center items-center">
                 <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
@@ -146,19 +167,18 @@ export function LabPage() {
             const rowType = row.original.rowType
             if (rowType === "results") {
               const initialValue = (getValue() as string) || '';
-              const labRanges = row.original?.normalRange
-              let alertFlag = false
-              if (labRanges) {
-                const numericValue = parseFloat(initialValue)
-                const numericHigh = parseFloat(labRanges.high)
-                const numericLow = parseFloat(labRanges.low)
+              const abnormalRange = row.original?.normalRange
+              const criticalRange = row.original?.criticalRange
+              
+              const resultStatus = getResultStatus(initialValue, abnormalRange, criticalRange);
+              const isCritical = resultStatus === "critical"
+              const isAbnormal = resultStatus === "abnormal" 
 
-                if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
-                  alertFlag = numericValue < numericLow || numericValue > numericHigh;
-                }
-              }
               return (
-                <p key={`${row.id}-${column.id}-${row.original.field}`} className={`text-right px-2 text-xs ${alertFlag ? "text-red-600 font-medium" : ''}`}>{initialValue}</p>
+                <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex items-center w-full px-2">
+                  {isCritical && <ShieldAlert color="#e7000b" size={18} />}
+                  <p className={`w-full text-right text-xs ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}>{initialValue}</p>
+                </div>
               );
             } else if (rowType === "imaging") {
               const imagingReport = (getValue() as ImagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
@@ -192,7 +212,7 @@ export function LabPage() {
               }
             }
           } 
-        })
+        }))}
       )
     ],
     [timePoints]
@@ -211,7 +231,7 @@ export function LabPage() {
   });
 
   
-  if (isLoading || isFetching) {
+  if (isLoading || isFetching ) {
     return (
       <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
         <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />

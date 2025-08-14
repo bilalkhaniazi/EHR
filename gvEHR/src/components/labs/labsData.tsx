@@ -1,30 +1,5 @@
+import { sub } from "date-fns";
 
-export interface Lab {
-    labName: string, value: string | ImagingData | PathologyReportData
-}
-// initial data to be created by nursing faculty
-export interface PredefinedLabEntry {
-  daysOffset: number,
-  hoursOffset: number,
-  labs: Lab[]
-}
-
-// predefined lab data with an offset time stamp
-export interface LabTimePoint {
-  dateKey: string; // e.g., "2025-07-14 01:00"
-  daysOffset: number;
-  hours: number;
-  labs: Lab[] 
-}
-
-// info for table row 
-export interface LabDataTemplate {
-  field: string,
-  unit?: string,
-  rowType: "divider" | "results" | "imaging" | "pathology",
-  normalRange?: { low: string, high: string }
-  hideable?: boolean
-}
 export interface ImagingData {
   displayName: string;
   technique: string;
@@ -45,41 +20,61 @@ export interface PathologyReportData {
   critical: true;
 }
 
+export interface Lab {
+    labName: string; 
+    value: string | ImagingData | PathologyReportData;
+}
+
+export interface PredefinedLabEntry {
+  daysOffset: number,
+  hoursOffset: number,
+  labs: Lab[]
+}
+
+// predefined lab data with an offset time stamp
+export interface LabTimePoint {
+  dateKey: number; 
+  labs: Lab[] 
+}
+
+// info for table row 
+export interface LabDataTemplate {
+  field: string,
+  unit?: string,
+  rowType: "divider" | "results" | "imaging" | "pathology",
+  normalRange?: { low: number, high: number }
+  criticalRange?: { low: number, high: number }
+  hideable?: boolean
+}
+
+
 // dataset to be used by tanstack table
 export interface LabTableData {
     field: string;
     rowType: "divider" | "results" | "imaging"  | "pathology";
     unit?: string;
-    normalRange?: { low: string, high: string };
+    normalRange?: { low: number, high: number };
+    criticalRange?: { low: number, high: number };
     hideable?: boolean
-    [dateKey: string]: string | { labName: string, value: string } | any; 
+    [dateKey: string]: string | { labName: string, value: string } | ImagingData | PathologyReportData | any;   // need ability to add any timekey with any type of lab data
 }
 
-// if blank columns needed or 
-// export const getInitialDynamicHours = (currHour: number) => {
-//   return Array.from({length: 2}, (_, index) => {
-//       const adjustedHour = (currHour + index) % 24
-//       return `${adjustedHour.toString().padStart(2, "0")}00`
-//   }); 
-// };
 
-export const generateAllInitialLabTimes = (referenceDate: Date = new Date()) => {
-  const timePoints = new Map<string, LabTimePoint>()
+export const generateAllInitialLabTimes = (referenceDate: number) => {
+  const timePoints = new Map<number, LabTimePoint>()
 
   predefinedLabData.forEach(entry => {
-    const tempDate = new Date(referenceDate);
-    tempDate.setDate(tempDate.getDate() - entry.daysOffset);
-    tempDate.setHours(tempDate.getHours() - entry.hoursOffset);
+    const timeOffset = (entry.daysOffset * 60 * 24) + (entry.hoursOffset * 60)
+    const displayTimeStamp = sub(referenceDate, {days: entry.daysOffset, hours: entry.hoursOffset}).getTime();
     
-    const dateKey = `${(tempDate.getMonth() +1).toString().padStart(2, '0')}/${tempDate.getDate().toString().padStart(2, '0')} ${(tempDate.getHours()).toString().padStart(2, '0')}:${(tempDate.getMinutes()).toString().padStart(2, '0')}`;
-    if(!timePoints.has(dateKey)) {
-      timePoints.set(dateKey, {dateKey, daysOffset: entry.daysOffset, hours: entry.hoursOffset, labs: entry.labs })
+    if(!timePoints.has(displayTimeStamp)) {
+      timePoints.set(displayTimeStamp, {dateKey: timeOffset, labs: entry.labs })
     }
   })
   const sortedTimePoints = Array.from(timePoints.values()).sort((a, b) => {
         const dateA = new Date(a.dateKey);
         const dateB = new Date(b.dateKey);
-        return dateA.getTime() - dateB.getTime();
+        return dateB.getTime() - dateA.getTime();
     });
 
     return sortedTimePoints;
@@ -91,7 +86,7 @@ export const generateInitialLabData = (
 ) => {
   const generatedData: LabTableData[] = [];
 
-  const labResultsLookup = new Map<string, Map<String, Lab>>();
+  const labResultsLookup = new Map<number, Map<string, Lab>>();
 
   allTimesColumns.forEach(timePoint => {
     const labsForThisTime = new Map<string, Lab>();
@@ -106,6 +101,7 @@ export const generateInitialLabData = (
       field: templateRow.field,
       rowType: templateRow.rowType,
       ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
+      ...(templateRow.criticalRange && {criticalRange: templateRow.criticalRange}),
       ...(templateRow.hideable && { hideable: templateRow.hideable}), 
       unit: templateRow.unit 
     };
@@ -134,11 +130,6 @@ export const generateInitialLabData = (
 }
 
 
-// export interface PredefinedLabEntry {
-//   daysOffset: number,
-//   hoursOffset: number,
-//   labResults: { labName: string, value: string}[]
-// }
 
 export const predefinedLabData: PredefinedLabEntry[] = [
   {
@@ -146,7 +137,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
     hoursOffset: 1, 
     labs: [
       { labName: "Sodium", value: "134" }, 
-      { labName: "Potassium", value: "4.8" },
+      { labName: "Potassium", value: "1008" },
       { labName: "Chlorine", value: "99" },
       { labName: "BUN", value: "25" }, 
       { labName: "Creatinine", value: "1.3" },
@@ -259,55 +250,56 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Sodium",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "135", high: "145" }
+    normalRange: { low: 135, high: 145 }
   },
   {
     field: "Potassium",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "3.5", high: "5.0" }
+    normalRange: { low: 3.5, high: 5.0 },
+    criticalRange: {low: 3.0, high: 6.0 }
   },
   {
     field: "Chlorine",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "95", high: "105" }
+    normalRange: { low: 95, high: 105 }
   },
   {
     field: "BUN",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "7", high: "20" }
+    normalRange: { low: 7, high: 20 }
   },
   {
     field: "Creatinine",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "0.6", high: "1.2" }
+    normalRange: { low: 0.6, high: 1.2 }
   },
   {
     field: "Glucose",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "70", high: "100" } // Fasting
+    normalRange: { low: 70, high: 100 } 
   },
   {
     field: "CO2",
-    unit: "(mEq/L)", // Often represents Bicarbonate
+    unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "23", high: "30" }
+    normalRange: { low: 23, high: 30 }
   },
   {
     field: "Calcium",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "8.5", high: "10.5" }
+    normalRange: { low: 8.5, high: 10.5 }
   },
   {
     field: "Lactate",
     unit: "(mmol/L)",
     rowType: "results",
-    normalRange: { low: "0.5", high: "1.0" } 
+    normalRange: { low: 0.5, high: 1.0 } 
   },
   {
     field: "Hematology",
@@ -318,49 +310,49 @@ export const labTemplate: LabDataTemplate[] = [
     field: "RBC",
     unit: "(10⁶/µL)",
     rowType: "results",
-    normalRange: { low: "4.0", high: "6.0" } // General range
+    normalRange: { low: 4.0, high: 6.0 } 
   },
   {
     field: "WBC",
     unit: "(10³/µL)",
     rowType: "results",
-    normalRange: { low: "4.5", high: "11.0" }
+    normalRange: { low: 4.5, high: 11.0 }
   },
   {
     field: "Platelets",
     unit: "(10³/µL)",
     rowType: "results",
-    normalRange: { low: "150", high: "450" }
+    normalRange: { low: 150, high: 450 }
   },
   {
     field: "Hemoglobin",
     unit: "(g/dL)",
     rowType: "results",
-    normalRange: { low: "12.0", high: "17.5" } // General range
+    normalRange: { low: 12.0, high: 17.5 }
   },
   {
     field: "Hematocrit",
     unit: "(%)",
     rowType: "results",
-    normalRange: { low: "36", high: "54" } // General range
+    normalRange: { low: 36, high: 54 } 
   },
   {
     field: "MCV",
     unit: "(fL)",
     rowType: "results",
-    normalRange: { low: "80", high: "100" }
+    normalRange: { low: 80, high: 100 }
   },
   {
     field: "MCH",
     unit: "(pg)", // Picograms
     rowType: "results",
-    normalRange: { low: "27", high: "33" }
+    normalRange: { low: 27, high: 33 }
   },
   {
     field: "MCHC",
     unit: "(g/dL)",
     rowType: "results",
-    normalRange: { low: "32", high: "36" }
+    normalRange: { low: 32, high: 36 }
   },
   {
     field: "Cardiac",
@@ -371,19 +363,19 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Troponin",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: "0", high: "0.04" } 
+    normalRange: { low: 0, high: 0.04 } 
   },
   {
     field: "CKMB",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: "0", high: "3" }
+    normalRange: { low: 0, high: 3 }
   },
   {
     field: "Myoglobin",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: "0", high: "85" }
+    normalRange: { low: 0, high: 85 }
   },
   {
     field: "Hepatology",
@@ -394,37 +386,37 @@ export const labTemplate: LabDataTemplate[] = [
     field: "AST",
     unit: "(IU/L)",
     rowType: "results",
-    normalRange: { low: "10", high: "40" }
+    normalRange: { low: 10, high: 40 }
   },
   {
     field: "ALT",
     unit: "(IU/L)",
     rowType: "results",
-    normalRange: { low: "7", high: "56" }
+    normalRange: { low: 7, high: 56 }
   },
   {
     field: "ALP",
     unit: "(IU/L)",
     rowType: "results",
-    normalRange: { low: "40", high: "120" }
+    normalRange: { low: 40, high: 120 }
   },
   {
     field: "Total Bilirubin",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "0.1", high: "1.2" }
+    normalRange: { low: 0.1, high: 1.2 }
   },
   {
     field: "Albumin",
     unit: "(g/dL)",
     rowType: "results",
-    normalRange: { low: "3.5", high: "5.0" }
+    normalRange: { low: 3.5, high: 5.0 }
   },
   {
     field: "Ammonia",
     unit: "(mcg/dL)", // Common unit for Ammonia
     rowType: "results",
-    normalRange: { low: "15", high: "45" }
+    normalRange: { low: 15, high: 45 }
   },
   {
     field: "Venous Blood Gas",
@@ -435,25 +427,25 @@ export const labTemplate: LabDataTemplate[] = [
     field: "pH",
     unit: "", // pH is unitless
     rowType: "results",
-    normalRange: { low: "7.35", high: "7.45" }
+    normalRange: { low: 7.35, high: 7.45 }
   },
   {
     field: "pCO2",
     unit: "(mmHg)",
     rowType: "results",
-    normalRange: { low: "40", high: "50" } // Venous pCO2 is typically higher than arterial
+    normalRange: { low: 40, high: 50 } 
   },
   {
     field: "pO2",
     unit: "(mmHg)",
     rowType: "results",
-    normalRange: { low: "30", high: "40" } // Venous pO2 is typically lower than arterial
+    normalRange: { low: 30, high: 40 }
   },
   {
     field: "HCO3",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "22", high: "29" }
+    normalRange: { low: 22, high: 29 }
   },
   {
     field: "Urinalysis",
@@ -464,49 +456,49 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Specific Gravity",
     unit: "", // Unitless
     rowType: "results",
-    normalRange: { low: "1.005", high: "1.030" }
+    normalRange: { low: 1.005, high: 1.030 }
   },
   {
     field: "Urine pH",
     unit: "", // Unitless
     rowType: "results",
-    normalRange: { low: "4.5", high: "8.0" }
+    normalRange: { low: 4.5, high: 8.0 }
   },
   {
     field: "Protein",
     unit: "", 
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" } 
+    // normalRange: { low: "Negative", high: "Negative" } 
   },
   {
     field: "Urine Glucose",
     unit: "", // Often reported as negative/positive
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" }
+    // normalRange: { low: "Negative", high: "Negative" }
   },
   {
     field: "Ketones",
     unit: "", // Often reported as negative/positive
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" }
+    // normalRange: { low: "Negative", high: "Negative" }
   },
   {
     field: "Leukocyte Esterase",
     unit: "", // Often reported as negative/positive
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" }
+    // normalRange: { low: "Negative", high: "Negative" }
   },
   {
     field: "Nitrites",
     unit: "", // Often reported as negative/positive
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" }
+    // normalRange: { low: "Negative", high: "Negative" }
   },
   {
     field: "Blood",
     unit: "", // Often reported as negative/positive
     rowType: "results",
-    normalRange: { low: "Negative", high: "Negative" }
+    // normalRange: { low: "Negative", high: "Negative" }
   },
   {
     field: "Coagulation",
@@ -517,19 +509,19 @@ export const labTemplate: LabDataTemplate[] = [
     field: "PT",
     unit: "(sec)",
     rowType: "results",
-    normalRange: { low: "11.0", high: "13.5" }
+    normalRange: { low: 11.0, high: 13.5 }
   },
   {
     field: "PTT",
     unit: "(sec)",
     rowType: "results",
-    normalRange: { low: "25", high: "35" }
+    normalRange: { low: 25, high: 35 }
   },
   {
     field: "INR",
     unit: "", // Unitless
     rowType: "results",
-    normalRange: { low: "0.8", high: "1.1" },
+    normalRange: { low: 0.8, high: 1.1 },
     hideable: true
   },
   {
@@ -543,14 +535,14 @@ export const labTemplate: LabDataTemplate[] = [
     field: "CRP",
     unit: "(mg/L)",
     rowType: "results",
-    normalRange: { low: "0", high: "10" },
+    normalRange: { low: 0, high: 10 },
     hideable: true
   },
   {
     field: "ESR",
     unit: "(mm/hr)",
     rowType: "results",
-    normalRange: { low: "0", high: "20" },
+    normalRange: { low: 0, high: 20 },
     hideable: true
   },
   {
@@ -564,21 +556,21 @@ export const labTemplate: LabDataTemplate[] = [
     field: "TSH", 
     unit: "(mIU/L)",
     rowType: "results",
-    normalRange: { low: "0.4", high: "4.0" },
+    normalRange: { low: 0.4, high: 4.0 },
     hideable: true
   },
   {
     field: "Free T3",
     unit: "(pg/mL)",
     rowType: "results",
-    normalRange: { low: "2.3", high: "4.2" },
+    normalRange: { low: 2.3, high: 4.2 },
     hideable: true
   },
   {
     field: "Free T4",
     unit: "(ng/dL)",
     rowType: "results",
-    normalRange: { low: "0.8", high: "1.8" },
+    normalRange: { low: 0.8, high: 1.8 },
     hideable: true
   },
   {
@@ -591,7 +583,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Total Cholesterol",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "125", high: "200" },
+    normalRange: { low: 125, high: 200 },
     hideable: true
 
   },
@@ -599,14 +591,14 @@ export const labTemplate: LabDataTemplate[] = [
     field: "HDL Cholesterol", 
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "40", high: "60" },
+    normalRange: { low: 40, high: 60 },
     hideable: true
   },
   {
     field: "LDL Cholesterol", 
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "0", high: "100" },
+    normalRange: { low: 0, high: 100 },
     hideable: true
 
   },
@@ -614,7 +606,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Triglycerides",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "0", high: "150" },
+    normalRange: { low: 0, high: 150 },
     hideable: true
   },
   {
@@ -628,7 +620,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Magnesium",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: "1.5", high: "2.5" },
+    normalRange: { low: 1.5, high: 2.5 },
     hideable: true
 
   },
@@ -636,7 +628,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Phosphate",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: "2.5", high: "4.5" },
+    normalRange: { low: 2.5, high: 4.5 },
     hideable: true
   },
   {
@@ -650,14 +642,14 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Amylase",
     unit: "(U/L)",
     rowType: "results",
-    normalRange: { low: "25", high: "125" },
+    normalRange: { low: 25, high: 125 },
     hideable: true
   },
   {
     field: "Lipase",
     unit: "(U/L)",
     rowType: "results",
-    normalRange: { low: "0", high: "160" },
+    normalRange: { low: 0, high: 160 },
     hideable: true
   },
   {

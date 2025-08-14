@@ -4,6 +4,7 @@ import notesReducer from "../components/notes/noteSlice.ts"
 import ordersReducer from "../components/orders/orderSlice.ts"
 import flexSheetReducer from "../components/flexSheets/flexSheetSlice.ts"
 import marReducer from "../components/mar/marSlice.tsx"
+import timeReducer from "../components/chart/timeSlice.ts"
 import { apiSlice } from './apiSlice.ts'
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     orders: ordersReducer,
     flexSheet: flexSheetReducer,
     mar: marReducer,
+    time: timeReducer,
     [apiSlice.reducerPath]: apiSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>

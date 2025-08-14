@@ -24,6 +24,7 @@ export const marSlice = createSlice({
   reducers: {
     handleMedicationSelectionChange: (state, action: PayloadAction<{id: string, checked: boolean}>) => {
       const {id, checked} = action.payload
+      // add a medAdministationInstance to newAdministrations and its id to selectedMeds
       if (checked) {
         state.newAdministrations[id] = {
           medicationOrderId: id,
@@ -48,8 +49,8 @@ export const marSlice = createSlice({
     }>) => {
       const { medicationOrderId, field, value } = action.payload;
       const adminInstance = state.newAdministrations[medicationOrderId];
-
-      // avoiding generics for now..
+      
+      // likely the two properties that student will need to change when administering meds during sim
       if (adminInstance) {
         switch (field) {
           case 'status':

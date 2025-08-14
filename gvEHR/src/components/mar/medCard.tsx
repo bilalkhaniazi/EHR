@@ -95,18 +95,20 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
       <div className="grid grid-cols-2">
         <div className="py-4">  
           <CardHeader className="">
-            <CardTitle className="pb-1 flex gap-2 h-6">
+            <CardTitle className="pb-1 flex gap-2 h-fit">
               <Checkbox
                 onCheckedChange={handleCheckboxChange}
                 checked={isSelected}
                 id={`checkbox-${order.id}`}
                 className="" 
               />
-              <span>{medication.genericName}</span>
-              {medication.brandName && (
-                <span>({medication.brandName})</span>
-              )}
-              <span>{order.doseValue * medication.strength}{medication.strengthUnit}</span>
+              <div className="flex flex-wrap gap-x-2">
+                <span className="text-nowrap">{medication.genericName}</span>
+                {medication.brandName && (
+                  <span className="text-nowrap">({medication.brandName})</span>
+                )}
+                <span className="text-nowrap">{medication.strength}{medication.strengthUnit}</span>
+              </div>
             </CardTitle>
             <CardDescription className="text-xs tracking-tight pb-2">
               {renderMedCardDetails()}

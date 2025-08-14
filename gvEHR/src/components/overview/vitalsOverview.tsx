@@ -22,15 +22,17 @@ import type { tableData } from "../flexSheets/tableData"
 import { useMemo } from "react"
 import { Skeleton } from "../ui/skeleton"
 import StyledTitle from "./styledTitle"
+import { useSelector } from "react-redux"
+import type { RootState } from "@/app/store"
  
 
 export type vitalsOverviewTable = {
   field: string
   [key: string]: string
 }
-const timeColumns = ["1100", "1200", "1300"]
 
- const vitalSignIds = [
+// matching with row ID's in FlexSheet
+const vitalSignIds = [
     "hrInput",
     "bpInput",
     "rrInput",
@@ -41,17 +43,18 @@ const timeColumns = ["1100", "1200", "1300"]
   ];
 
 export function VitalsOverview() {
-  
-  const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery()
+  const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
+  const skip = !sessionStartTime
+  const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip })
 
+  const timeOffsets = data?.timeOffsets.slice(-3) || [];
 
-
-  const tableData = useMemo(() => data?.chartingData || [], [data?.chartingData])
-  
+  const chartingData = data?.chartingData || [];
+  console.log(timeOffsets)
   // move to backend
-  const filteredData = useMemo(() => tableData.filter(row => {
-    return vitalSignIds.includes(row.id)
-  }), [tableData])
+  const filteredData = useMemo(() => {
+    return chartingData.filter(row => vitalSignIds.includes(row.id));
+  }, [data?.chartingData])
 
   const columns: ColumnDef<tableData>[] = useMemo(() => [
     {
@@ -63,10 +66,10 @@ export function VitalsOverview() {
         )
       }
     },
-    ...timeColumns.map(timeKey => {
+    ...timeOffsets.map(timeKey => {
       return {
-        id: timeKey,
-        accessorKey: timeKey as keyof tableData,
+        id: String(timeKey),
+        accessorKey: String(timeKey) as keyof tableData,
        header: () => (
           <div className="flex flex-col justify-center items-center">
             <h2 className="my-1 text-neutral-500 text-xs font-light">7/29</h2>
@@ -82,7 +85,7 @@ export function VitalsOverview() {
         }
       }
     })
-  ], [])
+  ], [timeOffsets])
 
 
   const table = useReactTable({
@@ -92,10 +95,10 @@ export function VitalsOverview() {
   })
 
   const renderTableContent = () => {
-    if (isLoading || isFetching) {
+    if (isLoading || isFetching || skip) {
       return (
         <TableRow>
-          <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
+          <TableCell colSpan={columns.length} className="h-fit p-0 w-full justify-center items-center">
             <div className="w-full h-full grid grid-cols-4 gap-2 p-2">
               <Skeleton className="h-6 col-span-1" />
               <Skeleton className="h-6 col-span-1" />

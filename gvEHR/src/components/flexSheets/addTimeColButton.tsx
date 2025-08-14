@@ -4,58 +4,60 @@ import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover
 import { TimePickerInput } from "../ui/time-picker-input"; 
 import { Clock, Plus } from "lucide-react";
 import { toast } from "sonner"; 
+import { useSelector } from "react-redux";
+import type { RootState } from "@/app/store";
+import { differenceInMinutes } from "date-fns";
 
 interface AddTimeColumnButtonProps {
-    onColumnAdd: (timeString: string) => void;
-    existingTimeColumns: string[];
+    onColumnAdd: (timeString: number) => void;
+    existingTimeColumns: number[];
+    sessionStartTime: number | null;
 }
 
-export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns }: AddTimeColumnButtonProps) {
-    const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date(0, 0, 0, 0, 0));
+export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionStartTime }: AddTimeColumnButtonProps) {
+    const simulationTime = useSelector((state: RootState) => state.time.simulationNow);
+
+    const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date());
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
     const handleAddTime = useCallback(() => {
-        const now = new Date();
-        const addedTime = now.toLocaleTimeString("en-GB", {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        }).replace(":", '');
+        if (!simulationTime || !sessionStartTime) {
+            return
+        }
+        const timeOffset = differenceInMinutes(sessionStartTime, simulationTime)
 
-        if (existingTimeColumns.includes(addedTime)) {
-            toast.error(`Time at ${addedTime} already exists`, {
+        if (existingTimeColumns.includes(timeOffset)) {
+            toast.error(`Time at ${timeOffset} already exists`, {
                 description: "Please choose a different time or use an existing column.",
             });
             return;
         }
 
-        onColumnAdd(addedTime); 
+        onColumnAdd(timeOffset); 
     }, [onColumnAdd, existingTimeColumns]); 
 
     const handleAddUserDefinedTime = useCallback(() => {
+        if (!sessionStartTime) {
+            return
+        }
         if (!selectedTime) {
             toast.error("Please select a time to add.", {
                 description: "The time field cannot be empty.",
             });
             return;
         }
+        const timeOffset = differenceInMinutes(sessionStartTime, selectedTime.getTime())
 
-        const addedTime = selectedTime.toLocaleTimeString("en-GB", {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        }).replace(":", '');
-
-        if (existingTimeColumns.includes(addedTime)) {
-            toast.error(`Time at ${addedTime} already exists`, {
+        if (existingTimeColumns.includes(timeOffset)) {
+            toast.error(`Time at ${timeOffset} already exists`, {
                 description: "Please choose a different time or use an existing column.",
             });
             return;
         }
 
-        onColumnAdd(addedTime); 
+        onColumnAdd(timeOffset); 
         setIsPopoverOpen(false); 
-        setSelectedTime(new Date(0,0,0,0,0,0,0)); 
+        setSelectedTime(new Date()); 
     }, [selectedTime, existingTimeColumns, onColumnAdd, setIsPopoverOpen]); 
     
     return (

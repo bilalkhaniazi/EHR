@@ -3,9 +3,12 @@ import { FlexSheet } from './components/flexSheets/flexSheet.tsx'
 import OrdersPage from './components/orders/ordersPage.tsx'
 import NotePage from './components/notes/notePage.tsx'
 import LabPage from './components/labs/labPage.tsx'
-import PatientChartLayout from './components/chart.tsx/PatientChartLayout.tsx'; // The parent component
+import PatientChartLayout from './components/chart/PatientChartLayout.tsx'; // The parent component
 import OverviewPage from './components/overview/overviewPage.tsx';
 import Mar from './components/mar/mar.tsx';
+import MainLayout from './components/admin/mainLayout.tsx';
+import Formulary from './components/admin/formulary.tsx';
+import AdminLanding from './components/admin/adminLanding.tsx';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +42,20 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/admin",
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <AdminLanding />
+      },
+      {
+        path: "formulary",
+        element: <Formulary />
+      },
+    ]
+  }
 ]);
 
 function App() {

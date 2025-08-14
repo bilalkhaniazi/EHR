@@ -3,7 +3,7 @@ import { Card, CardContent } from "../ui/card"
 import { Separator } from "../ui/separator"
 import StyledTitle from "./styledTitle"
 import CardSkeleton from "./cardSkeleton"
-import type { ChartData } from "../chart.tsx/chartData"
+import type { ChartData } from "../chart/chartData"
 
 const ActiveProblems = () => {
   const {data, isLoading, isError, isFetching, error} = useGetChartQuery()

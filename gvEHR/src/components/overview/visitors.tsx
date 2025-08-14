@@ -3,7 +3,7 @@ import { Card, CardContent  } from "../ui/card"
 import StyledTitle from "./styledTitle"
 import { useGetChartQuery } from "@/app/apiSlice"
 import CardSkeleton from "./cardSkeleton"
-import type { ChartData } from "../chart.tsx/chartData"
+import type { ChartData } from "../chart/chartData"
 
 const Visitors = () => {
   const { data, isLoading, isError, isFetching, error } = useGetChartQuery();
