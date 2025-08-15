@@ -26,7 +26,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     onSelectionChange({ id: order.id, checked });
   };
 
-
+  // using columns passed from main mar component, add relevant administration data (given, held, refused...)
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
       const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
@@ -39,6 +39,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     }
   })
 
+  // most recent time of any administration instance where patient actually consumed the med (given, patient administered)
   const findLastAdminTime = () => {
     if (!administrations || administrations.length === 0) {
       return "Never";
@@ -46,9 +47,6 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     const filteredAdmins = administrations.filter((admin: MedAdministrationInstance) => admin.status === "Given" || admin.status === 'Patient Administered')
     if (filteredAdmins.length !== 0) {
       const lastAdmin = filteredAdmins.reduce((latest, current) => {
-        if (current.status === "Due" || current.status === "Held" || current.status === "Missed") {
-          return latest
-        } 
         return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest; 
       })
       const lastAdminTime = new Date(sessionStartTime + lastAdmin.adminTimeMinuteOffset * 60 * 1000);
@@ -58,6 +56,8 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     return "Never"
   }
 
+
+  // each med has a different display, will need more for insulin, some special meds
   const renderMedCardDetails = () => {
     switch (medication.route) {
       case "PO":

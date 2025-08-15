@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectTrigger, SelectItem, SelectGroup, SelectValue } from "../ui/select"    
-import { type chartingOptions} from "@/components/flexSheets/tableData"
+import { type chartingOptions} from "@/components/flexSheets/flexSheetData"
 import { cn, } from "@/lib/utils"
 
 

@@ -49,6 +49,7 @@ const MedAdministrationPanel = ({
   })
   const [submitNewAdministrations, {isLoading}] = useSubmitNewAdministrationsMutation();
 
+  // sending the new medAdministrationInstance to the backend
   const handleSubmit = async () => {
     // Logic to assemble the final payload, adding the time offset and student ID
     const payload = Object.keys(newAdministrations).map(orderId => {
@@ -60,12 +61,12 @@ const MedAdministrationPanel = ({
         medicationOrderId: orderId,
         administratorId: "StudentID", // Or from slice that user data is stored
         adminTimeMinuteOffset: offset,
-        status: currentAdmin.status ?? "Held" // need to add check that status is never undefined
+        status: currentAdmin.status     // status always initialized as 'given' by default 
       };
     });
 
     try {
-      await submitNewAdministrations({administrations: payload}).unwrap();    // dummy rtk query updating marSlice administrations array
+      await submitNewAdministrations({administrations: payload}).unwrap();    // dummy rtk query updating marSlice administrations array for testing
       dispatch(clearNewAdminstrations());
       setIsOpen(false);
       dispatch(clearSelectedMedications())
@@ -109,7 +110,7 @@ const MedAdministrationPanel = ({
                   onStatusChange={(value) => {
                     dispatch(updateNewAdministration({
                       medicationOrderId: order.id,
-                      field: "status",
+                      field: "status",    // the property of a medAdministrationInstance that is being updated, could add another prop for 'notes' 
                       value: value,
                     }))
                   }}
@@ -119,7 +120,6 @@ const MedAdministrationPanel = ({
             })}
           </div>
         </div>
-        
         <DialogFooter className="items-center h-fit">
           <Button variant="outline" disabled={isLoading} onClick={handleSubmit}>{isLoading ? "Saving..." : "Accept"}</Button>
           <DialogClose asChild>

@@ -1,6 +1,6 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import type { tableData, chartingOptions } from "./tableData";
+import type { tableData, chartingOptions } from "./flexSheetData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "../ui/table";
 import { Input } from "../ui/input";
 import CheckBoxList from "./CheckBoxList";
@@ -10,7 +10,7 @@ import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { SidebarInset, SidebarProvider } from "../ui/sidebar";
-import { assessmentTools } from "./tableData";
+import { assessmentTools } from "./flexSheetData";
 import { Button } from "../ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import { useAddTimeColumnMutation, useGetFlexSheetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
@@ -100,18 +100,16 @@ export function FlexSheet() {
     const timeOffsets = data?.timeOffsets || [];
 
     // editableData is a working copy of chartingData that the user can modify, contains all rows even if hidden
-    // filteredData is a subset of rows from editableData that is rendered in the tanstack table
+    // filteredData is a subset of rows from editableData that is actually shown to the user
     // custom hook to update editableData and filterData, as well as which rows to display
     const { filteredData, editableData, fieldSelections, visibleSubsetIds } = useFlexSheetData(data?.chartingData, data?.timeOffsets);
-
-    console.log(filteredData)
 
     // updates editableData in flexSheetSlice upon student entry
     const onCellUpdate = (rowId: string, columnId: string, newValue: string | string[]) => {
         dispatch(updateEditableData({ rowId, columnId, newValue }))
     }
 
-    // unhides rows based on user's selections
+    // unhides rows based on user's selections, which are applied in useFlexSheetData hook
     const handleSubsetSelection = useCallback((id: string, columnId: string, selectedIdsForField: string[]) => {
         const selectionKey = `${id}-${columnId}`;
         dispatch(setFieldSelection({ key: selectionKey, selectedIds: selectedIdsForField}))
@@ -119,8 +117,8 @@ export function FlexSheet() {
         onCellUpdate(id, columnId, selectedIdsForField)
     }, []);
 
+    // add new column to chartingData in the backend (the source of truth) 
     const handleColumnAdd = async (newTimeOffset: number) => {
-        // timeOffsets would be recalculated upon addition on new column with the mutation marking the data as stale
         if (timeOffsets.includes(newTimeOffset)) {
             toast.error(`A column for time ${newTimeOffset} already exists.`);
             return;
@@ -134,7 +132,7 @@ export function FlexSheet() {
         }
     };
 
-    // opening of sidebar reference for assessment tools, user could just manually do it
+    // open sidebar if an assessment tool (CIWA, Braden Scale) has been expanded
     useEffect(() => {
         let shouldOpen = false;
         for (const tool of assessmentTools) {
@@ -152,26 +150,28 @@ export function FlexSheet() {
         dispatch(toggleSidebar());
     };
     
-    const handleSave = useCallback(async () => {
+    const handleSave = async () => {
         try {
         // Send the current state of editableData to the backend
         await triggerUpdateFlexSheetData(editableData).unwrap();
         toast.success("FlexSheet data saved successfully!");
         // After successful save, RTK Query's invalidatesTags will cause a re-fetch
-        // The useEffect will then re-initialize editableData with the new saved state.
+        // useEffect will  re-initialize editableData with the new saved state.
         } catch (err) {
         toast.error(`Failed to save data: ${err instanceof Error ? err.message : String(err)}`);
         console.error("Failed to save FlexSheet data:", err);
         }
-    }, [editableData, triggerUpdateFlexSheetData]);
+    }
     
     const hasChanges = useMemo(() => {
         if (!data?.chartingData || !editableData) return false;
         return JSON.stringify(editableData) !== JSON.stringify(data.chartingData);
     }, [editableData, data?.chartingData]);
 
-
+    // building the table from filteredData
+    // Many conditions to determine what a column should contain (input box, static display, dropdown menu, etc.)
     const columns = useMemo(() => [
+        // first column is unique, containing row Titles
         columnHelper.accessor("field", {
             id: 'pinned',
             header: () => <h1 className="w-full h-full bg-gray-50"></h1>,
@@ -179,7 +179,7 @@ export function FlexSheet() {
                 const rowType = info.row.original.rowType;
                 if (rowType === "titleRow") {
                     const wdlDescription = info.row.original?.wdlDescription;
-                    // Conditionally render the entire Tooltip component
+                    // render the entire Tooltip component
                     if (wdlDescription && wdlDescription.length > 0) {
                         return (
                             <Tooltip>
@@ -211,7 +211,7 @@ export function FlexSheet() {
                             </p>
                         );
                     }
-                } else if (rowType === "totalScoreRow") { // Handle the new total score row
+                } else if (rowType === "totalScoreRow") { // Handle the new total score row for assessment Tools
                     const toolName = info.row.original.field.replace(' Total Score', '');
                     const toolInterpretation = assessmentTools.find(tool => tool.name === toolName)?.interpretations;
                     
@@ -242,7 +242,7 @@ export function FlexSheet() {
                             )}
                         </div>
                     )} else {
-                    // This is for other row types that are not "titleRow"
+                    // This is for other row types that are not "titleRow" or 'totalScoreRow'
                     return (
                         <p className="min-w-24 h-full text-left text-xs py-0 pl-4 text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">
                             {info.getValue()}
@@ -252,6 +252,7 @@ export function FlexSheet() {
             },
         }),
 
+        // remaining columns are derived from a specific time offset
         ...timeOffsets.map(offsetKey => {
             const { time: displayTime, date: displayDate } = formatTimeFromOffset(offsetKey, sessionStartTime);
             return columnHelper.accessor(row => row[offsetKey], {
@@ -351,7 +352,7 @@ export function FlexSheet() {
         })
             
             
-    ], [timeOffsets]
+    ], [timeOffsets] // only rerun if a timeOffset has been added by the user
     );
 
     const ptTable = useReactTable({

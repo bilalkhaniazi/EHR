@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTableData } from '@/components/labs/labsData'
 import { sampleNotes, type NoteData } from '@/components/notes/notesData';
 import { labratoryOrders, medOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/components/orders/orderData';
-import { generateInitialChartingData, getAllTimeOffsets, type tableData } from '@/components/flexSheets/tableData';
+import { generateInitialChartingData, getAllTimeOffsets, type tableData } from '@/components/flexSheets/flexSheetData';
 import { jamesAllen, type ChartData } from '@/components/chart/chartData';
 import { allMedications, medAdministrations, medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from '@/components/mar/marData';
 import { differenceInMinutes } from 'date-fns';
@@ -39,7 +39,7 @@ export const apiSlice = createApi({
     getLabs: builder.query<GetLabsResponse, number | null>({
       queryFn: async (simStartTime) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        if ( !simStartTime) {
+        if (!simStartTime) {
           return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };        
         }
         

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table"
 import { Card } from "../ui/card"
 import { useGetFlexSheetChartingQuery } from "@/app/apiSlice"
-import type { tableData } from "../flexSheets/tableData"
+import type { tableData } from "../flexSheets/flexSheetData"
 import { useMemo } from "react"
 import { Skeleton } from "../ui/skeleton"
 import StyledTitle from "./styledTitle"

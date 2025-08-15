@@ -23,7 +23,7 @@ export interface NewLabResult {
   value: string;
 }
 
-const getResultStatus = (initialValue: string, abnormalRange: {low: number, high: number} | undefined, criticalRange: {low: number, high: number} | undefined) => {
+export const getResultStatus = (initialValue: string, normalRange: {low: number, high: number} | undefined, criticalRange: {low: number, high: number} | undefined) => {
   const numericValue = parseFloat(initialValue)
 
   if (isNaN(numericValue)) {
@@ -32,7 +32,7 @@ const getResultStatus = (initialValue: string, abnormalRange: {low: number, high
   if (criticalRange && (numericValue < criticalRange.low || numericValue > criticalRange.high)) {
     return "critical";
   }
-  if (abnormalRange && (numericValue < abnormalRange.low || numericValue > abnormalRange.high)) {
+  if (normalRange && (numericValue < normalRange.low || numericValue > normalRange.high)) {
     return "abnormal";
   }
   return "normal";

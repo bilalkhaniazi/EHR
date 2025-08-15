@@ -8,12 +8,12 @@ const Nutrition = () => {
       <StyledTitle color="bg-sky-200" firstLetter="N" secondLetter="utrition" />
       <CardContent className="grid gap-2 px-4">
         <div className="flex pl-2 gap-3">
-          <p className="text-md font-medium tracking-tight">Diet:</p>
-          <p className="text-neutral-500 text-md tracking-tight">Carb Contolled</p>
+          <p className="text-md  font-light tracking-tight">Diet:</p>
+          <p className=" text-md tracking-tight">Carb Contolled</p>
         </div>
         <div className="flex pl-2 gap-3">
-          <p className="text-md font-medium tracking-tight text-nowrap">Fluid Restriction:</p>
-          <p className="text-neutral-500 text-md tracking-tight">None</p>
+          <p className="text-md font-light tracking-tight text-nowrap">Fluid Restriction:</p>
+          <p className=" text-md tracking-tight">None</p>
         </div>
 
         

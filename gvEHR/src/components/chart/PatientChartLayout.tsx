@@ -11,8 +11,9 @@ import Header from "../admin/header.tsx";
 
 const PatientChartLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
-
-  // timer setting the sessionStartTime and updating the simulation time
+  // Main component of the entire chart, time is kept here
+  // timer sets the sessionStartTime once and updates the simulation time for components that need it (FlexSheet, Overview Cards, Labs)
+  // probably better ways of doing this
   useEffect(() => {
     dispatch(initializeTime());
 

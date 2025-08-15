@@ -33,7 +33,8 @@ export interface Contact {
   phone: string;
 }
 
-
+// all general info that a patient will have, only some of it is useful, the rest
+// just provides a sense of completeness/fidelity
 export interface ChartData {
   // Identifiers
   name: StringValueItem;
@@ -56,7 +57,7 @@ export interface ChartData {
 
 
   // Social and demographic data
-  maritalStatus: StringValueItem;
+  relationshipStatus: StringValueItem;
   employmentStatus: StringValueItem;
   insurance: StringValueItem;
   language: StringValueItem;
@@ -71,7 +72,7 @@ export interface ChartData {
 }
 
 
-
+// from a template Doug sent me
 export const jamesAllen: ChartData = {
   name: { id: 'name', label: "Name", value: "James Allen" },
   gender: { id: 'gender', label: "Gender", value: "Male" },
@@ -99,13 +100,13 @@ export const jamesAllen: ChartData = {
   height: { id: "height", label: "Height", value: '6\'4\"'},
   weight: { id: "weight", label: "Weight", value:"94kg" },
   
-  maritalStatus: { id: 'maritalStatus', label: "Marital Status", value: "Widowed" },
+  relationshipStatus: { id: 'maritalStatus', label: "Relationship Status", value: "Widowed" },
   employmentStatus: { id: 'employmentStatus', label: "Employment", value: "Retired factory worker" },
   insurance: { id: 'insurance', label: "Insurance", value: "Medicare" },
   language: { id: 'language', label: "Language", value: "English" },
   religion: { id: "religion", label: "Religion", value: "Baptist" },
   supportPersons: { 
-    id: 'supportPersons',  
+    id: 'supportPersons', 
     label: "Support Persons", 
     value: [
       { name: "Sofia Allen", relationship: "Spouse", phone: "(616) 555-1234" },

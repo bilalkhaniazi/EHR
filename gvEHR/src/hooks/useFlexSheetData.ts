@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../app/store';
 import { calculateColTotal } from '../components/flexSheets/flexSheet'; 
-import type { tableData } from '../components/flexSheets/tableData';
+import type { tableData } from '../components/flexSheets/flexSheetData';
 
 export function useFlexSheetData(chartingData: tableData[] = [], timeOffsets: number[] = []) {
     const editableData = useSelector((state: RootState) => state.flexSheet.editableData);

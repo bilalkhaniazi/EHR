@@ -1,5 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { assessmentTools, type tableData } from "./tableData";
+import { assessmentTools, type tableData } from "./flexSheetData";
 import { Input } from "../ui/input";
 import CheckBoxList from "./CheckBoxList";
 import AssessmentSelect from "./AssessmentSelect";
@@ -7,7 +7,7 @@ import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { useState } from "react";
-import type { chartingOptions } from "./tableData";
+import type { chartingOptions } from "./flexSheetData";
 import { differenceInMilliseconds, format } from "date-fns";
 
 const columnHelper = createColumnHelper<tableData>();

@@ -137,7 +137,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
     hoursOffset: 1, 
     labs: [
       { labName: "Sodium", value: "134" }, 
-      { labName: "Potassium", value: "1008" },
+      { labName: "Potassium", value: "3.7" },
       { labName: "Chlorine", value: "99" },
       { labName: "BUN", value: "25" }, 
       { labName: "Creatinine", value: "1.3" },
@@ -185,7 +185,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
     hoursOffset: 4, 
     labs: [
       { labName: "Sodium", value: "136" }, 
-      { labName: "Potassium", value: "4.5" },
+      { labName: "Potassium", value: "6.1" },
       { labName: "Chlorine", value: "100" },
       { labName: "BUN", value: "20" }, 
       { labName: "Creatinine", value: "1.2" }, 
@@ -196,7 +196,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
   },
   {
     daysOffset: 1, 
-    hoursOffset: 18, 
+    hoursOffset: 1, 
     labs: [
       { labName: "Glucose", value: "160" },
       { labName: "CT R. Foot", 

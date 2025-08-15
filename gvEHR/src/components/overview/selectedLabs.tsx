@@ -5,14 +5,11 @@ import CardSkeleton from "./cardSkeleton"
 import { useSelector } from "react-redux"
 import type { RootState } from "@/app/store"
 import { formatTimeFromOffset } from "../flexSheets/flexSheet"
+import { getResultStatus } from "../labs/labPage"
+import { ShieldAlert } from "lucide-react"
  
 
-export type vitalsOverviewTable = {
-  field: string
-  [key: string]: string
-}
-
-const vitalSignIds = [
+const selectedLabs = [
     "Sodium",
     "Potassium",
     "Creatinine",
@@ -72,25 +69,31 @@ export function SelectedLabs() {
   }
 
   const { labTableData, timePoints } = data
-  console.log(labTableData)
+  console.log(timePoints)
 
   const filteredData = labTableData.filter(row => {
-    return vitalSignIds.includes(row.field)
+    return selectedLabs.includes(row.field)
   })
 
+  
   const selectedLabData = filteredData.map(row => {
-    const selectedLab = {field: row.field, dateKey: 0, value: '', normalRange: row.normalRange}
-    timePoints.forEach(timePoint => {
+    const selectedLab = {field: row.field, dateKey: 0, value: '', normalRange: row.normalRange, criticalRange: row.criticalRange}
+    for (let i = timePoints.length - 1; i >= 0; i--) {
+      const timePoint = timePoints[i];
       if (row[timePoint]) {
-        selectedLab.value = row[timePoint] as string; // technically could be imagingData or pathologyReport but those would never be 
-        selectedLab.dateKey = timePoint
+        selectedLab.value = row[timePoint] as string;
+        selectedLab.dateKey = timePoint;
+        break
       }
-    })
+    }
     if (selectedLab.value) {
       return selectedLab
     } 
+    // if no data exists for a selected lab
     return undefined
   }).filter(Boolean)
+
+
 
   console.log(filteredData)
   console.log(selectedLabData)
@@ -104,16 +107,12 @@ export function SelectedLabs() {
 
           const {date: displayDate, time: displayTime} = formatTimeFromOffset(labData.dateKey, sessionStartTime)
 
-          let alertFlag = false
-          if (labData.normalRange) {
-                const numericValue = parseFloat(labData.value)
-                const numericHigh = labData.normalRange.high
-                const numericLow = labData.normalRange.low
+          const normalRange = labData.normalRange
+          const criticalRange = labData.criticalRange
 
-                if (!isNaN(numericValue) && !isNaN(numericLow) && !isNaN(numericHigh)) {
-                  alertFlag = numericValue < numericLow || numericValue > numericHigh;
-                }
-              }
+          const resultStatus = getResultStatus(labData.value, normalRange, criticalRange)
+          const isCritical = resultStatus === "critical"
+          const isAbnormal = resultStatus === "abnormal" 
 
           
           return (
@@ -123,7 +122,10 @@ export function SelectedLabs() {
                 <h1 className="text-xs text-neutral-800 font-medium overflow-hidden">{displayTime}</h1>
               </div>
               <p className="p-1 text-xs rounded-bl-lg border-l border-r border-b border-sky-200 overflow-hidden">{labData.field}</p>
-              <p className={`p-1 text-center text-xs rounded-br-lg border-r border-b border-sky-200 ${alertFlag && "text-red-600 font-medium"}`}>{labData.value}</p>
+              <div className="flex justify-center p-1 text-center text-xs rounded-br-lg border-r border-b border-sky-200">
+                {isCritical && <ShieldAlert color="#e7000b" size={18} />}
+                <p className={`w-full ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}>{labData.value}</p>
+              </div>
             </div>
           )
         })}

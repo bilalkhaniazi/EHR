@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { tableData } from "./tableData";
+import type { tableData } from "./flexSheetData";
 
 export interface FlexSheetState {
   fieldSelections: Record<string, string[]>;

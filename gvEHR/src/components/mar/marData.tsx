@@ -33,8 +33,8 @@ interface InjectableMedication extends BaseMedication {
   recommendedInjectionSites?: string[];
   needleGauge?: string;
   needleLength?: string;
-  reconstitutionRequired: boolean; // For powdered medications
-  reconstitutionInstructions?: string; // If reconstitutionRequired is true
+  reconstitutionRequired: boolean; 
+  reconstitutionInstructions?: string; 
 }
 
 interface TopicalMedication extends BaseMedication {
@@ -64,6 +64,8 @@ export type AllMedicationTypes =     // route property acts as discriminator
   TopicalMedication | 
   InhalerMedication;
 
+
+// Each order is associated with one medication and details how, when, why it should be given  
 export interface MedicationOrder {
   id: string;
   medicationId: string;
@@ -75,14 +77,17 @@ export interface MedicationOrder {
   status: "active" | "completed" | "Held" | "cancelled"
 }
 
+// an instance where a patient is given a medication (or refuses it)
+// is associated with a speficic med order
 export interface MedAdministrationInstance {
   medicationOrderId: string;    // link to specific med order
-  administratorId: string;      // who gave the med
+  administratorId: string;      
   adminTimeMinuteOffset: number;
   status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" | "Patient Administered";
   notes?: string; 
 }
 
+// List of all medications that could be used in a medicationOrder. 
 export const allMedications: AllMedicationTypes[] = [
   { 
     id: "medMetoprololOral25",

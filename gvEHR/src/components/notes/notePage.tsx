@@ -27,7 +27,7 @@ const NotePage = () => {
 
   const notesData = data?.notesData || [];
 
-  // get all specialties from RTK queried data
+  // get all specialties from RTK queried data to build filter options
   const specialties = [...new Set(sampleNotes.map((note) => (note.specialty)))];
 
   const filteredNotesData = notesData.filter(note => {

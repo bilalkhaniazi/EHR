@@ -8,6 +8,7 @@ import CareTeam from "./careTeam"
 import { IntakeOutput } from "./intakeOutput"
 import { SelectedLabs } from "./selectedLabs"
 import MarSnapshot from "./marSnapshot"
+import Demographics from "./demographics"
 
 const OverviewPage = () => {
   return (
@@ -24,11 +25,7 @@ const OverviewPage = () => {
           <IntakeOutput />
           <SelectedLabs />
           <MarSnapshot />
-          <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
-          <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
-          <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
-          <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
-          <div className="col-span-1 h-40 bg-orange-200 rounded-lg border border-orange-400 shadow"></div>
+          <Demographics />
         </div>
       </div>
     </div>

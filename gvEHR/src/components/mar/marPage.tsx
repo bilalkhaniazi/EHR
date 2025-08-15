@@ -21,17 +21,18 @@ export default function Mar() {
   const dispatch = useDispatch<AppDispatch>();
 
   const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
-
-  const handleMedChange = (payload: { id: string, checked: boolean }) => {
-    dispatch(handleMedicationSelectionChange(payload));
-  };
-
   const { data, isLoading, isFetching, isError, error } = useGetMarQuery()
+  // Mar still needs to be updated to use the time from timeSlice
   const [realWorldNow, setRealWorldNow] = useState(new Date());
 
   const medicationOrders = data?.medicationOrders || []; 
   const allMedications = data?.allMedications || []; 
   const medAdministrations = data?.medAdministrations || [];
+
+  // will be replaced by scanning
+  const handleMedChange = (payload: { id: string, checked: boolean }) => {
+    dispatch(handleMedicationSelectionChange(payload));
+  };
 
   // lookup map grouping all administrations by order id, so each med card gets only the data it needs
   const groupedAdministrationsByOrder = useMemo(() => {
@@ -164,7 +165,6 @@ export default function Mar() {
               sessionStartTime={sessionStartDateNumber}
               onSelectionChange={handleMedChange}
               isSelected={isSelected}
-
             />      
           )
         })}
