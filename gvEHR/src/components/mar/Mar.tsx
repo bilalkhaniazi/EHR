@@ -20,7 +20,6 @@ export interface MedCardColumns {
 export default function Mar() {
   const dispatch = useDispatch<AppDispatch>();
 
-  // const isSelected = useSelector((state: RootState) => state.mar.isSelected);
   const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
 
   const handleMedChange = (payload: { id: string, checked: boolean }) => {

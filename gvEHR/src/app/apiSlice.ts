@@ -42,18 +42,21 @@ export const apiSlice = createApi({
         if ( !simStartTime) {
           return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };        
         }
+        
         const allTimePoints = generateAllInitialLabTimes(simStartTime);
+
+        // get list of all time offsets for tanstack table columns
         const timeColumnDateKeys = allTimePoints.map(timePoint => timePoint.dateKey)
         
+        // assign lab results to their corresponding rows
         const initialLabTableData = generateInitialLabData(allTimePoints, labTemplate);
+
+        // remove rarely used labs if every value in its row is empty
         const filteredLabTableData = 
           initialLabTableData.filter(row => {
             if (!row.hideable) {
               return true
             }
-            // if (row.rowType === "divider") {
-            //   return true
-            // }
             const allValuesEmpty = timeColumnDateKeys.every(dateKey => {
               const labValue = row[dateKey]
               return !labValue
@@ -149,20 +152,20 @@ export const apiSlice = createApi({
         }
       }
     }),
-    // could add new order mutation
-    
+
+    // Chart Sidebar
     getChart: builder.query<{chartData: ChartData}, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return { data: { chartData: jamesAllen }
         }
       }
-  }),
+    }),
 
     // FlexSheets
     getFlexSheetCharting: builder.query<GetFlexSheetsResponse, number | null>({
       queryFn: async (sessionStartDate) => {
-
+        // timeSlice should have initialized session's start time 
         if (!sessionStartDate) {
           return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };
         }
@@ -185,7 +188,7 @@ export const apiSlice = createApi({
       
       
       // pre-redux column adding logic
-      //   const handleColumnAdd = useCallback((newTime: string) => {
+      //   const handleColumnAdd = (newTime: string) => {
       //     setTimeColumns(prevColumns => {
       //         const updatedColumns = [...prevColumns, newTime].sort();
       //         return updatedColumns;
@@ -198,7 +201,7 @@ export const apiSlice = createApi({
       //             return newRow;
       //         })
       //     );
-      // }, []);
+      // }
       },
     }),
     updateFlexSheetData: builder.mutation<
@@ -208,12 +211,10 @@ export const apiSlice = createApi({
       queryFn: async (updatedRows) => {
         await new Promise(resolve => setTimeout(resolve, 500));
         console.log("Mock backend received FlexSheet update:", updatedRows);
-        // 🚨 Mock backend logic: For a real backend, you'd save `updatedRows` to your DB.
-        // For our current mock, we'll just return it.
+        // fake response 
         return { data: { message: "FlexSheet data updated successfully", updatedData: updatedRows } };
       },
-      // Invalidate after save so getFlexSheetData re-fetches the latest *saved* state
-      // (This is crucial for ensuring the UI is in sync with the "database" after a save)
+      
       // invalidatesTags: ['FlexSheetData'],
     }),
     getMar: builder.query<GetMarResponse, void>({
@@ -233,22 +234,14 @@ export const apiSlice = createApi({
       { newAdministrations: MedAdministrationInstance[] },
       { administrations: MedAdministrationInstance[] }
     >({
-      // The queryFn simulates an API call
       queryFn: async (payload) => {
-        // Simulate a network delay
         await new Promise(resolve => setTimeout(resolve, 500));
-
-        // A real backend would return a success message and the new data.
-        // For this mock, we'll just return the payload as the new data.
+        // fake response
         return { data: { newAdministrations: payload.administrations } };
       },
 
-      // onQueryStarted is used for the optimistic update
+      // directly modifying marSlice to demonstrate functionality with no database
       async onQueryStarted({ administrations }, { dispatch, queryFulfilled }) {
-
-
-
-        // Update the 'getMar' query cache optimistically
         const patchResult = dispatch(
           apiSlice.util.updateQueryData('getMar', undefined, (draft) => {
             const newAdminTimes = new Map(administrations.map(admin => [admin.medicationOrderId, admin.adminTimeMinuteOffset]));

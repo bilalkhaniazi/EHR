@@ -2,13 +2,12 @@ interface BaseMedication {
   id: string;
   genericName: string;
   brandName?: string;
-  // Route will be a literal type for discrimination
-  route: "PO" | "IV" | "SC" | "Topical" | "TD" | "Inhalation" | "IM" | "PR" | "SL" | "otic" | "ophthalmic";
+  route: "PO" | "IV" | "SC" | "Topical" | "TD" | "Inhalation" | "IM" | "PR" | "SL" | "otic" | "ophthalmic";     // Route will be a literal type for discrimination
   strength: number; // e.g., 25, 100
   strengthUnit: string; // e.g., "mg", "units/mL"
   orderableUnit: string; // e.g., "Tablet", "Solution", "Cream", "Vial", "Syringe"
-  availableDosages: number[]; // e.g., [25, 50, 100] if strengthUnit is mg, or [5, 10] if dosageForm is mL.
-  administrationFrequencies: string[]; // e.g., ["QD", "BID", "TID", "Q4H", "PRN"] - use specific codes
+  availableDosages: number[]; 
+  administrationFrequencies: string[]; // probably won't end up needing 
 }
 
 
@@ -20,7 +19,7 @@ interface OralMedication extends BaseMedication {
 }
 
 interface IvMedication extends BaseMedication {
-  route: "IV"; // Discriminator
+  route: "IV"; 
   infusionRate?: number;
   infusionRateUnit?: "mL/hr" | "mg/hr" | "units/hr";
   diluent?: string; 
@@ -30,7 +29,7 @@ interface IvMedication extends BaseMedication {
 }
 
 interface InjectableMedication extends BaseMedication {
-  route: "SC" | "IM"; // Discriminator
+  route: "SC" | "IM"; 
   recommendedInjectionSites?: string[];
   needleGauge?: string;
   needleLength?: string;
@@ -39,7 +38,7 @@ interface InjectableMedication extends BaseMedication {
 }
 
 interface TopicalMedication extends BaseMedication {
-  route: "Topical" | "TD"; // Discriminator
+  route: "Topical" | "TD"; 
   applicationArea: string; 
   form: "cream" | "ointment" | "gel" | "patch" | "lotion";
   applyThinLayer?: boolean;
@@ -50,7 +49,7 @@ interface TopicalMedication extends BaseMedication {
 }
 
 interface InhalerMedication extends BaseMedication {
-  route: "Inhalation"; // Discriminator
+  route: "Inhalation"; 
   deviceType: "MDI" | "DPI" | "nebulizer";
   requiresSpacer?: boolean;
   inhalationsPerDose: number;
@@ -68,12 +67,10 @@ export type AllMedicationTypes =     // route property acts as discriminator
 export interface MedicationOrder {
   id: string;
   medicationId: string;
-  doseValue: number;
-  doseUnit: string;
+  unitsOrdered: number;
   frequency: string; 
   priority: "STAT" | "NOW" |"ROUTINE";
   instructions?: string;
-  // orderDate: Date;
   indication: string;
   status: "active" | "completed" | "Held" | "cancelled"
 }
@@ -85,10 +82,6 @@ export interface MedAdministrationInstance {
   status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" | "Patient Administered";
   notes?: string; 
 }
-
-
-// interface medAdminPanelSelections
-
 
 export const allMedications: AllMedicationTypes[] = [
   { 
@@ -113,7 +106,7 @@ export const allMedications: AllMedicationTypes[] = [
     route: "IV", 
     strength: 500,
     strengthUnit: "mg",
-    orderableUnit: "Vial",                          // should match (or be replaced by) doseUnit in MedicationOrder 
+    orderableUnit: "Vial",           
     availableDosages: [500, 1000], 
     administrationFrequencies: ["Q6H", "Q8H"], 
     // --- IVMedication specific properties ---
@@ -135,8 +128,8 @@ export const allMedications: AllMedicationTypes[] = [
     availableDosages: [1, 2], // Order 1 or 2 tablets (10mg or 20mg)
     administrationFrequencies: ["QD"], // Once daily
     form: "tablet",
-    canBeCrushedOrSplit: true, // Example: Lisinopril can often be crushed
-    takeWithFood: false, // Can be taken without regard to food
+    canBeCrushedOrSplit: true, 
+    takeWithFood: false, 
   },
   {
     id: "medVancomycinIv1000",
@@ -145,13 +138,13 @@ export const allMedications: AllMedicationTypes[] = [
     route: "IV",
     strength: 1000, // 1000mg per dose/vial
     strengthUnit: "mg",
-    orderableUnit: "Bag", // Often pre-mixed in a bag
-    availableDosages: [1], // Typically ordered as 1 bag of 1000mg
-    administrationFrequencies: ["Q12H", "Q24H"], // Common frequencies
-    infusionRate: 250, // Example: 1000mg in 250mL infused over 2 hours (125 mL/hr) or 4 hours (250 mL/hr)
+    orderableUnit: "Bag", 
+    availableDosages: [1], 
+    administrationFrequencies: ["Q12H", "Q24H"], 
+    infusionRate: 250, 
     infusionRateUnit: 'mL/hr',
-    diluent: "Dextrose 5% in Water", // Common diluent for Vancomycin
-    totalVolume: 250, // Often comes in 250mL bags
+    diluent: "Dextrose 5% in Water", 
+    totalVolume: 250, 
     infusionDurationHours: 2, 
     requiresPump: true,
   },
@@ -163,7 +156,7 @@ export const allMedications: AllMedicationTypes[] = [
     strength: 40,
     strengthUnit: "mg",
     orderableUnit: "Tablet",
-    availableDosages: [1], // Typically given as a single tablet
+    availableDosages: [1], 
     administrationFrequencies: ["QD"],
     form: "tablet",
     canBeCrushedOrSplit: false,
@@ -375,8 +368,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderAmoxIv",
     medicationId: "medAmoxIv", 
-    doseValue: 1, 
-    doseUnit: "Vial", 
+    unitsOrdered: 1,               // amount of orderableUnits to be administered to pt
     frequency: "Q8H",
     priority: "ROUTINE",
     instructions: "Administer over 30 minutes via infusion pump.",
@@ -386,8 +378,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderMetoprololOral25",
     medicationId: "medMetoprololOral25",
-    doseValue: 2,
-    doseUnit: "Tablet",
+    unitsOrdered: 2,
     frequency: "Twice Daily",
     priority: "ROUTINE",
     status: "active",
@@ -397,8 +388,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderLisinoprilOral10",
     medicationId: "medLisinoprilOral10",
-    doseValue: 1, // Ordering 1 Tablet (10mg)
-    doseUnit: "Tablet",
+    unitsOrdered: 1, // Ordering 1 Tablet (10mg)
     frequency: "QD",
     priority: "ROUTINE",
     status: "active",
@@ -408,8 +398,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderVancomycinIv",
     medicationId: "medVancomycinIv1000",
-    doseValue: 1, // Ordering 1 Bag (1000mg)
-    doseUnit: "Bag",
+    unitsOrdered: 1, // Ordering 1 Bag (1000mg)
     frequency: "Q12H",
     priority: "ROUTINE",
     status: "active",
@@ -419,8 +408,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderAtorvastatinOral40",
     medicationId: "medAtorvastatinOral40",
-    doseValue: 1,
-    doseUnit: "Tablet",
+    unitsOrdered: 1,
     frequency: "QD",
     priority: "ROUTINE",
     status: "active",
@@ -430,8 +418,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderAcetaminophenOral650",
     medicationId: "medAcetaminophenOral650",
-    doseValue: 1,
-    doseUnit: "Tablet",
+    unitsOrdered: 1,
     frequency: "PRN",
     priority: "ROUTINE",
     status: "active",
@@ -441,8 +428,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderInsulinGlargineSc",
     medicationId: "medInsulinGlargineSc",
-    doseValue: 15,
-    doseUnit: "Unit",
+    unitsOrdered: 15,
     frequency: "QD",
     priority: "ROUTINE",
     status: "active",

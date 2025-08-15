@@ -66,7 +66,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
           <div className="flex gap-2 h-5">
             <span className="text-nowrap">{medication.route}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.doseValue} {pluralize(order.doseValue, order.doseUnit)}</span>
+            <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{order.frequency}</span>
             <Separator className="bg-gray-300" orientation="vertical"/>
@@ -78,7 +78,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.doseValue} {pluralize(order.doseValue, order.doseUnit)}</span>
+          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{medication.infusionRate} {medication.infusionRateUnit}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
@@ -107,7 +107,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
                 {medication.brandName && (
                   <span className="text-nowrap">({medication.brandName})</span>
                 )}
-                <span className="text-nowrap">{medication.strength}{medication.strengthUnit}</span>
+                <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
               </div>
             </CardTitle>
             <CardDescription className="text-xs tracking-tight pb-2">

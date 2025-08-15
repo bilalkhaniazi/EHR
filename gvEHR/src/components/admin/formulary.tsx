@@ -19,8 +19,9 @@ const Formulary = () => {
     }
   };
 
+
+ // all the following barcode printing was a quick vibe code to make barcodes to practice scanning integration
   const generateBarcodeSVG = (medId: string): string => {
-    // Create a temporary canvas to generate the barcode
     const canvas = document.createElement('canvas')
     JsBarcode(canvas, medId, {
       format: "CODE128",
@@ -34,7 +35,6 @@ const Formulary = () => {
     return canvas.toDataURL()
   }
 
-  // to backend once ready, with error handling, better positioning, auth, etc.
   const printBarcodes = async () => {
     if (selected.length === 0) {
       alert('Please select medications to print')
@@ -209,7 +209,7 @@ const Formulary = () => {
           onClick={printBarcodes}
           className="bg-blue-500 text-white w-fit px-4 py-2 rounded hover:bg-blue-600"
         >
-          Print Barcodes
+          {isPrinting ? "Printing..." : "Print Barcodes"}
         </button>
       <div className="flex flex-col h-full px-2 py-3 gap-3 overflow-y-auto border border-gray-300 rounded-t-lg inset-shadow-sm">
         {allMedications.map((med) => {

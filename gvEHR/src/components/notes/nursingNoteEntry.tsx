@@ -40,14 +40,17 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
       <DialogContent className="md:max-w-2xl xl:max-w-4xl">
         <DialogHeader>
         <DialogTitle>Nursing Note</DialogTitle>
-        <DialogDescription>
-          Prompt here
-        </DialogDescription>
+        <DialogDescription>Prompt here</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <div className="grid gap-3">
             <Label htmlFor="note">Some prompt here?</Label>
-            <Textarea id="note" name="username"  value={newNote} onChange={e => setNewNote(e.target.value)} />
+            <Textarea 
+              id="note"
+              name="username"
+              value={newNote}
+              onChange={e => setNewNote(e.target.value)}
+            />
           </div>
         </div>
         <DialogFooter>

@@ -52,5 +52,5 @@ export function useFlexSheetData(chartingData: tableData[] = [], timeOffsets: nu
         return newFilteredData;
     }, [visibleSubsetIds, editableData, chartingData, timeOffsets]);
 
-    return { filteredData, editableData, fieldSelections };
+    return { filteredData, editableData, fieldSelections, visibleSubsetIds };
 }

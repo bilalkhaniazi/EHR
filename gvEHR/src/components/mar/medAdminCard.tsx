@@ -16,14 +16,6 @@ interface MedAdminCardProps {
   currentStatus: string
 }
 
-// // helper function to get the last few times the med was given - important from nursing standpoint
-// const getThreePrevAdministrations = (administrations: MedAdministrationInstance[]) => {
-//   if (!administrations || administrations.length === 0) {
-//     return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
-//   }
-//   administrations.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
-//   return administrations.slice(-3)
-// }
 
 // helper function to get the last few times the med was given - important from nursing standpoint
 const getPreviousAdministrations = (administrations: MedAdministrationInstance[], prevAdmins: number) => {
@@ -68,7 +60,7 @@ const MedAdminCard = ({
           <div className="flex gap-2 h-5 font-normal">
             <span className="text-nowrap">{medication.route}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.doseValue} {pluralize(order.doseValue, order.doseUnit)}</span>
+            <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{order.frequency}</span>
             <Separator className="bg-gray-300" orientation="vertical"/>
@@ -80,7 +72,7 @@ const MedAdminCard = ({
         <div className="flex gap-2 h-5 font-normal">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.doseValue} {pluralize(order.doseValue, order.doseUnit)}</span>
+          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{medication.infusionRate} {medication.infusionRateUnit}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
@@ -102,7 +94,7 @@ const MedAdminCard = ({
               {medication.brandName && (
                 <span>({medication.brandName})</span>
               )}
-              <span>{order.doseValue * medication.strength}{medication.strengthUnit}</span>
+              <span>{order.unitsOrdered * medication.strength}{medication.strengthUnit}</span>
             </CardTitle>
             <CardDescription className="text-xs tracking-tight pb-2">
               {renderMedCardDetails()}
@@ -166,7 +158,7 @@ const MedAdminCard = ({
           <div className="w-full space-y-1">
             <Label>Dose</Label>
             <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-              {`${order.doseValue * medication.strength}${medication.strengthUnit}`}
+              {`${order.unitsOrdered * medication.strength}${medication.strengthUnit}`}
             </p>
           </div>
           {medication.route === "IV" &&
