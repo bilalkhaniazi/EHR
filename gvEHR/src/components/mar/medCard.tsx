@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { Separator } from "../ui/separator"
-import type { MedCardColumns } from "./mar";
+import type { MedCardColumns } from "./mar.tsx";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData"
 import { Checkbox } from "../ui/checkbox";
 
@@ -43,7 +43,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     if (!administrations || administrations.length === 0) {
       return "Never";
     }
-    const filteredAdmins = administrations.filter(admin => admin.status === "Given" || admin.status === 'Patient Administered')
+    const filteredAdmins = administrations.filter((admin: MedAdministrationInstance) => admin.status === "Given" || admin.status === 'Patient Administered')
     if (filteredAdmins.length !== 0) {
       const lastAdmin = filteredAdmins.reduce((latest, current) => {
         if (current.status === "Due" || current.status === "Held" || current.status === "Missed") {
