@@ -2,7 +2,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { assessmentTools, type tableData } from "./tableData";
 import { Input } from "../ui/input";
 import CheckBoxList from "./CheckBoxList";
-import { AddTimeColumnButton } from "./addTimeColButton";
 import AssessmentSelect from "./AssessmentSelect";
 import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";

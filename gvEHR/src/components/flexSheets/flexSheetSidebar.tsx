@@ -16,13 +16,12 @@ import {
 } from "@/components/ui/accordion"
 import { type AssessmentTool, assessmentTools as tempData } from "./tableData"
 
-
-const AssessmentToolSidebar = () => {
+const FlexSheetSidebar = () => {
   const assessmentTools: AssessmentTool[] = tempData
   return (
     <Sidebar 
       side="right"
-      className="t-4"
+      className=""
       >
       <SidebarContent className="bg-gray-100">
         <SidebarGroup>
@@ -79,4 +78,4 @@ const AssessmentToolSidebar = () => {
   )
 }
 
-export default AssessmentToolSidebar
+export default FlexSheetSidebar

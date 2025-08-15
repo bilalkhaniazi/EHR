@@ -13,7 +13,6 @@ import { SidebarInset, SidebarProvider } from "../ui/sidebar";
 import { assessmentTools } from "./tableData";
 import { Button } from "../ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
-import AssessmentToolSidebar from "./assessmentToolSidebar";
 import { useAddTimeColumnMutation, useGetFlexSheetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar, setSidebarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./flexSheetSlice";
@@ -22,7 +21,7 @@ import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
 import { differenceInMilliseconds, format } from "date-fns";
 import { useFlexSheetData } from "@/hooks/useFlexSheetData";
-// import { getFlexSheetColumns } from "./flexSheetColumns";
+import FlexSheetSidebar from "./flexSheetSidebar"
 
 const columnHelper = createColumnHelper<tableData>();
 
@@ -39,11 +38,11 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
+// helper function for table header display time
 export const formatTimeFromOffset = (offsetMinutes: number, nowTimestamp: number | null) => {
     if (!nowTimestamp) {
         return { error: { status: 'TIME_ERROR', data: 'Time has not been initialized.' } }; 
     }
-    // Subtract the offset from the current time
     const targetTime = differenceInMilliseconds(nowTimestamp, (offsetMinutes * 60 * 1000));
     
     const time = format(targetTime, 'HHmm')
@@ -52,7 +51,7 @@ export const formatTimeFromOffset = (offsetMinutes: number, nowTimestamp: number
     return { time, date };
 };
 
-
+// for tallying scored assessment tools at the bottom of flexsheet table
 export function calculateColTotal(toolName: string, grouped: tableData[], timeOffsets: number[]) {
     const totalRow: tableData = {
         id: `${toolName}TotalScore`,
@@ -80,47 +79,39 @@ export function calculateColTotal(toolName: string, grouped: tableData[], timeOf
 
 export function FlexSheet() {
     const dispatch = useDispatch<AppDispatch>();
-    const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime) 
+    const [triggerUpdateFlexSheetData, {isLoading: isSaving }] = useUpdateFlexSheetDataMutation();      
+    const [triggerAddTimeColumn] = useAddTimeColumnMutation();
+    const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
     const skip = !sessionStartTime;
 
-    
-    const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip })
-
-    const [triggerUpdateFlexSheetData, {isLoading: isSaving }] = useUpdateFlexSheetDataMutation();      // isError: saveError, isSuccess: saveSuccess
-    const [triggerAddTimeColumn] = useAddTimeColumnMutation();
-    
     const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen);
 
-    const timeOffsets = data?.timeOffsets || [];
+    
+    const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip }) // make call only once global time has been initialized
+    
+    // chartingData is the starting point of FlexSheet data when the component mounts
+    // takes data received from RTK Query and stores it in FlexSheet's own slice
     useEffect(() => {
-        if (data?.chartingData && !isSaving) { // Only update if not currently saving (to avoid overwriting unsaved edits)
+        if (data?.chartingData) { 
             dispatch(initializeEditableData(data.chartingData));
         }
-    }, [data, isSaving, dispatch]);
+    }, [data, dispatch]);
+    
+    const timeOffsets = data?.timeOffsets || [];
 
-    const { filteredData, editableData, fieldSelections } = useFlexSheetData(data?.chartingData, data?.timeOffsets);
-
-    // upon change in rows to display, update 
-    const visibleSubsetIds = useMemo(() => {
-        const combinedSet = new Set<string>();
-        Object.values(fieldSelections).forEach(selectedIdsArray => {
-            selectedIdsArray.forEach(id => {
-                // WDL is an option in the checkboxlist but doesn't map to a hideableId row.
-                if (id !== "WDL") {
-                    combinedSet.add(id);
-                }
-            });
-        });
-        return combinedSet;
-    }, [fieldSelections]);
+    // editableData is a working copy of chartingData that the user can modify, contains all rows even if hidden
+    // filteredData is a subset of rows from editableData that is rendered in the tanstack table
+    // custom hook to update editableData and filterData, as well as which rows to display
+    const { filteredData, editableData, fieldSelections, visibleSubsetIds } = useFlexSheetData(data?.chartingData, data?.timeOffsets);
 
     console.log(filteredData)
 
-    // updates Data upon submission of Input or AssessmentSelect component 
+    // updates editableData in flexSheetSlice upon student entry
     const onCellUpdate = (rowId: string, columnId: string, newValue: string | string[]) => {
         dispatch(updateEditableData({ rowId, columnId, newValue }))
     }
 
+    // unhides rows based on user's selections
     const handleSubsetSelection = useCallback((id: string, columnId: string, selectedIdsForField: string[]) => {
         const selectionKey = `${id}-${columnId}`;
         dispatch(setFieldSelection({ key: selectionKey, selectedIds: selectedIdsForField}))
@@ -135,7 +126,6 @@ export function FlexSheet() {
             return;
         }
         try {
-
             const response = await triggerAddTimeColumn({ newTimeOffset }).unwrap(); 
             toast.success(response.message);
         } catch (err) {
@@ -144,7 +134,7 @@ export function FlexSheet() {
         }
     };
 
-    // opening of sidebar reference for assessment tools
+    // opening of sidebar reference for assessment tools, user could just manually do it
     useEffect(() => {
         let shouldOpen = false;
         for (const tool of assessmentTools) {
@@ -506,7 +496,7 @@ export function FlexSheet() {
                     </div>
                 </div>
             </SidebarInset>
-            <AssessmentToolSidebar  />
+            <FlexSheetSidebar  />
         </SidebarProvider>
     );
 }
