@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { Separator } from "../ui/separator"
-import type { MedCardColumns } from "./mar.tsx";
+import type { MedCardColumns } from "./marPage.tsx";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData"
 import { Checkbox } from "../ui/checkbox";
 

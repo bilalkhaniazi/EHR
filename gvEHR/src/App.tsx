@@ -5,7 +5,7 @@ import NotePage from './components/notes/notePage.tsx'
 import LabPage from './components/labs/labPage.tsx'
 import PatientChartLayout from './components/chart/PatientChartLayout.tsx'; // The parent component
 import OverviewPage from './components/overview/overviewPage.tsx';
-import Mar from './components/mar/mar.tsx';
+import Mar from './components/mar/marPage.tsx';
 import MainLayout from './components/admin/mainLayout.tsx';
 import Formulary from './components/admin/formulary.tsx';
 import AdminLanding from './components/admin/adminLanding.tsx';
