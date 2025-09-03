@@ -150,7 +150,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
                       return (
                         <div 
                           key={`${admin.medicationOrderId}-${admin.adminTimeMinuteOffset}-${admin.status}`} 
-                          className={`flex flex-col justify-center items-center py-1 px-2 rounded-lg  ${statusColorClass}`}
+                          className={`flex flex-col justify-center items-center py-1 px-2 rounded-lg shadow  ${statusColorClass}`}
                         >
                           <p className="text-center text-xs font-medium">{displayTime}</p>
                           <p className="text-xs font-normal">{admin.status}</p>

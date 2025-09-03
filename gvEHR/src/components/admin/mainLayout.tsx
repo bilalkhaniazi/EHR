@@ -12,7 +12,7 @@ const MainLayout = () => {
         <div className="flex w-full flex-1">
           <AdminSidebar />          
           <SidebarInset>
-            <div className="flex flex-1">
+            <div className="flex flex-1 h-full">
               <Outlet />
             </div>
           </SidebarInset>

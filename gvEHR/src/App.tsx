@@ -9,6 +9,8 @@ import Mar from './components/mar/marPage.tsx';
 import MainLayout from './components/admin/mainLayout.tsx';
 import Formulary from './components/admin/formulary.tsx';
 import AdminLanding from './components/admin/adminLanding.tsx';
+import Capsis from './components/capsis/capsis.tsx';
+import CapsisPatient from './components/capsis/capsisPatient.tsx';
 
 const router = createBrowserRouter([
   {
@@ -55,6 +57,14 @@ const router = createBrowserRouter([
         element: <Formulary />
       },
     ]
+  },
+  {
+    path: "capsis",
+    element: <Capsis />
+  },
+  {
+    path: "capsisPatient",
+    element: <CapsisPatient />
   }
 ]);
 
