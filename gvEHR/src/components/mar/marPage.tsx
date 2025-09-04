@@ -45,7 +45,7 @@ export default function Mar() {
     }, {} as { [orderId: string]: MedAdministrationInstance[] })
   }, [medAdministrations])
 
-  // object only needs to be created if a new med and order are added to the sim by a prof
+  // object only needs to be created if a new order are added to the sim by a prof
   const medsById = useMemo(() => {
     return allMedications.reduce((acc, med) => {
       acc[med.id] = med;
