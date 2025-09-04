@@ -14,13 +14,13 @@ const Formulary = () => {
       })
     } else {
       setSelected(prev => {
-        return [...prev].filter(medId =>  medId !== id)
-    })
+        return [...prev].filter(medId => medId !== id)
+      })
     }
   };
 
 
- // all the following barcode printing was a quick vibe code to make barcodes to practice scanning integration
+  // all the following barcode printing was a quick vibe code to make barcodes to practice scanning integration
   const generateBarcodeSVG = (medId: string): string => {
     const canvas = document.createElement('canvas')
     JsBarcode(canvas, medId, {
@@ -42,14 +42,14 @@ const Formulary = () => {
     }
 
     setIsPrinting(true)
-    
+
     try {
       // Get selected medications
       const selectedMeds = allMedications.filter(med => selected.includes(med.id))
-      
+
       // Create print window
       const printWindow = window.open('', '_blank', 'width=800,height=600')
-      
+
       if (!printWindow) {
         alert('Please allow pop-ups to print barcodes')
         return
@@ -62,7 +62,7 @@ const Formulary = () => {
       })
 
       const medsWithBarcodes = await Promise.all(barcodePromises)
-      
+
       // Create the print document
       const printHTML = `
         <!DOCTYPE html>
@@ -163,8 +163,8 @@ const Formulary = () => {
           </div>
           
           <div class="label-grid">
-            ${medsWithBarcodes.map(med => 
-              Array.from({length: 12}, () => `
+            ${medsWithBarcodes.map(med =>
+        Array.from({ length: 12 }, () => `
                 <div class="label">
                   <div class="med-info">
                     <div class="med-name">${med.genericName || med.brandName}</div>
@@ -177,16 +177,16 @@ const Formulary = () => {
                   </div>
                 </div>
               `).join('')
-            ).join('')}
+      ).join('')}
           </div>
         </body>
         </html>
       `
-      
+
       // Write to print window and trigger print
       printWindow.document.write(printHTML)
       printWindow.document.close()
-      
+
       // Wait for content to load, then print
       printWindow.onload = () => {
         setTimeout(() => {
@@ -194,7 +194,7 @@ const Formulary = () => {
           printWindow.close()
         }, 500)
       }
-      
+
     } catch (error) {
       console.error('Error generating barcodes:', error)
       alert('Error generating barcodes. Please try again.')
@@ -205,12 +205,12 @@ const Formulary = () => {
 
   return (
     <div className="flex flex-col bg-neutral-100 flex-1 gap-2 p-2 pb-0 h-[calc(100vh-4rem)]">
-      <button 
-          onClick={printBarcodes}
-          className="bg-blue-500 text-white w-fit px-4 py-2 rounded hover:bg-blue-600"
-        >
-          {isPrinting ? "Printing..." : "Print Barcodes"}
-        </button>
+      <button
+        onClick={printBarcodes}
+        className="bg-blue-500 text-white w-fit px-4 py-2 rounded hover:bg-blue-600"
+      >
+        {isPrinting ? "Printing..." : "Print Barcodes"}
+      </button>
       <div className="flex flex-col h-full px-2 py-3 gap-3 overflow-y-auto border border-gray-300 rounded-t-lg inset-shadow-sm">
         {allMedications.map((med) => {
           const isSelected = selected.includes(med.id);
@@ -219,7 +219,7 @@ const Formulary = () => {
             <AdminMedCard key={med.id} isSelected={isSelected} medication={med} onSelectionChange={handleMedChange} />
           )
         })}
-        
+
       </div>
 
     </div>

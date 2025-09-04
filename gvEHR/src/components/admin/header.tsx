@@ -11,7 +11,7 @@ const Header = ({ tabs }: HeaderProps) => {
     <header className="border-b h-(--header-height)">
       <div className="flex h-(--header-height) justify-between items-center pl-12 gap-2">
         <div className="flex items-center gap-2">
-          <Stethoscope color="white" size={26} strokeWidth={2.5}/>
+          <Stethoscope color="white" size={26} strokeWidth={2.5} />
           <Link to="/admin" >
             <h1 className="text-3xl font-bold text-white hover:underline">
               <span>Flex</span>
@@ -29,6 +29,6 @@ const Header = ({ tabs }: HeaderProps) => {
       </div>
     </header>
   )
-} 
+}
 
 export default Header

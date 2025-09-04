@@ -63,7 +63,7 @@ const collapsibleData = {
           title: "Edit Medications",
           url: "#",
         },
-        
+
       ],
     },
     {
@@ -104,8 +104,8 @@ console.log(location.pathname)
 
 export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar 
-       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+    <Sidebar
+      className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
       {...props}
     >
       <SidebarContent className="bg-white">
