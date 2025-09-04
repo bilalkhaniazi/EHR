@@ -20,7 +20,7 @@ const OrdersPage = () => {
     const medicationOrderData = data?.medicationOrders || []
     const respiratoryOrderData = data?.respiratoryOrders || []
 
-    // const respOrderColumns = ["details", "status", "duration", "orderingProvider"] 
+    // arrays for tanstack table to iterate over to build columns 
     const orderColumns = ["details", "status", "orderingProvider"]
     const medOrderColumns = ["dose",  "route", "frequency", "priority", "administrationInstructions", "orderingProvider"]
     
