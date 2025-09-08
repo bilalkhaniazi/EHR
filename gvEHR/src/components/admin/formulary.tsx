@@ -2,6 +2,7 @@ import { useState } from "react"
 import { allMedications } from "../mar/marData"
 import AdminMedCard from "./adminMedCard"
 import JsBarcode from 'jsbarcode'
+import bwipjs from '../../../node_modules/bwip-js'
 
 const Formulary = () => {
   const [selected, setSelected] = useState<string[]>([])
@@ -35,6 +36,19 @@ const Formulary = () => {
     return canvas.toDataURL()
   }
 
+  const generateDataMatrixSVG = (medId: string): string => {
+    const svg = bwipjs.toSVG({
+      bcid: 'datamatrix',       // Barcode type
+      text: medId,              // Text to encode
+      height: 12,               // Bar height, in millimeters
+      includetext: true,           // Show human-readable text
+      textxalign: 'center',        // Always good to set this
+      textcolor: 'ff0000',        // Red text
+    })
+    console.log(svg)
+    return svg
+  }
+
   const printBarcodes = async () => {
     if (selected.length === 0) {
       alert('Please select medications to print')
@@ -57,7 +71,7 @@ const Formulary = () => {
 
       // Generate barcodes for each medication
       const barcodePromises = selectedMeds.map(async (med) => {
-        const barcodeDataUrl = generateBarcodeSVG(med.id)
+        const barcodeDataUrl = generateDataMatrixSVG(med.id)
         return { ...med, barcodeDataUrl }
       })
 
@@ -173,7 +187,7 @@ const Formulary = () => {
                     </div>
                   </div>
                   <div class="barcode-container">
-                    <img src="${med.barcodeDataUrl}" alt="Barcode for ${med.id}" />
+                    ${med.barcodeDataUrl}
                   </div>
                 </div>
               `).join('')
