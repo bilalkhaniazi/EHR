@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Separator } from "../ui/separator"
 import type { AllMedicationTypes } from "../mar/marData"
 import { Checkbox } from "../ui/checkbox";
-import Barcode from 'react-barcode';
 
 interface MedCardProps {
   medication: AllMedicationTypes;
