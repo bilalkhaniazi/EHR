@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { allMedications } from "../mar/marData"
 import AdminMedCard from "./adminMedCard"
-import JsBarcode from 'jsbarcode'
 import bwipjs from '../../../node_modules/bwip-js'
 
 const Formulary = () => {
@@ -19,23 +18,6 @@ const Formulary = () => {
       })
     }
   };
-
-
-  // all the following barcode printing was a quick vibe code to make barcodes to practice scanning integration
-  const generateBarcodeSVG = (medId: string): string => {
-    // replaced with data matrix function below
-    const canvas = document.createElement('canvas')
-    JsBarcode(canvas, medId, {
-      format: "CODE128",
-      width: 2,
-      height: 60,
-      displayValue: true,
-      fontSize: 12,
-      textMargin: 5,
-      margin: 0
-    })
-    return canvas.toDataURL()
-  }
 
   const generateDataMatrixSVG = (medId: string): string => {
     const svg = bwipjs.toSVG({
