@@ -23,6 +23,7 @@ const Formulary = () => {
 
   // all the following barcode printing was a quick vibe code to make barcodes to practice scanning integration
   const generateBarcodeSVG = (medId: string): string => {
+    // replaced with data matrix function below
     const canvas = document.createElement('canvas')
     JsBarcode(canvas, medId, {
       format: "CODE128",
@@ -38,14 +39,12 @@ const Formulary = () => {
 
   const generateDataMatrixSVG = (medId: string): string => {
     const svg = bwipjs.toSVG({
-      bcid: 'datamatrix',       // Barcode type
-      text: medId,              // Text to encode
-      height: 12,               // Bar height, in millimeters
-      includetext: true,           // Show human-readable text
-      textxalign: 'center',        // Always good to set this
-      textcolor: 'ff0000',        // Red text
+      bcid: 'datamatrix',
+      text: medId,
+      height: 12,
+      includetext: true,
+      textxalign: 'center',
     })
-    console.log(svg)
     return svg
   }
 

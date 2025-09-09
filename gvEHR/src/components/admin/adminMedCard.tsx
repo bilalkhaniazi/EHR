@@ -94,9 +94,6 @@ const AdminMedCard = ({
 
           </CardContent>
         </div>
-        <div className="w-full h-full">
-          <Barcode value={medication.id} format="CODE128" width={1.2} height={80} />
-        </div>
       </div>
     </Card>
   )
