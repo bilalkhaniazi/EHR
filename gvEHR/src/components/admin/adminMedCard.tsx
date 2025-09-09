@@ -6,12 +6,12 @@ import Barcode from 'react-barcode';
 
 interface MedCardProps {
   medication: AllMedicationTypes;
-  onSelectionChange: (id: string, checked: boolean ) => void;
+  onSelectionChange: (id: string, checked: boolean) => void;
   isSelected: boolean;
 }
 
-const AdminMedCard = ( {
-  medication, 
+const AdminMedCard = ({
+  medication,
   onSelectionChange,
   isSelected
 }: MedCardProps) => {
@@ -33,7 +33,7 @@ const AdminMedCard = ( {
             <span className="text-nowrap">{medication.orderableUnit}</span>
           </div>
         )
-      case "IV": 
+      case "IV":
         return (
           <div className="flex gap-2 h-5">
             <span className="text-nowrap">{medication.route}</span>
@@ -41,7 +41,7 @@ const AdminMedCard = ( {
             <span className="text-nowrap">{medication.strength} {medication.strengthUnit}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{medication.infusionRate}{medication.infusionRateUnit}</span>
-            <Separator className="bg-gray-300" orientation="vertical"/>
+            <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{medication.totalVolume}mL {medication.diluent}</span>
           </div>
         )
@@ -61,14 +61,14 @@ const AdminMedCard = ( {
   return (
     <Card className="w-full p-0 overflow-hidden flex-shrink-0">
       <div className="grid grid-cols-2">
-        <div className="py-4">  
+        <div className="py-4">
           <CardHeader className="">
             <CardTitle className="pb-1 flex gap-2 h-fit">
               <Checkbox
                 onCheckedChange={handleCheckboxChange}
                 checked={isSelected}
                 id={`checkbox-${medication.id}`}
-                className="" 
+                className=""
               />
               <div className="flex flex-wrap gap-x-2">
                 <span className="text-nowrap">{medication.genericName}</span>
@@ -91,12 +91,9 @@ const AdminMedCard = ( {
                 </p>
               </div>
             } */}
-          
+
           </CardContent>
         </div>
-        <div className="w-full h-full">
-          <Barcode value={medication.id} format="CODE128" width={1.2} height={80}/>
-        </div>      
       </div>
     </Card>
   )
