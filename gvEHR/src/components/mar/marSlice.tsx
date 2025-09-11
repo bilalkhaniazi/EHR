@@ -30,7 +30,8 @@ export const marSlice = createSlice({
           medicationOrderId: id,
           status: "Given",
           administratorId: "currentUser",
-          adminTimeMinuteOffset: 0          // time will be updated when the RTK query mutation is called
+          adminTimeMinuteOffset: 0,     // time will be updated when the RTK query mutation is called
+          administeredDose: 0        // dose will be updated by user           
         }
         state.selectedMeds.push(id);
         
@@ -50,7 +51,7 @@ export const marSlice = createSlice({
       const { medicationOrderId, field, value } = action.payload;
       const adminInstance = state.newAdministrations[medicationOrderId];
       
-      // likely the two properties that student will need to change when administering meds during sim
+      // likely the three properties that student will need to change when administering meds during sim
       if (adminInstance) {
         switch (field) {
           case 'status':
@@ -59,6 +60,8 @@ export const marSlice = createSlice({
           case 'notes':
             adminInstance.notes = value as typeof adminInstance.notes;
             break;
+          case 'administeredDose':
+            adminInstance.administeredDose = value as typeof adminInstance.administeredDose
         }
       }
     },

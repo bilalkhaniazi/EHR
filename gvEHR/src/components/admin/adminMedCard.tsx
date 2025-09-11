@@ -44,6 +44,8 @@ const AdminMedCard = ({
             <span className="text-nowrap">{medication.totalVolume}mL {medication.diluent}</span>
           </div>
         )
+      case "SC":
+
       default:
         return (
           <div className="flex gap-2 h-5">
@@ -82,14 +84,6 @@ const AdminMedCard = ({
             </CardDescription>
           </CardHeader>
           <CardContent className="">
-            {/* {order.instructions && 
-              <div className="pb-2">
-                <h2 className="font-light">Administration Instructions:</h2>
-                <p className="pl-2 text-xs font-light text-gray-700">
-                  {medication.instructions}
-                </p>
-              </div>
-            } */}
 
           </CardContent>
         </div>

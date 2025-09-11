@@ -60,40 +60,32 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
   // each med has a different display, will need more for insulin, some special meds
   const renderMedCardDetails = () => {
     switch (medication.route) {
-      case "PO":
-        
+      default: 
         return (
           <div className="flex gap-2 h-5">
             <span className="text-nowrap">{medication.route}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
+            {medication.route ===  "IV" &&
+              <>
+                <span className="text-nowrap">{medication.infusionRate} {medication.infusionRateUnit}</span>
+                <Separator className="bg-gray-300" orientation="vertical" />
+              </>
+            }
             <span className="text-nowrap">{order.frequency}</span>
             <Separator className="bg-gray-300" orientation="vertical"/>
             <span className="text-nowrap">{order.indication}</span>
           </div>
         )
-      case "IV": 
-      return (
-        <div className="flex gap-2 h-5">
-          <span className="text-nowrap">{medication.route}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{medication.infusionRate} {medication.infusionRateUnit}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.frequency}</span>
-          <Separator className="bg-gray-300" orientation="vertical"/>
-          <span className="text-nowrap">{order.indication}</span>
-        </div>
-      )
+
     }
   }
 
   return (
     <Card className="w-full p-0 overflow-hidden flex-shrink-0">
-      <div className="grid grid-cols-2">
-        <div className="py-4">  
+      <div className="grid grid-cols-2 ">
+        <div className="py-4 flex flex-col justify-between">  
           <CardHeader className="">
             <CardTitle className="pb-1 flex gap-2 h-fit">
               <Checkbox
@@ -124,11 +116,12 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
               </div>
             }
           
-            <div className="flex w-full justify-end gap-2">
-              <p className="text-sm">Last Administered:</p>
-              <p className="text-sm font-light">{findLastAdminTime()}</p>
-            </div>
+            
           </CardContent>
+          <div className="flex w-full justify-end gap-2 pr-4">
+            <p className="text-sm">Last Administered:</p>
+            <p className="text-sm font-light">{findLastAdminTime()}</p>
+          </div>
         </div>
         <div className="grid grid-cols-6">
           {processedColumns.map((col, index) => {
@@ -137,7 +130,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
               <div key={`${index}-${medication.id}`} className="flex flex-col items-center border-l">
                 <p className={` text-sm  ${index === 3 ? "font-bold underline" : "font-medium"}`}>{col.colHeader}</p>
                 {hasAdministrations && (
-                  <div className="h-full flex flex-col justify-center items-center gap-1">
+                  <div className="h-full flex flex-col justify-center items-center py-2 gap-2">
                     {col.associatedAdministrations.map(admin => {
                       const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
                       const displayTime = format(adminAbsoluteTime, 'HHmm')

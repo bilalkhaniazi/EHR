@@ -9,7 +9,7 @@ import {
 import { Button } from "../ui/button"
 import { PencilLine } from "lucide-react"
 import { useState } from "react"
-import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData";
+import { medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
 import MedAdminCard from "./medAdminCard";
 import { updateNewAdministration, clearNewAdminstrations, clearSelectedMedications } from "./marSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,12 +41,15 @@ const MedAdministrationPanel = ({
 
   const newAdministrations = useSelector((state: RootState) => state.mar.newAdministrations);
   console.log(newAdministrations)
+
   const hasSelections = selectedMedIds.length > 0;
+  
   const selectedMedOrders = allOrders.filter(order => {
     if (selectedMedIds.includes(order.id)) {
       return order
     }
   })
+
   const [submitNewAdministrations, {isLoading}] = useSubmitNewAdministrationsMutation();
 
   // sending the new medAdministrationInstance to the backend
@@ -95,13 +98,14 @@ const MedAdministrationPanel = ({
         </DialogTrigger>
       </div>
 
-      <DialogContent className="flex flex-col md:max-w-3xl xl:max-w-5xl h-[96vh] bg-gray-200">
-        <h1 className="text-lg font-medium">Medication Something</h1>
+      <DialogContent className="flex flex-col md:max-w-4xl xl:max-w-6xl h-[96vh] bg-gray-200">
+        <h1 className="text-lg font-medium">Medication Administration Panel</h1>
         <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300">
           <div className="grid gap-4 w-full p-2 ">
             {selectedMedOrders.map(order => {
               return (
                 <MedAdminCard
+                  key={order.id}
                   order={order}
                   medication={medicationLookup[order.medicationId]}
                   administrations={administrationsLookup[order.id]}
@@ -115,6 +119,15 @@ const MedAdministrationPanel = ({
                     }))
                   }}
                   currentStatus={newAdministrations[order.id].status ?? "Given"}    // will always be "Given" by default, set in MarSlice
+                  onDoseChange={(value) => {
+                    dispatch(updateNewAdministration({
+                      medicationOrderId: order.id,
+                      field: "administeredDose",
+                      value: value,
+                    }))
+                  }}
+                  currentDose={newAdministrations[order.id].administeredDose}
+                  
                 />
               )
             })}

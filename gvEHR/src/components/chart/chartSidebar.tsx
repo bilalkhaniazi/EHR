@@ -114,7 +114,7 @@ export default function ChartSidebar() {
             <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">This Admission</p>
           
             <p className="text-purple-900 text-xs font-light tracking-tight">
-              <span className="underline">{sidebarData.admissionDate.label}</span>
+              <span className="underline">{sidebarData.admissionDate.label}:</span>
               <span className="pl-2 font-normal">{displayAdmissionDate(sessionStartTime, sidebarData.admissionDate.value)}</span>
             </p>
              <p className="text-purple-900 text-xs font-light tracking-tight">
@@ -122,7 +122,7 @@ export default function ChartSidebar() {
               <span className="pl-2 font-normal">{sidebarData.attending.value}</span>
             </p>
             <p className="text-purple-900 text-xs font-light tracking-tight">
-              <span className="underline">{sidebarData.location.label}</span>
+              <span className="underline">{sidebarData.location.label}:</span>
               <span className="pl-2 font-normal">{sidebarData.location.value}</span>
             </p>
           </div>

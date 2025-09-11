@@ -27,18 +27,18 @@ const CapsisPatient = () => {
               </div>
             </div>
             <div className="bg-neutral-200 flex flex-col h-full w-full">
-                      {/* {patients.map((patient) => {
-                            return (
-                              <button className="bg-white flex flex-col focus:bg-neutral-100 gap-2 p-2 w-full border-b border-x border-neutral-300 first:rounded-t-lg first:border-t last:rounded-b-lg">
-                                <h2 className="text-md w-full text-left">{patient.name}</h2>
-                                <div className="flex gap-1 text-neutral-600 text-sm font-light">
-                                  <span className="">{patient.age} years old,</span>
-                                  <span className="">{patient.dob}</span>
-                                </div>
-                              </button>
+              {/* {patients.map((patient) => {
+                    return (
+                      <button className="bg-white flex flex-col focus:bg-neutral-100 gap-2 p-2 w-full border-b border-x border-neutral-300 first:rounded-t-lg first:border-t last:rounded-b-lg">
+                        <h2 className="text-md w-full text-left">{patient.name}</h2>
+                        <div className="flex gap-1 text-neutral-600 text-sm font-light">
+                          <span className="">{patient.age} years old,</span>
+                          <span className="">{patient.dob}</span>
+                        </div>
+                      </button>
 
-                            )
-                          })} */}
+                    )
+                  })} */}
 
 
             </div>

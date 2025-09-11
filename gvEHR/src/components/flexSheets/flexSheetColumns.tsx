@@ -1,8 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { assessmentTools, type tableData } from "./flexSheetData";
 import { Input } from "../ui/input";
-import CheckBoxList from "./CheckBoxList";
-import AssessmentSelect from "./AssessmentSelect";
+import CheckBoxList from "./checkBoxList";
+import AssessmentSelect from "./assessmentSelector";
 import { Tooltip, TooltipTrigger } from "../ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";

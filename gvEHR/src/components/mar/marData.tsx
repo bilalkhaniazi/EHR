@@ -2,7 +2,7 @@ interface BaseMedication {
   id: string;
   genericName: string;
   brandName?: string;
-  route: "PO" | "IV" | "SC" | "Topical" | "TD" | "Inhalation" | "IM" | "PR" | "SL" | "otic" | "ophthalmic";     // Route will be a literal type for discrimination
+  route: "PO" | "IV" | "SC" | "Topical" | "TD" | "Inhalation" | "IM" | "PR" | "SL" | "otic" | "ophthalmic" | "IN";     // Route will be a literal type for discrimination
   strength: number; // e.g., 25, 100
   strengthUnit: string; // e.g., "mg", "units/mL"
   orderableUnit: string; // e.g., "Tablet", "Solution", "Cream", "Vial", "Syringe"
@@ -33,17 +33,16 @@ interface InjectableMedication extends BaseMedication {
   recommendedInjectionSites?: string[];
   needleGauge?: string;
   needleLength?: string;
-  reconstitutionRequired: boolean; 
-  reconstitutionInstructions?: string; 
+  reconstitutionRequired?: boolean; 
+  reconstitutionInstructions?: string;
+  bgDosing?: { bgRange: string, units: string }[],
+  concentrationUnit?: string;
 }
 
 interface TopicalMedication extends BaseMedication {
   route: "Topical" | "TD"; 
   applicationArea: string; 
   form: "cream" | "ointment" | "gel" | "patch" | "lotion";
-  applyThinLayer?: boolean;
-  requiresOcclusiveDressing?: boolean;
-  // For patches
   patchApplicationFrequency?: string;
   patchChangeInstructions?: string;
 }
@@ -53,8 +52,6 @@ interface InhalerMedication extends BaseMedication {
   deviceType: "MDI" | "DPI" | "nebulizer";
   requiresSpacer?: boolean;
   inhalationsPerDose: number;
-  // For nebulizers
-  nebulizerDurationMinutes?: number;
 }
 
 export type AllMedicationTypes =     // route property acts as discriminator
@@ -62,7 +59,7 @@ export type AllMedicationTypes =     // route property acts as discriminator
   IvMedication |
   InjectableMedication | 
   TopicalMedication | 
-  InhalerMedication;
+  InhalerMedication 
 
 
 // Each order is associated with one medication and details how, when, why it should be given  
@@ -85,6 +82,7 @@ export interface MedAdministrationInstance {
   adminTimeMinuteOffset: number;
   status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" | "Patient Administered";
   notes?: string; 
+  administeredDose: number
 }
 
 // List of all medications that could be used in a medicationOrder. 
@@ -120,6 +118,21 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "Normal Saline 0.9%", 
     totalVolume: 50, 
     infusionDurationHours: 0.5, 
+    requiresPump: true, 
+  },
+  {
+    id: "medNormalSaline09Iv",              // links to order
+    genericName: "normal saline",
+    route: "IV", 
+    strength: 0.9,
+    strengthUnit: "%",
+    orderableUnit: "Bag",           
+    availableDosages: [500, 1000], 
+    administrationFrequencies: ["Q6H", "Q8H"], 
+    infusionRate: 100, 
+    infusionRateUnit: 'mL/hr', 
+    totalVolume: 1000, 
+    infusionDurationHours: 10, 
     requiresPump: true, 
   },
   {
@@ -187,11 +200,44 @@ export const allMedications: AllMedicationTypes[] = [
     brandName: "Lantus",
     route: "SC",
     strength: 100,
-    strengthUnit: "units/mL",
+    strengthUnit: "unit",
     orderableUnit: "Unit",
     availableDosages: [5, 10, 15, 20, 25], 
     administrationFrequencies: ["QD"],
-    reconstitutionRequired: false,
+    bgDosing: [
+        { bgRange: "<70", units: "0 (Hypoglycemia Protocol)" },
+        { bgRange: "70-150", units: "6" },
+        { bgRange: "151-200", units: "8" },
+        { bgRange: "201-250", units: "10" },
+        { bgRange: "251-300", units: "12" },
+        { bgRange: "301-350", units: "14" },
+        { bgRange: "351-400", units: "16" },
+        { bgRange: ">400", units: "18 (Contact Provider)" },
+      ],
+    concentrationUnit: 'units/mL'
+  },
+  {
+    id: "medInsulinAspartHum",
+    genericName: "insulin aspart",
+    brandName: "Humalog",
+    route: "SC",
+    strength: 100,
+    strengthUnit: "unit",
+    orderableUnit: "Unit",
+    availableDosages: [5, 10, 15, 20, 25], 
+    administrationFrequencies: ["QD"],
+    bgDosing: [
+        { bgRange: "<70", units: "0 (Hypoglycemia Protocol)" },
+        { bgRange: "70-150", units: "6" },
+        { bgRange: "151-200", units: "8" },
+        { bgRange: "201-250", units: "10" },
+        { bgRange: "251-300", units: "12" },
+        { bgRange: "301-350", units: "14" },
+        { bgRange: "351-400", units: "16" },
+        { bgRange: ">400", units: "18 (Contact Provider)" },
+      ],
+    concentrationUnit: 'units/mL'
+
   },
   {
     id: "medHydrocortisoneCream",
@@ -205,8 +251,6 @@ export const allMedications: AllMedicationTypes[] = [
     administrationFrequencies: ["PRN"],
     applicationArea: "Affected skin area",
     form: "cream",
-    applyThinLayer: true,
-    requiresOcclusiveDressing: false,
   },
   {
     id: "medFurosemideOral20",
@@ -297,8 +341,6 @@ export const allMedications: AllMedicationTypes[] = [
     administrationFrequencies: ["Daily"],
     applicationArea: "Chest wall or upper arm",
     form: "patch",
-    applyThinLayer: false,
-    requiresOcclusiveDressing: false,
     patchApplicationFrequency: "daily",
     patchChangeInstructions: "Replace every 24 hours; remove old patch before applying new one",
   },
@@ -376,8 +418,16 @@ export const medicationOrders: MedicationOrder[] = [
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt
     frequency: "Q8H",
     priority: "ROUTINE",
-    instructions: "Administer over 30 minutes via infusion pump.",
     indication: "Infection",
+    status: "active",
+  },
+  {
+    id: "orderNormalSaline09",
+    medicationId: "medNormalSaline09Iv", 
+    unitsOrdered: 1,
+    frequency: "Continuous",
+    priority: "ROUTINE",
+    indication: "IV Fluids",
     status: "active",
   },
   {
@@ -438,7 +488,15 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "ROUTINE",
     status: "active",
     indication: "Type 2 Diabetes",
-    instructions: "Administer at bedtime.",
+  },
+  {
+    id: "orderInsulinAspartHum",
+    medicationId: "medInsulinAspartHum",
+    unitsOrdered: 15,
+    frequency: "QD",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Type 2 Diabetes",
   },
 ]
 
@@ -448,56 +506,64 @@ export const medAdministrations: MedAdministrationInstance[] = [
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -200, 
     status: 'Given',
-    notes: " metoprolol"
+    notes: " metoprolol", 
+    administeredDose: 25
   },
   {
     medicationOrderId: "orderAmoxIv", 
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -31, 
     status: 'Given',
-    notes: "-61 amox."
+    notes: "-61 amox.",
+    administeredDose: 200
   },
     {
     medicationOrderId: "orderAmoxIv", 
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -180, 
     status: 'Held',
-    notes: "-61 amox."
+    notes: "-61 amox.", 
+    administeredDose: 100
   },
   {
     medicationOrderId: "orderMetoprololOral25", 
     administratorId: "RN Jones",
     adminTimeMinuteOffset: 0, 
     status: 'Due',
-    notes: "-121 metoprolol dose."
+    notes: "-121 metoprolol dose.", 
+    administeredDose: 100
   },
   {
     medicationOrderId: "orderLisinoprilOral10", 
     administratorId: "RN Jones",
     adminTimeMinuteOffset: -121, 
     status: 'Missed',
-    notes: "-121 metoprolol dose."
+    notes: "-121 metoprolol dose.", 
+    administeredDose: 100
   },
   {
     medicationOrderId: "orderLisinoprilOral10", 
     administratorId: "RN Jones",
     adminTimeMinuteOffset: 60, 
     status: 'Due',
-    notes: "-121 metoprolol dose."
+    notes: "-121 metoprolol dose.",
+    administeredDose: 100
   },
   {
     medicationOrderId: "orderVancomycinIv", 
     administratorId: "RN Jones",
     adminTimeMinuteOffset: 60, 
     status: 'Due',
-    notes: "-121 metoprolol dose."
+    notes: "-121 metoprolol dose.",
+    administeredDose: 100
   },
   {
     medicationOrderId: "orderVancomycinIv", 
     administratorId: "RN Jones",
     adminTimeMinuteOffset: -140, 
     status: 'Refused',
-    notes: "-121 metoprolol dose."
+    notes: "-121 metoprolol dose.",
+    administeredDose: 100
   },
 ]
 

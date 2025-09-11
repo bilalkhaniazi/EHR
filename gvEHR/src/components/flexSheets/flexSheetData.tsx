@@ -26,10 +26,8 @@ export interface tableData {
 export const getAllTimeOffsets = (simulationNow: number) => {
 
     const minutesPastTheHour = getMinutes(simulationNow)
-    // console.log(minutes)
     const dynamicTimeOffsets = Array.from({ length: 4 }, (_, index) => {
         const temp =  minutesPastTheHour - (60 * index)
-        console.log(temp)
         return temp
     })
 

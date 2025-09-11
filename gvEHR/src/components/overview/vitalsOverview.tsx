@@ -50,7 +50,7 @@ export function VitalsOverview() {
   const timeOffsets = data?.timeOffsets.slice(-3) || [];
 
   const chartingData = data?.chartingData || [];
-  console.log(timeOffsets)
+
   // move to backend
   const filteredData = useMemo(() => {
     return chartingData.filter(row => vitalSignIds.includes(row.id));
