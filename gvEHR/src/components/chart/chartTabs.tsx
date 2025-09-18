@@ -1,6 +1,7 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clipboard, NotebookText, Pill, TestTubeDiagonal, User, Users } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import MultiPtSelector from "./multiPtSelector";
 
 const tabs = [
   {
@@ -56,32 +57,21 @@ export default function ChartTabs() {
         <TabsList className="w-full h-8 p-0 bg-lime-600 justify-start rounded-none">
           {[
             ...tabs.map((tab) => (
-            <NavLink
-              key={tab.value}
-              to={tab.path}
-              className="rounded-none h-full flex items-center "
-            >
-              <TabsTrigger
-                value={tab.value}
-                className="rounded-none bg-gray-200 p-3 data-[state=active]:h-10 data-[state=active]:px-4  data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300 border-b-gray-00 data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-lg flex items-center" // Added flex for alignment
+              <NavLink
+                key={tab.value}
+                to={tab.path}
+                className="rounded-none h-full flex items-center "
               >
-                {tab.icon}
-                <p className="text-md font-normal tracking-tight">{tab.name}</p>
-              </TabsTrigger>
-            </NavLink>
-          )), 
-            <NavLink
-              key={"patientSelect"}
-              to={"#"}
-              className="rounded-none h-full flex items-center "
-            >
-              <TabsTrigger
-                value={"sdf"}
-                className="rounded-none bg-gray-200 p-3 data-[state=active]:h-10 data-[state=active]:px-4  data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300 border-b-gray-00 data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-lg flex items-center" // Added flex for alignment
-              >
-                {<Users />}
-              </TabsTrigger>
-            </NavLink>
+                <TabsTrigger
+                  value={tab.value}
+                  className="rounded-none bg-gray-200 p-3 data-[state=active]:h-10 data-[state=active]:px-4  data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300 border-b-gray-00 data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-lg flex items-center" // Added flex for alignment
+                >
+                  {tab.icon}
+                  <p className="text-md font-normal tracking-tight">{tab.name}</p>
+                </TabsTrigger>
+              </NavLink>
+            )), 
+            <MultiPtSelector />
           ]}
         </TabsList>
       </Tabs>

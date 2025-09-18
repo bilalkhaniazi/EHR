@@ -1,9 +1,8 @@
 import { format } from "date-fns";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Separator } from "../ui/separator"
 import type { MedCardColumns } from "./marPage.tsx";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData"
 import { Checkbox } from "../ui/checkbox";
+import { renderMedCardDetails, renderMedTitleRow } from "./marHelpers.tsx";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -16,11 +15,6 @@ interface MedCardProps {
 }
 
 const MedCard = ({medication, administrations, order, columns, sessionStartTime, onSelectionChange, isSelected}: MedCardProps) => {
-
-  // very temp solution
-  const pluralize = (unitsOrdered: number, unitName: string) => {
-    return unitsOrdered > 1 ? unitName + 's' : unitName
-  }
 
   const handleCheckboxChange = (checked: boolean) => {
     onSelectionChange({ id: order.id, checked });
@@ -44,7 +38,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
     if (!administrations || administrations.length === 0) {
       return "Never";
     }
-    const filteredAdmins = administrations.filter((admin: MedAdministrationInstance) => admin.status === "Given" || admin.status === 'Patient Administered')
+    const filteredAdmins = administrations.filter((admin: MedAdministrationInstance) => admin.status === "Given")
     if (filteredAdmins.length !== 0) {
       const lastAdmin = filteredAdmins.reduce((latest, current) => {
         return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest; 
@@ -57,56 +51,23 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
   }
 
 
-  // each med has a different display, will need more for insulin, some special meds
-  const renderMedCardDetails = () => {
-    switch (medication.route) {
-      default: 
-        return (
-          <div className="flex gap-2 h-5">
-            <span className="text-nowrap">{medication.route}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            {medication.route ===  "IV" &&
-              <>
-                <span className="text-nowrap">{medication.infusionRate} {medication.infusionRateUnit}</span>
-                <Separator className="bg-gray-300" orientation="vertical" />
-              </>
-            }
-            <span className="text-nowrap">{order.frequency}</span>
-            <Separator className="bg-gray-300" orientation="vertical"/>
-            <span className="text-nowrap">{order.indication}</span>
-          </div>
-        )
-
-    }
-  }
-
   return (
-    <Card className="w-full p-0 overflow-hidden flex-shrink-0">
+    <div className="w-full border bg-white rounded-2xl p-0 overflow-hidden flex-shrink-0">
       <div className="grid grid-cols-2 ">
-        <div className="py-4 flex flex-col justify-between">  
-          <CardHeader className="">
-            <CardTitle className="pb-1 flex gap-2 h-fit">
-              <Checkbox
-                onCheckedChange={handleCheckboxChange}
-                checked={isSelected}
-                id={`checkbox-${order.id}`}
-                className="" 
-              />
-              <div className="flex flex-wrap gap-x-2">
-                <span className="text-nowrap">{medication.genericName}</span>
-                {medication.brandName && (
-                  <span className="text-nowrap">({medication.brandName})</span>
-                )}
-                <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
-              </div>
-            </CardTitle>
-            <CardDescription className="text-xs tracking-tight pb-2">
-              {renderMedCardDetails()}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="">
+        <div className="py-3 px-4 flex flex-col justify-between">  
+          <div className="pb-1 flex items-center gap-2 font-semibold">
+            <Checkbox
+              onCheckedChange={handleCheckboxChange}
+              checked={isSelected}
+              id={`checkbox-${order.id}`}
+              className="" 
+            />
+            {renderMedTitleRow(medication, order)}
+          </div>
+          <div className="text-xs tracking-tight pl-6 pb-2 text-gray-500">
+            {renderMedCardDetails(medication, order)}
+          </div>
+          <div className="pl-6">
             {order.instructions && 
               <div className="pb-2">
                 <h2 className="font-light">Administration Instructions:</h2>
@@ -115,9 +76,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
                 </p>
               </div>
             }
-          
-            
-          </CardContent>
+          </div>
           <div className="flex w-full justify-end gap-2 pr-4">
             <p className="text-sm">Last Administered:</p>
             <p className="text-sm font-light">{findLastAdminTime()}</p>
@@ -158,7 +117,7 @@ const MedCard = ({medication, administrations, order, columns, sessionStartTime,
           })}
         </div>      
       </div>
-    </Card>
+    </div>
   )
 }
 

@@ -1,10 +1,9 @@
 import { format } from "date-fns";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Separator } from "../ui/separator"
 import { medActionSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData"
 import MedAdminCardSelector from "./medAdminCardSelector";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { renderMedTitleRow, renderMedCardDetails, isSlidingScaleInsulin } from "./marHelpers";
 
 interface MedAdminCardProps {
   medication: AllMedicationTypes;
@@ -18,13 +17,12 @@ interface MedAdminCardProps {
   currentDose: number
 }
 
-
 // helper function to get the last few times the med was given
 const getPreviousAdministrations = (administrations: MedAdministrationInstance[], prevAdmins: number) => {
     if (!administrations || administrations.length === 0) {
       return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance];
     }
-    const filteredAdmins = administrations.filter(admin => admin.status === "Given" || admin.status === 'Patient Administered')
+    const filteredAdmins = administrations.filter(admin => admin.status === "Given")
     
     if (filteredAdmins.length === 0) {
       return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
@@ -32,6 +30,8 @@ const getPreviousAdministrations = (administrations: MedAdministrationInstance[]
     filteredAdmins.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
     return filteredAdmins.slice(-prevAdmins)
   }
+
+  
 
 
 const MedAdminCard = ({
@@ -56,86 +56,32 @@ const MedAdminCard = ({
     }
   } 
   
-  // very temp solution
-  const pluralize = (unitsOrdered: number, unitName: string) => {
-    return unitsOrdered > 1 ? unitName + 's' : unitName
-  };
-
   type MedAdminStatus = MedAdministrationInstance["status"];
   const getStatusColor = (status: MedAdminStatus) => {
-      const colorMap = {
-        Given: "bg-lime-200 text-lime-800",
-        Missed: "bg-red-200 text-red-800",
-        Held: "bg-yellow-200 text-yellow-800",
-        Due: "bg-blue-200 text-blue-800",
-        Refused: "bg-gray-300 text-gray-800",
-        "Patient Administered": "bg-green-200 text-green-800",
-      };
+    const colorMap = {
+      Given: "bg-lime-200 text-lime-800",
+      Missed: "bg-red-200 text-red-800",
+      Held: "bg-yellow-200 text-yellow-800",
+      Due: "bg-blue-200 text-blue-800",
+      Refused: "bg-gray-300 text-gray-800",
+    };
     return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
   };
 
   const threePrevAdministrations = getPreviousAdministrations(administrations, 3);
 
-  // based on med route, card display may have to be unique. Different meds types have different info
-  const renderMedCardDetails = () => {
-    switch (medication.route) {
-      case "PO":
-        return (
-          <div className="flex gap-2 h-5">
-            <span className="text-nowrap">{medication.route}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.frequency}</span>
-            <Separator className="bg-gray-300" orientation="vertical"/>
-            <span className="text-nowrap">{order.indication}</span>
-          </div>
-        )
-      case "IV": 
-        return (
-          <div className="flex gap-2 h-5">
-            <span className="text-nowrap">{medication.route}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{medication.infusionRate} {medication.infusionRateUnit}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.frequency}</span>
-            <Separator className="bg-gray-300" orientation="vertical"/>
-            <span className="text-nowrap">{order.indication}</span>
-          </div>
-        )
-      case "SC":
-        return (
-          <div className="flex gap-2 h-5">
-            <span className="text-nowrap">{medication.route}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.frequency}</span>
-            <Separator className="bg-gray-300" orientation="vertical"/>
-            <span className="text-nowrap">{order.indication}</span>
-          </div>
-        )
-    }
-  }
+  const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
-    <Card className="w-full p-0 overflow-hidden flex-shrink-0">
+    <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0">
       <div className="grid grid-cols-2">
-        <div className=" flex flex-col justify-between py-4 pl-6 space-y-4">  
-          <CardHeader className="px-0">
-            <CardTitle className="pb-1 flex gap-2 h-6">
-              <span>{medication.genericName}</span>
-              {medication.brandName && (
-                <span>({medication.brandName})</span>
-              )}
-              <span>{order.unitsOrdered * medication.strength}{medication.strengthUnit}</span>
-            </CardTitle>
-            <CardDescription className="text-xs tracking-tight pb-2">
-              {renderMedCardDetails()}
-            </CardDescription>
-          </CardHeader>
+        <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">  
+          <div className="space-y-1">
+            {renderMedTitleRow(medication, order)}
+            <div className="text-xs tracking-tight pb-2 text-gray-500">
+              {renderMedCardDetails(medication, order)}
+            </div>
+          </div>
 
           <div>
             {order.instructions && 
@@ -147,7 +93,8 @@ const MedAdminCard = ({
               </div>
             }
           </div>
-          {medication.route === 'SC' && medication.bgDosing && (
+
+          {(isSlidingScaleInsulinMed) && (
             <div className="overflow-hidden rounded-lg border w-fit">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -162,7 +109,7 @@ const MedAdminCard = ({
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {medication.bgDosing.map((dose, index) => (
-                    <tr key={index} className={index % 2 === 0 ? undefined : 'bg-gray-50'}>
+                    <tr key={index} className={index % 2 === 0 ? '' : 'bg-gray-50'}>
                       <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.bgRange}</td>
                       <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.units}</td>
                     </tr>
@@ -242,7 +189,7 @@ const MedAdminCard = ({
           </div>
         </div>      
       </div>
-    </Card>
+    </div>
   )
 }
 

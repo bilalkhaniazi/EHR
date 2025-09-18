@@ -9,7 +9,7 @@ import {
 import { Button } from "../ui/button"
 import { PencilLine } from "lucide-react"
 import { useState } from "react"
-import { medicationOrders, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
+import { type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
 import MedAdminCard from "./medAdminCard";
 import { updateNewAdministration, clearNewAdminstrations, clearSelectedMedications } from "./marSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -127,7 +127,6 @@ const MedAdministrationPanel = ({
                     }))
                   }}
                   currentDose={newAdministrations[order.id].administeredDose}
-                  
                 />
               )
             })}

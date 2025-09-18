@@ -2,7 +2,7 @@ interface BaseMedication {
   id: string;
   genericName: string;
   brandName?: string;
-  route: "PO" | "IV" | "SC" | "Topical" | "TD" | "Inhalation" | "IM" | "PR" | "SL" | "otic" | "ophthalmic" | "IN";     // Route will be a literal type for discrimination
+  route: "PO" | "IV" | "SC" | "Topical" | "TD" | "Inhalation" | "IM" | "PR" | "SL" | "otic" | "ophthalmic";     // Route will be a literal type for discrimination
   strength: number; // e.g., 25, 100
   strengthUnit: string; // e.g., "mg", "units/mL"
   orderableUnit: string; // e.g., "Tablet", "Solution", "Cream", "Vial", "Syringe"
@@ -13,7 +13,7 @@ interface BaseMedication {
 
 interface OralMedication extends BaseMedication {
   route: "PO";
-  form: "tablet" | "capsule" | "liquid" | "chewable" | "dissolving_strip";
+  form: "tablet" | "capsule" | "dissolvable tab" | "chewable" ;
   canBeCrushedOrSplit: boolean;
   takeWithFood?: boolean;
 }
@@ -25,7 +25,7 @@ interface IvMedication extends BaseMedication {
   diluent?: string; 
   totalVolume?: number; 
   infusionDurationHours?: number;
-  requiresPump: boolean;
+  isContinuous: boolean;
 }
 
 interface InjectableMedication extends BaseMedication {
@@ -35,8 +35,6 @@ interface InjectableMedication extends BaseMedication {
   needleLength?: string;
   reconstitutionRequired?: boolean; 
   reconstitutionInstructions?: string;
-  bgDosing?: { bgRange: string, units: string }[],
-  concentrationUnit?: string;
 }
 
 interface TopicalMedication extends BaseMedication {
@@ -54,12 +52,17 @@ interface InhalerMedication extends BaseMedication {
   inhalationsPerDose: number;
 }
 
+export interface InsulinMedication extends InjectableMedication {
+  bgDosing: { bgRange: string, units: string }[],
+}
+
 export type AllMedicationTypes =     // route property acts as discriminator
   OralMedication |
   IvMedication |
   InjectableMedication | 
   TopicalMedication | 
-  InhalerMedication 
+  InhalerMedication | 
+  InsulinMedication 
 
 
 // Each order is associated with one medication and details how, when, why it should be given  
@@ -80,7 +83,7 @@ export interface MedAdministrationInstance {
   medicationOrderId: string;    // link to specific med order
   administratorId: string;      
   adminTimeMinuteOffset: number;
-  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" | "Patient Administered";
+  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" ;
   notes?: string; 
   administeredDose: number
 }
@@ -118,14 +121,14 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "Normal Saline 0.9%", 
     totalVolume: 50, 
     infusionDurationHours: 0.5, 
-    requiresPump: true, 
+    isContinuous: false, 
   },
   {
     id: "medNormalSaline09Iv",              // links to order
-    genericName: "normal saline",
+    genericName: "normal saline 0.9%",
     route: "IV", 
-    strength: 0.9,
-    strengthUnit: "%",
+    strength: 1000,
+    strengthUnit: "mL",
     orderableUnit: "Bag",           
     availableDosages: [500, 1000], 
     administrationFrequencies: ["Q6H", "Q8H"], 
@@ -133,7 +136,22 @@ export const allMedications: AllMedicationTypes[] = [
     infusionRateUnit: 'mL/hr', 
     totalVolume: 1000, 
     infusionDurationHours: 10, 
-    requiresPump: true, 
+    isContinuous: true, 
+  },
+    {
+    id: "medLactatedRingersIV",              // links to order
+    genericName: "Lactated Ringer's Injection ",
+    route: "IV", 
+    strength: 1000,
+    strengthUnit: "mL",
+    orderableUnit: "Bag",           
+    availableDosages: [500, 1000], 
+    administrationFrequencies: ["Q6H", "Q8H"], 
+    infusionRate: 100, 
+    infusionRateUnit: 'mL/hr', 
+    totalVolume: 1000, 
+    infusionDurationHours: 10, 
+    isContinuous: true, 
   },
   {
     id: "medLisinoprilOral10",
@@ -164,9 +182,9 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "Dextrose 5% in Water", 
     totalVolume: 250, 
     infusionDurationHours: 2, 
-    requiresPump: true,
+    isContinuous: false,
   },
-   {
+  {
     id: "medAtorvastatinOral40",
     genericName: "atorvastatin",
     brandName: "Lipitor",
@@ -199,45 +217,32 @@ export const allMedications: AllMedicationTypes[] = [
     genericName: "insulin glargine",
     brandName: "Lantus",
     route: "SC",
-    strength: 100,
-    strengthUnit: "unit",
+    strength: 1,
+    strengthUnit: "units",
     orderableUnit: "Unit",
     availableDosages: [5, 10, 15, 20, 25], 
     administrationFrequencies: ["QD"],
-    bgDosing: [
-        { bgRange: "<70", units: "0 (Hypoglycemia Protocol)" },
-        { bgRange: "70-150", units: "6" },
-        { bgRange: "151-200", units: "8" },
-        { bgRange: "201-250", units: "10" },
-        { bgRange: "251-300", units: "12" },
-        { bgRange: "301-350", units: "14" },
-        { bgRange: "351-400", units: "16" },
-        { bgRange: ">400", units: "18 (Contact Provider)" },
-      ],
-    concentrationUnit: 'units/mL'
   },
   {
     id: "medInsulinAspartHum",
     genericName: "insulin aspart",
     brandName: "Humalog",
     route: "SC",
-    strength: 100,
-    strengthUnit: "unit",
+    strength: 1,
+    strengthUnit: "units",
     orderableUnit: "Unit",
     availableDosages: [5, 10, 15, 20, 25], 
     administrationFrequencies: ["QD"],
     bgDosing: [
-        { bgRange: "<70", units: "0 (Hypoglycemia Protocol)" },
-        { bgRange: "70-150", units: "6" },
-        { bgRange: "151-200", units: "8" },
-        { bgRange: "201-250", units: "10" },
-        { bgRange: "251-300", units: "12" },
-        { bgRange: "301-350", units: "14" },
-        { bgRange: "351-400", units: "16" },
-        { bgRange: ">400", units: "18 (Contact Provider)" },
-      ],
-    concentrationUnit: 'units/mL'
-
+      { bgRange: "<70", units: "0" },
+      { bgRange: "70-150", units: "6" },
+      { bgRange: "151-200", units: "8" },
+      { bgRange: "201-250", units: "10" },
+      { bgRange: "251-300", units: "12" },
+      { bgRange: "301-350", units: "14" },
+      { bgRange: "351-400", units: "16" },
+      { bgRange: ">400", units: "18" },
+    ],
   },
   {
     id: "medHydrocortisoneCream",
@@ -281,7 +286,7 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "D5W",
     totalVolume: 50,
     infusionDurationHours: 0.5,
-    requiresPump: false,
+    isContinuous: false,
   },
   {
     id: "medEnoxaparinSc40",
@@ -313,7 +318,7 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "NS 0.9%",
     totalVolume: 50,
     infusionDurationHours: 1,
-    requiresPump: true,
+    isContinuous: false,
   },
   {
     id: "medAlbuterolInhalation",
@@ -359,7 +364,7 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "NS 0.9%",
     totalVolume: 50,
     infusionDurationHours: 0.5,
-    requiresPump: false,
+    isContinuous: false,
   },
   {
     id: "medCeftriaxoneIm250",
@@ -407,7 +412,7 @@ export const allMedications: AllMedicationTypes[] = [
     diluent: "NS 0.9%",
     totalVolume: 100,
     infusionDurationHours: 1,
-    requiresPump: false,
+    isContinuous: false,
   },
 ];
 
@@ -497,6 +502,15 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "ROUTINE",
     status: "active",
     indication: "Type 2 Diabetes",
+  },
+  {
+    id: "orderLactatedRingers",
+    medicationId: "medLactatedRingersIV",
+    unitsOrdered: 1,
+    frequency: "Continuous",
+    priority: "ROUTINE",
+    status: "active",
+    indication: "Maintainence Fluids",
   },
 ]
 
