@@ -7,7 +7,7 @@ import { createBrowserClient } from '@supabase/ssr'
 export default function AuthCallbackPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
+  const redirectTo = searchParams.get('redirectedFrom') || '/admin'
 
   useEffect(() => {
     const supabase = createBrowserClient(
