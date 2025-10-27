@@ -16,7 +16,7 @@ import {
 // You can use a Zod schema here if you want.
 export type StudentInfo = {
   id: string
-  full_name: number
+  full_name: string
   email: string
   cohort: string
   classes: string[]

@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Settings, User } from "lucide-react"
+import { Home, Settings, User, BookOpenText, Hospital, Presentation } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { useUser } from "@/context/UserContext";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const adminRoutes = [
@@ -21,6 +22,21 @@ const adminRoutes = [
     title: "Admin Dashbord",
     url: "/admin",
     icom: Home,
+  },
+  {
+    title: "Courses",
+    url: "/admin/courses",
+    icom: BookOpenText,
+  },
+  {
+    title: "Cases",
+    url: "/admin/cases",
+    icom: Hospital,
+  },
+  {
+    title: "Active Simulations (WIP)",
+    url: "/",
+    icom: Presentation,
   },
 ]
 
@@ -44,7 +60,8 @@ export function AppSidebar() {
   const isAdmin = true;
   //const isAdmin = role === "admin";
 
-  const routes = isAdmin ? adminRoutes.concat(defaultRoutes) : defaultRoutes;
+  const pathname = usePathname();
+  const isCurrentPath = (url: string) => pathname === url;
 
 
   if (loading) return null;
@@ -54,10 +71,30 @@ export function AppSidebar() {
       <SidebarHeader />
       <SidebarContent>
         <SidebarGroup />
+        <SidebarGroupLabel>Admin</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {adminRoutes.map((route) => (
+              <SidebarMenuItem key={route.url}>
+                <SidebarMenuButton
+                  asChild
+                  className={`${isCurrentPath(route.url) && "bg-secondary"}`}>
+                  <Link href={route.url}>
+                    <route.icom />
+                    <span>{route.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+        <SidebarGroup />
+
+        <SidebarGroup />
         <SidebarGroupLabel>Menu</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {routes.map((route) => (
+            {defaultRoutes.map((route) => (
               <SidebarMenuItem key={route.url}>
                 <SidebarMenuButton asChild>
                   <Link href={route.url}>
@@ -70,6 +107,7 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroupContent>
         <SidebarGroup />
+
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>
