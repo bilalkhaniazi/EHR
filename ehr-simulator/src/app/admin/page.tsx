@@ -1,31 +1,10 @@
 import { columns, StudentInfo } from "./columns"
 import { DataTable } from "./data-table"
 import { AdminQuickActionsList } from "./AdminQuickActionsList"
+import { getAllUsers } from "@/actions/users"
 
 async function getData(): Promise<StudentInfo[]> {
-  return [
-    {
-      id: "1",
-      full_name: "John Doe",
-      email: "john@example.com",
-      cohort: "2027",
-      classes: ["NUR 280"],
-    },
-    {
-      id: "2",
-      full_name: "Max Mulder",
-      email: "maxmulder03@gmail.com",
-      cohort: "2027",
-      classes: ["NUR 350"],
-    },
-    {
-      id: "3",
-      full_name: "Matt Smith",
-      email: "matt@example.com",
-      cohort: "2026",
-      classes: ["NUR 280"],
-    },
-  ]
+  return await getAllUsers();
 }
 
 export default async function AdminPage() {

@@ -39,4 +39,8 @@ export const columns: ColumnDef<StudentInfo>[] = [
     accessorKey: "classes",
     header: "Classes",
   },
+  {
+    accessorKey: "role",
+    header: "Role",
+  },
 ]
