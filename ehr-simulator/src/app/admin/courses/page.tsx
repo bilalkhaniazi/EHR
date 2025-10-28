@@ -4,6 +4,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import CourseListItem from "./CourseListItem";
 import { getAllCourses } from "@/actions/courses";
+import Link from "next/link";
 
 type Course = {
   id: string;
@@ -33,7 +34,9 @@ export default function CoursesPage() {
   return (
     <div className="pl-4">
       <h1 className="container mx-auto pt-10 text-4xl font-bold">COURSES</h1>
-      {courses.map((course) => <CourseListItem key={course.id} course={course} />)}
+      {courses.map((course) =>
+        <CourseListItem key={course.id} course={course} />
+      )}
 
     </div>
   );
