@@ -35,7 +35,7 @@ export default function CasesPage() {
 
   return (
     <div className="pl-2">
-      <h1 className="container mx-auto pt-10 text-4xl font-bold">COURSES</h1>
+      <h1 className="container mx-auto pt-10 text-4xl font-bold">CASES</h1>
       {cases.map((simCase) => <CaseListItem key={simCase.id} simCase={simCase} />)}
       <Button>Create New Case</Button>
     </div>
