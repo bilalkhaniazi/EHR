@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto_Mono } from "next/font/google";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { UserProvider } from "@/context/UserContext";
 import { AppSidebar } from "@/components/app-sidebar";
 import "./globals.css";
@@ -26,7 +26,7 @@ export default function RootLayout({
         <UserProvider>
           <SidebarProvider>
             <AppSidebar />
-            <main>
+            <main className="w-full">
               {children}
             </main>
           </SidebarProvider>

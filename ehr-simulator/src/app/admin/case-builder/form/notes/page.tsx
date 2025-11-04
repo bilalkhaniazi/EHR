@@ -1,0 +1,383 @@
+"use client"
+import { useState, useEffect, use } from "react"
+import { sampleNotes, type TextNote, type SoapNote } from "./notesData"
+import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+
+const TextNoteContentDisplay = (note: TextNote) => {
+  return (
+    <p className="text-sm">{note.text}</p>
+  )
+}
+
+const SoapNoteContentDisplay = (note: SoapNote) => {
+  return (
+    <div>
+      {note.body.subjective && (
+        <div className="flex flex-col justify-left pb-2">
+          <h1 className="text-sm font-medium underline">Subjective</h1>
+          <p className="text-sm pt-1 pl-2">{note.body.subjective}</p>
+        </div>
+      )}
+      {note.body.objective && (
+        <div className="flex flex-col justify-left pb-2">
+          <h1 className="text-sm font-medium underline">Objective</h1>
+          <p className="text-sm pt-1 pl-2">{note.body.objective}</p>
+        </div>
+      )}
+      <div className="flex flex-col justify-left pb-2">
+        <h1 className="text-sm font-medium underline">Assessment</h1>
+        <p className="text-sm pt-1 pl-2">{note.body.assessment}</p>
+      </div>
+      {note.body.plan && (
+        <div className="flex flex-col justify-left pb-2">
+          <h1 className="text-sm font-medium underline">Plan</h1>
+          <p className="text-sm pt-1 pl-2">{note.body.plan}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const dateFromOffset = (dateOffset: number) => {
+  const date = new Date()
+  date.setDate(date.getDate() - dateOffset)
+
+  return date.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "2-digit"
+  });
+};
+
+const NoteDisplay = ({ note }: { note: TextNote | SoapNote }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="w-full flex flex-col space-y-1 bg-white pt-2 px-4 rounded-lg shadow"
+    >
+      <div className="flex justify-between">
+        <h1 className="text-lg font-medium">{note.title}</h1>
+        <div className="flex items-center">
+
+          <p className="text-md font-light">{note.publishTime}</p>
+
+          <Separator className="mx-3 bg-gray-200" orientation="vertical"></Separator>
+
+          {(note.dateOffset === 0) && (
+            <p className="text-md font-light">Day of simulation</p>
+          )}
+          {(note.dateOffset === 1) && (
+            <p className="text-md font-light">{note.dateOffset} day before simulation</p>
+          )}
+          {(note.dateOffset > 1) && (
+            <p className="text-md font-light">{note.dateOffset} days before simulation</p>
+          )}
+
+        </div>
+      </div>
+      <h2 className="text-sm">{note.specialty}</h2>
+      <h2 className="text-sm">{note.author}</h2>
+      <CollapsibleContent className="data-[state=open]:animate-in  data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+        <Separator className="my-2 bg-gray-300" />
+        <div className="w-full">
+
+          {/* Text Note or Soap Note */}
+          {('text' in note && typeof note.text === 'string') && (
+            <TextNoteContentDisplay {...note} />
+          )}
+
+          {('body' in note) && (
+            <SoapNoteContentDisplay {...note} />
+          )}
+
+        </div>
+      </CollapsibleContent>
+      <div className="flex justify-center">
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="cursor-pointer focus-visible:ring-none focus:ring-none hover:bg-transparent p-1 h-fit">
+            <ChevronDown style={{ transform: isOpen ? `rotate(180deg)` : "none" }} />
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+    </Collapsible>
+  )
+}
+
+
+const NotesForm = () => {
+
+  const categories = [
+    "Admission",
+    "Consent",
+    "Consult",
+    "Discharge",
+    "History & Physical",
+    "Nursing",
+    "Post-op",
+    "Pre-op",
+    "Progress",
+    "Rapid Response",
+    "Telehealth"
+  ]
+  const specialties = [
+    "Cardiology",
+    "Care Management",
+    "Critical Care",
+    "Dermatology",
+    "ENT",
+    "Emergency Medicine",
+    "Family Medicine",
+    "Gastroenterology",
+    "General Surgery",
+    "Geriatrics",
+    "Hematology",
+    "Infectious Disease",
+    "Internal Medicine",
+    "Neurology",
+    "Nursing",
+    "Obstetrics",
+    "Occupational Therapy",
+    "Oncology",
+    "Orthopedics",
+    "Pathology",
+    "Pediatrics",
+    "Physical Therapy",
+    "Psychiatry",
+    "Pulmonology",
+    "Radiology",
+    "Respiratory Therapy",
+    "SLP",
+    "Social Work",
+    "Spiritual Care",
+    "Urology"
+  ]
+
+  const [notes, setNotes] = useState<(TextNote | SoapNote)[]>([sampleNotes[0], sampleNotes[1]]);
+
+  const [categoryInput, setCategoryInput] = useState<string>("")
+  const [specialtyInput, setSpecialtyInput] = useState<string>("")
+  const [authorInput, setAuthorInput] = useState<string>("")
+  const [isSoap, setIsSoap] = useState<boolean>(false)
+
+  const [plainNoteInput, setPlainNoteInput] = useState<string>("");
+  const [subjectiveInput, setSubjectiveInput] = useState<string>("");
+  const [objectiveInput, setObjectiveInput] = useState<string>("");
+  const [assessmentInput, setAssessmentInput] = useState<string>("");
+  const [planInput, setPlanInput] = useState<string>("");
+
+  const [canAddNote, setCanAddNote] = useState(false);
+
+  const clearInputs = () => {
+    setCategoryInput("");
+    setSpecialtyInput("");
+    setAuthorInput("");
+    setPlainNoteInput("");
+    setSubjectiveInput("");
+    setObjectiveInput("");
+    setAssessmentInput("");
+    setPlanInput("");
+  }
+
+  const handleFormatSwitch = (isSoap: boolean) => {
+    setIsSoap(isSoap);
+
+    // Clear inputs south of choosing the format that depend on the format
+    setPlainNoteInput("");
+    setSubjectiveInput("");
+    setObjectiveInput("");
+    setAssessmentInput("");
+    setPlanInput("");
+  }
+
+  useEffect(() => {
+    // Check if note is complete (enough to be added to the array)
+    if (isSoap) {
+      setCanAddNote([
+        assessmentInput, // Only assessment is required for a SOAP note
+        categoryInput,
+        specialtyInput,
+        authorInput].every(
+          inputField => (inputField.trim() !== ""))
+      )
+    }
+    else {
+      setCanAddNote([
+        plainNoteInput,
+        categoryInput,
+        specialtyInput,
+        authorInput].every(
+          inputField => (inputField.trim() !== ""))
+      )
+    }
+  }, [
+    plainNoteInput,
+    assessmentInput,
+    categoryInput,
+    specialtyInput,
+    authorInput,
+    isSoap
+  ]);
+
+  const createNote = () => {
+    if (isSoap) {
+      setNotes([...notes, {
+        title: categoryInput + " Note",
+        author: authorInput,
+        specialty: specialtyInput,
+        dateOffset: 1,
+        publishTime: "1100",
+        hospitalDay: "2",
+        body: {
+          subjective: subjectiveInput,
+          objective: objectiveInput,
+          assessment: assessmentInput,
+          plan: planInput
+        }
+      }])
+    }
+    else {
+      setNotes([...notes, {
+        title: categoryInput + " Note",
+        author: authorInput,
+        specialty: specialtyInput,
+        dateOffset: 1,
+        publishTime: "1100",
+        hospitalDay: "2",
+        text: plainNoteInput
+      }])
+    }
+    clearInputs();
+  }
+
+  console.log("fdskjfdlask")
+
+  return (
+    <>
+      <input type="hidden" name="notes" value={JSON.stringify(notes)} />
+
+      <p className="m-2 ml-0 text-2xl font-bold">Notes</p>
+
+      {(notes.length > 0) &&
+        <div className="flex flex-col flex-grow gap-2 p-2 rounded-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
+          {notes.map((note, index) => (
+            <NoteDisplay note={note} key={index} />
+          ))}
+        </div>
+      }
+
+      <div className="flex">
+        <label className="case-form-label">Category:</label>
+        <select
+          onChange={(e) => { setCategoryInput(e.target.value) }}
+          value={categoryInput} className="case-form-select">
+          <option value="" hidden disabled>Select</option>
+          {categories.map((category, index) => (
+            <option key={index} value={category}>{category}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex">
+        <label className="case-form-label">Specialty:</label>
+        <select
+          onChange={(e) => { setSpecialtyInput(e.target.value) }}
+          value={specialtyInput} className="case-form-select">
+          <option value="" hidden disabled>Select</option>
+          {specialties.map((specialty, index) => (
+            <option key={index} value={specialty}>{specialty}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex">
+        <label htmlFor="author" className="case-form-label">Author:</label>
+        <input
+          type="text" value={authorInput} className="case-form-input-text"
+          onChange={(e) => { setAuthorInput(e.target.value) }}
+          id="author" placeholder="" />
+      </div>
+
+      <div className="flex">
+        <label className="case-form-label">SOAP Format:</label>
+        <div className="flex gap-1">
+          <input
+            id="isSoapYes" type="radio" value={"Yes"} checked={isSoap === true}
+            onChange={(e) => { if (e.target.value === "Yes") { handleFormatSwitch(true) } }} />
+          <label htmlFor="isSoapYes" className="case-form-label">Yes</label>
+
+          <input
+            id="isSoapNo" type="radio" value={"No"} checked={isSoap === false}
+            onChange={(e) => { if (e.target.value === "No") { handleFormatSwitch(false) } }} />
+          <label htmlFor="isSoapNo" className="case-form-label">No</label>
+        </div>
+      </div>
+
+      <p>Note Contents:</p>
+
+      {/* SOAP format inputs */}
+      {isSoap &&
+        (
+          <div className="ml-4">
+            <div className="flex flex-col">
+              <label htmlFor="subjective" className="case-form-label ">Subjective:</label>
+              <textarea
+                onChange={(e) => { setSubjectiveInput(e.target.value) }} value={subjectiveInput}
+                id="subjective" className="min-h-25 case-form-textarea" />
+            </div>
+            <br />
+            <div className="flex flex-col">
+              <label htmlFor="objective" className="case-form-label">Objective:</label>
+              <textarea
+                onChange={(e) => { setObjectiveInput(e.target.value) }} value={objectiveInput}
+                id="objective" className="min-h-25 case-form-textarea" />
+            </div>
+            <br />
+
+            <div className="flex flex-col">
+              <label htmlFor="assessment" className="case-form-label">Assessment:</label>
+              <textarea
+                onChange={(e) => { setAssessmentInput(e.target.value) }} value={assessmentInput}
+                id="assessment" className="min-h-25 case-form-textarea" />
+            </div>
+            <br />
+
+            <div className="flex flex-col">
+              <label htmlFor="plan" className="case-form-label">Plan:</label>
+              <textarea
+                onChange={(e) => { setPlanInput(e.target.value) }} value={planInput}
+                id="plan" className="min-h-25 case-form-textarea" />
+            </div>
+          </div>
+        )
+      }
+
+      {/* Text input, not in SOAP format */}
+      {!isSoap &&
+        <textarea
+          onChange={(e) => { setPlainNoteInput(e.target.value) }} value={plainNoteInput}
+          className="ml-4 min-h-25 case-form-textarea" />
+      }
+
+      <button
+        onClick={createNote}
+        disabled={!canAddNote}
+        title={!canAddNote ? "Note incomplete" : ""}
+        className="
+          disabled:cursor-not-allowed disabled:opacity-55
+          cursor-pointer mb-4 border-1 border-[#333] rounded bg-[#eaeaea] pl-2 pr-2 inline w-fit"
+        type="button">
+        Add Note to Case +
+      </button>
+
+
+    </>
+  )
+}
+
+export default NotesForm
