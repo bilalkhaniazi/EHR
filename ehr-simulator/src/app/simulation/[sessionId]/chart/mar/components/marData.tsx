@@ -10,14 +10,14 @@ interface BaseMedication {
 }
 
 
-interface OralMedication extends BaseMedication {
+export interface OralMedication extends BaseMedication {
   route: "PO";
   form: "tablet" | "capsule" | "dissolvable tab" | "chewable" ;
   canBeCrushedOrSplit: boolean;
   takeWithFood?: boolean;
 }
 
-interface IvMedication extends BaseMedication {
+export interface IvMedication extends BaseMedication {
   route: "IV"; 
   infusionRate?: number;
   infusionRateUnit?: "mL/hr" | "mg/hr" | "units/hr";
