@@ -4,25 +4,27 @@ export interface ImagingData {
   displayName: string;
   technique: string;
   findings: {
-    [area: string]: string
-  };
-  impression: string[];
+    region: string,
+    description: string
+  }[];
+  impressions: string[];
 }
 
-export interface PathologyReportData {
+export interface MicrobiologyReportData {
   sampleType: string;
   appearance: string;
   microscopy: string;
-  culture: string;
+  location?: string;
+  cultureResults: string;
   sensitivity: string;
   comments: string;
   reporter: string;
-  critical: true;
+  isCritical: boolean | 'indeterminate';
 }
 
 export interface Lab {
-    labName: string; 
-    value: string | ImagingData | PathologyReportData;
+  labName: string;
+  value: string | ImagingData | MicrobiologyReportData;
 }
 
 export interface PredefinedLabEntry {
@@ -33,15 +35,15 @@ export interface PredefinedLabEntry {
 
 // predefined lab data with an offset time stamp
 export interface LabTimePoint {
-  dateKey: number; 
-  labs: Lab[] 
+  dateKey: number;
+  labs: Lab[]
 }
 
 // info for table row 
 export interface LabDataTemplate {
   field: string,
   unit?: string,
-  rowType: "divider" | "results" | "imaging" | "pathology",
+  rowType: "divider" | "results" | "imaging" | "microbiology",
   normalRange?: { low: number, high: number }
   criticalRange?: { low: number, high: number }
   hideable?: boolean
@@ -50,13 +52,13 @@ export interface LabDataTemplate {
 
 // dataset to be used by tanstack table
 export interface LabTableData {
-    field: string;
-    rowType: "divider" | "results" | "imaging"  | "pathology";
-    unit?: string;
-    normalRange?: { low: number, high: number };
-    criticalRange?: { low: number, high: number };
-    hideable?: boolean
-    [dateKey: string]: string | { labName: string, value: string } | ImagingData | PathologyReportData | any;   // need ability to add any timekey with any type of lab data
+  field: string;
+  rowType: "divider" | "results" | "imaging" | "microbiology";
+  unit?: string;
+  normalRange?: { low: number, high: number };
+  criticalRange?: { low: number, high: number };
+  hideable?: boolean
+  [dateKey: string]: string | { labName: string, value: string } | ImagingData | MicrobiologyReportData | any;   // need ability to add any timekey with any type of lab data
 }
 
 
@@ -65,10 +67,10 @@ export const generateAllInitialLabTimes = (referenceDate: number) => {
 
   predefinedLabData.forEach(entry => {
     const timeOffset = (entry.daysOffset * 60 * 24) + (entry.hoursOffset * 60)
-    const displayTimeStamp = sub(referenceDate, {days: entry.daysOffset, hours: entry.hoursOffset}).getTime();
-    
-    if(!timePoints.has(displayTimeStamp)) {
-      timePoints.set(displayTimeStamp, {dateKey: timeOffset, labs: entry.labs })
+    const displayTimeStamp = sub(referenceDate, { days: entry.daysOffset, hours: entry.hoursOffset }).getTime();
+
+    if (!timePoints.has(displayTimeStamp)) {
+      timePoints.set(displayTimeStamp, { dateKey: timeOffset, labs: entry.labs })
     }
   })
   const sortedTimePoints = Array.from(timePoints.values()).sort((a, b) => b.dateKey - a.dateKey);
@@ -96,9 +98,9 @@ export const generateInitialLabData = (
       field: templateRow.field,
       rowType: templateRow.rowType,
       ...(templateRow.normalRange && { normalRange: templateRow.normalRange }),
-      ...(templateRow.criticalRange && {criticalRange: templateRow.criticalRange}),
-      ...(templateRow.hideable && { hideable: templateRow.hideable}), 
-      unit: templateRow.unit 
+      ...(templateRow.criticalRange && { criticalRange: templateRow.criticalRange }),
+      ...(templateRow.hideable && { hideable: templateRow.hideable }),
+      unit: templateRow.unit
     };
     if (templateRow.rowType === "results") {
       allTimesColumns.forEach(timePoint => {
@@ -112,7 +114,7 @@ export const generateInitialLabData = (
         newRow[timePoint.dateKey] = labValue ? labValue.value : {};
       });
     }
-     if (templateRow.rowType === "pathology") {
+    if (templateRow.rowType === "microbiology") {
       allTimesColumns.forEach(timePoint => {
         const labValue = labResultsLookup.get(timePoint.dateKey)?.get(templateRow.field);
         newRow[timePoint.dateKey] = labValue ? labValue.value : {};
@@ -129,19 +131,19 @@ export const generateInitialLabData = (
 export const predefinedLabData: PredefinedLabEntry[] = [
   {
     daysOffset: 2, // Today
-    hoursOffset: 1, 
+    hoursOffset: 1,
     labs: [
-      { labName: "Sodium", value: "134" }, 
+      { labName: "Sodium", value: "134" },
       { labName: "Potassium", value: "3.7" },
       { labName: "Chlorine", value: "99" },
-      { labName: "BUN", value: "25" }, 
+      { labName: "BUN", value: "25" },
       { labName: "Creatinine", value: "1.3" },
-      { labName: "Glucose", value: "275" }, 
+      { labName: "Glucose", value: "275" },
       { labName: "CO2", value: "24" },
       { labName: "Calcium", value: "8.9" },
 
       { labName: "RBC", value: "4.5" },
-      { labName: "WBC", value: "11.8" }, 
+      { labName: "WBC", value: "11.8" },
       { labName: "Platelets", value: "280" },
       { labName: "Hemoglobin", value: "14.2" },
       { labName: "Hematocrit", value: "42" },
@@ -149,67 +151,68 @@ export const predefinedLabData: PredefinedLabEntry[] = [
       { labName: "MCH", value: "31" },
       { labName: "MCHC", value: "33" },
 
-      { labName: "pH", value: "7.35" }, 
-      { labName: "pCO2", value: "48" }, 
+      { labName: "pH", value: "7.35" },
+      { labName: "pCO2", value: "48" },
       { labName: "pO2", value: "38" },
       { labName: "HCO3", value: "25" },
 
-      { labName: "Hemoglobin A1c", value: "9.5" }, 
+      { labName: "Hemoglobin A1c", value: "9.5" },
       { labName: "AST", value: "35" },
       { labName: "ALT", value: "40" },
-      { labName: "Troponin", value: "0.01" }, 
+      { labName: "Troponin", value: "0.01" },
     ]
   },
   {
     daysOffset: 0, // Today
-    hoursOffset: 1, 
+    hoursOffset: 1,
     labs: [
-      { labName: "Glucose", value: "210" }, 
+      { labName: "Glucose", value: "210" },
     ]
   },
   {
     daysOffset: 1, // Today
-    hoursOffset: 4, 
+    hoursOffset: 4,
     labs: [
-      { labName: "Glucose", value: "204" }, 
+      { labName: "Glucose", value: "204" },
     ]
   },
 
   {
-    daysOffset: 0, 
-    hoursOffset: 4, 
+    daysOffset: 0,
+    hoursOffset: 4,
     labs: [
-      { labName: "Sodium", value: "136" }, 
+      { labName: "Sodium", value: "136" },
       { labName: "Potassium", value: "6.1" },
       { labName: "Chlorine", value: "100" },
-      { labName: "BUN", value: "20" }, 
-      { labName: "Creatinine", value: "1.2" }, 
-      { labName: "Glucose", value: "185" }, 
+      { labName: "BUN", value: "20" },
+      { labName: "Creatinine", value: "1.2" },
+      { labName: "Glucose", value: "185" },
       { labName: "CO2", value: "25" },
       { labName: "Calcium", value: "9.0" },
     ]
   },
   {
-    daysOffset: 1, 
-    hoursOffset: 1, 
+    daysOffset: 1,
+    hoursOffset: 1,
     labs: [
       { labName: "Glucose", value: "160" },
-      { labName: "CT R. Foot", 
+      {
+        labName: "CT R. Foot",
         value: {
           displayName: "CT OF THE RIGHT FOOT",
           technique: "Non-contrast axial and sagittal CT images of the right foot were obtained. Multiplanar reconstructions performed.",
-          findings: {
-            "Soft Tissue": "There is a focal soft tissue defect overlying the plantar aspect of the right forefoot, measuring approximately 2.8 cm in diameter, with surrounding subcutaneous fat stranding and mild edema.",
-            "Bone Structures": "Cortical irregularity and erosion noted involving the underlying second and third metatarsal heads. Trabecular sclerosis and decreased attenuation suggest early osteomyelitic changes. No definitive intraosseous gas observed.",
-            "Joints": "Mild degenerative changes at the tarsometatarsal joints. No joint effusion",
-            "Vascularity": "Posterior tibial artery calcifications consistent with peripheral vascular disease."
-          },
-          impression: [
+          findings: [
+            { region: "Soft Tissue", description: "There is a focal soft tissue defect overlying the plantar aspect of the right forefoot, measuring approximately 2.8 cm in diameter, with surrounding subcutaneous fat stranding and mild edema." },
+            { region: "Bone Structures", description: "Cortical irregularity and erosion noted involving the underlying second and third metatarsal heads. Trabecular sclerosis and decreased attenuation suggest early osteomyelitic changes. No definitive intraosseous gas observed." },
+            { region: "Joints", description: "Mild degenerative changes at the tarsometatarsal joints. No joint effusion", },
+            { region: "Vascularity", description: "Posterior tibial artery calcifications consistent with peripheral vascular disease." }
+          ],
+          impressions: [
             "Soft tissue ulceration of the right plantar forefoot with adjacent inflammatory changes.",
             "Findings suggestive of early osteomyelitis involving the second and third metatarsal heads.",
             "Peripheral vascular calcifications likely related to underlying diabetes."
           ]
-        }
+        },
       },
       {
         labName: "Wound Culture",
@@ -217,18 +220,18 @@ export const predefinedLabData: PredefinedLabEntry[] = [
           sampleType: "Wound Culture – Right Great Toe",
           appearance: "Purulent drainage noted, surrounding erythema",
           microscopy: "Gram stain: Moderate gram-positive cocci in clusters, few PMNs",
-          culture: "Staphylococcus aureus (moderate growth)",
+          cultureResults: "Staphylococcus aureus (moderate growth)",
           sensitivity: "Methicillin (R), Clindamycin (S), Vancomycin (S)",
           comments: "Likely MRSA involvement. Consider empiric coverage with vancomycin. Poor healing noted in context of suboptimal glycemic control.",
           reporter: "AC, Microbiology Lab – St. Jude Medical Center",
-          critical: true
+          isCritical: true
         }
-      } 
+      }
     ]
   },
   {
-    daysOffset: 1, 
-    hoursOffset: 14, 
+    daysOffset: 1,
+    hoursOffset: 14,
     labs: [
       { labName: "Glucose", value: "195" },
     ]
@@ -252,7 +255,7 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mEq/L)",
     rowType: "results",
     normalRange: { low: 3.5, high: 5.0 },
-    criticalRange: {low: 3.0, high: 6.0 }
+    criticalRange: { low: 3.0, high: 6.0 }
   },
   {
     field: "Chlorine",
@@ -276,7 +279,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Glucose",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: 70, high: 100 } 
+    normalRange: { low: 70, high: 100 }
   },
   {
     field: "CO2",
@@ -294,7 +297,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Lactate",
     unit: "(mmol/L)",
     rowType: "results",
-    normalRange: { low: 0.5, high: 1.0 } 
+    normalRange: { low: 0.5, high: 1.0 }
   },
   {
     field: "Hematology",
@@ -305,7 +308,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "RBC",
     unit: "(10⁶/µL)",
     rowType: "results",
-    normalRange: { low: 4.0, high: 6.0 } 
+    normalRange: { low: 4.0, high: 6.0 }
   },
   {
     field: "WBC",
@@ -329,7 +332,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Hematocrit",
     unit: "(%)",
     rowType: "results",
-    normalRange: { low: 36, high: 54 } 
+    normalRange: { low: 36, high: 54 }
   },
   {
     field: "MCV",
@@ -358,7 +361,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Troponin",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: 0, high: 0.04 } 
+    normalRange: { low: 0, high: 0.04 }
   },
   {
     field: "CKMB",
@@ -428,7 +431,7 @@ export const labTemplate: LabDataTemplate[] = [
     field: "pCO2",
     unit: "(mmHg)",
     rowType: "results",
-    normalRange: { low: 40, high: 50 } 
+    normalRange: { low: 40, high: 50 }
   },
   {
     field: "pO2",
@@ -461,7 +464,7 @@ export const labTemplate: LabDataTemplate[] = [
   },
   {
     field: "Protein",
-    unit: "", 
+    unit: "",
     rowType: "results",
   },
   {
@@ -542,7 +545,7 @@ export const labTemplate: LabDataTemplate[] = [
 
   },
   {
-    field: "TSH", 
+    field: "TSH",
     unit: "(mIU/L)",
     rowType: "results",
     normalRange: { low: 0.4, high: 4.0 },
@@ -577,14 +580,14 @@ export const labTemplate: LabDataTemplate[] = [
 
   },
   {
-    field: "HDL Cholesterol", 
+    field: "HDL Cholesterol",
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 40, high: 60 },
     hideable: true
   },
   {
-    field: "LDL Cholesterol", 
+    field: "LDL Cholesterol",
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 0, high: 100 },
@@ -654,13 +657,48 @@ export const labTemplate: LabDataTemplate[] = [
 
   },
   {
-    field: "Pathology",
+    field: "Microbiology",
     unit: "",
     rowType: "divider",
+    hideable: true
+
   },
+
   {
     field: "Wound Culture",
     unit: "",
-    rowType: "pathology"
-  }
+    rowType: "microbiology",
+    hideable: true
+
+  },
+  {
+    field: "Urine Culture",
+    unit: "",
+    rowType: "microbiology",
+    hideable: true
+  },
+  {
+    field: "Stool Culture",
+    unit: "",
+    rowType: "microbiology",
+    hideable: true
+  },
+  {
+    field: "Sputum Culture",
+    unit: "",
+    rowType: "microbiology",
+    hideable: true
+  },
+  {
+    field: "CSF Culture",
+    unit: "",
+    rowType: "microbiology",
+    hideable: true
+  },
+  {
+    field: "Blood Culture",
+    unit: "",
+    rowType: "microbiology",
+    hideable: true
+  },
 ];

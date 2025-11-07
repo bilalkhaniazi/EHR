@@ -27,8 +27,8 @@ interface ComboboxProps {
   displayText: string;
 }
 
-export default function Combobox( {
-  value, 
+export default function Combobox({
+  value,
   onValueChange,
   data,
   displayText
@@ -53,7 +53,7 @@ export default function Combobox( {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search varieties..." />
+          <CommandInput placeholder="Search options..." />
           <CommandList>
             <CommandEmpty>Not found.</CommandEmpty>
             <CommandGroup>

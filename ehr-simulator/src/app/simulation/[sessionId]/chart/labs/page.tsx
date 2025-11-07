@@ -1,6 +1,6 @@
 'use client'
 
-import type { ImagingData, LabTableData, PathologyReportData } from "./components/labsData"
+import type { ImagingData, LabTableData, MicrobiologyReportData } from "./components/labsData"
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useEffect } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
@@ -12,11 +12,12 @@ import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { useGetLabsQuery  } from "@/app/store/apiSlice";   //useAddLabColumnMutation
 import { Skeleton } from "@/components/ui/skeleton";
 import ImagingReport from "./components/imagingReport";
-import PathologyReport from "./components/pathologyReport";
+import PathologyReport from "./components/microbiologyReport";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/app/store/store";
 import { formatTimeFromOffset } from "../charting/page";
 import { ShieldAlert } from "lucide-react";
+import { time } from "node:console";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -59,7 +60,6 @@ export function LabPage() {
   const skip = !simStartTime
   
   const { data, isLoading, isFetching, isError, error } = useGetLabsQuery(simStartTime, { skip });
-
   // const [addLabColumn] = useAddLabColumnMutation();
 
   const labTableData = data?.labTableData || [];
@@ -69,7 +69,7 @@ export function LabPage() {
     console.log(labTableData)
   }, [labTableData])
 
-// will need backend to add column,   
+  // will need backend to add column,   
   // const handleColumnAdd = useCallback( async(initialLabResults?: NewLabResult[]) => {
   //   const now = new Date();
   //   // Format the current date and time to match the existing dateKey format (e.g., "MM/DD/YYYY HH:MM")
@@ -197,7 +197,7 @@ export function LabPage() {
                 )
               }
             } else if (rowType === "pathology") {
-              const pathologyReport = (getValue() as PathologyReportData) || {}
+              const pathologyReport = (getValue() as MicrobiologyReportData) || {}
               if(Object.keys(pathologyReport).length === 0) {
                 return (
                   <></>
