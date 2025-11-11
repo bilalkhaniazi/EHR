@@ -46,7 +46,7 @@ const HistoryForm = () => {
                 <MultipleTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
               </div>
 
-              <SubmitButton href="/admin/case-builder/new/notes" buttonText="Continue" />
+              <SubmitButton href="/admin/case-builder/form/notes" buttonText="Continue" />
             </div>
           </form>
         </Card>

@@ -209,7 +209,7 @@ const DemographicsForm = () => {
                 &nbsp;&nbsp;
                 <input name="attendingProviderName" id="attendingProviderName" placeholder="Name" className="case-form-input-text" type="text" />
               </div>
-              <SubmitButton href="/admin/case-builder/new/history" buttonText="Continue" />
+              <SubmitButton href="/admin/case-builder/form/history" buttonText="Continue" />
             </div>
           </form>
         </Card>

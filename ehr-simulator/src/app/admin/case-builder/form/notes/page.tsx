@@ -454,7 +454,7 @@ const NotesForm = () => {
                 type="button">
                 Add Note to Case +
               </button>
-              <SubmitButton href="/admin/case-builder/new/orders" buttonText="Continue" />
+              <SubmitButton href="/admin/case-builder/form/orders" buttonText="Continue" />
             </div>
           </form>
         </Card>
