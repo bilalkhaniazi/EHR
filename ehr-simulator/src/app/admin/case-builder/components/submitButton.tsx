@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const SubmitButton = ({ href, buttonText }: { href: string, buttonText: string }) => {
   return (
-    <div className="flex flex-col gap-2 max-w-[50%] ">
-      <hr />
+    <div className="flex flex-col gap-2 w-fit">
       <Link href={href}>
         <Button
           className="w-full cursor-pointer"

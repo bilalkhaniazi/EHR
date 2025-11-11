@@ -9,19 +9,17 @@ import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 
 // import { Skeleton } from "@/components/ui/skeleton";
-// import ImagingReport from "@/app/simulation/[sessionId]/chart/labs/components/imagingReport";
-import MicrobiologyReport from "@/app/simulation/[sessionId]/chart/labs/components/microbiologyReport";
-// import { useSelector } from "react-redux";
-// import type { RootState } from "@/app/store/store";
-import { formatTimeFromOffset } from "@/app/simulation/[sessionId]/chart/charting/page";
 import { ShieldAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddLabColumn } from "./components/addLabCol";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import AddMicrobiologyReport from "@/app/admin/add-microbiology-report/page";
+import AddMicrobiologyReport from "@/app/admin/case-builder/form/labs/components/addMicrobiologyReport";
 import { Label } from "@/components/ui/label";
 import Combobox from "@/components/ui/combobox";
-import AddImaging from "@/app/admin/add-imaging/page";
+import AddImagingReport from "@/app/admin/case-builder/form/labs/components/addImagingReport";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import SubmitButton from "../../components/submitButton";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -1032,6 +1030,15 @@ export function LabPage() {
       [...prev, offset].sort((a, b) => b - a)
     )
   }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+  }
+
   useEffect(() => {
     console.log(labTableData)
   }, [labTableData])
@@ -1178,7 +1185,7 @@ export function LabPage() {
                         )}
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-150 lg:max-w-none w-250">
-                        <AddImaging
+                        <AddImagingReport
                           imagingType={row.original.field}
                           initialData={isImageEditMode ? imagingReport : undefined}
                           handleAddImagingReport={handleAddorEditImageReport}
@@ -1278,7 +1285,10 @@ export function LabPage() {
 
   return (
     <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 gap-2 ">
-      <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
+      <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
+        <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
+        <SubmitButton href="/admin/case-builder/form/" buttonText="Continue" />
+      </form>
       <div className="w-full space-y-2">
         <h1 className="text-3xl">Labs</h1>
         <div className="flex gap-8 items-end">

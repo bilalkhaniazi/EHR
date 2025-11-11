@@ -107,7 +107,7 @@ interface Image {
   timeOffset: number;
 }
 
-const AddImaging = ({ imagingType, handleAddImagingReport, initialData }: AddImagingProps) => {
+const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: AddImagingProps) => {
   const isEditMode = !!initialData;
   const [technique, setTechnique] = useState(initialData?.technique || '')
   const [findings, setFindings] = useState<Finding[]>(initialData?.findings || [])
@@ -219,7 +219,7 @@ const AddImaging = ({ imagingType, handleAddImagingReport, initialData }: AddIma
   )
 }
 
-export default AddImaging
+export default AddImagingReport
 
 
 // { labName: "CT R. Foot",

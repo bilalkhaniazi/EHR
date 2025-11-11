@@ -29,30 +29,27 @@ const HistoryForm = () => {
   const [livingSituation, setLivingSituation] = useState<string[]>([]);
 
   return (
-    <>
-      <div className="flex flex-col bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
-        <Card>
-          <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
-            <div className="w-full flex flex-col gap-2 p-2">
-              <p className="m-2 mb-4 ml-0 text-2xl font-bold">Patient History</p>
+    <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
+      <Card className="h-fit">
+        <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
+          <div className="w-full flex flex-col gap-2 p-2">
+            <p className="m-2 mb-4 ml-0 text-2xl font-bold">Patient History</p>
 
-              <div className="flex flex-col gap-2">
-                <MultipleTextInput labelText="Medical History:" name="medicalHistory" value={medicalHistory} onChange={setMedicalHistory} />
-                <MultipleTextInput labelText="Surgical History:" name="surgicalHistory" value={surgicalHistory} onChange={setSurgicalHistory} />
-                <MultipleTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
-                <MultipleTextInput labelText="Tobacco Use:" name="tobaccoUse" value={tobaccoUse} onChange={setTobaccoUse} />
-                <MultipleTextInput labelText="Family History:" name="alcoholUse" value={alcoholUse} onChange={setAlcoholUse} />
-                <MultipleTextInput labelText="Drug Use:" name="drugUse" value={drugUse} onChange={setDrugUse} />
-                <MultipleTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
-              </div>
-
-              <SubmitButton href="/admin/case-builder/form/notes" buttonText="Continue" />
+            <div className="flex flex-col gap-4">
+              <MultipleTextInput labelText="Medical History:" name="medicalHistory" value={medicalHistory} onChange={setMedicalHistory} />
+              <MultipleTextInput labelText="Surgical History:" name="surgicalHistory" value={surgicalHistory} onChange={setSurgicalHistory} />
+              <MultipleTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
+              <MultipleTextInput labelText="Tobacco Use:" name="tobaccoUse" value={tobaccoUse} onChange={setTobaccoUse} />
+              <MultipleTextInput labelText="Family History:" name="alcoholUse" value={alcoholUse} onChange={setAlcoholUse} />
+              <MultipleTextInput labelText="Drug Use:" name="drugUse" value={drugUse} onChange={setDrugUse} />
+              <MultipleTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
             </div>
-          </form>
-        </Card>
-      </div>
 
-    </>
+            <SubmitButton href="/admin/case-builder/form/notes" buttonText="Continue" />
+          </div>
+        </form>
+      </Card>
+    </div>
   )
 }
 export default HistoryForm

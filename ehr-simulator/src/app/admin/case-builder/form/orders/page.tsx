@@ -74,8 +74,8 @@ const OrdersForm = () => {
 
   return (
     <>
-      <div className="flex flex-col bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
-        <Card>
+      <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
+        <Card className="h-fit">
           <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
             <div className="w-full flex flex-col gap-2 p-2">
               <input type="hidden" name="orders" value={JSON.stringify(orders)} />
@@ -120,7 +120,7 @@ const OrdersForm = () => {
                   </tbody>
                 </table>
                 : <></>}
-              <div className="w-full grid gap-1">
+              <div className="w-full grid gap-4">
                 <div className="flex">
                   <label htmlFor="" className="case-form-label">Category:</label>
                   <select
