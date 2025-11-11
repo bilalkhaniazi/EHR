@@ -8,21 +8,7 @@ import { ChevronDown, X } from "lucide-react";
 import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import InfoTooltip from "../../components/helpTooltip";
-
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-
-  const formData = new FormData(e.target as HTMLFormElement);
-  const payload = Object.fromEntries(formData);
-  console.log(payload);
-
-  // Process data and save to patient object
-  // Move to next page of the form
-  // Backend shenanigans
-}
-
-
-
+import { useRouter } from "next/navigation";
 
 const TextNoteContentDisplay = (note: TextNote) => {
   return (
@@ -59,23 +45,36 @@ const SoapNoteContentDisplay = (note: SoapNote) => {
   )
 }
 
-const dateFromOffset = (dateOffset: number) => {
-  const date = new Date()
-  date.setDate(date.getDate() - dateOffset)
-
-  return date.toLocaleDateString("en-US", {
-    month: "numeric",
-    day: "numeric",
-    year: "2-digit"
-  });
-};
-
 const minutesToDHM = (minutes: number) => [Math.floor(minutes / 1440), Math.floor((minutes % 1440) / 60), minutes % 60];
+
+const DHMToMinutes = (days: number | "", hours: number | "", minutes: number | "") => {
+  return ((days || 0) * 24 * 60) + ((hours || 0) * 60) + (minutes || 0)
+}
+
+// const dateFromOffset = (dateOffset: number) => {
+//   const date = new Date()
+//   date.setDate(date.getDate() - dateOffset)
+
+//   return date.toLocaleDateString("en-US", {
+//     month: "numeric",
+//     day: "numeric",
+//     year: "2-digit"
+//   });
+// };
+
+function displayTimeOffset(timeOffset: number): string {
+  const [days, hours, minutes] = minutesToDHM(timeOffset)
+
+  const parts = [];
+  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+
+  return parts.join(', ') || '0 minutes';
+}
 
 const NoteDisplay = ({ note, onDelete }: { note: TextNote | SoapNote, onDelete: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const [days, hours, minutes] = minutesToDHM(note.timeOffset)
 
   return (
     <Collapsible
@@ -87,15 +86,10 @@ const NoteDisplay = ({ note, onDelete }: { note: TextNote | SoapNote, onDelete: 
         <h1 className="text-lg font-medium">{note.title}</h1>
         <div className="flex items-center gap-2">
 
-          <p className="text-md font-light">{note.timeOffset}</p>
-
-          <Separator className="mx-3 bg-gray-200" orientation="vertical"></Separator>
-
-
           <p className="text-md font-light">
-            {days == 1 && days + " day,"} { } before simulation
+            {displayTimeOffset(note.timeOffset)} before simulation
           </p>
-
+          <Separator className="mx-3 bg-gray-200" orientation="vertical" />
 
           <Button
             variant="ghost"
@@ -139,6 +133,7 @@ const NoteDisplay = ({ note, onDelete }: { note: TextNote | SoapNote, onDelete: 
 
 
 const NotesForm = () => {
+  const router = useRouter();
 
   const categories = [
     "Admission",
@@ -186,35 +181,34 @@ const NotesForm = () => {
     "Urology"
   ]
 
-  const [notes, setNotes] = useState<(TextNote | SoapNote)[]>([sampleNotes[0], sampleNotes[1]]);
+  const [notes, setNotes] = useState<(TextNote | SoapNote)[]>([]);
 
-  const [categoryInput, setCategoryInput] = useState<string>("")
-  const [specialtyInput, setSpecialtyInput] = useState<string>("")
-  const [authorInput, setAuthorInput] = useState<string>("")
+  const [category, setCategory] = useState<string>("")
+  const [specialty, setSpecialty] = useState<string>("")
+  const [author, setAuthor] = useState<string>("")
   const [isSoap, setIsSoap] = useState<boolean>(false)
 
-  const [plainNoteInput, setPlainNoteInput] = useState<string>("");
-  const [subjectiveInput, setSubjectiveInput] = useState<string>("");
-  const [objectiveInput, setObjectiveInput] = useState<string>("");
-  const [assessmentInput, setAssessmentInput] = useState<string>("");
-  const [planInput, setPlanInput] = useState<string>("");
+  const [plainNote, setPlainNote] = useState<string>("");
+  const [subjective, setSubjective] = useState<string>("");
+  const [objective, setObjective] = useState<string>("");
+  const [assessment, setAssessment] = useState<string>("");
+  const [plan, setPlan] = useState<string>("");
 
   const [days, setDays] = useState<number | ''>(0);
   const [hours, setHours] = useState<number | ''>(0);
   const [minutes, setMinutes] = useState<number | ''>(0);
-  const timeOffset = ((days || 0) * 24 * 60) + ((hours || 0) * 60) + (minutes || 0)
 
   const [canAddNote, setCanAddNote] = useState(false);
 
-  const clearInputs = () => {
-    setCategoryInput("");
-    setSpecialtyInput("");
-    setAuthorInput("");
-    setPlainNoteInput("");
-    setSubjectiveInput("");
-    setObjectiveInput("");
-    setAssessmentInput("");
-    setPlanInput("");
+  const clears = () => {
+    setCategory("");
+    setSpecialty("");
+    setAuthor("");
+    setPlainNote("");
+    setSubjective("");
+    setObjective("");
+    setAssessment("");
+    setPlan("");
     setDays("");
     setHours("");
     setMinutes("");
@@ -224,87 +218,78 @@ const NotesForm = () => {
     setIsSoap(isSoap);
 
     // Clear inputs south of choosing the format that depend on the format
-    setPlainNoteInput("");
-    setSubjectiveInput("");
-    setObjectiveInput("");
-    setAssessmentInput("");
-    setPlanInput("");
+    setPlainNote("");
+    setSubjective("");
+    setObjective("");
+    setAssessment("");
+    setPlan("");
   }
-
-  const handleTimeChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    setter: (x: number | '') => void
-  ) => {
-    const inputValue = event.target.value;
-    if (inputValue === '') {
-      setter('');
-      return
-    }
-    const numValue = parseFloat(inputValue);
-
-    if (!isNaN(numValue) && numValue >= 0) {
-      setter(numValue);
-    }
-  };
-
-
 
   useEffect(() => {
     // Check if note is complete (enough to be added to the array)
     if (isSoap) {
       setCanAddNote([
-        assessmentInput, // Only assessment is required for a SOAP note
-        categoryInput,
-        specialtyInput,
-        authorInput].every(
+        assessment, // Only assessment is required for a SOAP note
+        category,
+        specialty,
+        author].every(
           inputField => (inputField.trim() !== ""))
       )
     }
     else {
       setCanAddNote([
-        plainNoteInput,
-        categoryInput,
-        specialtyInput,
-        authorInput].every(
+        plainNote,
+        category,
+        specialty,
+        author].every(
           inputField => (inputField.trim() !== ""))
       )
     }
   }, [
-    plainNoteInput,
-    assessmentInput,
-    categoryInput,
-    specialtyInput,
-    authorInput,
+    plainNote,
+    assessment,
+    category,
+    specialty,
+    author,
     isSoap
   ]);
 
   const createNote = () => {
     if (isSoap) {
       setNotes([...notes, {
-        title: categoryInput + " Note",
-        author: authorInput,
-        specialty: specialtyInput,
-        timeOffset: (0 * 24 * 60) + (5 * 60) + 30, // 0 days, 5 hours, 30 minutes in minutes
+        title: category + " Note",
+        author: author,
+        specialty: specialty,
+        timeOffset: DHMToMinutes(days, hours, minutes), // days, hours, minutes to minutes
         body: {
-          subjective: subjectiveInput,
-          objective: objectiveInput,
-          assessment: assessmentInput,
-          plan: planInput
+          subjective: subjective,
+          objective: objective,
+          assessment: assessment,
+          plan: plan
         }
       }])
     }
     else {
       setNotes([...notes, {
-        title: categoryInput + " Note",
-        author: authorInput,
-        specialty: specialtyInput,
-        timeOffset: (0 * 24 * 60) + (5 * 60) + 30, // 0 days, 5 hours, 30 minutes in minutes
-        text: plainNoteInput
+        title: category + " Note",
+        author: author,
+        specialty: specialty,
+        timeOffset: DHMToMinutes(days, hours, minutes), // Days, hours, minutes to minutes
+        text: plainNote
       }])
     }
-    clearInputs();
+    clears();
   }
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+
+    router.push('/admin/case-builder/form/labs')
+  }
 
   return (
     <>
@@ -327,8 +312,8 @@ const NotesForm = () => {
               <div className="flex">
                 <label className="case-form-label">Category:</label>
                 <select
-                  onChange={(e) => { setCategoryInput(e.target.value) }}
-                  value={categoryInput} className="case-form-select">
+                  onChange={(e) => { setCategory(e.target.value) }}
+                  value={category} className="case-form-select">
                   <option value="" hidden disabled>Select</option>
                   {categories.map((category, index) => (
                     <option key={index} value={category}>{category}</option>
@@ -339,8 +324,8 @@ const NotesForm = () => {
               <div className="flex">
                 <label className="case-form-label">Specialty:</label>
                 <select
-                  onChange={(e) => { setSpecialtyInput(e.target.value) }}
-                  value={specialtyInput} className="case-form-select">
+                  onChange={(e) => { setSpecialty(e.target.value) }}
+                  value={specialty} className="case-form-select">
                   <option value="" hidden disabled>Select</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty}>{specialty}</option>
@@ -351,8 +336,8 @@ const NotesForm = () => {
               <div className="flex">
                 <label htmlFor="author" className="case-form-label">Author:</label>
                 <input
-                  type="text" value={authorInput} className="case-form-input-text"
-                  onChange={(e) => { setAuthorInput(e.target.value) }}
+                  type="text" value={author} className="case-form-input-text"
+                  onChange={(e) => { setAuthor(e.target.value) }}
                   id="author" placeholder="" />
               </div>
 
@@ -363,23 +348,26 @@ const NotesForm = () => {
 
                   <label htmlFor="days" className="case-form-label">Days:</label>
                   <input
-                    type="number"
-                    id="days"
+                    value={days}
+                    onChange={(e) => { setDays(parseFloat(e.target.value)) }} type="number"
+                    id="days" min={0}
                     className="mr-4 case-form-input-number" />
 
                   <label htmlFor="hours" className="case-form-label">Hours:</label>
                   <input
                     value={hours}
+                    onChange={(e) => { setHours(parseFloat(e.target.value)) }}
                     type="number"
-                    id="hours"
+                    id="hours" min={0}
                     className="mr-4 case-form-input-number" />
 
                   <label htmlFor="minutes" className="case-form-label">Minutes:</label>
                   <input
+                    value={minutes}
+                    onChange={(e) => { setMinutes(parseFloat(e.target.value)) }}
                     type="number"
-                    id="minutes"
+                    id="minutes" min={0}
                     className="mr-4 case-form-input-number" />
-
                 </div>
               </div>
 
@@ -401,46 +389,44 @@ const NotesForm = () => {
               <p>Note Contents:</p>
 
               {/* SOAP format inputs */}
-              {isSoap &&
-                (
-                  <div className="ml-4">
-                    <div className="flex flex-col">
-                      <label htmlFor="subjective" className="case-form-label ">Subjective:</label>
-                      <textarea
-                        onChange={(e) => { setSubjectiveInput(e.target.value) }} value={subjectiveInput}
-                        id="subjective" className="min-h-25 case-form-textarea" />
-                    </div>
-                    <br />
-                    <div className="flex flex-col">
-                      <label htmlFor="objective" className="case-form-label">Objective:</label>
-                      <textarea
-                        onChange={(e) => { setObjectiveInput(e.target.value) }} value={objectiveInput}
-                        id="objective" className="min-h-25 case-form-textarea" />
-                    </div>
-                    <br />
-
-                    <div className="flex flex-col">
-                      <label htmlFor="assessment" className="case-form-label">Assessment:</label>
-                      <textarea
-                        onChange={(e) => { setAssessmentInput(e.target.value) }} value={assessmentInput}
-                        id="assessment" className="min-h-25 case-form-textarea" />
-                    </div>
-                    <br />
-
-                    <div className="flex flex-col">
-                      <label htmlFor="plan" className="case-form-label">Plan:</label>
-                      <textarea
-                        onChange={(e) => { setPlanInput(e.target.value) }} value={planInput}
-                        id="plan" className="min-h-25 case-form-textarea" />
-                    </div>
+              {isSoap && (
+                <div className="ml-4">
+                  <div className="flex flex-col">
+                    <label htmlFor="subjective" className="case-form-label ">Subjective:</label>
+                    <textarea
+                      onChange={(e) => { setSubjective(e.target.value) }} value={subjective}
+                      id="subjective" className="min-h-25 case-form-textarea" />
                   </div>
-                )
-              }
+                  <br />
+                  <div className="flex flex-col">
+                    <label htmlFor="objective" className="case-form-label">Objective:</label>
+                    <textarea
+                      onChange={(e) => { setObjective(e.target.value) }} value={objective}
+                      id="objective" className="min-h-25 case-form-textarea" />
+                  </div>
+                  <br />
+
+                  <div className="flex flex-col">
+                    <label htmlFor="assessment" className="case-form-label">Assessment:</label>
+                    <textarea
+                      onChange={(e) => { setAssessment(e.target.value) }} value={assessment}
+                      id="assessment" className="min-h-25 case-form-textarea" />
+                  </div>
+                  <br />
+
+                  <div className="flex flex-col">
+                    <label htmlFor="plan" className="case-form-label">Plan:</label>
+                    <textarea
+                      onChange={(e) => { setPlan(e.target.value) }} value={plan}
+                      id="plan" className="min-h-25 case-form-textarea" />
+                  </div>
+                </div>
+              )}
 
               {/* Text input, not in SOAP format */}
               {!isSoap &&
                 <textarea
-                  onChange={(e) => { setPlainNoteInput(e.target.value) }} value={plainNoteInput}
+                  onChange={(e) => { setPlainNote(e.target.value) }} value={plainNote}
                   className="ml-4 min-h-25 case-form-textarea" />
               }
 
