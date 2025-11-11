@@ -1,18 +1,15 @@
 import { ArrowRight } from "lucide-react"
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const SubmitButton = ({ href, buttonText }: { href: string, buttonText: string }) => {
+const SubmitButton = ({ buttonText }: { buttonText: string }) => {
   return (
     <div className="flex flex-col gap-2 w-fit">
-      <Link href={href}>
-        <Button
-          className="w-full cursor-pointer"
-          variant={"default"}
-          type="submit" >
-          {buttonText} <ArrowRight />
-        </Button>
-      </Link>
+      <Button
+        className="w-full cursor-pointer"
+        variant={"default"}
+        type="submit" >
+        {buttonText} <ArrowRight />
+      </Button>
     </div>
   )
 }

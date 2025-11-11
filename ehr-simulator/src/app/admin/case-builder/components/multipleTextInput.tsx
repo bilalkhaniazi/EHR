@@ -87,10 +87,10 @@ function MultipleTextInput({ value = [], onChange, placeholder = "Add item...", 
       {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
 
       {/* Display a badge for each input */}
-      <div className="">
+      <div className="grid grid-cols-10 mt-2">
         {value.map((item: string, index: number) => (
-          <div className="flex mt-1 p-1 w-fit bg-accent rounded" key={index}>
-            {item}
+          <div className="flex p-1 w-fit bg-accent rounded gap-2" key={index}>
+            <span>{item}</span>
             <button className="cursor-pointer" type="button" onClick={() => removeItem(index)}>
               <X size={16} />
             </button>

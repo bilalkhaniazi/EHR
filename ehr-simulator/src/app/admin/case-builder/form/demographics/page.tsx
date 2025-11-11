@@ -5,47 +5,45 @@ import { Card } from "@/components/ui/card"
 
 import InfoTooltip from "../../components/helpTooltip";
 import SubmitButton from "../../components/submitButton";
+import { useRouter } from "next/navigation";
 
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
 
-  const formData = new FormData(e.target as HTMLFormElement);
-  const payload = Object.fromEntries(formData);
-  console.log(payload);
+const limits = {
+  minAge: 0,
+  maxAge: 120,
 
-  // Process data and save to patient object
-  // Move to next page of the form
-  // Backend shenanigans
+  minDay: 1,
+  maxDay: 31,
+
+  minKilograms: 0,
+  maxKilograms: 999,
+
+  minFeet: 0,
+  maxFeet: 8,
+
+  minInches: 0,
+  maxInches: 11,
 }
 
 const DemographicsForm = () => {
+  const router = useRouter()
 
-  const limits = {
-    minAge: 0,
-    maxAge: 120,
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    minDay: 1,
-    maxDay: 31,
-
-    minKilograms: 0,
-    maxKilograms: 999,
-
-    minFeet: 0,
-    maxFeet: 8,
-
-    minInches: 0,
-    maxInches: 11,
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+    router.push("/admin/case-builder/form/history")
   }
-
-  const [allergies, setAllergies] = useState<string[]>([]);
 
   return (
     <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
-      <Card className="h-fit">
+      <Card className="h-fit relative">
         <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
           <div className="w-full flex flex-col gap-3 p-2">
             {/* make sure inputs have the 'required' attribute if needed */}
-            <p className="m-2 mb-4 ml-0 text-2xl font-bold">Patient Demographics</p>
+            <p className="m-2  ml-0 text-2xl font-bold">Patient Demographics</p>
 
             <div className="flex">
               <label className="case-form-label" htmlFor="firstName">First Name: </label>
@@ -160,16 +158,10 @@ const DemographicsForm = () => {
               </select>
             </div>
 
-            <MultipleTextInput
-              labelText="Allergies:"
-              name="allergies"
-              value={allergies}
-              onChange={setAllergies}
-              placeholder="Allergy" />
             <br />
             <hr />
 
-            <p className="m-2 mb-4 ml-0 text-2xl font-bold">Admission Details</p>
+            <p className="m-2 ml-0 text-2xl font-bold">Admission Details</p>
 
             <div className="flex">
               <label htmlFor="admissionDateOffest" className="case-form-label">Duration of Inpatient Stay: </label>
@@ -183,7 +175,7 @@ const DemographicsForm = () => {
 
             <div className="flex">
               <label htmlFor="admissionTime" className="case-form-label">Time of Admission:</label>
-              <input defaultValue={"00:00"} className="w-25 border-1 pl-1 pr-1 rounded" name="admissionTime" id="admissionTime" type="time" />
+              <input defaultValue={"00:00"} className="w-26 border-1 pl-1 pr-1 rounded" name="admissionTime" id="admissionTime" type="time" />
             </div>
 
             <div className="flex">
@@ -208,7 +200,10 @@ const DemographicsForm = () => {
               &nbsp;&nbsp;
               <input name="attendingProviderName" id="attendingProviderName" placeholder="Name" className="case-form-input-text" type="text" />
             </div>
-            <SubmitButton href="/admin/case-builder/form/history" buttonText="Continue" />
+            <div className="absolute top-8 right-8">
+              <SubmitButton buttonText="Continue" />
+
+            </div>
           </div>
         </form>
       </Card>

@@ -20,6 +20,7 @@ import AddImagingReport from "@/app/admin/case-builder/form/labs/components/addI
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import SubmitButton from "../../components/submitButton";
+import { useRouter } from "next/navigation";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -981,6 +982,7 @@ export function LabPage() {
 
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [comboboxValue, setComboboxValue] = useState<string>("");
+  const router = useRouter()
 
   // Get all hideable options
   const hideableOptions = useMemo(() => {
@@ -1011,13 +1013,13 @@ export function LabPage() {
     }
   };
 
-  const handleRemoveVisibleItem = (fieldName: string) => {
-    setVisibleItems(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(fieldName);
-      return newSet;
-    });
-  };
+  // const handleRemoveVisibleItem = (fieldName: string) => {
+  //   setVisibleItems(prev => {
+  //     const newSet = new Set(prev);
+  //     newSet.delete(fieldName);
+  //     return newSet;
+  //   });
+  // };
 
 
 
@@ -1037,6 +1039,7 @@ export function LabPage() {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
+    router.push('/admin/case-builder/form/')
   }
 
   useEffect(() => {
@@ -1287,7 +1290,7 @@ export function LabPage() {
     <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 gap-2 ">
       <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
         <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
-        <SubmitButton href="/admin/case-builder/form/" buttonText="Continue" />
+        <SubmitButton buttonText="Continue" />
       </form>
       <div className="w-full space-y-2">
         <h1 className="text-3xl">Labs</h1>
