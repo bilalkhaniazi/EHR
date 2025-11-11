@@ -192,7 +192,7 @@ const OrdersForm = () => {
                 Add Order to Case +
               </button>
 
-              <SubmitButton href="/admin/case-builder/new/labs" buttonText="Continue" />
+              <SubmitButton href="/admin/case-builder/form/labs" buttonText="Continue" />
 
             </div>
           </form>
