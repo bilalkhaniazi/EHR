@@ -2,9 +2,7 @@ interface BaseNote {
     title: string;
     author: string;
     specialty: string;
-    dateOffset: number;
-    hospitalDay: string;
-    publishTime: string;
+    timeOffset: number; // minutes
 }
 
 interface SoapNoteData {
@@ -28,9 +26,7 @@ export const sampleNotes: NoteData[] = [
         title: "Progress Note",
         author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 1, // Hospital Day 3 (July 18) - Current Day
-        publishTime: "0900", // Matches the initial order time for the "current" day
-        hospitalDay: "3",
+        timeOffset: 60,
 
         body: {
             subjective: 'Patient continues to report improvement in energy and overall well-being. Foot numbness persists. Right great toe ulcer has no new pain. Patient verbalizes understanding of diabetes management and wound care principles.',
@@ -43,9 +39,7 @@ export const sampleNotes: NoteData[] = [
         title: "Nursing Note",
         author: "Samantha Bell, RN BSN",
         specialty: "Nursing",
-        dateOffset: 0,
-        publishTime: "0800",
-        hospitalDay: "3",
+        timeOffset: (1 * 24 * 60) + (2 * 60) + 45, // 1 day, 2 hours, 45 minutes in minutes
 
         text: "Morning shift: Patient awoke alert and oriented. Vital signs stable, within parameters. BG at 07:00 was 155 mg/dL, administered insulin lispro per sliding scale. Assisted with full bed bath and linen change. Right great toe dressing changed, wound site clean and dry, no foul odor noted. Patient states 'my foot feels a bit better today.' Reinforcement of foot care education provided. Discussed importance of wearing hospital non-skid socks for fall prevention. Tolerated breakfast well."
     },
@@ -54,9 +48,7 @@ export const sampleNotes: NoteData[] = [
         title: "Consult Note",
         author: "Dr. Lena Khan, DPM",
         specialty: "Podiatry",
-        dateOffset: 3,
-        publishTime: "1400",
-        hospitalDay: "2",
+        timeOffset: (0 * 24 * 60) + (1 * 60) + 15, // 0 days, 1 hour, 15 minutes in minutes
         body: {
             objective: 'Right great toe ulcer re-assessed. Size unchanged (2x2 cm). Surrounding erythema appears diminished compared to yesterday. No new signs of active infection (no increased drainage, odor, or pain). Wound base remains clean and granulating. Performed sharp debridement of peri-wound callus. Reinforced importance of offloading to patient. Discussed potential for specialized diabetic shoes upon discharge with Case Management. Intervention: Sharp debridement, wound cleansing, offloading reinforcement.',
             assessment: "Right great toe diabetic foot ulcer, improving.",
@@ -67,9 +59,7 @@ export const sampleNotes: NoteData[] = [
         title: "Progress Note",
         author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 1,
-        publishTime: "1100",
-        hospitalDay: "2",
+        timeOffset: (4 * 24 * 60) + (3 * 60) + 20, // 4 day, 3 hours, 20 minutes in minutes
         body: {
             subjective: 'Patient reports decreased fatigue, improved energy. Numbness in feet remains unchanged. Right great toe ulcer without new pain. Reports good appetite today, tolerating diabetic diet. No fever or chills.',
             objective: "Vitals (10:00): Temp: 36.8°C, HR: 80 bpm, BP: 130/78 mmHg, RR: 16/min, SpO₂: 97% RA. Physical Exam: Right great toe ulcer: mild erythema, no purulent drainage. Clean base. Distal pulses strong. Left foot: no changes. Lungs clear. Heart RRR. Labs (09:00): BMP stable. HbA1c returned at 9.8% (confirming poor glycemic control).",
@@ -81,9 +71,7 @@ export const sampleNotes: NoteData[] = [
         title: "Nursing Note",
         author: "Chris Johnson, RN",
         specialty: "Nursing",
-        dateOffset: 1,
-        publishTime: "0730",
-        hospitalDay: "2",
+        timeOffset: (1 * 24 * 60) + (0 * 60) + 0, // 1 day, 0 hours, 0 minutes in minutes
 
         text: "Overnight: Patient rested well. Vital signs stable, within parameters. BG at 06:00 was 188 mg/dL, administered insulin lispro per sliding scale. Assisted with morning hygiene and partial bed bath. Patient ambulated to bathroom with 1-person assist. Wound dressing dry and intact. No new complaints of pain or dyspnea. Patient states he is 'feeling a bit better.' Continues to verbalize understanding of MRSA precautions and call light use. Pain: 2/10 (managed with Gabapentin) Activity: Ambulated with 1-person assist."
     },
@@ -91,9 +79,8 @@ export const sampleNotes: NoteData[] = [
         title: "Consult Note",
         author: "Dr. Lena Khan, DPM",
         specialty: "Podiatry",
-        dateOffset: 2,
-        publishTime: "1500",
-        hospitalDay: "1",
+        timeOffset: (0 * 24 * 60) + (5 * 60) + 30, // 0 days, 5 hours, 30 minutes in minutes
+
 
         body: {
             subjective: 'Patient reports chronic foot numbness. Ulcer present for approx. 1 week, gradual onset of redness. Denies purulent drainage at home. Reports difficulty checking foot due to limited mobility. Primary concern is healing and preventing further complications.',
@@ -106,9 +93,7 @@ export const sampleNotes: NoteData[] = [
         title: "Nursing Note",
         author: "Maria Sanchez, RN BSN",
         specialty: "Nursing",
-        dateOffset: 2,
-        publishTime: "1130",
-        hospitalDay: "1",
+        timeOffset: (7 * 24 * 60) + (6 * 60) + 15, // 7 days, 6 hours, 15 minutes in minutes
 
         text: "Patient admitted from ED with right great toe ulcer. Contact precautions initiated per orders. Oriented to room, call light, and precautions. Initial vital signs stable. BG 275 mg/dL, administered insulin lispro per sliding scale. Assisted patient with changing into hospital gown. Discussed basic foot safety and call light use. Patient expressed understanding of most instructions. Daughter contacted and updated on admission. Wound dressing observed: clean, dry, intact post-ED application. Pain: 3/10 (neuropathic baseline) Activity: Assisted with ambulation to bathroom, steady with help."
     },
@@ -116,9 +101,8 @@ export const sampleNotes: NoteData[] = [
         title: "Admission Note",
         author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 2,
-        publishTime: "1000",
-        hospitalDay: "1",
+        timeOffset: (4 * 24 * 60) + (12 * 60) + 0, // 4 days, 12 hours, 0 minutes in minutes
+
 
         body: {
             subjective: '60-year-old male with PMH of T2DM, HTN, peripheral neuropathy. Presents with non-healing right great toe ulcer over past week, associated with increasing redness. Reports feeling fatigued and bilateral foot numbness. Admits to inconsistent insulin use (missed doses for last 3 days). Denies fever, chills, or new pain in foot, but states baseline neuropathic pain is present. Reports poor dietary adherence, eating prepackaged foods.',

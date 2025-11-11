@@ -3,8 +3,9 @@
 import * as React from "react";
 import { useEffect } from "react";
 import CaseListItem from "./CaseListItem";
-import { getAllCases } from "@/actions/cases";
+import { getAllSimCases } from "@/actions/cases";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type SimCase = {
   id: string;
@@ -25,7 +26,7 @@ async function getCases(): Promise<SimCase[]> {
 }
 
 export default function CasesPage() {
-  const [cases, setCases] = React.useState<Case[]>([]);
+  const [cases, setCases] = React.useState<SimCase[]>([]);
 
   useEffect(() => {
     getCases().then((cases) => {
@@ -37,7 +38,9 @@ export default function CasesPage() {
     <div className="pl-2">
       <h1 className="container mx-auto pt-10 text-4xl font-bold">CASES</h1>
       {cases.map((simCase) => <CaseListItem key={simCase.id} simCase={simCase} />)}
-      <Button>Create New Case</Button>
+      <Link href={"/admin/case-builder"} >
+        <Button className="cursor-pointer">Create New Case</Button>
+      </Link>
     </div>
   );
 }

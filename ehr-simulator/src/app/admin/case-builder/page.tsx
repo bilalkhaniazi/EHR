@@ -4,11 +4,20 @@ import Link from "next/link"
 const CaseBuilder = () => {
   return (
     <>
-      <Link href={"/admin/case-builder/demographics"}>
-        <button className="border">
-          New Case From Scratch
-        </button>
-      </Link>
+      <div className="flex flex-col m-16 gap-4">
+        <Link href={"/admin/case-builder/new/demographics"}>
+          <button className="p-1 border rounded cursor-pointer">
+            New Case
+          </button>
+        </Link>
+
+        <Link href={"/admin/case-builder/new/demographics"}>
+          <button className="p-1 border rounded cursor-pointer">
+            Edit Case
+          </button>
+        </Link>
+
+      </div>
     </>
   )
 }
