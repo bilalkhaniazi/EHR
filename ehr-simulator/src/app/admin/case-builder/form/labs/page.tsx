@@ -1039,7 +1039,7 @@ export function LabPage() {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    router.push('/admin/case-builder/form/')
+    router.push('/admin/case-builder/form/charting')
   }
 
   useEffect(() => {

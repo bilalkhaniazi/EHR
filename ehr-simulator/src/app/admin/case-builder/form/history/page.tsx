@@ -41,7 +41,6 @@ const HistoryForm = () => {
               <MultipleTextInput labelText="Allergies:" name="allergies" value={allergies} onChange={setAllergies} placeholder="Allergy" />
               <MultipleTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
               <MultipleTextInput labelText="Social History:" name="socialHistory" value={socialHistory} onChange={setSocialHistory} />
-              <MultipleTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
             </div>
 
           </div>
