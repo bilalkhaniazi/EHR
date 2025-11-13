@@ -3,6 +3,7 @@
 import { ImagingData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import { Button } from "@/components/ui/button";
 import Combobox from "@/components/ui/combobox";
+import { DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea";
@@ -165,57 +166,60 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
 
 
   return (
-    <div className="w-full p-4 space-y-4">
-      <h1 className="text-4xl">Imaging</h1>
-      {/* <div>
-        <Label>Imaging Type</Label>
-        <Combobox onValueChange={setImagingType} value={imagingType} displayText="Select imaging" data={imagingOptions}></Combobox>
-      </div> */}
-      <div>
-        <Label className="mb-1" htmlFor="technique">Technique</Label>
-        <Textarea id='technique' value={technique} onChange={(e) => setTechnique(e.target.value)} />
+    <DialogContent className="flex flex-col sm:max-w-150 lg:max-w-none w-250 h-full max-h-9/10 overflow-hidden">
+      <h1 className="text-3xl tracking-tight font-semibold pb-2">
+        {isEditMode ? "Edit Imaging" : "Imaging"}
+      </h1>
+      <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16">
+        {isEditMode ? 'Update Imaging' : 'Add Imaging'}
+      </Button>
+      <div className="flex-1 flex flex-col w-full overflow-y-auto space-y-4 p-4 border rounded-lg">
+        <div>
+          <Label className="mb-1" htmlFor="technique">Technique</Label>
+          <Textarea id='technique' value={technique} onChange={(e) => setTechnique(e.target.value)} />
+        </div>
+
+        <fieldset className="border px-4 py-2 rounded w-full space-y-4">
+          <legend>Findings</legend>
+          <div>
+            <Label>Body Region</Label>
+            <Input onChange={(e) => setRegion(e.target.value)} value={region} className="w-60 mt-1" />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input onChange={(e) => setDescription(e.target.value)} value={description} className="mt-1" />
+          </div>
+          <Button onClick={handleAddFinding}>Add Finding</Button>
+
+          <div>
+            {findings.map((finding, index) =>
+              <div key={index} className="flex gap-3">
+                <p key={index}>{finding.region}: {finding.description}</p>
+                <Button onClick={() => handleRemoveFinding(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
+              </div>
+            )}
+          </div>
+        </fieldset >
+
+        <fieldset className="border px-4 py-2 rounded w-full space-y-4">
+          <legend>Impressions</legend>
+          <Label className="mb-1" htmlFor="impressions">Description</Label>
+          <Textarea value={impression} onChange={(e) => setImpression(e.target.value)} id="impressons" />
+          <Button onClick={handleAddImpression}>
+            <p>Add Impression</p>
+          </Button>
+          <div>
+            {impressions.map((item, index) =>
+              <div key={index} className="flex gap-3">
+                <p>{item}</p>
+                <Button onClick={() => handleRemoveImpression(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
+              </div>
+            )}
+          </div>
+        </fieldset>
       </div>
 
-      <fieldset className="border px-4 py-2 rounded w-full space-y-4">
-        <legend>Findings</legend>
-        <div>
-          <Label>Body Region</Label>
-          <Input onChange={(e) => setRegion(e.target.value)} value={region} className="w-60 mt-1" />
-        </div>
-        <div>
-          <Label>Description</Label>
-          <Input onChange={(e) => setDescription(e.target.value)} value={description} className="mt-1" />
-        </div>
-        <Button onClick={handleAddFinding}>Add Finding</Button>
-
-        <div>
-          {findings.map((finding, index) =>
-            <div key={index} className="flex gap-3">
-              <p key={index}>{finding.region}: {finding.description}</p>
-              <Button onClick={() => handleRemoveFinding(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
-            </div>
-          )}
-        </div>
-      </fieldset >
-
-      <fieldset className="border px-4 py-2 rounded w-full space-y-4">
-        <legend>Impressions</legend>
-        <Label className="mb-1" htmlFor="impressions">Description</Label>
-        <Textarea value={impression} onChange={(e) => setImpression(e.target.value)} id="impressons" />
-        <Button onClick={handleAddImpression}>
-          <p>Add Impression</p>
-        </Button>
-        <div>
-          {impressions.map((item, index) =>
-            <div key={index} className="flex gap-3">
-              <p>{item}</p>
-              <Button onClick={() => handleRemoveImpression(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
-            </div>
-          )}
-        </div>
-      </fieldset>
-      <Button onClick={handleSubmit} disabled={!isSubmittable}>Submit Imaging</Button>
-    </div>
+    </DialogContent>
   )
 }
 

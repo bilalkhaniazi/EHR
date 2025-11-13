@@ -1,6 +1,6 @@
 'use client'
 
-import { 
+import {
   Dialog,
   DialogContent,
   DialogTrigger,
@@ -26,7 +26,7 @@ interface MedAdministrationProps {
   selectedMedIds: string[];
   allOrders: MedicationOrder[];
   administrationsLookup: { [key: string]: MedAdministrationInstance[] };
-  medicationLookup: {[key: string] : AllMedicationTypes};
+  medicationLookup: { [key: string]: AllMedicationTypes };
   sessionStartTime: number;
   realWorldTime: Date
 }
@@ -49,7 +49,7 @@ const MedAdministrationPanel = ({
   console.log(newAdministrations)
 
   const hasSelections = selectedMedIds.length > 0;
-  
+
   const selectedMedOrders = allOrders.filter(order => {
     if (selectedMedIds.includes(order.id)) {
       return order
@@ -57,7 +57,7 @@ const MedAdministrationPanel = ({
   })
 
 
-  const [submitNewAdministrations, {isLoading}] = useSubmitNewAdministrationsMutation();
+  const [submitNewAdministrations, { isLoading }] = useSubmitNewAdministrationsMutation();
 
   // sending the new medAdministrationInstance to the backend
   const handleSubmit = async () => {
@@ -76,7 +76,7 @@ const MedAdministrationPanel = ({
     });
 
     try {
-      await submitNewAdministrations({administrations: payload}).unwrap();    // dummy rtk query updating marSlice administrations array for testing
+      await submitNewAdministrations({ administrations: payload }).unwrap();    // dummy rtk query updating marSlice administrations array for testing
       dispatch(clearNewAdminstrations());
       setIsOpen(false);
       dispatch(clearSelectedMedications())
@@ -86,17 +86,17 @@ const MedAdministrationPanel = ({
       console.error("Failed to save administrations", err);
     }
   };
-  
+
   return (
-    <Dialog 
+    <Dialog
       open={isOpen}
       onOpenChange={setIsOpen}
     >
       <DialogTitle></DialogTitle>
       <div className="flex w-full justify-end px-4">
         <DialogTrigger asChild>
-          <Button 
-            onClick={() => setIsOpen(true)} 
+          <Button
+            onClick={() => setIsOpen(true)}
             className="w-fit h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
             disabled={!hasSelections}
           >
@@ -115,12 +115,12 @@ const MedAdministrationPanel = ({
             ) : (
               <p className="text-red-800 bg-red-200/50 py-1 px-2 rounded-xl">Patient Not Scanned</p>
             )}
-            <Button 
+            <Button
               className="w-fit h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
               onClick={() => setIsScanned(true)}
               disabled={isScanned}
             >Scan patient
-            </Button>  
+            </Button>
           </div>
 
         </div>

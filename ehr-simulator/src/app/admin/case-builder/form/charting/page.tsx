@@ -1058,7 +1058,7 @@ export function LabPage() {
   const [timePoints, setTimePoints] = useState<number[]>([180, 60, 30])
 
   // const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
-  const [comboboxValue, setComboboxValue] = useState<string>("");
+  // const [comboboxValue, setComboboxValue] = useState<string>("");
   const router = useRouter()
 
   // Get all hideable options
@@ -1116,7 +1116,7 @@ export function LabPage() {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    router.push('/admin/case-builder/form/')
+    router.push('/admin/case-builder/form/medications')
   }
 
   useEffect(() => {
@@ -1390,8 +1390,8 @@ export function LabPage() {
         <input name='chartData' type='hidden' value={JSON.stringify(chartingData)} />
         <SubmitButton buttonText="Continue" />
       </form>
-      <div className="w-full space-y-2">
-        <h1 className="text-3xl">FlexSheet Data</h1>
+      <div className="w-full space-y-6">
+        <h1 className="text-3xl font-medium">FlexSheet Data</h1>
         <div className="flex gap-8 items-end">
           <AddLabColumn handleColumnAdd={handleAddColumn} />
           {/* <div>

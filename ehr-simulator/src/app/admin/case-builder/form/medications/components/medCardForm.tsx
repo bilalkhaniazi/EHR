@@ -1,0 +1,213 @@
+import { format } from "date-fns";
+import { medActionSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
+import MedAdminCardSelector from "@/app/simulation/[sessionId]/chart/mar/components/medAdminCardSelector";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { renderMedTitleRow, renderMedCardDetails, isSlidingScaleInsulin } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { renderMedFormDetails, renderMedFormTitle } from "./medFormHelpers";
+import { X } from "lucide-react";
+
+const medicationFrequencies = [
+  // --- Time-based Frequencies (Scheduled Doses) ---
+  { value: 'QD', label: 'QD (Once Daily)' },
+  { value: 'BID', label: 'BID (Twice Daily)' },
+  { value: 'TID', label: 'TID (Three Times Daily)' },
+  { value: 'QID', label: 'QID (Four Times Daily)' },
+  { value: 'Q1H', label: 'Q1H (Every 1 Hours)' },
+  { value: 'Q2H', label: 'Q2H (Every 2 Hours)' },
+  { value: 'Q3H', label: 'Q3H (Every 3 Hours)' },
+  { value: 'Q4H', label: 'Q4H (Every 4 Hours)' },
+  { value: 'Q6H', label: 'Q6H (Every 6 Hours)' },
+  { value: 'Q8H', label: 'Q8H (Every 8 Hours)' },
+  { value: 'Q12H', label: 'Q12H (Every 12 Hours)' },
+  { value: 'Q24H', label: 'Q24H (Every 24 Hours)' },
+  { value: 'PRN', label: 'PRN (As Needed)' },
+  { value: 'NOW', label: 'NOW (Within 90 Minutes)' },
+  { value: 'ACHS', label: 'ACHS' },
+  { value: 'DAILY', label: 'Daily (Every Day)' },
+  { value: 'ONCE', label: 'Once (Single Dose)' },
+  { value: 'CONTINUOUS', label: 'Continuous Infusion (For IV drips)' }
+];
+
+interface MedAdminCardProps {
+  medication: AllMedicationTypes;
+  handleMedicationRemoval: (index: number) => void;
+  index: number;
+  orderData: Partial<MedicationOrder>; // Data comes from parent
+  onOrderChange: (index: number, field: keyof MedicationOrder, value: any) => void;
+}
+
+// helper function to get the last few times the med was given
+const getPreviousAdministrations = (administrations: MedAdministrationInstance[], prevAdmins: number) => {
+  if (!administrations || administrations.length === 0) {
+    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance];
+  }
+  const filteredAdmins = administrations.filter(admin => admin.status === "Given")
+
+  if (filteredAdmins.length === 0) {
+    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
+  }
+  filteredAdmins.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
+  return filteredAdmins.slice(-prevAdmins)
+}
+
+
+
+
+const MedCardForm = ({
+  medication,
+  handleMedicationRemoval,
+  index,
+  orderData,
+  onOrderChange
+}: MedAdminCardProps) => {
+
+  type MedAdminStatus = MedAdministrationInstance["status"];
+  const getStatusColor = (status: MedAdminStatus) => {
+    const colorMap = {
+      Given: "bg-lime-200 text-lime-800",
+      Missed: "bg-red-200 text-red-800",
+      Held: "bg-yellow-200 text-yellow-800",
+      Due: "bg-blue-200 text-blue-800",
+      Refused: "bg-gray-300 text-gray-800",
+    };
+    return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
+  };
+
+  const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
+
+  return (
+    <div className="border bg-gray-50 rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative">
+      <button onClick={() => handleMedicationRemoval(index)} className="absolute top-2 right-2">
+        <X size={18} />
+      </button>
+      <div className="grid grid-cols-2">
+        <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
+          <div className="space-y-1">
+            {renderMedFormTitle(medication)}
+            <div className="text-xs tracking-tight pb-2 text-gray-500">
+              {renderMedFormDetails(medication, orderData)}
+            </div>
+          </div>
+
+          <div>
+            <div className="">
+              <h2 className="font-light">Administration Instructions:</h2>
+              <Textarea
+                value={orderData.instructions || ''}
+                onChange={(e) => onOrderChange(index, 'instructions', e.target.value)}
+                className="min-h-20 bg-white"
+              />
+            </div>
+          </div>
+
+          {(isSlidingScaleInsulinMed) && (
+            <div className="overflow-hidden rounded-lg border w-fit">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-2 py-1 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      BG Range (mg/dL)
+                    </th>
+                    <th scope="col" className="px-2 py-1 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Correction Units
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {medication.bgDosing.map((dose, index) => (
+                    <tr key={`${index}-${medication.id}`} className={index % 2 === 0 ? '' : 'bg-gray-50'}>
+                      <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.bgRange}</td>
+                      <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.units}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
+        <div className="grid grid-cols-2 py-4 px-2 gap-x-2 gap-y-4">
+          <div className="w-full space-y-1">
+            <Label>Dose</Label>
+            <div className="flex items-end">
+              <Input
+                onChange={(e) => onOrderChange(index, 'unitsOrdered', e.target.value)}
+                value={orderData.unitsOrdered || ''}
+                className="text-sm bg-white w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
+              />
+              <div className="h-9 bg-white border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
+                <p className="text-sm">{medication.orderableUnit}</p>
+              </div>
+            </div>
+          </div>
+          {medication.route === "IV" &&
+            <div className="w-full space-y-1">
+              <Label>Rate</Label>
+              <div className="flex items-end">
+                <Input
+                  onChange={(e) => onOrderChange(index, 'infusionRate', e.target.value)}
+                  value={orderData.infusionRate || ''}
+                  className="text-sm w-16 border bg-white px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
+                />
+                <div className="h-9 bg-white border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
+                  <p className="text-sm ">{medication.infusionRateUnit}</p>
+                </div>
+              </div>
+            </div>
+          }
+          <div className="w-full space-y-1">
+            <Label htmlFor={`Priority-${index}`}>Priority</Label>
+            <select
+              id={`Priority-${index}`}
+              className="border border-gray-200 bg-white h-9 rounded-md px-2 shadow-xs w-full text-xs"
+              value={orderData.priority || ''}
+              onChange={(e) => onOrderChange(index, 'priority', e.target.value as MedicationOrder['priority'])}
+            >
+              <option hidden disabled value=''>Select priority</option>
+              <option value="STAT">STAT</option>
+              <option value="NOW">NOW</option>
+              <option value="Routine">Routine</option>
+            </select>
+          </div>
+          <div className="w-full space-y-1">
+            <Label htmlFor={`Frequency-${index}`}>Frequency</Label>
+            <select
+              id={`Frequency-${index}`}
+              className="border border-gray-200 h-9 bg-white rounded-md px-2 shadow-xs w-full text-xs"
+              value={orderData.frequency || ''}
+              onChange={(e) => onOrderChange(index, 'frequency', e.target.value)}
+            >
+              <option hidden disabled value=''>Select frequency</option>
+              {
+                medicationFrequencies.map(item =>
+                  <option key={`${item.value}-${medication.id}`} value={item.value}>{item.label}</option>
+                )
+              }
+            </select>
+          </div>
+          <div className="w-full space-y-1">
+            <Label>Indication</Label>
+            <Input
+              value={orderData.indication || ''}
+              onChange={(e) => onOrderChange(index, 'indication', e.target.value)}
+              className="bg-white sm:text-xs md:text-xs"
+            />
+          </div>
+          <div className="w-full space-y-1">
+            <Label>Ordering Provider</Label>
+            <Input
+              value={orderData.orderingProvider || ''}
+              onChange={(e) => onOrderChange(index, 'orderingProvider', e.target.value)}
+              className="bg-white sm:text-xs md:text-xs"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default MedCardForm

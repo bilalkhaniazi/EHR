@@ -1187,13 +1187,11 @@ export function LabPage() {
                           <button type='button' className="w-full h-6"></button>
                         )}
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-150 lg:max-w-none w-250">
-                        <AddImagingReport
-                          imagingType={row.original.field}
-                          initialData={isImageEditMode ? imagingReport : undefined}
-                          handleAddImagingReport={handleAddorEditImageReport}
-                        />
-                      </DialogContent>
+                      <AddImagingReport
+                        imagingType={row.original.field}
+                        initialData={isImageEditMode ? imagingReport : undefined}
+                        handleAddImagingReport={handleAddorEditImageReport}
+                      />
                     </Dialog>
                   )
                 case 'microbiology':
@@ -1218,7 +1216,7 @@ export function LabPage() {
                           <button type='button' className="w-full h-6"></button>
                         )}
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-150 lg:max-w-none w-250">
+                      <DialogContent className="sm:max-w-150 lg:max-w-none w-250 ">
                         <AddMicrobiologyReport
                           handleAddMicrobiologyReport={handleAddorEditReport}
                           initialData={isEditMode ? microbiologyReport : undefined}
@@ -1292,9 +1290,9 @@ export function LabPage() {
         <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
         <SubmitButton buttonText="Continue" />
       </form>
-      <div className="w-full space-y-2">
-        <h1 className="text-3xl">Labs</h1>
-        <div className="flex gap-8 items-end">
+      <div className="w-full">
+        <h1 className="text-3xl font-medium">Labs</h1>
+        <div className="flex gap-24 items-end">
           <AddLabColumn handleColumnAdd={handleAddColumn} />
           <div>
             <Label>Imaging Options</Label>
