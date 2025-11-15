@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react";
 import MultipleTextInput from "../../components/multipleTextInput";
+import { MultipleSelect } from "../../components/multipleSelect";
 import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ const HistoryForm = () => {
   const [socialHistory, setSocialHistory] = useState<string[]>([]);
   const [livingSituation, setLivingSituation] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
+  const [alerts, setAlerts] = useState<string[]>([]);
 
   const router = useRouter()
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -22,8 +24,65 @@ const HistoryForm = () => {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    router.push("/admin/case-builder/form/notes")
+    // router.push("/admin/case-builder/form/notes")
   }
+
+  const nursingAlerts = [
+    "Seizure Risk",
+    "Aspiration Risk",
+    "Bleeding Precautions",
+    "Infection / Isolation Precautions",
+    "NPO Status",
+    "Suicide / Self-Harm Risk",
+    "Violence / Aggression Risk",
+    "Elopement Risk",
+    "Restraint in Use / Restraint Order Active",
+    "Sitter Required / Continuous Observation",
+    "Hearing Impaired",
+    "Vision Impaired",
+    "Infection Control Flag (MDRO, MRSA, VRE, C. diff)",
+    "High Fall Risk",
+    "Bed / Chair Alarm On",
+    "Requires Assist x2 for Mobility",
+    "Uses Walker / Cane / Wheelchair",
+    "Orthostatic Hypotension Risk",
+    "Recent Surgery / Mobility Restriction",
+    "Unsteady Gait",
+    "Confused / Impulsive Behavior",
+    "Call Light Within Reach Reminder",
+    "Non-Weight Bearing Limb (R/L)",
+    "Padded Side Rails in Place",
+    "Suction and Oxygen Available at Bedside",
+    "IV Access Maintained",
+    "Stroke Risk / History of CVA",
+    "Delirium / Cognitive Impairment Risk",
+    "Head Injury Precautions",
+    "Neurological Checks Ordered",
+    "Increased Intracranial Pressure (ICP) Precautions",
+    "IV Line / Central Line / PICC in Place",
+    "Urinary Catheter in Place (CAUTI Risk)",
+    "Tracheostomy / Airway Precautions",
+    "Feeding Tube (NG/PEG) Precautions",
+    "Wound Vac / Surgical Drain in Place",
+    "Chest Tube Precautions",
+    "Pacemaker / ICD Precautions",
+    "Anticoagulant Therapy - Bleeding Precautions",
+    "Diabetes - Hypoglycemia Risk",
+    "Oxygen Therapy in Use",
+    "Fluid Restriction / Sodium Restriction",
+    "Pressure Injury Risk (Braden <18)",
+    "Dialysis Access - No BP/IV on This Arm",
+    "Immunocompromised Precautions",
+    "Chemotherapy Precautions / Cytotoxic Drugs",
+    "Postoperative / Fresh Surgical Site Precautions",
+    "Advanced Directive on File",
+    "Power of Attorney / Guardian",
+    "Interpreter Required for Care",
+    "Court-Ordered Observation / Police Hold",
+    "Do Not Use Right Arm for Blood Draws",
+    "Pediatric Safety Flag",
+    "Geriatric Safety Flag"
+  ];
 
   return (
     <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
@@ -42,6 +101,10 @@ const HistoryForm = () => {
               <MultipleTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
               <MultipleTextInput labelText="Social History:" name="socialHistory" value={socialHistory} onChange={setSocialHistory} />
               <MultipleTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
+
+
+              <MultipleSelect labelText="Alerts:" name="alerts" value={alerts} onChange={setAlerts} options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
+
             </div>
 
           </div>

@@ -65,7 +65,7 @@ function MultipleTextInput({ value = [], onChange, placeholder = "Add item...", 
 
   return (
     <div>
-      <label className="case-form-label" htmlFor={name}>{labelText}</label>
+      <label className="case-form-label">{labelText}</label>
       <input
         className="case-form-input-text"
         type="text"

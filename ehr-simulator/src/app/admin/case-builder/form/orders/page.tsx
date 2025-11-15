@@ -29,43 +29,43 @@ const OrdersForm = () => {
   const [orders, setOrders] = useState<object[]>([]);
   const [canAddOrder, setCanAddOrder] = useState<boolean>(false);
 
-  const [categoryInput, setCategoryInput] = useState("");
-  const [titleInput, setTitleInput] = useState("");
-  const [detailsInput, setDetailsInput] = useState("");
-  const [statusInput, setStatusInput] = useState("");
-  const [providerInput, setProviderInput] = useState("");
-  const [importanceInput, setImportanceInput] = useState(false)
+  const [category, setCategory] = useState("");
+  const [title, setTitle] = useState("");
+  const [details, setDetails] = useState("");
+  const [status, setStatus] = useState("");
+  const [provider, setProvider] = useState("");
+  const [importance, setImportance] = useState(false)
 
   useEffect(() => {
     // Check if all required fields are filled (importance is optional)
     setCanAddOrder([
-      categoryInput,
-      titleInput,
-      detailsInput,
-      statusInput,
-      providerInput
+      category,
+      title,
+      details,
+      status,
+      provider
     ].every(inputField => (inputField.trim() !== "")));
-  }, [categoryInput, titleInput, detailsInput, statusInput, providerInput]);
+  }, [category, title, details, status, provider]);
 
-  function clearInputs() {
-    setCategoryInput("")
-    setTitleInput("")
-    setDetailsInput("")
-    setStatusInput("")
-    setProviderInput("")
-    setImportanceInput(false)
+  function clears() {
+    setCategory("")
+    setTitle("")
+    setDetails("")
+    setStatus("")
+    setProvider("")
+    setImportance(false)
   }
 
   function createOrder() {
     setOrders([...orders, {
-      category: categoryInput,
-      title: titleInput,
-      details: detailsInput,
-      status: statusInput,
-      provider: providerInput,
-      important: importanceInput
+      category: category,
+      title: title,
+      details: details,
+      status: status,
+      provider: provider,
+      important: importance
     }])
-    clearInputs();
+    clears();
   }
 
   function removeOrder(index: number) {
@@ -124,9 +124,9 @@ const OrdersForm = () => {
                 <div className="flex">
                   <label htmlFor="" className="case-form-label">Category:</label>
                   <select
-                    value={categoryInput}
+                    value={category}
                     className="case-form-select"
-                    onChange={(e) => setCategoryInput(e.target.value)}
+                    onChange={(e) => setCategory(e.target.value)}
                   >
                     <option value="" hidden disabled>Select</option>
                     <option value="Nursing">Nursing</option>
@@ -138,8 +138,8 @@ const OrdersForm = () => {
                 <div className="flex flex-col">
                   <label className="case-form-label">Title:</label>
                   <input
-                    value={titleInput}
-                    onChange={(e) => setTitleInput(e.target.value)}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     type="text"
                     className="case-form-input-text"
                   />
@@ -148,8 +148,8 @@ const OrdersForm = () => {
                 <div className="flex flex-col">
                   <label className="case-form-label">Details:</label>
                   <textarea
-                    value={detailsInput}
-                    onChange={(e) => setDetailsInput(e.target.value)}
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
                     className="case-form-textarea"
                   ></textarea>
                 </div>
@@ -157,8 +157,8 @@ const OrdersForm = () => {
                 <div className="flex">
                   <label className="case-form-label">Status:</label>
                   <select
-                    value={statusInput}
-                    onChange={(e) => setStatusInput(e.target.value)}
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
                     className="case-form-select"
                   >
                     <option value="" disabled hidden>Select</option>
@@ -170,8 +170,8 @@ const OrdersForm = () => {
                 <div className="flex flex-col">
                   <label className="case-form-label">Provider:</label>
                   <input
-                    value={providerInput}
-                    onChange={(e) => setProviderInput(e.target.value)}
+                    value={provider}
+                    onChange={(e) => setProvider(e.target.value)}
                     type="text"
                     className="case-form-input-text"
                   />
@@ -179,7 +179,7 @@ const OrdersForm = () => {
 
                 <div className="">
                   <label className="case-form-label">Mark as Important:</label>
-                  <input type="checkbox" checked={importanceInput} onChange={(e) => setImportanceInput(e.target.checked)} />
+                  <input type="checkbox" checked={importance} onChange={(e) => setImportance(e.target.checked)} />
                 </div>
               </div>
 
@@ -192,7 +192,7 @@ const OrdersForm = () => {
                 Add Order to Case +
               </button>
 
-              <SubmitButton href="/admin/case-builder/form/labs" buttonText="Continue" />
+              <SubmitButton buttonText="Continue" />
 
             </div>
           </form>
