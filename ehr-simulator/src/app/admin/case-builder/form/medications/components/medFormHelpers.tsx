@@ -1,28 +1,9 @@
-import type { AllMedicationTypes, InsulinMedication, MedicationOrder } from "./marData";
-import { Separator } from "@/components/ui/separator";
+import { AllMedicationTypes, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
+import { isSlidingScaleInsulin, pluralize } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers"
+import { Separator } from "@/components/ui/separator"
 
-export const pluralize = (unitsOrdered: number, unitName: string) => {
-  return unitsOrdered > 1 ? unitName + 's' : unitName
-};
+export const renderMedFormTitle = (medication: AllMedicationTypes) => {
 
-export const isSlidingScaleInsulin = (medication: AllMedicationTypes): medication is InsulinMedication => {
-  return (
-    medication.route === "SC" &&
-    'bgDosing' in medication &&
-    Array.isArray(medication.bgDosing) &&
-    medication.bgDosing.length > 0
-  );
-};
-
-export function getMedDose(medication: AllMedicationTypes, order: MedicationOrder) {
-  if (isSlidingScaleInsulin(medication)) {
-    return "Variable"
-  } else {
-    return `${medication.strength * order.unitsOrdered}${medication.strengthUnit}`
-  }
-}
-
-export const renderMedTitleRow = (medication: AllMedicationTypes, order: MedicationOrder) => {
   if (medication.route == "IV" && medication.isContinuous) {
     return (
       <div className="flex flex-wrap gap-2 h-fit font-semibold">
@@ -30,7 +11,7 @@ export const renderMedTitleRow = (medication: AllMedicationTypes, order: Medicat
         {medication.brandName && (
           <span className="text-nowrap">({medication.brandName})</span>
         )}
-        <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
+        <span className="text-nowrap">{medication.strength}{medication.strengthUnit}</span>
       </div>
     )
   }
@@ -41,7 +22,7 @@ export const renderMedTitleRow = (medication: AllMedicationTypes, order: Medicat
         {medication.brandName && (
           <span className="text-nowrap">({medication.brandName})</span>
         )}
-        <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
+        <span className="text-nowrap">{medication.strength}{medication.strengthUnit}</span>
         {medication.diluent &&
           <span className="text-nowrap">in {medication.diluent} {medication.totalVolume}mL</span>
         }
@@ -65,72 +46,110 @@ export const renderMedTitleRow = (medication: AllMedicationTypes, order: Medicat
         {medication.brandName && (
           <span className="text-nowrap">({medication.brandName})</span>
         )}
-        <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
+        <span className="text-nowrap">{medication.strength}{medication.strengthUnit}</span>
       </div>
     )
   }
 }
 
-export const renderMedCardDetails = (medication: AllMedicationTypes, order: MedicationOrder) => {
+
+export const renderMedFormDetails = (
+  medication: AllMedicationTypes,
+  order: Partial<MedicationOrder>
+) => {
+  // Helper to safely get values or return an empty string/default
+  const dose = order.unitsOrdered || 0;
+  const freq = order.frequency || "___"; // Placeholder if not set
+  const indic = order.indication || "___"; // Placeholder if not set
+
   switch (medication.route) {
     case "PO":
       return (
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
+          <span className="text-nowrap">
+            {dose} {pluralize(dose, medication.orderableUnit)}
+          </span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.frequency}</span>
+          <span className="text-nowrap">{freq}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.indication}</span>
+          <span className="text-nowrap">{indic}</span>
         </div>
-      )
+      );
+
     case "IV":
+      const rate = order.infusionRate || 0;
       return (
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
-          {order.infusionRate && medication.infusionRateUnit &&
+          <span className="text-nowrap">
+            {dose} {pluralize(dose, medication.orderableUnit)}
+          </span>
+          {/* Only show rate if it's relevant (unit exists and rate is set) */}
+          {medication.infusionRateUnit && rate > 0 && (
             <>
               <Separator className="bg-gray-300" orientation="vertical" />
-              <span className="text-nowrap">{order.infusionRate} {medication.infusionRateUnit}</span>
+              <span className="text-nowrap">
+                {rate} {medication.infusionRateUnit}
+              </span>
             </>
-          }
-
+          )}
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.frequency}</span>
+          <span className="text-nowrap">{freq}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.indication}</span>
+          <span className="text-nowrap">{indic}</span>
         </div>
-      )
+      );
+
     case "SC":
       if (isSlidingScaleInsulin(medication)) {
-        const doseRange = `${medication.bgDosing[0]?.units ?? '0'} - ${medication.bgDosing[medication.bgDosing.length - 1]?.units ?? 'N/A'}`;
+        const doseRange = `${medication.bgDosing[0]?.units ?? "0"} - ${medication.bgDosing[medication.bgDosing.length - 1]?.units ?? "N/A"
+          }`;
         return (
           <div className="flex gap-2 h-5">
             <span className="text-nowrap">{medication.route}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{doseRange} units</span>
             <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.frequency}</span>
+            <span className="text-nowrap">{freq}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
-            <span className="text-nowrap">{order.indication}</span>
+            <span className="text-nowrap">{indic}</span>
           </div>
-        )
+        );
+      } else {
+        // Fallback for non-insulin SC meds (like Lovenox)
+        return (
+          <div className="flex gap-2 h-5">
+            <span className="text-nowrap">{medication.route}</span>
+            <Separator className="bg-gray-300" orientation="vertical" />
+            <span className="text-nowrap">
+              {dose} {pluralize(dose, medication.orderableUnit)}
+            </span>
+            <Separator className="bg-gray-300" orientation="vertical" />
+            <span className="text-nowrap">{freq}</span>
+            <Separator className="bg-gray-300" orientation="vertical" />
+            <span className="text-nowrap">{indic}</span>
+          </div>
+        );
       }
-    case "Inhalation": {
+
+    // Default case for Inhalation, Topical, IM, etc.
+    // This handles Inhalation and your previous default
+    default:
       return (
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
+          <span className="text-nowrap">
+            {dose} {pluralize(dose, medication.orderableUnit)}
+          </span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.frequency}</span>
+          <span className="text-nowrap">{freq}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.indication}</span>
+          <span className="text-nowrap">{indic}</span>
         </div>
-      )
-    }
+      );
   }
-}
+};

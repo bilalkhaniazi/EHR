@@ -6,46 +6,46 @@ interface BaseMedication {
   strength: number; // e.g., 25, 100
   strengthUnit: string; // e.g., "mg", "units/mL"
   orderableUnit: string; // e.g., "Tablet", "Solution", "Cream", "Vial", "Syringe"
-  administrationFrequencies: string[]; 
+  administrationFrequencies: string[];
 }
 
 
 export interface OralMedication extends BaseMedication {
   route: "PO";
-  form: "tablet" | "capsule" | "dissolvable tab" | "chewable" ;
+  form: "tablet" | "capsule" | "dissolvable tab" | "chewable";
   canBeCrushedOrSplit: boolean;
   takeWithFood?: boolean;
 }
 
 export interface IvMedication extends BaseMedication {
-  route: "IV"; 
-  infusionRate?: number;
+  route: "IV";
+  // infusionRate?: number;
   infusionRateUnit?: "mL/hr" | "mg/hr" | "units/hr";
-  diluent?: string; 
-  totalVolume?: number; 
+  diluent?: string;
+  totalVolume?: number;
   infusionDurationHours?: number;
   isContinuous: boolean;
 }
 
 interface InjectableMedication extends BaseMedication {
-  route: "SC" | "IM"; 
+  route: "SC" | "IM";
   recommendedInjectionSites?: string[];
   needleGauge?: string;
   needleLength?: string;
-  reconstitutionRequired?: boolean; 
+  reconstitutionRequired?: boolean;
   reconstitutionInstructions?: string;
 }
 
 interface TopicalMedication extends BaseMedication {
-  route: "Topical"; 
-  applicationArea: string; 
+  route: "Topical";
+  applicationArea: string;
   form: "cream" | "ointment" | "gel" | "patch" | "lotion";
   patchApplicationFrequency?: string;
   patchChangeInstructions?: string;
 }
 
 interface InhalerMedication extends BaseMedication {
-  route: "Inhalation"; 
+  route: "Inhalation";
   deviceType: "MDI" | "DPI" | "nebulizer";
   requiresSpacer?: boolean;
   inhalationsPerDose: number;
@@ -58,10 +58,10 @@ export interface InsulinMedication extends InjectableMedication {
 export type AllMedicationTypes =     // route property acts as discriminator
   OralMedication |
   IvMedication |
-  InjectableMedication | 
-  TopicalMedication | 
-  InhalerMedication | 
-  InsulinMedication 
+  InjectableMedication |
+  TopicalMedication |
+  InhalerMedication |
+  InsulinMedication
 
 
 // Each order is associated with one medication and details how, when, why it should be given  
@@ -69,12 +69,12 @@ export interface MedicationOrder {
   id: string;
   medicationId: string;
   unitsOrdered: number;
-  frequency: string; 
-  priority: "STAT" | "NOW" |"Routine";
+  frequency: string;
+  priority: "STAT" | "NOW" | "Routine";
   instructions?: string;
   indication: string;
   status: "active" | "completed" | "Held" | "cancelled";
-  orderingProvider: String;
+  orderingProvider: string;
   infusionRate?: number
 }
 
@@ -82,88 +82,84 @@ export interface MedicationOrder {
 // is associated with a specific med order
 export interface MedAdministrationInstance {
   medicationOrderId: string;    // link to specific med order
-  administratorId: string;      
+  administratorId: string;
   adminTimeMinuteOffset: number;
-  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due" ;
-  notes?: string; 
+  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due";
+  notes?: string;
   administeredDose: number
 }
 
 // List of all medications that could be used in a medicationOrder. 
 export const allMedications: AllMedicationTypes[] = [
-  { 
+  {
     id: "medMetoprololOral25",
     genericName: "metoprolol succinate",
     brandName: "Toprol XL",
     route: "PO", // This matches the discriminator for OralMedication
     strength: 25,
     strengthUnit: "mg",
-    orderableUnit: "Tablet", 
+    orderableUnit: "Tablet",
     administrationFrequencies: ["QD", "BID"],
     // Properties specific to OralMedication:
     form: "tablet",         // dup of orderableUnit
-    canBeCrushedOrSplit: false, 
-    takeWithFood: true, 
+    canBeCrushedOrSplit: false,
+    takeWithFood: true,
   },
   {
-    id: "medAmoxIv",              
+    id: "medAmoxIv",
     genericName: "amoxicillin",
-    brandName: "Amoxil IV", 
-    route: "IV", 
+    brandName: "Amoxil IV",
+    route: "IV",
     strength: 500,
     strengthUnit: "mg",
-    orderableUnit: "Vial",           
-    administrationFrequencies: ["Q6H", "Q8H"], 
+    orderableUnit: "Vial",
+    administrationFrequencies: ["Q6H", "Q8H"],
     // --- IVMedication specific properties ---
-    infusionRate: 100, 
-    infusionRateUnit: 'mL/hr', 
-    diluent: "normal saline 0.9%", 
-    totalVolume: 50, 
-    infusionDurationHours: 0.5, 
-    isContinuous: false, 
+    infusionRateUnit: 'mL/hr',
+    diluent: "normal saline 0.9%",
+    totalVolume: 50,
+    infusionDurationHours: 0.5,
+    isContinuous: false,
   },
   {
-    id: "medNormalSaline09Iv",              
+    id: "medNormalSaline09Iv",
     genericName: "normal saline 0.9%",
-    route: "IV", 
+    route: "IV",
     strength: 1000,
     strengthUnit: "mL",
-    orderableUnit: "Bag",           
-    administrationFrequencies: ["Q6H", "Q8H"], 
-    infusionRate: 100, 
-    infusionRateUnit: 'mL/hr', 
-    totalVolume: 1000, 
-    infusionDurationHours: 10, 
-    isContinuous: true, 
+    orderableUnit: "Bag",
+    administrationFrequencies: ["Q6H", "Q8H"],
+    infusionRateUnit: 'mL/hr',
+    totalVolume: 1000,
+    infusionDurationHours: 10,
+    isContinuous: true,
   },
-    {
-    id: "medLactatedRingersIV",              
+  {
+    id: "medLactatedRingersIV",
     genericName: "Lactated Ringer's Injection ",
-    route: "IV", 
+    route: "IV",
     strength: 1000,
     strengthUnit: "mL",
-    orderableUnit: "Bag",           
-    administrationFrequencies: ["Q6H", "Q8H"], 
-    infusionRate: 100, 
-    infusionRateUnit: 'mL/hr', 
-    totalVolume: 1000, 
-    infusionDurationHours: 10, 
-    isContinuous: true, 
+    orderableUnit: "Bag",
+    administrationFrequencies: ["Q6H", "Q8H"],
+    infusionRateUnit: 'mL/hr',
+    totalVolume: 1000,
+    infusionDurationHours: 10,
+    isContinuous: true,
   },
   {
     id: "medPiperacillinTazobactamIV",
     genericName: "piperacillin tazobactam",
-    route: "IV", 
+    route: "IV",
     strength: 3.375,
     strengthUnit: "g",
-    orderableUnit: "vial",           
-    administrationFrequencies: ["Q6H", "Q8H"], 
-    infusionRate: 100, 
+    orderableUnit: "Vial",
+    administrationFrequencies: ["Q6H", "Q8H"],
     infusionRateUnit: 'mL/hr',
-    diluent: 'normal saline 0.9%', 
-    totalVolume: 100, 
-    infusionDurationHours: 10, 
-    isContinuous: false, 
+    diluent: 'normal saline 0.9%',
+    totalVolume: 100,
+    infusionDurationHours: 10,
+    isContinuous: false,
   },
   {
     id: "medLisinoprilOral10",
@@ -175,8 +171,8 @@ export const allMedications: AllMedicationTypes[] = [
     orderableUnit: "Tablet",
     administrationFrequencies: ["QD"], // Once daily
     form: "tablet",
-    canBeCrushedOrSplit: true, 
-    takeWithFood: false, 
+    canBeCrushedOrSplit: true,
+    takeWithFood: false,
   },
   {
     id: "medVancomycinIv1000",
@@ -185,13 +181,12 @@ export const allMedications: AllMedicationTypes[] = [
     route: "IV",
     strength: 1000, // 1000mg per dose/vial
     strengthUnit: "mg",
-    orderableUnit: "Bag", 
-    administrationFrequencies: ["Q12H", "Q24H"], 
-    infusionRate: 250, 
+    orderableUnit: "Bag",
+    administrationFrequencies: ["Q12H", "Q24H"],
     infusionRateUnit: 'mL/hr',
-    diluent: "dextrose 5% in water", 
-    totalVolume: 250, 
-    infusionDurationHours: 2, 
+    diluent: "dextrose 5% in water",
+    totalVolume: 250,
+    infusionDurationHours: 2,
     isContinuous: false,
   },
   {
@@ -284,7 +279,6 @@ export const allMedications: AllMedicationTypes[] = [
     strengthUnit: "mg",
     orderableUnit: "Vial",
     administrationFrequencies: ["QD"],
-    infusionRate: 50,
     infusionRateUnit: "mL/hr",
     diluent: "D5W",
     totalVolume: 50,
@@ -314,7 +308,6 @@ export const allMedications: AllMedicationTypes[] = [
     strengthUnit: "mg",
     orderableUnit: "Ampule",
     administrationFrequencies: ["PRN", "Q4H"],
-    infusionRate: 50,
     infusionRateUnit: "mL/hr",
     diluent: "NS 0.9%",
     totalVolume: 50,
@@ -357,7 +350,6 @@ export const allMedications: AllMedicationTypes[] = [
     strengthUnit: "mg",
     orderableUnit: "Vial",
     administrationFrequencies: ["Q8H", "PRN"],
-    infusionRate: 2,
     infusionRateUnit: "mg/hr",
     diluent: "NS 0.9%",
     totalVolume: 50,
@@ -402,7 +394,6 @@ export const allMedications: AllMedicationTypes[] = [
     strengthUnit: "mg",
     orderableUnit: "Vial",
     administrationFrequencies: ["Once", "Q6H"],
-    infusionRate: 100,
     infusionRateUnit: "mL/hr",
     diluent: "NS 0.9%",
     totalVolume: 100,
@@ -435,7 +426,7 @@ export const allMedications: AllMedicationTypes[] = [
 export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderMetoprololIvPush",
-    medicationId: "medMetoprololIvPush", 
+    medicationId: "medMetoprololIvPush",
     unitsOrdered: 0.8,               // amount of orderableUnits to be administered to pt   
     frequency: "Q8H",
     priority: "STAT",
@@ -445,7 +436,7 @@ export const medicationOrders: MedicationOrder[] = [
   },
   {
     id: "orderAlbuterolInh",
-    medicationId: "medAlbuterolInhalation", 
+    medicationId: "medAlbuterolInhalation",
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt   
     frequency: "Q8H",
     priority: "STAT",
@@ -455,9 +446,10 @@ export const medicationOrders: MedicationOrder[] = [
   },
   {
     id: "orderAmoxIv",
-    medicationId: "medAmoxIv", 
+    medicationId: "medAmoxIv",
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt   
     frequency: "Q8H",
+    infusionRate: 100,
     priority: "Routine",
     indication: "Infection",
     status: "active",
@@ -465,9 +457,10 @@ export const medicationOrders: MedicationOrder[] = [
   },
   {
     id: "orderPiperacillinTazobactamIV",
-    medicationId: "medPiperacillinTazobactamIV", 
+    medicationId: "medPiperacillinTazobactamIV",
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt   
     frequency: "Q8H",
+    infusionRate: 100,
     priority: "Routine",
     indication: "Infection",
     status: "active",
@@ -475,8 +468,9 @@ export const medicationOrders: MedicationOrder[] = [
   },
   {
     id: "orderNormalSaline09",
-    medicationId: "medNormalSaline09Iv", 
+    medicationId: "medNormalSaline09Iv",
     unitsOrdered: 1,
+    infusionRate: 100,
     frequency: "Continuous",
     priority: "Routine",
     indication: "IV Fluids",
@@ -511,11 +505,12 @@ export const medicationOrders: MedicationOrder[] = [
     unitsOrdered: 1, // Ordering 1 Bag (1000mg)
     frequency: "Q12H",
     priority: "Routine",
+    infusionRate: 250,
     status: "active",
     indication: "Severe Bacterial Infection",
     instructions: "Infuse over 2 hours. Monitor for Red Man Syndrome. Obtain trough level before 4th dose.",
     orderingProvider: "Dr. Rahul Gupta"
-    },
+  },
   {
     id: "orderAtorvastatinOral40",
     medicationId: "medAtorvastatinOral40",
@@ -562,75 +557,188 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderLactatedRingers",
     medicationId: "medLactatedRingersIV",
     unitsOrdered: 1,
+    infusionRate: 100,
     frequency: "Continuous",
     priority: "Routine",
     status: "active",
     indication: "Maintainence Fluids",
     orderingProvider: "Dr. Rahul Gupta"
   },
+  {
+    id: "orderHydrocortisoneCream",
+    medicationId: "medHydrocortisoneCream",
+    unitsOrdered: 1, // Represents "one application"
+    frequency: "PRN",
+    priority: "Routine",
+    status: "active",
+    indication: "Itching",
+    instructions: "Apply thin layer to affected area as needed for rash or itching.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderFurosemideOral20",
+    medicationId: "medFurosemideOral20",
+    unitsOrdered: 1, // 1 Tablet
+    frequency: "BID",
+    priority: "Routine",
+    status: "active",
+    indication: "Edema",
+    instructions: "Monitor daily weight and I/O.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderPantoprazoleIv40",
+    medicationId: "medPantoprazoleIv40",
+    unitsOrdered: 1, // 1 Vial
+    frequency: "QD",
+    priority: "Routine",
+    infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
+    status: "active",
+    indication: "GERD / Stress Ulcer Prophylaxis",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderEnoxaparinSc40",
+    medicationId: "medEnoxaparinSc40",
+    unitsOrdered: 1, // 1 Pre-filled Syringe
+    frequency: "QD",
+    priority: "Routine",
+    status: "active",
+    indication: "DVT Prophylaxis",
+    instructions: "Administer to abdomen, 2 inches from umbilicus. Do not expel air bubble.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderMorphineIv",
+    medicationId: "medMorphineIv10",
+    unitsOrdered: 0.2, // 0.2 of the 10mg Ampule = 2mg dose
+    frequency: "PRN",
+    priority: "Routine",
+    infusionRate: 50, // 50mL over 1hr = 50mL/hr (for a piggyback)
+    status: "active",
+    indication: "Severe Pain",
+    instructions: "For pain 7-10/10. Reassess pain in 30 minutes. Dilute in 50mL NS.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderNitroPatchTd",
+    medicationId: "medNitroPatchTd",
+    unitsOrdered: 1, // 1 Patch
+    frequency: "Daily",
+    priority: "Routine",
+    status: "active",
+    indication: "Angina Prophylaxis",
+    instructions: "Apply one patch daily in AM. Remove at night (12-hour nitrate-free interval). Rotate sites.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderOndansetronIv4",
+    medicationId: "medOndansetronIv4",
+    unitsOrdered: 1, // 1 Vial
+    frequency: "PRN",
+    priority: "Routine",
+    infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
+    status: "active",
+    indication: "Nausea/Vomiting",
+    instructions: "As needed for nausea.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderCeftriaxoneIm250",
+    medicationId: "medCeftriaxoneIm250",
+    unitsOrdered: 1, // 1 Vial
+    frequency: "Once",
+    priority: "STAT",
+    status: "active",
+    indication: "Bacterial Infection",
+    instructions: "Reconstitute with 1.8 mL sterile water and administer IM.",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderEpinephrineIm1mg",
+    medicationId: "medEpinephrineIm1mg",
+    unitsOrdered: 1, // 1 Auto-Injector
+    frequency: "PRN",
+    priority: "STAT",
+    status: "active",
+    indication: "Anaphylaxis",
+    instructions: "Administer immediately for signs of severe allergic reaction (wheezing, hives, swelling).",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderMethylprednisoloneIv125",
+    medicationId: "medMethylprednisoloneIv125",
+    unitsOrdered: 1, // 1 Vial
+    frequency: "Once",
+    priority: "STAT",
+    infusionRate: 100, // 100mL over 1hr = 100mL/hr
+    status: "active",
+    indication: "Severe Inflammation",
+    orderingProvider: "Dr. Rahul Gupta"
+  }
 ]
 
 export const medAdministrations: MedAdministrationInstance[] = [
   {
     medicationOrderId: "orderMetoprololOral25", // Metoprolol
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: -200, 
+    adminTimeMinuteOffset: -200,
     status: 'Given',
-    notes: " metoprolol", 
+    notes: " metoprolol",
     administeredDose: 25
   },
   {
-    medicationOrderId: "orderAmoxIv", 
+    medicationOrderId: "orderAmoxIv",
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: -31, 
+    adminTimeMinuteOffset: -31,
     status: 'Given',
     notes: "-61 amox.",
     administeredDose: 200
   },
-    {
-    medicationOrderId: "orderAmoxIv", 
+  {
+    medicationOrderId: "orderAmoxIv",
     administratorId: "RN Smith",
-    adminTimeMinuteOffset: -180, 
+    adminTimeMinuteOffset: -180,
     status: 'Held',
-    notes: "-61 amox.", 
+    notes: "-61 amox.",
     administeredDose: 100
   },
   {
-    medicationOrderId: "orderMetoprololOral25", 
+    medicationOrderId: "orderMetoprololOral25",
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: 0, 
+    adminTimeMinuteOffset: 0,
     status: 'Due',
-    notes: "-121 metoprolol dose.", 
+    notes: "-121 metoprolol dose.",
     administeredDose: 100
   },
   {
-    medicationOrderId: "orderLisinoprilOral10", 
+    medicationOrderId: "orderLisinoprilOral10",
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: -121, 
+    adminTimeMinuteOffset: -121,
     status: 'Missed',
-    notes: "-121 metoprolol dose.", 
+    notes: "-121 metoprolol dose.",
     administeredDose: 100
   },
   {
-    medicationOrderId: "orderLisinoprilOral10", 
+    medicationOrderId: "orderLisinoprilOral10",
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: 60, 
+    adminTimeMinuteOffset: 60,
     status: 'Due',
     notes: "-121 metoprolol dose.",
     administeredDose: 100
   },
   {
-    medicationOrderId: "orderVancomycinIv", 
+    medicationOrderId: "orderVancomycinIv",
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: 60, 
+    adminTimeMinuteOffset: 60,
     status: 'Due',
     notes: "-121 metoprolol dose.",
     administeredDose: 100
   },
   {
-    medicationOrderId: "orderVancomycinIv", 
+    medicationOrderId: "orderVancomycinIv",
     administratorId: "RN Jones",
-    adminTimeMinuteOffset: -140, 
+    adminTimeMinuteOffset: -140,
     status: 'Refused',
     notes: "-121 metoprolol dose.",
     administeredDose: 100

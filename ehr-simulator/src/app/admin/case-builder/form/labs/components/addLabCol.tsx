@@ -43,7 +43,7 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
   }
 
   return (
-    <div className="flex gap-4 pl-8">
+    <div className="">
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
           <Button className="bg-white text-black text-xs hover:bg-gray-100 shadow">

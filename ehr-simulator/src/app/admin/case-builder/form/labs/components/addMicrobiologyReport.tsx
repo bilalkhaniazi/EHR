@@ -69,13 +69,16 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
   }
 
   return (
-    <div className="w-full p-4 space-y-4">
+    <div className="w-full space-y-3">
       <h1 className="text-3xl tracking-tight font-semibold">
         {isEditMode ? "Edit Report" : "Microbiology Report"}
       </h1>
+      <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-8 right-16">
+        {isEditMode ? 'Update Report' : 'Add Microbiology Report'}
+      </Button>
 
       <div>
-        <div className="flex gap-8">
+        <div className="flex gap-4">
           <div className="w-60">
             <Label htmlFor="sampleType">Sample Type</Label>
             <select onChange={(e) => setSampleType(e.target.value)} value={sampleType} id="sampleType" className="border border-gray-200 h-9 rounded-md w-full px-2 mt-1 shadow-xs text-sm">
@@ -106,7 +109,7 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
           <Label htmlFor="appearance">Appearance</Label>
           <FormTooltip
             size={16}
-            tip='Ex: "'
+            tip='Ex: "Purulent drainage noted, surrounding erythema"'
             color='#364153'
           />
         </div>
@@ -150,9 +153,7 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
         <p>Mark as critical or abnormal finding?</p>
         <Checkbox checked={isCritical} onCheckedChange={setIsCritical} />
       </div>
-      <Button disabled={!isSubmittable} onClick={handleSubmit} type='button'>
-        {isEditMode ? 'Update Report' : 'Add Microbiology Report'}
-      </Button>
+
     </div>
   )
 }
