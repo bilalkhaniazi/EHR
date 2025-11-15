@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
-import MultipleTextInput from "../../components/multipleTextInput";
-import { MultipleSelect } from "../../components/multipleSelect";
+import MultiTextInput from "../../components/multiTextInput";
+import { MultiSelect } from "../../components/multiSelect";
 import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
@@ -95,15 +95,21 @@ const HistoryForm = () => {
             <p className="m-2 mb-4 ml-0 text-2xl font-bold">Patient History</p>
 
             <div className="flex flex-col gap-4">
-              <MultipleTextInput labelText="Medical History:" name="medicalHistory" value={medicalHistory} onChange={setMedicalHistory} />
-              <MultipleTextInput labelText="Surgical History:" name="surgicalHistory" value={surgicalHistory} onChange={setSurgicalHistory} />
-              <MultipleTextInput labelText="Allergies:" name="allergies" value={allergies} onChange={setAllergies} placeholder="Allergy" />
-              <MultipleTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
-              <MultipleTextInput labelText="Social History:" name="socialHistory" value={socialHistory} onChange={setSocialHistory} />
-              <MultipleTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
+              <MultiTextInput labelText="Medical History:" name="medicalHistory" value={medicalHistory} onChange={setMedicalHistory} />
+              <MultiTextInput labelText="Surgical History:" name="surgicalHistory" value={surgicalHistory} onChange={setSurgicalHistory} />
+              <MultiTextInput labelText="Allergies:" name="allergies" value={allergies} onChange={setAllergies} placeholder="Allergy" />
+
+              <MultiTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
 
 
-              <MultipleSelect labelText="Alerts:" name="alerts" value={alerts} onChange={setAlerts} options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
+
+
+
+              <MultiTextInput labelText="Social History:" name="socialHistory" value={socialHistory} onChange={setSocialHistory} />
+              <MultiTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
+
+
+              <MultiSelect labelText="Alerts:" name="alerts" value={alerts} onChange={setAlerts} options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
 
             </div>
 

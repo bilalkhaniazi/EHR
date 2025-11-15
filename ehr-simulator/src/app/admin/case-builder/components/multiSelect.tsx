@@ -10,7 +10,7 @@ interface Option {
   label: string;
 }
 
-interface MultipleSelectProps {
+interface MultiSelectProps {
   name: string;
   value: string[];
   options?: Option[];
@@ -22,7 +22,7 @@ interface MultipleSelectProps {
   defaultValues?: string[];
 }
 
-export function MultipleSelect({
+export function MultiSelect({
   name,
   value,
   options = [],
@@ -32,7 +32,7 @@ export function MultipleSelect({
   onChange = () => { },
   defaultValues = [],
   labelText
-}: MultipleSelectProps) {
+}: MultiSelectProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedValues, setSelectedValues] = useState<string[]>(defaultValues);
 
@@ -68,7 +68,7 @@ export function MultipleSelect({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between"
+            className="w-full font-normal justify-between"
           >
             {selectedValues.length > 0
               ? `${selectedValues.length} selected`

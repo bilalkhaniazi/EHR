@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react"
 
-interface MultipleTextInputProps {
+interface MultiTextInputProps {
   value?: string[];
   onChange: (value: string[]) => void;
   placeholder?: string;
@@ -11,7 +11,7 @@ interface MultipleTextInputProps {
   titleCase?: boolean
 }
 
-function MultipleTextInput({ value = [], onChange, placeholder = "Add item...", name, labelText, required = false, titleCase = false }: MultipleTextInputProps) {
+function MultiTextInput({ value = [], onChange, placeholder = "Add item...", name, labelText, required = false, titleCase = false }: MultiTextInputProps) {
   const [currentInput, setCurrentInput] = useState('');
   const [requiredState, setRequiredState] = useState(required)
 
@@ -101,4 +101,4 @@ function MultipleTextInput({ value = [], onChange, placeholder = "Add item...", 
   );
 }
 
-export default MultipleTextInput
+export default MultiTextInput

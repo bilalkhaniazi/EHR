@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react";
-import MultipleTextInput from "../../components/multipleTextInput";
+import MultiTextInput from "../../components/multiTextInput";
 import { Card } from "@/components/ui/card"
 
 import InfoTooltip from "../../components/helpTooltip";
