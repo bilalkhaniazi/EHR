@@ -5,13 +5,14 @@ import { MultiSelect } from "../../components/multiSelect";
 import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
+import { FamilyHistory, FamilyHistoryEntry } from "./familyHistory";
 
 
 const HistoryForm = () => {
   // Medical, surgical, family, social (Tobacco, Alcohol, Drugs, Living Situation)
   const [medicalHistory, setMedicalHistory] = useState<string[]>([]);
   const [surgicalHistory, setSurgicalHistory] = useState<string[]>([]);
-  const [familyHistory, setFamilyHistory] = useState<string[]>([]);
+  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryEntry[]>([]);
   const [socialHistory, setSocialHistory] = useState<string[]>([]);
   const [livingSituation, setLivingSituation] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
@@ -24,9 +25,25 @@ const HistoryForm = () => {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    // router.push("/admin/case-builder/form/notes")
+    router.push("/admin/case-builder/form/notes")
   }
-
+  const relations: string[] = [
+    'Mother',
+    'Father',
+    'Brother',
+    'Sister',
+    'Son',
+    'Daughter',
+    'Grandmother',
+    'Grandfather',
+    'Aunt',
+    'Uncle',
+    'Cousin',
+    'Niece',
+    'Nephew',
+    'Grandson',
+    'Granddaughter'
+  ];
   const nursingAlerts = [
     "Seizure Risk",
     "Aspiration Risk",
@@ -99,18 +116,13 @@ const HistoryForm = () => {
               <MultiTextInput labelText="Surgical History:" name="surgicalHistory" value={surgicalHistory} onChange={setSurgicalHistory} />
               <MultiTextInput labelText="Allergies:" name="allergies" value={allergies} onChange={setAllergies} placeholder="Allergy" />
 
-              <MultiTextInput labelText="Family History:" name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
-
-
-
-
+              <FamilyHistory name="familyHistory" value={familyHistory} onChange={setFamilyHistory} relations={relations} />
 
               <MultiTextInput labelText="Social History:" name="socialHistory" value={socialHistory} onChange={setSocialHistory} />
               <MultiTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
 
 
-              <MultiSelect labelText="Alerts:" name="alerts" value={alerts} onChange={setAlerts} options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
-
+              <MultiSelect labelText="Alerts:" placeholder="Select alerts..." name="alerts" value={alerts} onChange={setAlerts} options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
             </div>
 
           </div>

@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { X } from "lucide-react"
+import { Plus, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface MultiTextInputProps {
   value?: string[];
@@ -42,10 +44,8 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
       input = input.charAt(0).toUpperCase() + input.slice(1);
     }
 
-    if (value.includes(input)) {
-      // Notify the user they tried adding a duplicate
-    }
-    else if (input) {
+    // Avoid duplicates and empty strings
+    if (!value.includes(input) && input !== '') {
       onChange([...value, input]);
       setCurrentInput('');
     }
@@ -65,6 +65,9 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
 
   return (
     <div>
+      {/* Hidden input holds JSON of inputs for form submission */}
+      {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
+
       <label className="case-form-label">{labelText}</label>
       <input
         className="case-form-input-text"
@@ -75,26 +78,28 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
         placeholder={placeholder}
         required={requiredState}
       />
-      <button
-        className="border-1 border-[#333] rounded bg-[#eaeaea] ml-2 pl-2 pr-2 inline w-fit cursor-pointer"
+
+      <Button
         type="button"
         onClick={(e) => { e.preventDefault; addInput() }}
+        variant="outline"
+        size="sm"
+        className="inline-flex ml-2 font-normal items-center gap-2"
       >
         Add
-      </button>
+        <Plus className="h-4 w-4" />
+      </Button>
 
-      {/* Hidden input holds JSON of inputs for form submission */}
-      {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
 
       {/* Display a badge for each input */}
-      <div className="grid grid-cols-10 mt-2">
+      <div className="flex flex-wrap gap-2">
         {value.map((item: string, index: number) => (
-          <div className="flex p-1 w-fit bg-accent rounded gap-2" key={index}>
-            <span>{item}</span>
+          <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1 flex items-center gap-1">
+            {item}
             <button className="cursor-pointer" type="button" onClick={() => removeItem(index)}>
-              <X size={16} />
+              <X className="w-4 h-4" />
             </button>
-          </div>
+          </Badge>
         ))}
       </div>
     </div>

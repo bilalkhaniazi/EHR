@@ -57,10 +57,9 @@ export function MultiSelect({
 
   return (
     <div className="w-fit space-y-4">
-
-      <label className="case-form-label">{labelText}</label>
       {name && <input type="hidden" name={name} value={JSON.stringify(selectedValues)} />}
 
+      <label className="case-form-label">{labelText}</label>
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
