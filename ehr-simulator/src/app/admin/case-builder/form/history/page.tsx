@@ -5,14 +5,18 @@ import { MultiSelect } from "../../components/multiSelect";
 import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
-import { FamilyHistory, FamilyHistoryEntry } from "./familyHistory";
+import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
 
+interface FamilyHistory {
+  relation: string;
+  condition: string;
+}
 
 const HistoryForm = () => {
   // Medical, surgical, family, social (Tobacco, Alcohol, Drugs, Living Situation)
   const [medicalHistory, setMedicalHistory] = useState<string[]>([]);
   const [surgicalHistory, setSurgicalHistory] = useState<string[]>([]);
-  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryEntry[]>([]);
+  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryData[]>([]);
   const [socialHistory, setSocialHistory] = useState<string[]>([]);
   const [livingSituation, setLivingSituation] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
@@ -27,78 +31,35 @@ const HistoryForm = () => {
     console.log(payload);
     router.push("/admin/case-builder/form/notes")
   }
-  const relations: string[] = [
-    'Mother',
-    'Father',
-    'Brother',
-    'Sister',
-    'Son',
-    'Daughter',
-    'Grandmother',
-    'Grandfather',
-    'Aunt',
-    'Uncle',
-    'Cousin',
-    'Niece',
-    'Nephew',
-    'Grandson',
-    'Granddaughter'
-  ];
+
   const nursingAlerts = [
     "Seizure Risk",
     "Aspiration Risk",
     "Bleeding Precautions",
-    "Infection / Isolation Precautions",
     "NPO Status",
     "Suicide / Self-Harm Risk",
     "Violence / Aggression Risk",
     "Elopement Risk",
-    "Restraint in Use / Restraint Order Active",
-    "Sitter Required / Continuous Observation",
+    "Restraint Order Active",
+    "Continuous Observation",
     "Hearing Impaired",
     "Vision Impaired",
-    "Infection Control Flag (MDRO, MRSA, VRE, C. diff)",
-    "High Fall Risk",
-    "Bed / Chair Alarm On",
-    "Requires Assist x2 for Mobility",
-    "Uses Walker / Cane / Wheelchair",
+    "High Risk for Falls",
     "Orthostatic Hypotension Risk",
-    "Recent Surgery / Mobility Restriction",
-    "Unsteady Gait",
     "Confused / Impulsive Behavior",
-    "Call Light Within Reach Reminder",
-    "Non-Weight Bearing Limb (R/L)",
-    "Padded Side Rails in Place",
-    "Suction and Oxygen Available at Bedside",
-    "IV Access Maintained",
-    "Stroke Risk / History of CVA",
     "Delirium / Cognitive Impairment Risk",
     "Head Injury Precautions",
-    "Neurological Checks Ordered",
     "Increased Intracranial Pressure (ICP) Precautions",
     "IV Line / Central Line / PICC in Place",
-    "Urinary Catheter in Place (CAUTI Risk)",
     "Tracheostomy / Airway Precautions",
-    "Feeding Tube (NG/PEG) Precautions",
-    "Wound Vac / Surgical Drain in Place",
     "Chest Tube Precautions",
     "Pacemaker / ICD Precautions",
     "Anticoagulant Therapy - Bleeding Precautions",
-    "Diabetes - Hypoglycemia Risk",
-    "Oxygen Therapy in Use",
-    "Fluid Restriction / Sodium Restriction",
     "Pressure Injury Risk (Braden <18)",
-    "Dialysis Access - No BP/IV on This Arm",
     "Immunocompromised Precautions",
     "Chemotherapy Precautions / Cytotoxic Drugs",
-    "Postoperative / Fresh Surgical Site Precautions",
     "Advanced Directive on File",
-    "Power of Attorney / Guardian",
-    "Interpreter Required for Care",
     "Court-Ordered Observation / Police Hold",
-    "Do Not Use Right Arm for Blood Draws",
-    "Pediatric Safety Flag",
-    "Geriatric Safety Flag"
   ];
 
   return (
@@ -114,11 +75,12 @@ const HistoryForm = () => {
             <div className="flex flex-col gap-4">
               <MultiTextInput labelText="Medical History:" name="medicalHistory" value={medicalHistory} onChange={setMedicalHistory} />
               <MultiTextInput labelText="Surgical History:" name="surgicalHistory" value={surgicalHistory} onChange={setSurgicalHistory} />
-              <MultiTextInput labelText="Allergies:" name="allergies" value={allergies} onChange={setAllergies} placeholder="Allergy" />
 
-              <FamilyHistory name="familyHistory" value={familyHistory} onChange={setFamilyHistory} relations={relations} />
+              <FamilyHistory name="familyHistory" value={familyHistory} onChange={setFamilyHistory} />
 
               <MultiTextInput labelText="Social History:" name="socialHistory" value={socialHistory} onChange={setSocialHistory} />
+              <MultiTextInput labelText="Allergies:" name="allergies" value={allergies} onChange={setAllergies} placeholder="Allergy" />
+
               <MultiTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
 
 

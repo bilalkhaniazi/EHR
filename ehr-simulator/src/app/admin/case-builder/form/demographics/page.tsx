@@ -1,6 +1,4 @@
 "use client"
-import { useState } from "react";
-import MultiTextInput from "../../components/multiTextInput";
 import { Card } from "@/components/ui/card"
 
 import InfoTooltip from "../../components/helpTooltip";
@@ -49,7 +47,7 @@ const DemographicsForm = () => {
               <label className="case-form-label" htmlFor="firstName">First Name: </label>
               <input
                 id="firstName" name="firstName" required
-                className="case-form-input-text"
+                className="case-form-input-text shadow-xs rounded-lg"
                 type="text" placeholder="First Name"
               />
             </div>
@@ -74,7 +72,8 @@ const DemographicsForm = () => {
 
             <div className="flex">
               <label className="case-form-label" htmlFor="codeStatus">Code Status: </label>
-              <select id="codeStatus" name="codeStatus" className="case-form-select" >
+              <select id="codeStatus" name="codeStatus" className="case-form-select px-2 py-0.5" >
+                <option className="text-gray-200" disabled hidden value="">Select status...</option>
                 <option value="full">Full</option>
                 <option value="DNR">DNR</option>
                 <option value="partial">Partial</option>
@@ -148,7 +147,7 @@ const DemographicsForm = () => {
 
             <div className="flex">
               <label className="case-form-label" htmlFor="precautions">Precautions:</label>
-              <select id="precautions" name="precautions" defaultValue="" className="case-form-select">
+              <select id="precautions" name="precautions" defaultValue="" className="case-form-select px-2 py-0.5">
                 <option value="" hidden disabled>Select</option>
                 <option value="contact">Contact</option>
                 <option value="contact-enteric">Contact-Enteric</option>
@@ -175,7 +174,7 @@ const DemographicsForm = () => {
 
             <div className="flex">
               <label htmlFor="admissionTime" className="case-form-label">Time of Admission:</label>
-              <input defaultValue={"00:00"} className="w-26 border-1 pl-1 pr-1 rounded" name="admissionTime" id="admissionTime" type="time" />
+              <input defaultValue={"00:00"} className="w-26 border-1 pl-1 pr-1 rounded-lg shadow-xs" name="admissionTime" id="admissionTime" type="time" />
             </div>
 
             <div className="flex">
@@ -183,10 +182,10 @@ const DemographicsForm = () => {
               <input name="admittingDiagnosis" id="admittingDiagnosis" placeholder="Diagnosis" className="case-form-input-text" type="text" />
             </div>
 
-            <div className="flex">
+            {/* <div className="flex">
               <label className="case-form-label" htmlFor="admissionReason">Reason for Admission: </label>
               <input name="admissionReason" id="admissionReason" placeholder="Reason" className="case-form-input-text" type="text" />
-            </div>
+            </div> */}
 
             <div className="flex">
               <label className="case-form-label" htmlFor="attendingProviderName">Attending Provider: </label>

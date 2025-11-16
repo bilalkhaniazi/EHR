@@ -2,6 +2,7 @@
 
 import { ImagingData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import Combobox from "@/components/ui/combobox";
 import { DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -113,6 +114,7 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
   const [technique, setTechnique] = useState(initialData?.technique || '')
   const [findings, setFindings] = useState<Finding[]>(initialData?.findings || [])
   const [impressions, setImpressions] = useState<string[]>(initialData?.impressions || [])
+  const [isCritical, setIsCritical] = useState<'indeterminate' | boolean>(initialData?.isCritical || false)
 
   const [region, setRegion] = useState('')
   const [description, setDescription] = useState('')
@@ -123,6 +125,7 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
     technique: technique,
     findings: findings,
     impressions: impressions,
+    isCritical: isCritical
   }
 
   const isSubmittable =
@@ -193,8 +196,9 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
 
           <div>
             {findings.map((finding, index) =>
-              <div key={index} className="flex gap-3">
-                <p key={index}>{finding.region}: {finding.description}</p>
+              <div key={index} className="flex gap-3 text-sm">
+                <p className="font-medium text-nowrap">{finding.region}: </p>
+                <p>{finding.description}</p>
                 <Button onClick={() => handleRemoveFinding(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
               </div>
             )}
@@ -210,13 +214,17 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
           </Button>
           <div>
             {impressions.map((item, index) =>
-              <div key={index} className="flex gap-3">
+              <div key={index} className="flex gap-3 text-sm">
                 <p>{item}</p>
                 <Button onClick={() => handleRemoveImpression(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
               </div>
             )}
           </div>
         </fieldset>
+        <div className="flex items-center gap-4 ml-2">
+          <p>Mark as critical or abnormal finding?</p>
+          <Checkbox checked={isCritical} onCheckedChange={setIsCritical} className="border-gray-300" />
+        </div>
       </div>
 
     </DialogContent>

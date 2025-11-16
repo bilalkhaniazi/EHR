@@ -39,23 +39,6 @@ interface MedAdminCardProps {
   onOrderChange: (index: number, field: keyof MedicationOrder, value: any) => void;
 }
 
-// helper function to get the last few times the med was given
-const getPreviousAdministrations = (administrations: MedAdministrationInstance[], prevAdmins: number) => {
-  if (!administrations || administrations.length === 0) {
-    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance];
-  }
-  const filteredAdmins = administrations.filter(admin => admin.status === "Given")
-
-  if (filteredAdmins.length === 0) {
-    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
-  }
-  filteredAdmins.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
-  return filteredAdmins.slice(-prevAdmins)
-}
-
-
-
-
 const MedCardForm = ({
   medication,
   handleMedicationRemoval,
@@ -64,17 +47,17 @@ const MedCardForm = ({
   onOrderChange
 }: MedAdminCardProps) => {
 
-  type MedAdminStatus = MedAdministrationInstance["status"];
-  const getStatusColor = (status: MedAdminStatus) => {
-    const colorMap = {
-      Given: "bg-lime-200 text-lime-800",
-      Missed: "bg-red-200 text-red-800",
-      Held: "bg-yellow-200 text-yellow-800",
-      Due: "bg-blue-200 text-blue-800",
-      Refused: "bg-gray-300 text-gray-800",
-    };
-    return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
-  };
+  // type MedAdminStatus = MedAdministrationInstance["status"];
+  // const getStatusColor = (status: MedAdminStatus) => {
+  //   const colorMap = {
+  //     Given: "bg-lime-200 text-lime-800",
+  //     Missed: "bg-red-200 text-red-800",
+  //     Held: "bg-yellow-200 text-yellow-800",
+  //     Due: "bg-blue-200 text-blue-800",
+  //     Refused: "bg-gray-300 text-gray-800",
+  //   };
+  //   return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
+  // };
 
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
@@ -83,7 +66,7 @@ const MedCardForm = ({
       <button onClick={() => handleMedicationRemoval(index)} className="absolute top-2 right-2">
         <X size={18} />
       </button>
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-4">
         <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
           <div className="space-y-1">
             {renderMedFormTitle(medication)}
@@ -129,21 +112,24 @@ const MedCardForm = ({
           )}
 
         </div>
-        <div className="grid grid-cols-2 py-4 px-2 gap-x-2 gap-y-4">
-          <div className="w-full space-y-1">
-            <Label>Dose</Label>
-            <div className="flex items-end">
-              <Input
-                onChange={(e) => onOrderChange(index, 'unitsOrdered', e.target.value)}
-                value={orderData.unitsOrdered || ''}
-                className="text-sm bg-white w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
-              />
-              <div className="h-9 bg-white border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
-                <p className="text-sm">{medication.orderableUnit}</p>
+        <div className="grid grid-cols-2 py-4 px-2 gap-x-2 gap-y-6 place-items-start-start">
+          {!isSlidingScaleInsulinMed &&
+            <div className="w-full space-y-1">
+              <Label>Dose</Label>
+              <div className="flex items-end">
+                <Input
+                  onChange={(e) => onOrderChange(index, 'unitsOrdered', e.target.value)}
+                  value={orderData.unitsOrdered || ''}
+                  className="text-sm bg-white w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
+                />
+                <div className="h-9 bg-white border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
+                  <p className="text-sm">{medication.orderableUnit}</p>
+                </div>
               </div>
             </div>
-          </div>
-          {medication.route === "IV" &&
+          }
+
+          {medication.route === "IV" && medication.infusionRateUnit &&
             <div className="w-full space-y-1">
               <Label>Rate</Label>
               <div className="flex items-end">
@@ -183,7 +169,7 @@ const MedCardForm = ({
               <option hidden disabled value=''>Select frequency</option>
               {
                 medicationFrequencies.map(item =>
-                  <option key={`${item.value}-${medication.id}`} value={item.value}>{item.label}</option>
+                  <option className="text-md" key={`${item.value}-${medication.id}`} value={item.value}>{item.label}</option>
                 )
               }
             </select>

@@ -64,13 +64,13 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
   };
 
   return (
-    <div>
+    <div className="mb-2">
       {/* Hidden input holds JSON of inputs for form submission */}
       {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
 
       <label className="case-form-label">{labelText}</label>
       <input
-        className="case-form-input-text"
+        className="case-form-input-text shadow-xs"
         type="text"
         value={currentInput}
         onChange={(e) => setCurrentInput(e.target.value)}
@@ -92,12 +92,12 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
 
 
       {/* Display a badge for each input */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mt-2 ml-4">
         {value.map((item: string, index: number) => (
-          <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1 flex items-center gap-1">
+          <Badge key={index} variant="secondary" className="pl-4 py-1.5 flex items-center gap-1 shadow">
             {item}
             <button className="cursor-pointer" type="button" onClick={() => removeItem(index)}>
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 ml-2" />
             </button>
           </Badge>
         ))}

@@ -48,10 +48,10 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
         <PopoverTrigger asChild>
           <Button className="bg-white text-black text-xs hover:bg-gray-100 shadow">
             <Clock className="mr-1" />
-            Insert Time
+            Time Offset
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="z-3 p-3 flex flex-col bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
+        <PopoverContent className="z-100 p-3 flex flex-col bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
           <div className="flex mt-2 mb-4 gap-3">
             <div>
               <Label htmlFor='days' className="text-xs">Days</Label>

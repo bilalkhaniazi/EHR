@@ -8,6 +8,8 @@ export interface ImagingData {
     description: string
   }[];
   impressions: string[];
+  isCritical: boolean | 'indeterminate';
+
 }
 
 export interface MicrobiologyReportData {
@@ -199,6 +201,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
       {
         labName: "CT R. Foot",
         value: {
+          isCritical: false,
           displayName: "CT OF THE RIGHT FOOT",
           technique: "Non-contrast axial and sagittal CT images of the right foot were obtained. Multiplanar reconstructions performed.",
           findings: [

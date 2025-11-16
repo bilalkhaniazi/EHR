@@ -82,30 +82,28 @@ const MedicationEntry = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen relative bg-neutral-100 gap-2 p-2 overflow-y-auto">
-      <Card className="px-8">
-        <Button onClick={handleSubmit} className="absolute top-8 right-8">Continue</Button>
+    <div className="flex flex-col h-screen relative bg-white gap-6 p-4 overflow-y-auto">
+      <Button onClick={handleSubmit} className="absolute top-8 right-8">Continue</Button>
 
-        <h1 className="text-3xl font-medium">Medication Orders</h1>
-        <div>
-          <Label>Medication</Label>
-          <Combobox value={selectedMed} onValueChange={handleAddMedication} data={comboboxData} displayText="Select medication" />
-        </div>
-        <div className="w-full flex flex-col gap-6">
-          {selectedMeds.map((med, index) => {
-            return (
-              <MedCardForm
-                key={med.id}
-                medication={med}
-                handleMedicationRemoval={handleRemoveMedication}
-                index={index}
-                orderData={orders[index]}
-                onOrderChange={handleOrderChange}
-              />
-            )
-          })}
-        </div>
-      </Card>
+      <h1 className="text-3xl p-y-2 font-medium">Medication Orders</h1>
+      <div>
+        <Label>Medication</Label>
+        <Combobox value={selectedMed} onValueChange={handleAddMedication} data={comboboxData} displayText="Select medication" />
+      </div>
+      <div className="w-full flex flex-col gap-6">
+        {selectedMeds.map((med, index) => {
+          return (
+            <MedCardForm
+              key={med.id}
+              medication={med}
+              handleMedicationRemoval={handleRemoveMedication}
+              index={index}
+              orderData={orders[index]}
+              onOrderChange={handleOrderChange}
+            />
+          )
+        })}
+      </div>
     </div>
   )
 }

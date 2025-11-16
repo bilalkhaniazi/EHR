@@ -293,21 +293,17 @@ const NotesForm = () => {
 
   return (
     <>
-      <div className="flex flex-col bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
-        <Card>
+      <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 overflow-y-auto ">
+        <Card className="relative pb-0">
           <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
-            <div className="w-full flex flex-col gap-2 p-2">
+            <div className="w-full flex flex-col gap-6 p-2">
               <input type="hidden" name="notes" value={JSON.stringify(notes)} />
+              <div className="absolute top-8 right-8">
+                <SubmitButton buttonText="Continue" />
+              </div>
+
 
               <p className="m-2 ml-0 text-2xl font-bold">Notes</p>
-
-              {(notes.length > 0) &&
-                <div className="flex flex-col grow gap-2 p-2 rounded-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
-                  {notes.map((note, index) => (
-                    <NoteDisplay onDelete={() => setNotes(notes.filter((_, i) => i !== index))} note={note} key={index} />
-                  ))}
-                </div>
-              }
 
               <div className="flex">
                 <label className="case-form-label">Category:</label>
@@ -386,42 +382,40 @@ const NotesForm = () => {
                 </div>
               </div>
 
-              <p>Note Contents:</p>
 
               {/* SOAP format inputs */}
-              {isSoap && (
-                <div className="ml-4">
-                  <div className="flex flex-col">
-                    <label htmlFor="subjective" className="case-form-label ">Subjective:</label>
-                    <textarea
-                      onChange={(e) => { setSubjective(e.target.value) }} value={subjective}
-                      id="subjective" className="min-h-25 case-form-textarea" />
-                  </div>
-                  <br />
-                  <div className="flex flex-col">
-                    <label htmlFor="objective" className="case-form-label">Objective:</label>
-                    <textarea
-                      onChange={(e) => { setObjective(e.target.value) }} value={objective}
-                      id="objective" className="min-h-25 case-form-textarea" />
-                  </div>
-                  <br />
+              <div className="space-y-3">
+                <p>Note Contents:</p>
 
-                  <div className="flex flex-col">
-                    <label htmlFor="assessment" className="case-form-label">Assessment:</label>
-                    <textarea
-                      onChange={(e) => { setAssessment(e.target.value) }} value={assessment}
-                      id="assessment" className="min-h-25 case-form-textarea" />
+                {isSoap && (
+                  <div className="ml-4">
+                    <div className="flex flex-col">
+                      <label htmlFor="subjective" className="case-form-label ">Subjective:</label>
+                      <textarea
+                        onChange={(e) => { setSubjective(e.target.value) }} value={subjective}
+                        id="subjective" className="min-h-25 case-form-textarea" />
+                    </div>
+                    <div className="flex flex-col">
+                      <label htmlFor="objective" className="case-form-label">Objective:</label>
+                      <textarea
+                        onChange={(e) => { setObjective(e.target.value) }} value={objective}
+                        id="objective" className="min-h-25 case-form-textarea" />
+                    </div>
+                    <div className="flex flex-col">
+                      <label htmlFor="assessment" className="case-form-label">Assessment:</label>
+                      <textarea
+                        onChange={(e) => { setAssessment(e.target.value) }} value={assessment}
+                        id="assessment" className="min-h-25 case-form-textarea" />
+                    </div>
+                    <div className="flex flex-col">
+                      <label htmlFor="plan" className="case-form-label">Plan:</label>
+                      <textarea
+                        onChange={(e) => { setPlan(e.target.value) }} value={plan}
+                        id="plan" className="min-h-25 case-form-textarea" />
+                    </div>
                   </div>
-                  <br />
-
-                  <div className="flex flex-col">
-                    <label htmlFor="plan" className="case-form-label">Plan:</label>
-                    <textarea
-                      onChange={(e) => { setPlan(e.target.value) }} value={plan}
-                      id="plan" className="min-h-25 case-form-textarea" />
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Text input, not in SOAP format */}
               {!isSoap &&
@@ -440,9 +434,18 @@ const NotesForm = () => {
                 type="button">
                 Add Note to Case +
               </button>
-              <SubmitButton buttonText="Continue" />
             </div>
           </form>
+          {(notes.length > 0) &&
+            <div className="flex flex-col grow gap-4 p-2 rounded-lg overflow-y-auto ">
+              {notes.map((note, index) => (
+                <div className="border rounded-lg">
+                  <NoteDisplay onDelete={() => setNotes(notes.filter((_, i) => i !== index))} note={note} key={index} />
+                </div>
+              ))}
+            </div>
+          }
+
         </Card>
       </div>
     </>

@@ -143,15 +143,15 @@
     @apply bg-background text-foreground;
 
     .case-form-input-text {
-      @apply w-40 border-1 pl-1 rounded;
+      @apply w-40 border-1 px-2 py-0.5 rounded-lg shadow-xs;
     }
 
     .case-form-input-number {
-      @apply w-20 border-1 pl-1 pr-1 rounded;
+      @apply w-24 border-1 px-2 py-0.5 rounded-lg shadow-xs;
     }
 
     .case-form-select {
-      @apply min-w-20 w-fit border-1 pl-1 rounded;
+      @apply min-w-24 w-fit border-1 px-2 py-0.5 rounded-lg shadow-xs;
     }
 
     .case-form-label {

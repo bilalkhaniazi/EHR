@@ -107,7 +107,7 @@ export function MultiSelect({
               <Badge
                 key={value}
                 variant="secondary"
-                className="pl-3 pr-1 py-1 flex items-center gap-1"
+                className="pl-4 py-1.5 shadow flex items-center gap-1"
               >
                 {option?.label}
                 <button

@@ -151,7 +151,7 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
       </div>
       <div className="flex items-center gap-4">
         <p>Mark as critical or abnormal finding?</p>
-        <Checkbox checked={isCritical} onCheckedChange={setIsCritical} />
+        <Checkbox checked={isCritical} onCheckedChange={setIsCritical} className="border-gray-300" />
       </div>
 
     </div>
