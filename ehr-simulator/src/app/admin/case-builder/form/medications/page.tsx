@@ -3,9 +3,9 @@ import { useMemo, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { allMedications, AllMedicationTypes, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
 import Combobox from "@/components/ui/combobox"
-import { Card } from "@/components/ui/card"
 import MedCardForm from "./components/medCardForm"
-import { Button } from "@/components/ui/button"
+import SubmitButton from "../../components/submitButton"
+import { useRouter } from "next/navigation"
 
 function getComboboxData(medications: AllMedicationTypes[]) {
   return medications.map(med => {
@@ -28,6 +28,7 @@ const MedicationEntry = () => {
   const [selectedMed, setSelectedMed] = useState('')
   const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([]) // when user selects a medication, add the medication object to the array here
   const [orders, setOrders] = useState<NewOrderData[]>([])
+  const router = useRouter()
 
 
   const handleAddMedication = (newMedId: string) => {
@@ -50,13 +51,13 @@ const MedicationEntry = () => {
 
   }
 
-  const handleOrderChange = (index: number, field: keyof NewOrderData, value: any) => {
+  const handleOrderChange = (index: number, field: keyof NewOrderData, value: string) => {
     setOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
 
           // Handle fields that should be numbers
-          if (field === 'unitsOrdered' || field === 'infusionRate') {
+          if (field === 'dose' || field === 'infusionRate') {
             const regex = /^[0-9]*\.?[0-9]*$/; // Allows decimals, "1.", ".5"
 
             if (value === '' || regex.test(value)) {
@@ -77,13 +78,21 @@ const MedicationEntry = () => {
     return getComboboxData(allMedications);
   }, []);
 
-  const handleSubmit = () => {
-    console.log("Final Orders:", orders);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+    router.push('/admin/case-builder/form/medication-administrations')
   }
 
   return (
     <div className="flex flex-col h-screen relative bg-white gap-6 p-4 overflow-y-auto">
-      <Button onClick={handleSubmit} className="absolute top-8 right-8">Continue</Button>
+      <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
+        <input name='medOrderData' type='hidden' value={JSON.stringify(orders)} />
+        <SubmitButton buttonText="Continue" />
+      </form>
 
       <h1 className="text-3xl p-y-2 font-medium">Medication Orders</h1>
       <div>

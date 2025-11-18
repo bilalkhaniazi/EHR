@@ -76,7 +76,10 @@ export interface MedicationOrder {
   status: "active" | "completed" | "Held" | "cancelled";
   orderingProvider: string;
   infusionRate?: number
+  dose: number
 }
+
+export type AdministrationStatus = 'Given' | 'Held' | 'Missed' | 'Refused' | 'Due'
 
 // an instance where a patient is given a medication (or refuses it)
 // is associated with a specific med order
@@ -84,7 +87,7 @@ export interface MedAdministrationInstance {
   medicationOrderId: string;    // link to specific med order
   administratorId: string;
   adminTimeMinuteOffset: number;
-  status: 'Given' | 'Held' | 'Missed' | 'Refused' | "Due";
+  status: AdministrationStatus;
   notes?: string;
   administeredDose: number
 }
@@ -428,6 +431,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderMetoprololIvPush",
     medicationId: "medMetoprololIvPush",
     unitsOrdered: 0.8,               // amount of orderableUnits to be administered to pt   
+    dose: 9,
     frequency: "Q8H",
     priority: "STAT",
     indication: "Tachycardia",
@@ -438,9 +442,10 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderAlbuterolInh",
     medicationId: "medAlbuterolInhalation",
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt   
+    dose: 60,
     frequency: "Q8H",
     priority: "STAT",
-    indication: "Tachycardia",
+    indication: "Asthma",
     status: "active",
     orderingProvider: "Dr. Rahul Gupta"
   },
@@ -448,6 +453,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderAmoxIv",
     medicationId: "medAmoxIv",
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt   
+    dose: 500,
     frequency: "Q8H",
     infusionRate: 100,
     priority: "Routine",
@@ -459,6 +465,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderPiperacillinTazobactamIV",
     medicationId: "medPiperacillinTazobactamIV",
     unitsOrdered: 1,               // amount of orderableUnits to be administered to pt   
+    dose: 3.375,
     frequency: "Q8H",
     infusionRate: 100,
     priority: "Routine",
@@ -470,6 +477,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderNormalSaline09",
     medicationId: "medNormalSaline09Iv",
     unitsOrdered: 1,
+    dose: 500,
     infusionRate: 100,
     frequency: "Continuous",
     priority: "Routine",
@@ -480,7 +488,8 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderMetoprololOral25",
     medicationId: "medMetoprololOral25",
-    unitsOrdered: 2,
+    dose: 50,
+    unitsOrdered: 7,
     frequency: "Twice Daily",
     priority: "Routine",
     status: "active",
@@ -492,6 +501,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderLisinoprilOral10",
     medicationId: "medLisinoprilOral10",
     unitsOrdered: 1, // Ordering 1 Tablet (10mg)
+    dose: 10,
     frequency: "QD",
     priority: "Routine",
     status: "active",
@@ -502,7 +512,8 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderVancomycinIv",
     medicationId: "medVancomycinIv1000",
-    unitsOrdered: 1, // Ordering 1 Bag (1000mg)
+    unitsOrdered: 100000000, // Ordering 1 Bag (1000mg)
+    dose: 1000,
     frequency: "Q12H",
     priority: "Routine",
     infusionRate: 250,
@@ -515,6 +526,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderAtorvastatinOral40",
     medicationId: "medAtorvastatinOral40",
     unitsOrdered: 1,
+    dose: 40,
     frequency: "QD",
     priority: "Routine",
     status: "active",
@@ -525,6 +537,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderAcetaminophenOral650",
     medicationId: "medAcetaminophenOral650",
+    dose: 650,
     unitsOrdered: 1,
     frequency: "PRN",
     priority: "Routine",
@@ -537,6 +550,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderInsulinGlargineSc",
     medicationId: "medInsulinGlargineSc",
     unitsOrdered: 15,
+    dose: 15,
     frequency: "QD",
     priority: "Routine",
     status: "active",
@@ -547,6 +561,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderInsulinAspartHum",
     medicationId: "medInsulinAspartHum",
     unitsOrdered: 15,
+    dose: 15,
     frequency: "QD",
     priority: "Routine",
     status: "active",
@@ -557,6 +572,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderLactatedRingers",
     medicationId: "medLactatedRingersIV",
     unitsOrdered: 1,
+    dose: 1000,
     infusionRate: 100,
     frequency: "Continuous",
     priority: "Routine",
@@ -568,6 +584,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderHydrocortisoneCream",
     medicationId: "medHydrocortisoneCream",
     unitsOrdered: 1, // Represents "one application"
+    dose: 1,
     frequency: "PRN",
     priority: "Routine",
     status: "active",
@@ -579,6 +596,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderFurosemideOral20",
     medicationId: "medFurosemideOral20",
     unitsOrdered: 1, // 1 Tablet
+    dose: 20,
     frequency: "BID",
     priority: "Routine",
     status: "active",
@@ -590,6 +608,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderPantoprazoleIv40",
     medicationId: "medPantoprazoleIv40",
     unitsOrdered: 1, // 1 Vial
+    dose: 40,
     frequency: "QD",
     priority: "Routine",
     infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
@@ -601,6 +620,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderEnoxaparinSc40",
     medicationId: "medEnoxaparinSc40",
     unitsOrdered: 1, // 1 Pre-filled Syringe
+    dose: 40,
     frequency: "QD",
     priority: "Routine",
     status: "active",
@@ -612,6 +632,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderMorphineIv",
     medicationId: "medMorphineIv10",
     unitsOrdered: 0.2, // 0.2 of the 10mg Ampule = 2mg dose
+    dose: 2,
     frequency: "PRN",
     priority: "Routine",
     infusionRate: 50, // 50mL over 1hr = 50mL/hr (for a piggyback)
@@ -624,6 +645,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderNitroPatchTd",
     medicationId: "medNitroPatchTd",
     unitsOrdered: 1, // 1 Patch
+    dose: 0.4,
     frequency: "Daily",
     priority: "Routine",
     status: "active",
@@ -638,6 +660,7 @@ export const medicationOrders: MedicationOrder[] = [
     frequency: "PRN",
     priority: "Routine",
     infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
+    dose: 4,
     status: "active",
     indication: "Nausea/Vomiting",
     instructions: "As needed for nausea.",
@@ -647,6 +670,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderCeftriaxoneIm250",
     medicationId: "medCeftriaxoneIm250",
     unitsOrdered: 1, // 1 Vial
+    dose: 250,
     frequency: "Once",
     priority: "STAT",
     status: "active",
@@ -658,6 +682,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderEpinephrineIm1mg",
     medicationId: "medEpinephrineIm1mg",
     unitsOrdered: 1, // 1 Auto-Injector
+    dose: 1,
     frequency: "PRN",
     priority: "STAT",
     status: "active",
@@ -669,6 +694,7 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderMethylprednisoloneIv125",
     medicationId: "medMethylprednisoloneIv125",
     unitsOrdered: 1, // 1 Vial
+    dose: 125,
     frequency: "Once",
     priority: "STAT",
     infusionRate: 100, // 100mL over 1hr = 100mL/hr

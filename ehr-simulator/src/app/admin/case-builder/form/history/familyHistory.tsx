@@ -20,10 +20,7 @@ interface FamilyHistoryProps {
 }
 
 const relations: string[] = [
-  'Mother',
-  'Father',
-  'Brother',
-  'Sister',
+
   'Paternal Grandmother',
   'Maternal Grandmother',
   'Paternal Grandfather',
@@ -34,6 +31,10 @@ const relations: string[] = [
   'Paternal  Uncle',
   'Maternal Cousin',
   'Paternal Cousin',
+  'Mother',
+  'Father',
+  'Brother',
+  'Sister',
 ];
 
 export function FamilyHistory({

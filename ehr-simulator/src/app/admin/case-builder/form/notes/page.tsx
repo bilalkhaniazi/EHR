@@ -209,9 +209,9 @@ const NotesForm = () => {
     setObjective("");
     setAssessment("");
     setPlan("");
-    setDays("");
-    setHours("");
-    setMinutes("");
+    setDays(0);
+    setHours(0);
+    setMinutes(0);
   }
 
   const handleFormatSwitch = (isSoap: boolean) => {

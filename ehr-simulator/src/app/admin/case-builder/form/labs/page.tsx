@@ -1285,7 +1285,7 @@ export function LabPage() {
   // }
 
   return (
-    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 gap-2 ">
+    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-white justify-center items-center px-4 pt-4 gap-2 ">
       <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
         <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
         <SubmitButton buttonText="Continue" />

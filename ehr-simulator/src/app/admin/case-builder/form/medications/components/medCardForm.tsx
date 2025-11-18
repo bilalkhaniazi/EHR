@@ -1,11 +1,8 @@
-import { format } from "date-fns";
-import { medActionSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
-import MedAdminCardSelector from "@/app/simulation/[sessionId]/chart/mar/components/medAdminCardSelector";
+import { type AllMedicationTypes, type MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { renderMedTitleRow, renderMedCardDetails, isSlidingScaleInsulin } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
+import { isSlidingScaleInsulin } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { renderMedFormDetails, renderMedFormTitle } from "./medFormHelpers";
 import { X } from "lucide-react";
 
@@ -118,12 +115,12 @@ const MedCardForm = ({
               <Label>Dose</Label>
               <div className="flex items-end">
                 <Input
-                  onChange={(e) => onOrderChange(index, 'unitsOrdered', e.target.value)}
-                  value={orderData.unitsOrdered || ''}
+                  onChange={(e) => onOrderChange(index, 'dose', e.target.value)}
+                  value={orderData.dose || ''}
                   className="text-sm bg-white w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
                 />
                 <div className="h-9 bg-white border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
-                  <p className="text-sm">{medication.orderableUnit}</p>
+                  <p className="text-sm">{medication.strengthUnit}</p>
                 </div>
               </div>
             </div>

@@ -19,19 +19,19 @@ interface MedAdminCardProps {
 
 // helper function to get the last few times the med was given
 const getPreviousAdministrations = (administrations: MedAdministrationInstance[], prevAdmins: number) => {
-    if (!administrations || administrations.length === 0) {
-      return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance];
-    }
-    const filteredAdmins = administrations.filter(admin => admin.status === "Given")
-    
-    if (filteredAdmins.length === 0) {
-      return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
-    }
-    filteredAdmins.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
-    return filteredAdmins.slice(-prevAdmins)
+  if (!administrations || administrations.length === 0) {
+    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance];
   }
+  const filteredAdmins = administrations.filter(admin => admin.status === "Given")
 
-  
+  if (filteredAdmins.length === 0) {
+    return [{ medicationOrderId: "", administratorId: "", adminTimeMinuteOffset: 0, status: "Held" } as MedAdministrationInstance]
+  }
+  filteredAdmins.sort((a, b) => a.adminTimeMinuteOffset - b.adminTimeMinuteOffset);
+  return filteredAdmins.slice(-prevAdmins)
+}
+
+
 
 
 const MedAdminCard = ({
@@ -54,8 +54,8 @@ const MedAdminCard = ({
     if (value === '' || /^[0-9]*$/.test(value)) {
       onDoseChange(Number(e.target.value))
     }
-  } 
-  
+  }
+
   type MedAdminStatus = MedAdministrationInstance["status"];
   const getStatusColor = (status: MedAdminStatus) => {
     const colorMap = {
@@ -75,7 +75,7 @@ const MedAdminCard = ({
   return (
     <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0">
       <div className="grid grid-cols-2">
-        <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">  
+        <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
           <div className="space-y-1">
             {renderMedTitleRow(medication, order)}
             <div className="text-xs tracking-tight pb-2 text-gray-500">
@@ -84,7 +84,7 @@ const MedAdminCard = ({
           </div>
 
           <div>
-            {order.instructions && 
+            {order.instructions &&
               <div className="">
                 <h2 className="font-light">Administration Instructions:</h2>
                 <p className="pl-2 text-xs font-light text-gray-700">
@@ -142,10 +142,10 @@ const MedAdminCard = ({
           </div>
         </div>
         <div className="grid grid-cols-3 py-4 px-2 gap-y-2">
-          <MedAdminCardSelector 
+          <MedAdminCardSelector
             options={medActionSelections}
             value={currentStatus}
-            onValueChange={handleStatusChange} 
+            onValueChange={handleStatusChange}
             label="Action"
           />
           <div className="w-full space-y-1">
@@ -157,17 +157,17 @@ const MedAdminCard = ({
           <div className="w-full space-y-1">
             <Label>Dose</Label>
             <div className="flex items-end">
-              <Input  onChange={(e) => handleDoseChange(e)} value={currentDose} className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200" />
+              <Input onChange={(e) => handleDoseChange(e)} value={currentDose} className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200" />
               <div className="h-9 bg-gray-50 border border-l-0 rounded-r-xl border-gray-200 p-2 shadow-xs">
                 <p className="text-sm">{medication.strengthUnit}</p>
               </div>
-            </div> 
+            </div>
           </div>
-          {medication.route === "IV" && medication.infusionRate &&
+          {medication.route === "IV" && order.infusionRate &&
             <div className="w-full space-y-1">
               <Label>Rate</Label>
               <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-                {`${medication.infusionRate}${medication.infusionRateUnit}`}
+                {`${order.infusionRate}${medication.infusionRateUnit}`}
               </p>
             </div>
           }
@@ -187,7 +187,7 @@ const MedAdminCard = ({
             <Label>Comments</Label>
             <Input className="text-sm w-full" />
           </div>
-        </div>      
+        </div>
       </div>
     </div>
   )
