@@ -1,9 +1,5 @@
-import { useGetChartQuery } from "@/app/store/apiSlice"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import StyledTitle from "./styledTitle"
-import CardSkeleton from "./cardSkeleton"
-import type { StringArrayValueItem } from "@/app/simulation/[sessionId]/chart/components/chartData"
 
 const MarSnapshot = () => {
   // const {data, isLoading, isError, isFetching, error} = useGetChartQuery()

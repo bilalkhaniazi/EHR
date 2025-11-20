@@ -3,93 +3,13 @@
 import { ImagingData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import Combobox from "@/components/ui/combobox";
 import { DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react"
 
-// export const imagingOptions = [
-//   // --- CT (Computed Tomography) ---
-//   { value: "CT Head w/o Contrast", label: "CT Head w/o Contrast" },
-//   { value: "CT Head w/ Contrast", label: "CT Head w/ Contrast" },
-//   { value: "CT Neck w/ Contrast", label: "CT Neck w/ Contrast" },
-//   { value: "CT Orbits w/o Contrast", label: "CT Orbits w/o Contrast" },
-//   { value: "CT Sinuses w/o Contrast", label: "CT Sinuses w/o Contrast" },
-//   { value: "CT Chest w/ Contrast", label: "CT Chest w/ Contrast" },
-//   { value: "CT Chest w/o Contrast", label: "CT Chest w/o Contrast" },
-//   { value: "CT Abdomen/Pelvis w/o Contrast", label: "CT Abdomen/Pelvis w/o Contrast" },
-//   { value: "CT Abdomen/Pelvis w/ Contrast", label: "CT Abdomen/Pelvis w/ Contrast" },
-//   { value: "CT C-Spine", label: "CT C-Spine" },
-//   { value: "CT T-Spine", label: "CT T-Spine" },
-//   { value: "CT L-Spine", label: "CT L-Spine" },
-//   { value: "CT R. Foot", label: "CT R. Foot" },
-//   { value: "CT L. Foot", label: "CT L. Foot" },
-//   { value: "CT R. Ankle", label: "CT R. Ankle" },
-//   { value: "CT L. Ankle", label: "CT L. Ankle" },
-//   { value: "CT R. Knee", label: "CT R. Knee" },
-//   { value: "CT L. Knee", label: "CT L. Knee" },
 
-//   // --- MRI (Magnetic Resonance Imaging) ---
-//   { value: "MRI Brain w/o Contrast", label: "MRI Brain w/o Contrast" },
-//   { value: "MRI Brain w/ and w/o Contrast", label: "MRI Brain w/ and w/o Contrast" },
-//   { value: "MRI C-Spine", label: "MRI C-Spine" },
-//   { value: "MRI T-Spine", label: "MRI T-Spine" },
-//   { value: "MRI L-Spine", label: "MRI L-Spine" },
-//   { value: "MRI R. Shoulder", label: "MRI R. Shoulder" },
-//   { value: "MRI L. Shoulder", label: "MRI L. Shoulder" },
-//   { value: "MRI R. Knee", label: "MRI R. Knee" },
-//   { value: "MRI L. Knee", label: "MRI L. Knee" },
-//   { value: "MRI Abdomen w/ and w/o Contrast", label: "MRI Abdomen w/ and w/o Contrast" },
-
-//   // --- US (Ultrasound) ---
-//   { value: "US Renal", label: "US Renal" },
-//   { value: "US RUQ (Gallbladder/Liver)", label: "US RUQ (Gallbladder/Liver)" },
-//   { value: "US Appendix", label: "US Appendix" },
-//   { value: "US Pelvic", label: "US Pelvic" },
-//   { value: "US Scrotal", label: "US Scrotal" },
-//   { value: "US Thyroid", label: "US Thyroid" },
-//   { value: "US Carotid Doppler", label: "US Carotid Doppler" },
-//   { value: "US Venous Doppler Bil. U/E", label: "US Venous Doppler Bil. U/E" },
-//   { value: "US Venous Doppler Bil. L/E ", label: "US Venous Doppler Bil. L/E " },
-//   { value: "US Echocardiogram (TTE)", label: "US Echocardiogram (TTE)" },
-//   { value: "US Echocardiogram (TEE)", label: "US Echocardiogram (TEE)" },
-
-//   // --- XR (X-Ray) ---
-//   { value: "XR Chest", label: "XR Chest" },
-//   { value: "XR Abdomen", label: "XR Abdomen" },
-//   { value: "XR C-Spine", label: "XR C-Spine" },
-//   { value: "XR T-Spine", label: "XR T-Spine" },
-//   { value: "XR L-Spine", label: "XR L-Spine" },
-//   { value: "XR R. Shoulder", label: "XR R. Shoulder" },
-//   { value: "XR L. Shoulder", label: 'Two L. Shoulder' },
-//   { value: "XR R. Clavicle", label: "XR R. Clavicle" },
-//   { value: "XR L. Clavicle", label: "XR L. Clavicle" },
-//   { value: "XR R. Humerus", label: "XR R. Humerus" },
-//   { value: "XR L. Humerus", label: "XR L. Humerus" },
-//   { value: "XR R. Elbow", label: "XR R. Elbow" },
-//   { value: "XR L. Elbow", label: "XR L. Elbow" },
-//   { value: "XR R. Forearm", label: "XR R. Forearm" },
-//   { value: "XR L. Forearm", label: "XR L. Forearm" },
-//   { value: "XR R. Wrist", label: "XR R. Wrist" },
-//   { value: "XR L. Wrist", label: "XR L. Wrist" },
-//   { value: "XR R. Hand", label: "XR R. Hand" },
-//   { value: "XR L. Hand", label: "XR L. Hand" },
-//   { value: "XR Pelvis", label: "XR Pelvis" },
-//   { value: "XR R. Hip", label: "XR R. Hip" },
-//   { value: "XR L. Hip", label: "XR L. Hip" },
-//   { value: "XR R. Femur", label: "XR R. Femur" },
-//   { value: "XR L. Femur", label: "XR L. Femur" },
-//   { value: "XR R. Knee", label: "XR R. Knee" },
-//   { value: "XR L. Knee", label: "XR L. Knee" },
-//   { value: "XR R. Tib/Fib", label: "XR R. Tib/Fib" },
-//   { value: "XR L. Tib/Fib", label: "XR L. Tib/Fib" },
-//   { value: "XR R. Ankle", label: "XR R. Ankle" },
-//   { value: "XR L. Ankle", label: "XR L. Ankle" },
-//   { value: "XR R. Foot", label: "XR R. Foot" },
-//   { value: "XR L. Foot", label: "XR L. Foot" },
-// ];
 interface AddImagingProps {
   imagingType: string
   handleAddImagingReport: (report: ImagingData) => void;
@@ -99,14 +19,6 @@ interface AddImagingProps {
 interface Finding {
   region: string;
   description: string;
-}
-
-interface Image {
-  imagingType: string;
-  technique: string;
-  findings: Finding[];
-  impressions: string[];
-  timeOffset: number;
 }
 
 const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: AddImagingProps) => {
@@ -233,21 +145,3 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
 
 export default AddImagingReport
 
-
-// { labName: "CT R. Foot",
-//   value: {
-//     displayName: "CT OF THE RIGHT FOOT",
-//     technique: "Non-contrast axial and sagittal CT images of the right foot were obtained. Multiplanar reconstructions performed.",
-//     findings: {
-//       "Soft Tissue": "There is a focal soft tissue defect overlying the plantar aspect of the right forefoot, measuring approximately 2.8 cm in diameter, with surrounding subcutaneous fat stranding and mild edema.",
-//       "Bone Structures": "Cortical irregularity and erosion noted involving the underlying second and third metatarsal heads. Trabecular sclerosis and decreased attenuation suggest early osteomyelitic changes. No definitive intraosseous gas observed.",
-//       "Joints": "Mild degenerative changes at the tarsometatarsal joints. No joint effusion",
-//       "Vascularity": "Posterior tibial artery calcifications consistent with peripheral vascular disease."
-//     },
-//     impression: [
-//       "Soft tissue ulceration of the right plantar forefoot with adjacent inflammatory changes.",
-//       "Findings suggestive of early osteomyelitis involving the second and third metatarsal heads.",
-//       "Peripheral vascular calcifications likely related to underlying diabetes."
-//     ]
-//   }
-// },

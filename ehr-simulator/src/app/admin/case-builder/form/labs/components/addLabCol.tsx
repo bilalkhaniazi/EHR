@@ -46,7 +46,7 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
     <div className="">
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
-          <Button className="bg-white text-black text-xs hover:bg-gray-100 shadow">
+          <Button className="text-xs">
             <Clock className="mr-1" />
             Time Offset
           </Button>

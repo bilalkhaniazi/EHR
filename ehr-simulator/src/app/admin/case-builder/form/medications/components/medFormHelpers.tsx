@@ -58,9 +58,10 @@ export const renderMedFormDetails = (
   order: Partial<MedicationOrder>
 ) => {
   // Helper to safely get values or return an empty string/default
-  const dose = order.unitsOrdered || 0;
+  const orderedUnits = order.dose ? order.dose / medication.strength : 0;
   const freq = order.frequency || "___"; // Placeholder if not set
-  const indic = order.indication || "___"; // Placeholder if not set
+  const indic = order.indication || "___";
+  const priority = order.priority || "___"
 
   switch (medication.route) {
     case "PO":
@@ -69,10 +70,12 @@ export const renderMedFormDetails = (
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">
-            {dose} {pluralize(dose, medication.orderableUnit)}
+            {orderedUnits} {pluralize(orderedUnits, medication.orderableUnit)}
           </span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{freq}</span>
+          {/* <Separator className="bg-gray-300" orientation="vertical" />
+          <span className="text-nowrap">{priority}</span> */}
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{indic}</span>
         </div>
@@ -85,7 +88,7 @@ export const renderMedFormDetails = (
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">
-            {dose} {pluralize(dose, medication.orderableUnit)}
+            {orderedUnits} {pluralize(orderedUnits, medication.orderableUnit)}
           </span>
           {/* Only show rate if it's relevant (unit exists and rate is set) */}
           {medication.infusionRateUnit && rate > 0 && (
@@ -125,7 +128,7 @@ export const renderMedFormDetails = (
             <span className="text-nowrap">{medication.route}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">
-              {dose} {pluralize(dose, medication.orderableUnit)}
+              {orderedUnits} {pluralize(orderedUnits, medication.orderableUnit)}
             </span>
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{freq}</span>
@@ -143,10 +146,12 @@ export const renderMedFormDetails = (
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">
-            {dose} {pluralize(dose, medication.orderableUnit)}
+            {orderedUnits} {pluralize(orderedUnits, medication.orderableUnit)}
           </span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{freq}</span>
+          <Separator className="bg-gray-300" orientation="vertical" />
+          <span className="text-nowrap">{priority}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{indic}</span>
         </div>

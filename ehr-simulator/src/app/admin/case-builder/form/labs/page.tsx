@@ -2,7 +2,7 @@
 
 import type { ImagingData, LabTableData, MicrobiologyReportData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData"
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type RowData } from "@tanstack/react-table";
-import { useMemo, useEffect, useState, use } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
@@ -12,13 +12,11 @@ import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { ShieldAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddLabColumn } from "./components/addLabCol";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import AddMicrobiologyReport from "@/app/admin/case-builder/form/labs/components/addMicrobiologyReport";
 import { Label } from "@/components/ui/label";
 import Combobox from "@/components/ui/combobox";
 import AddImagingReport from "@/app/admin/case-builder/form/labs/components/addImagingReport";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 
@@ -946,7 +944,7 @@ const formatTimeOffset = (minuteOffset: number) => {
   return { days, hours, minutes };
 }
 
-export const getResultStatus = (initialValue: string, normalRange: { low: number, high: number } | undefined, criticalRange: { low: number, high: number } | undefined) => {
+const getResultStatus = (initialValue: string, normalRange: { low: number, high: number } | undefined, criticalRange: { low: number, high: number } | undefined) => {
   const numericValue = parseFloat(initialValue)
 
   if (isNaN(numericValue)) {
@@ -964,21 +962,28 @@ export const getResultStatus = (initialValue: string, normalRange: { low: number
 const columnHelper = createColumnHelper<LabTableData>();
 
 // left column pinned
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getPinnedStyles(column: any): React.CSSProperties {
+  const styles: React.CSSProperties = {
+    width: `${column.getSize()}px`,
+    minWidth: `${column.getSize()}px`,
+    maxWidth: `${column.getSize()}px`,
+  };
   if (!column.getIsPinned()) {
     return {};
   }
   const side = column.getIsPinned();
   return {
+    ...styles,
     position: 'sticky',
     [side]: `${column.getStart(side)}px`,
     zIndex: side === 'left' ? 2 : 1,
   };
 }
 
-export function LabPage() {
+export function LabForm() {
   const [labTableData, setLabTableData] = useState<LabTableData[]>(labData)
-  const [timePoints, setTimePoints] = useState([180, 60, 30])
+  const [timePoints, setTimePoints] = useState([0])
 
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [comboboxValue, setComboboxValue] = useState<string>("");
@@ -1053,7 +1058,9 @@ export function LabPage() {
       // first column has unique formatting
       columnHelper.accessor("field", {
         id: 'pinned',
-        header: () => <h1 className="h-full bg-gray-50"></h1>,
+        minSize: 200, // Optional: prevents it from getting too small if resizable
+        maxSize: 400,
+        header: () => <h1 className="h-20 bg-gray-50"></h1>,
         cell: info => {
           const rowType = info.row.original.rowType;
           const field = info.row.original.field
@@ -1071,8 +1078,8 @@ export function LabPage() {
               return (
                 <Tooltip>
                   <TooltipTrigger className="w-full font-normal text-xs text-neutral-700 shadow-none rounded-none">
-                    <div className="flex justify-end ">
-                      <p className="text-right font-normal px-2 text-xs text-neutral-700">{field}</p>
+                    <div className="flex justify-end w-full ">
+                      <p className="text-right font-normal px-2 text-xs text-neutral-700 text-wrap">{field}</p>
                       {unit && <p className="text-right font-normal pr-2 text-xs tracking-tight text-neutral-400">{unit}</p>}
                     </div>
                   </TooltipTrigger>
@@ -1096,7 +1103,7 @@ export function LabPage() {
               );
             }
             return (
-              <p className="w-full text-right font-normal px-2 text-xs text-neutral-700">
+              <p className="w-full text-right font-normal px-2 text-xs text-neutral-700 text-wrap">
                 {field}
               </p>
             );
@@ -1117,11 +1124,11 @@ export function LabPage() {
                 <div className="flex justify-center items-center">
                   <div className="grid grid-cols-2 gap-x-2">
                     <p className="text-gray-800 font-light">Days: </p>
-                    <p className="mb-1">{days}</p>
+                    <p className="mb-1 ml-1">{days}</p>
                     <p className="text-gray-800 font-light">Hours: </p>
-                    <p className="mb-1">{hours}</p>
+                    <p className="mb-1 ml-1">{hours}</p>
                     <p className="text-gray-800 font-light">Minutes: </p>
-                    <p className="mb-1">{minutes}</p>
+                    <p className="mb-1 ml-1">{minutes}</p>
                   </div>
                 </div>
               )
@@ -1216,12 +1223,10 @@ export function LabPage() {
                           <button type='button' className="w-full h-6"></button>
                         )}
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-150 lg:max-w-none w-250 ">
-                        <AddMicrobiologyReport
-                          handleAddMicrobiologyReport={handleAddorEditReport}
-                          initialData={isEditMode ? microbiologyReport : undefined}
-                        />
-                      </DialogContent>
+                      <AddMicrobiologyReport
+                        handleAddMicrobiologyReport={handleAddorEditReport}
+                        initialData={isEditMode ? microbiologyReport : undefined}
+                      />
                     </Dialog>
                   )
               }
@@ -1263,29 +1268,8 @@ export function LabPage() {
 
   });
 
-
-  // if (isLoading || isFetching ) {
-  //   return (
-  //     <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
-  //       <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //     </div>
-  //   );
-  // }
-
-  // if (isError) {
-  //   return (
-  //     <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-  //       <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 gap-2 ">
+    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-white justify-center items-center px-4 pt-4 gap-2 ">
       <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
         <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
         <SubmitButton buttonText="Continue" />
@@ -1302,7 +1286,7 @@ export function LabPage() {
       </div>
       <div className="w-full h-full border border-gray-200 rounded-t-lg overflow-auto">
         <Table className="w-full overflow-x-auto">
-          <TableHeader className=" bg-gray-50 sticky top-0">
+          <TableHeader className=" bg-gray-50 sticky top-0 h">
             {ptTable.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
@@ -1334,7 +1318,7 @@ export function LabPage() {
                     <TableCell
                       style={getPinnedStyles(cell.column)}
                       key={`${cell.id}-${row.original.field}`}
-                      className={`w-120 p-0 m-0 h-6 border-separate border-gray-200 border-b  ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                      className={`p-0 m-0 h-6 border-separate border-gray-200 border-b min-w-40 ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
                     >
                       {/* Render the cell content using flexRender */}
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -1373,4 +1357,4 @@ export function LabPage() {
 
 
 
-export default LabPage
+export default LabForm

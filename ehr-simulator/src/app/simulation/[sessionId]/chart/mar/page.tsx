@@ -4,16 +4,16 @@ import { useGetMarQuery } from "@/app/store/apiSlice";
 import { format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance } from "./components/marData";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/app/store/store";
 import { handleMedicationSelectionChange } from "./components/marSlice";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 
-export interface MedCardColumns { 
+export interface MedCardColumns {
   startTime: Date;
-  endTime: Date; 
+  endTime: Date;
   colHeader: string;
   associatedAdministrations?: MedAdministrationInstance[];
 }
@@ -27,8 +27,8 @@ export default function Mar() {
   // Mar still needs to be updated to use the time from timeSlice
   const [realWorldNow, setRealWorldNow] = useState(new Date());
 
-  const medicationOrders = data?.medicationOrders || []; 
-  const allMedications = data?.allMedications || []; 
+  const medicationOrders = data?.medicationOrders || [];
+  const allMedications = data?.allMedications || [];
   const medAdministrations = data?.medAdministrations || [];
 
   // will be replaced by scanning
@@ -37,22 +37,20 @@ export default function Mar() {
   };
 
   // lookup map grouping all administrations by order id, so each med card gets only the data it needs
-  const groupedAdministrationsByOrder = useMemo(() => {
-    return medAdministrations.reduce((acc, admin) => {
+  const groupedAdministrationsByOrder =
+    medAdministrations.reduce((acc, admin) => {
       if (!acc[admin.medicationOrderId]) {
         acc[admin.medicationOrderId] = [];
       }
       acc[admin.medicationOrderId].push(admin)
       return acc
     }, {} as { [orderId: string]: MedAdministrationInstance[] })
-  }, [medAdministrations])
 
-  const medsById = useMemo(() => {
-    return allMedications.reduce((acc, med) => {
-      acc[med.id] = med;
-      return acc;
-    }, {} as { [id: string]: AllMedicationTypes });
-  }, [allMedications]);
+  const medsById = allMedications.reduce((acc, med) => {
+    acc[med.id] = med;
+    return acc;
+  }, {} as { [id: string]: AllMedicationTypes });
+
 
 
   useEffect(() => {
@@ -67,45 +65,55 @@ export default function Mar() {
       <div className="px-2 pt-14  w-full h-[calc(100vh-4rem)] grid gap-4 bg-gray-100 overflow-y-auto">
         <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
           <Skeleton className="w-full h-30 px-4 bg-gray-200" />
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />      
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />      
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />      
+          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
+          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
+          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
         </div>
-      </div> 
+      </div>
     )
   }
 
   if (isError) {
     let errorMessage = "An unknown error occurred.";
-    if (error) {
-      if ('status' in error && error.status) {
-        errorMessage = `Error ${error.status}`;
-        if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
-          errorMessage += `: ${(error.data as any).message}`;
-        }
-      } else if ('message' in error) {
-        errorMessage = `Error: ${error.message}`;
-      } else {
-        errorMessage = `Error: ${JSON.stringify(error)}`;
+    const err = error as unknown;
+
+    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
+      return typeof e === "object" && e !== null && "status" in e;
+    }
+
+    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
+      return typeof e.data === "object" && e.data !== null && "message" in e.data;
+    }
+
+    if (isStatusError(err)) {
+      errorMessage = `Error ${err.status}`;
+      if (hasMessageData(err)) {
+        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
+      } else if ("data" in err) {
+        errorMessage += `: ${JSON.stringify(err.data)}`;
       }
+    } else if (typeof err === "object" && err !== null && "message" in err) {
+      errorMessage = `Error: ${(err as { message: string }).message}`;
+    } else {
+      errorMessage = `Error: ${JSON.stringify(err)}`;
     }
     console.log(errorMessage)
     return (
-       <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
+      <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
         <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
           <p>Error loading med data </p>
         </div>
-      </div> 
+      </div>
     )
   }
 
   if (!data || Object.keys(data).length === 0) {
-    return(
+    return (
       <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
-      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-        <p>No med data exists</p>
+        <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+          <p>No med data exists</p>
+        </div>
       </div>
-    </div> 
     )
   }
 
@@ -123,7 +131,7 @@ export default function Mar() {
   const displayColumns = [] as MedCardColumns[]
 
   // create 6 columns, 2 future hours, one current hour, and three past hours
-  for (let i = 0; i < columnCount; i++ ) {
+  for (let i = 0; i < columnCount; i++) {
     const colStartTime = new Date(columnAnchorTime.getTime() - ((i - 2) * 60 * 60 * 1000));
     const colEndTime = new Date(colStartTime.getTime() + (60 * 60 * 1000) - 1);
     const colHeader = format(colStartTime, 'HH00');
@@ -131,15 +139,15 @@ export default function Mar() {
     displayColumns.unshift({
       startTime: colStartTime,
       endTime: colEndTime,
-      colHeader: colHeader 
+      colHeader: colHeader
     })
   }
 
   return (
     <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 pb-0 bg-gray-100 overflow-y-auto">
-      <MedAdministrationPanel 
-        selectedMedIds={selectedMeds} 
-        allOrders={medicationOrders} 
+      <MedAdministrationPanel
+        selectedMedIds={selectedMeds}
+        allOrders={medicationOrders}
         medicationLookup={medsById}
         administrationsLookup={groupedAdministrationsByOrder}
         sessionStartTime={sessionStartDateNumber}
@@ -156,7 +164,7 @@ export default function Mar() {
             return null
           }
 
-          return(
+          return (
             <MedCard
               key={order.id}
               medication={associatedMedication}
@@ -166,10 +174,10 @@ export default function Mar() {
               sessionStartTime={sessionStartDateNumber}
               onSelectionChange={handleMedChange}
               isSelected={isSelected}
-            />      
+            />
           )
         })}
       </div>
-    </div> 
+    </div>
   )
 }

@@ -28,7 +28,7 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
             <div key={index} className="flex items-start gap-1 mb-1">
               <p className="text-sm text-left text-gray-700">
                 <span className="text-black font-medium pr-2">{key}:</span>
-                {value}
+                {value.description}
               </p>
             </div>
           ))}

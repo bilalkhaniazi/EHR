@@ -2,22 +2,20 @@
 
 import type { ImagingData, LabTableData, MicrobiologyReportData } from "./components/labsData"
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 // import AddBgDemo from "./addBgDemo";
 
-import { useGetLabsQuery  } from "@/app/store/apiSlice";   //useAddLabColumnMutation
-import { Skeleton } from "@/components/ui/skeleton";
+import { useGetLabsQuery } from "@/app/store/apiSlice";   //useAddLabColumnMutation
 import ImagingReport from "./components/imagingReport";
 import PathologyReport from "./components/microbiologyReport";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/app/store/store";
 import { formatTimeFromOffset } from "../charting/page";
 import { ShieldAlert } from "lucide-react";
-import { time } from "node:console";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -25,7 +23,7 @@ export interface NewLabResult {
   value: string;
 }
 
-export const getResultStatus = (initialValue: string, normalRange: {low: number, high: number} | undefined, criticalRange: {low: number, high: number} | undefined) => {
+export const getResultStatus = (initialValue: string, normalRange: { low: number, high: number } | undefined, criticalRange: { low: number, high: number } | undefined) => {
   const numericValue = parseFloat(initialValue)
 
   if (isNaN(numericValue)) {
@@ -43,31 +41,29 @@ export const getResultStatus = (initialValue: string, normalRange: {low: number,
 const columnHelper = createColumnHelper<LabTableData>();
 
 // left column pinned
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getPinnedStyles(column: any): React.CSSProperties {
   if (!column.getIsPinned()) {
-  return {};
+    return {};
   }
   const side = column.getIsPinned();
   return {
-  position: 'sticky',
-  [side]: `${column.getStart(side)}px`,
-  zIndex: side === 'left' ? 2 : 1,
+    position: 'sticky',
+    [side]: `${column.getStart(side)}px`,
+    zIndex: side === 'left' ? 2 : 1,
   };
 }
 
 export function LabPage() {
   const simStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
   const skip = !simStartTime
-  
-  const { data, isLoading, isFetching, isError, error } = useGetLabsQuery(simStartTime, { skip });
+
+  const { data } = useGetLabsQuery(simStartTime, { skip });
   // const [addLabColumn] = useAddLabColumnMutation();
 
   const labTableData = data?.labTableData || [];
-  const timePoints = data?.timePoints || [];
-  
-  useEffect(() =>{
-    console.log(labTableData)
-  }, [labTableData])
+  const timePoints = useMemo(() => data?.timePoints || [], [data?.timePoints]);
+
 
   // will need backend to add column,   
   // const handleColumnAdd = useCallback( async(initialLabResults?: NewLabResult[]) => {
@@ -90,8 +86,8 @@ export function LabPage() {
   //     console.error('Failed to add column:', err);
   //   }
   // }, [addLabColumn]);
-  
-      
+
+
   const columns = useMemo(
     () => [
       // first column has unique formatting
@@ -107,7 +103,7 @@ export function LabPage() {
                 {field}
               </p>
             );
-          } 
+          }
           else {
             const labRange = info.row.original?.normalRange;
             if (labRange) {
@@ -130,7 +126,7 @@ export function LabPage() {
                             &#60;{labRange.low}
                           </p>
                           <p className="pl-2 text-gray-800 text-xs font-medium">
-                            <span className="font-normal">High: </span> 
+                            <span className="font-normal">High: </span>
                             &#62;{labRange.high}</p>
                         </div>
                       </div>
@@ -138,85 +134,86 @@ export function LabPage() {
                   </TooltipPortal>
                 </Tooltip>
               );
-            } 
-            return (
-                <p className="text-right font-normal px-2 text-xs text-neutral-700">
-                  {field}
-                </p>
-              );
             }
+            return (
+              <p className="text-right font-normal px-2 text-xs text-neutral-700">
+                {field}
+              </p>
+            );
           }
-        },
+        }
+      },
       ),
 
       // map out remaining columns
       ...timePoints.map(timePoint => {
         const { time: displayTime, date: displayDate } = formatTimeFromOffset(timePoint, simStartTime);
-        return(
-      
-        columnHelper.accessor(row => row[timePoint], {
-          id: String(timePoint),
-          header: () => {
-            return (
-              <div className="flex flex-col justify-center items-center">
-                <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
-                <h1 className="mb-1">{displayTime}</h1>
-              </div>
-            )
-          },
-          cell: ({row, column, getValue}) => {
-            const rowType = row.original.rowType
-            if (rowType === "results") {
-              const initialValue = (getValue() as string) || '';
-              const abnormalRange = row.original?.normalRange
-              const criticalRange = row.original?.criticalRange
-              
-              const resultStatus = getResultStatus(initialValue, abnormalRange, criticalRange);
-              const isCritical = resultStatus === "critical"
-              const isAbnormal = resultStatus === "abnormal" 
+        return (
 
+          columnHelper.accessor(row => row[timePoint], {
+            id: String(timePoint),
+            header: () => {
               return (
-                <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex items-center w-full px-2">
-                  {isCritical && <ShieldAlert color="#e7000b" size={18} />}
-                  <p className={`w-full text-right text-xs ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}>{initialValue}</p>
+                <div className="flex flex-col justify-center items-center">
+                  <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
+                  <h1 className="mb-1">{displayTime}</h1>
                 </div>
-              );
-            } else if (rowType === "imaging") {
-              const imagingReport = (getValue() as ImagingData) || { displayName: "", technique: "", findings: {}, impressions: ['']}
-              if(!imagingReport.displayName) {
+              )
+            },
+            cell: ({ row, column, getValue }) => {
+              const rowType = row.original.rowType
+              if (rowType === "results") {
+                const initialValue = (getValue() as string) || '';
+                const abnormalRange = row.original?.normalRange
+                const criticalRange = row.original?.criticalRange
+
+                const resultStatus = getResultStatus(initialValue, abnormalRange, criticalRange);
+                const isCritical = resultStatus === "critical"
+                const isAbnormal = resultStatus === "abnormal"
+
                 return (
-                  <></>
-                )
-              } else {
-                return (
-                  <ImagingReport
-                    key={`${row.id}-${column.id}-${row.original.field}`}
-                    cellName={row.original.field} 
-                    imagingReportContents={imagingReport} 
-                  />
-                )
-              }
-            } else if (rowType === "pathology") {
-              const pathologyReport = (getValue() as MicrobiologyReportData) || {}
-              if(Object.keys(pathologyReport).length === 0) {
-                return (
-                  <></>
-                )
-              } else {
-                return (
-                  <PathologyReport
-                    key={`${row.id}-${column.id}-${row.original.field}`}
-                    report={pathologyReport}
-                    cellLabel={row.original.field}
-                  />
-                )
+                  <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex items-center w-full px-2">
+                    {isCritical && <ShieldAlert color="#e7000b" size={18} />}
+                    <p className={`w-full text-right text-xs ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}>{initialValue}</p>
+                  </div>
+                );
+              } else if (rowType === "imaging") {
+                const imagingReport = (getValue() as ImagingData) || { displayName: "", technique: "", findings: {}, impressions: [''] }
+                if (!imagingReport.displayName) {
+                  return (
+                    <></>
+                  )
+                } else {
+                  return (
+                    <ImagingReport
+                      key={`${row.id}-${column.id}-${row.original.field}`}
+                      cellName={row.original.field}
+                      imagingReportContents={imagingReport}
+                    />
+                  )
+                }
+              } else if (rowType === "microbiology") {
+                const pathologyReport = (getValue() as MicrobiologyReportData) || {}
+                if (Object.keys(pathologyReport).length === 0) {
+                  return (
+                    <></>
+                  )
+                } else {
+                  return (
+                    <PathologyReport
+                      key={`${row.id}-${column.id}-${row.original.field}`}
+                      report={pathologyReport}
+                      cellLabel={row.original.field}
+                    />
+                  )
+                }
               }
             }
-          } 
-        }))}
+          }))
+      }
       )
     ],
-    [timePoints]
+    [timePoints, simStartTime]
   );
 
   const ptTable = useReactTable({
@@ -228,29 +225,11 @@ export function LabPage() {
         left: ['pinned']
       },
     },
-    getCoreRowModel: getCoreRowModel(), 
+    getCoreRowModel: getCoreRowModel(),
   });
 
-  
-  if (isLoading || isFetching ) {
-    return (
-      <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
-        <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
-        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-        <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-      </div>
-    );
-  }
 
-  if (isError) {
-    return (
-      <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-        <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
-      </div>
-    );
-  }
+
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 ">
@@ -260,74 +239,74 @@ export function LabPage() {
       <div className="w-full h-full  border border-gray-200 rounded-t-lg overflow-auto">
         <Table className="w-full overflow-x-auto">
           <TableHeader className=" bg-gray-50 sticky top-0">
-          {ptTable.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map(header => (
-              <TableHead
-                style={getPinnedStyles(header.column)}
-                key={header.id}
-                className="border-b-2 border-gray-200 p-0"
-              >
-              {/* Render the header content using flexRender */}
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
-              </TableHead>
+            {ptTable.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <TableHead
+                    style={getPinnedStyles(header.column)}
+                    key={header.id}
+                    className="border-b-2 border-gray-200 p-0"
+                  >
+                    {/* Render the header content using flexRender */}
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                  </TableHead>
+                ))}
+              </TableRow>
             ))}
-            </TableRow>
-          ))}
           </TableHeader>
 
           <TableBody>
-          {ptTable.getRowModel().rows.map(row => (
-            <TableRow key={row.id} className="h-6">
-            {row.getVisibleCells().map(cell => {
-              const rowType = row.original.rowType
-              
-              return(
-                <TableCell
-                  style={getPinnedStyles(cell.column)}
-                  key={`${cell.id}-${row.original.field}`}
-                  className={`p-0 min-w-24 border-separate border-gray-200 border-b ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
-                >
-                  {/* Render the cell content using flexRender */}
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              )
-            })}
-            </TableRow>
-          ))}
+            {ptTable.getRowModel().rows.map(row => (
+              <TableRow key={row.id} className="h-6">
+                {row.getVisibleCells().map(cell => {
+                  const rowType = row.original.rowType
+
+                  return (
+                    <TableCell
+                      style={getPinnedStyles(cell.column)}
+                      key={`${cell.id}-${row.original.field}`}
+                      className={`p-0 min-w-24 border-separate border-gray-200 border-b ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                    >
+                      {/* Render the cell content using flexRender */}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
           </TableBody>
 
           <TableFooter className="bg-gray-100">
-          {ptTable.getFooterGroups().map(footerGroup => (
-            <TableRow key={footerGroup.id}>
-            {footerGroup.headers.map(header => (
-              <TableHead 
-              key={header.id} 
-              className="h-6 p-0 text-left text-gray-700 border-gray-300">
+            {ptTable.getFooterGroups().map(footerGroup => (
+              <TableRow key={footerGroup.id}>
+                {footerGroup.headers.map(header => (
+                  <TableHead
+                    key={header.id}
+                    className="h-6 p-0 text-left text-gray-700 border-gray-300">
 
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                  header.column.columnDef.footer,
-                  header.getContext()
-                )}
-              </TableHead>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                        header.column.columnDef.footer,
+                        header.getContext()
+                      )}
+                  </TableHead>
+                ))}
+              </TableRow>
             ))}
-            </TableRow>
-          ))}
           </TableFooter>
         </Table>
       </div>
     </div>
 
   );
-  }
+}
 
-  
 
-  export default LabPage
+
+export default LabPage

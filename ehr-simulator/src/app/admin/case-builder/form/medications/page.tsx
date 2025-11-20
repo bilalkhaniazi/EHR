@@ -3,9 +3,9 @@ import { useMemo, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { allMedications, AllMedicationTypes, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
 import Combobox from "@/components/ui/combobox"
-import { Card } from "@/components/ui/card"
 import MedCardForm from "./components/medCardForm"
-import { Button } from "@/components/ui/button"
+import SubmitButton from "../../components/submitButton"
+import { useRouter } from "next/navigation"
 
 function getComboboxData(medications: AllMedicationTypes[]) {
   return medications.map(med => {
@@ -24,10 +24,11 @@ function getComboboxData(medications: AllMedicationTypes[]) {
 type NewOrderData = Partial<MedicationOrder> & { medicationId: string };
 
 
-const MedicationEntry = () => {
+const MedicationOrderForm = () => {
   const [selectedMed, setSelectedMed] = useState('')
   const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([]) // when user selects a medication, add the medication object to the array here
   const [orders, setOrders] = useState<NewOrderData[]>([])
+  const router = useRouter()
 
 
   const handleAddMedication = (newMedId: string) => {
@@ -50,13 +51,13 @@ const MedicationEntry = () => {
 
   }
 
-  const handleOrderChange = (index: number, field: keyof NewOrderData, value: any) => {
+  const handleOrderChange = (index: number, field: keyof NewOrderData, value: string) => {
     setOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
 
           // Handle fields that should be numbers
-          if (field === 'unitsOrdered' || field === 'infusionRate') {
+          if (field === 'dose' || field === 'infusionRate') {
             const regex = /^[0-9]*\.?[0-9]*$/; // Allows decimals, "1.", ".5"
 
             if (value === '' || regex.test(value)) {
@@ -77,35 +78,53 @@ const MedicationEntry = () => {
     return getComboboxData(allMedications);
   }, []);
 
-  const handleSubmit = () => {
-    console.log("Final Orders:", orders);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+    router.push('/admin/case-builder/form/medication-administrations')
   }
 
   return (
-    <div className="flex flex-col h-screen relative bg-white gap-6 p-4 overflow-y-auto">
-      <Button onClick={handleSubmit} className="absolute top-8 right-8">Continue</Button>
+    <div className="flex flex-col h-screen relative bg-white gap-6 pt-4 pb-0 overflow-y-auto">
+      <form className="fixed top-8 right-8 z-10" onSubmit={handleSubmit} >
+        <input name='medOrderData' type='hidden' value={JSON.stringify(orders)} />
+        <SubmitButton buttonText="Continue" />
+      </form>
 
-      <h1 className="text-3xl p-y-2 font-medium">Medication Orders</h1>
-      <div>
-        <Label>Medication</Label>
-        <Combobox value={selectedMed} onValueChange={handleAddMedication} data={comboboxData} displayText="Select medication" />
+      <div className="w-full px-4 space-y-4">
+        <h1 className="text-3xl p-y-2 font-medium">Medication Orders</h1>
+        <div>
+          <Label>Medication</Label>
+          <Combobox value={selectedMed} onValueChange={handleAddMedication} data={comboboxData} displayText="Select medication" />
+        </div>
       </div>
-      <div className="w-full flex flex-col gap-6">
-        {selectedMeds.map((med, index) => {
-          return (
-            <MedCardForm
-              key={med.id}
-              medication={med}
-              handleMedicationRemoval={handleRemoveMedication}
-              index={index}
-              orderData={orders[index]}
-              onOrderChange={handleOrderChange}
-            />
-          )
-        })}
+      <div className="w-full flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto border-t p-4 shadow-inner">
+        {selectedMeds.length > 0 ?
+          <>
+            {selectedMeds.map((med, index) => {
+              return (
+                <MedCardForm
+                  key={med.id}
+                  medication={med}
+                  handleMedicationRemoval={handleRemoveMedication}
+                  index={index}
+                  orderData={orders[index]}
+                  onOrderChange={handleOrderChange}
+                />
+              )
+            })}
+
+
+          </> :
+          <p className="text-gray-400 pl-4">Select a medication to get started</p>
+        }
+
       </div>
     </div>
   )
 }
 
-export default MedicationEntry
+export default MedicationOrderForm

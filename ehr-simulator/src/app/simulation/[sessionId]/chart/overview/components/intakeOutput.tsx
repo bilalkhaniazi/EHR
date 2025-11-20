@@ -38,18 +38,19 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+interface TickPayload {
+  value: string; // We know this maps to timeId, which is a string
+  index?: number;
+  offset?: number;
+}
 interface CustomTickProps {
   x?: number;
   y?: number;
-  payload?: {
-    value: any;
-    [key: string]: any;
-  };
+  payload?: TickPayload;
 }
 
 export function IntakeOutput() {
   const simStartTime = useSelector((state: RootState) => state.time.sessionStartTime) // timeStamp
-  // RTK queries
 
   if (!simStartTime) {
     return (
@@ -63,11 +64,11 @@ export function IntakeOutput() {
 
   const MultiLineTick = (props: CustomTickProps) => {
     const { x, y, payload } = props;
-    
+
     if (!payload || !payload.value) return null;
     const row = chartData.find(row => row.timeId === payload.value)
     if (!row) return null;
-    
+
     const displayDate = format(simStartTime, "MM/dd")
     return (
       <text
@@ -91,10 +92,10 @@ export function IntakeOutput() {
       <CardContent className="grid gap-2 px-4">
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
-            <CartesianGrid vertical={false}/>
-            <YAxis 
+            <CartesianGrid vertical={false} />
+            <YAxis
               axisLine={false}
-              tickLine={false} 
+              tickLine={false}
               unit="mL"
             />
             <XAxis
@@ -102,13 +103,13 @@ export function IntakeOutput() {
               tickLine={false}
               tickMargin={6}
               axisLine={false}
-              tick={(props => <MultiLineTick {...props} />)}   
+              tick={(props => <MultiLineTick {...props} />)}
               height={35}
-              interval={0}          
+              interval={0}
             />
-            <ChartTooltip content={<ChartTooltipContent label={undefined} payload={[]} coordinate={{x:0, y:0}} accessibilityLayer hideLabel active={false} />} />
+            <ChartTooltip content={<ChartTooltipContent label={undefined} payload={[]} coordinate={{ x: 0, y: 0 }} accessibilityLayer hideLabel active={false} />} />
             <ChartLegend className="text-xs pt-3 text-neutral-700" content={<ChartLegendContent payload={[]} />} />
-             <Bar
+            <Bar
               dataKey="output"
               stackId="a"
               fill="#fef08a"
@@ -120,7 +121,7 @@ export function IntakeOutput() {
               fill="#bae6fd"
               radius={[4, 4, 0, 0]}
             />
-           
+
           </BarChart>
         </ChartContainer>
       </CardContent>

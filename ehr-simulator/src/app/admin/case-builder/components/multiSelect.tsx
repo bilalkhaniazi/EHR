@@ -12,7 +12,6 @@ interface Option {
 
 interface MultiSelectProps {
   name: string;
-  value: string[];
   options?: Option[];
   labelText: string;
   placeholder?: string;
@@ -24,7 +23,6 @@ interface MultiSelectProps {
 
 export function MultiSelect({
   name,
-  value,
   options = [],
   placeholder = "Select items...",
   searchPlaceholder = "Search...",
@@ -85,9 +83,7 @@ export function MultiSelect({
                   <CommandItem
                     key={option.value}
                     value={option.value}
-                    onSelect={() => {
-                      handleSelect(option.value);
-                    }}
+                    onSelect={() => handleSelect(option.value)}
                   >
                     <Check className="mr-2 h-4 w-4 opacity-0" />
                     {option.label}

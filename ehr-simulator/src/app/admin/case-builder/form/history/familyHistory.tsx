@@ -20,10 +20,7 @@ interface FamilyHistoryProps {
 }
 
 const relations: string[] = [
-  'Mother',
-  'Father',
-  'Brother',
-  'Sister',
+
   'Paternal Grandmother',
   'Maternal Grandmother',
   'Paternal Grandfather',
@@ -34,6 +31,10 @@ const relations: string[] = [
   'Paternal  Uncle',
   'Maternal Cousin',
   'Paternal Cousin',
+  'Mother',
+  'Father',
+  'Brother',
+  'Sister',
 ];
 
 export function FamilyHistory({
@@ -102,7 +103,7 @@ export function FamilyHistory({
               value={condition}
               onChange={(e) => setCondition(e.target.value)}
               placeholder={notesPlaceholder}
-              className="flex w-full rounded-md h-7 shadow-xs border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              className="flex w-full rounded-md h-8 shadow-xs border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
             />
 
           </div>
@@ -111,7 +112,7 @@ export function FamilyHistory({
             onClick={addEntry}
             variant="outline"
             size="sm"
-            className="inline-flex h-7 mt-6 font-normal items-center gap-2"
+            className="inline-flex h-8 mt-6 font-normal items-center gap-2"
           >
             Add
             <Plus className="h-4 w-4" />

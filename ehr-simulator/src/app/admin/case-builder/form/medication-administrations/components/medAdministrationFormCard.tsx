@@ -1,8 +1,7 @@
 import { format } from "date-fns";
-import type { MedCardColumns } from "../page.jsx";
-import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData.jsx"
-import { Checkbox } from "@/components/ui/checkbox";
-import { renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
+import type { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
+import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
+import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers"
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -10,16 +9,10 @@ interface MedCardProps {
   order: MedicationOrder;
   columns: MedCardColumns[];
   sessionStartTime: number;
-  isSelected: boolean;
-  onSelectionChange: (payload: { id: string, checked: boolean }) => void;
+  onDeleteAdministration: (adminId: string) => void;
 }
 
-const MedCard = ({ medication, administrations, order, columns, sessionStartTime, onSelectionChange, isSelected }: MedCardProps) => {
-
-  const handleCheckboxChange = (checked: boolean) => {
-    onSelectionChange({ id: order.id, checked });
-  };
-
+const MedAdministrationFormCard = ({ medication, administrations, order, columns, sessionStartTime, onDeleteAdministration }: MedCardProps) => {
   // using columns passed from main mar component, add relevant administration data (given, held, refused...)
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
@@ -52,19 +45,13 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
 
 
   return (
-    <div className="relative w-full border bg-white rounded-2xl p-0 overflow-hidden flex-shrink-0">
-      <Checkbox
-        onCheckedChange={handleCheckboxChange}
-        checked={isSelected}
-        id={`checkbox-${order.id}`}
-        className="absolute top-3 left-3"
-      />
+    <div className="relative w-full border bg-white rounded-2xl p-0 overflow-hidden flex-shrink-0 shadow">
       <div className="grid grid-cols-2 ">
         <div className="py-3 px-4 flex flex-col justify-between">
-          <div className="pb-1 pl-6 flex items-center gap-2 font-semibold">
+          <div className="pb-1 pl-2 flex items-center gap-2 font-semibold">
             {renderMedTitleRow(medication, order)}
           </div>
-          <div className="text-xs tracking-tight pl-6 pb-2 text-gray-500">
+          <div className="text-xs tracking-tight pl-2 pb-2 text-gray-500">
             {renderMedCardDetails(medication, order)}
           </div>
           <div className="pl-6">
@@ -83,29 +70,51 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
           </div>
         </div>
         <div className="grid grid-cols-6">
-          {processedColumns.map((col, index) => {
+          {processedColumns.map((col, colIndex) => {
             const hasAdministrations = col.associatedAdministrations.length > 0;
             return (
-              <div key={`${index}-${medication.id}`} className="flex flex-col items-center border-l">
-                <p className={` text-sm  ${index === 3 ? "font-bold underline" : "font-medium"}`}>{col.colHeader}</p>
+              <div key={`${colIndex}-${medication.id}`} className="flex flex-col items-center border-l">
+                <p className={` text-sm  ${colIndex === 3 ? "font-bold underline" : "font-medium"}`}>{col.colHeader}</p>
                 {hasAdministrations && (
                   <div className="h-full flex flex-col justify-center items-center py-2 gap-2">
-                    {col.associatedAdministrations.map(admin => {
+                    {col.associatedAdministrations.map((admin, index) => {
                       const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
                       const displayTime = format(adminAbsoluteTime, 'HHmm')
-                      const statusColorClass =
-                        admin.status === "Given" ? "bg-lime-200 " :
-                          admin.status === "Missed" ? "bg-red-200" :
-                            admin.status === "Held" ? "bg-yellow-200" :
-                              admin.status === "Due" ? "bg-blue-200" :
-                                "bg-gray-200";
+                      let statusColorClass;
+                      const statusText = admin.status;
+
+                      switch (admin.status) {
+                        case "Given":
+                          statusColorClass = "bg-lime-200";
+                          break;
+                        case "Held":
+                          statusColorClass = "bg-yellow-200";
+                          break;
+                        case "Missed":
+                          statusColorClass = "bg-red-200";
+                          break;
+                        case "Due":
+                          statusColorClass = "bg-sky-200";
+                          break;
+                        default:
+                          statusColorClass = "bg-gray-200";
+                          break;
+                      }
                       return (
                         <div
-                          key={`${admin.medicationOrderId}-${admin.adminTimeMinuteOffset}-${admin.status}`}
-                          className={`flex flex-col justify-center items-center py-1 px-2 rounded-lg shadow  ${statusColorClass}`}
+                          key={`${admin.id}-${index}`} // Use the unique ID for the key
+                          className={`relative flex flex-col justify-center items-center pt-2.5 pb-1 px-2 rounded-xl shadow-sm w-full ${statusColorClass}`}
                         >
-                          <p className="text-center text-xs font-medium">{displayTime}</p>
-                          <p className="text-xs font-normal">{admin.status}</p>
+                          <button
+                            onClick={() => onDeleteAdministration(admin.id!)}
+                            className="absolute top-0 right-1 text-sm font-bold leading-none w-4 h-4 flex items-center justify-center rounded-full transition-all hover:backdrop-brightness-90"
+                            aria-label={`Delete administration at ${displayTime} with status ${admin.status}`}
+                            title="Delete Administration"
+                          >
+                            &times;
+                          </button>
+                          <p className="text-center text-xs font-medium pt-1">{displayTime}</p>
+                          <p className="text-xs font-normal pb-1">{statusText}</p>
                         </div>
                       )
                     })}
@@ -120,4 +129,4 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
   )
 }
 
-export default MedCard
+export default MedAdministrationFormCard

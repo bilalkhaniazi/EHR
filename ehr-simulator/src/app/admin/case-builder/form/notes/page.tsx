@@ -164,9 +164,9 @@ const NotesForm = () => {
     setObjective("");
     setAssessment("");
     setPlan("");
-    setDays("");
-    setHours("");
-    setMinutes("");
+    setDays(0);
+    setHours(0);
+    setMinutes(0);
   }
 
   const handleFormatSwitch = (isSoap: boolean) => {
@@ -394,7 +394,7 @@ const NotesForm = () => {
           {(notes.length > 0) &&
             <div className="flex flex-col grow gap-4 p-2 rounded-lg overflow-y-auto ">
               {notes.map((note, index) => (
-                <div className="border rounded-lg">
+                <div key={`${note.specialty}-${index}`} className="border rounded-lg">
                   <NoteDisplay onDelete={() => setNotes(notes.filter((_, i) => i !== index))} note={note} key={index} />
                 </div>
               ))}

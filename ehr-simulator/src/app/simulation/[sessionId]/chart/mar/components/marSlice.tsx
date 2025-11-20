@@ -3,7 +3,7 @@ import type { MedAdministrationInstance } from "./marData";
 
 
 export interface NewAdministrationData {
-  [medOrderId: string]: MedAdministrationInstance;     
+  [medOrderId: string]: MedAdministrationInstance;
 }
 
 export interface MarState {
@@ -22,8 +22,8 @@ export const marSlice = createSlice({
   name: 'mar',
   initialState,
   reducers: {
-    handleMedicationSelectionChange: (state, action: PayloadAction<{id: string, checked: boolean}>) => {
-      const {id, checked} = action.payload
+    handleMedicationSelectionChange: (state, action: PayloadAction<{ id: string, checked: boolean }>) => {
+      const { id, checked } = action.payload
       // add a medAdministationInstance to newAdministrations and its id to selectedMeds
       if (checked) {
         state.newAdministrations[id] = {
@@ -34,7 +34,7 @@ export const marSlice = createSlice({
           administeredDose: 0        // dose will be updated by user           
         }
         state.selectedMeds.push(id);
-        
+
       } else {
         state.selectedMeds = state.selectedMeds.filter(medId => medId !== id);
         delete state.newAdministrations[id]
@@ -46,11 +46,11 @@ export const marSlice = createSlice({
     updateNewAdministration: (state, action: PayloadAction<{
       medicationOrderId: string;
       field: keyof MedAdministrationInstance;
-      value: any;
+      value: number | string;
     }>) => {
       const { medicationOrderId, field, value } = action.payload;
       const adminInstance = state.newAdministrations[medicationOrderId];
-      
+
       // likely the three properties that student will need to change when administering meds during sim
       if (adminInstance) {
         switch (field) {
@@ -69,13 +69,13 @@ export const marSlice = createSlice({
       state.newAdministrations = {}
     }
   },
- 
+
 });
 
-export const { 
+export const {
   handleMedicationSelectionChange,
   updateNewAdministration,
   clearNewAdminstrations,
-  clearSelectedMedications 
+  clearSelectedMedications
 } = marSlice.actions
 export default marSlice.reducer;

@@ -30,7 +30,7 @@ export const renderMedTitleRow = (medication: AllMedicationTypes, order: Medicat
         {medication.brandName && (
           <span className="text-nowrap">({medication.brandName})</span>
         )}
-        <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
+        <span className="text-nowrap">{order.dose}{medication.strengthUnit}</span>
       </div>
     )
   }
@@ -41,7 +41,7 @@ export const renderMedTitleRow = (medication: AllMedicationTypes, order: Medicat
         {medication.brandName && (
           <span className="text-nowrap">({medication.brandName})</span>
         )}
-        <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
+        <span className="text-nowrap">{order.dose}{medication.strengthUnit}</span>
         {medication.diluent &&
           <span className="text-nowrap">in {medication.diluent} {medication.totalVolume}mL</span>
         }
@@ -65,7 +65,7 @@ export const renderMedTitleRow = (medication: AllMedicationTypes, order: Medicat
         {medication.brandName && (
           <span className="text-nowrap">({medication.brandName})</span>
         )}
-        <span className="text-nowrap">{medication.strength * order.unitsOrdered}{medication.strengthUnit}</span>
+        <span className="text-nowrap">{order.dose}{medication.strengthUnit}</span>
       </div>
     )
   }
@@ -78,7 +78,7 @@ export const renderMedCardDetails = (medication: AllMedicationTypes, order: Medi
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
+          <span className="text-nowrap">{order.dose / medication.strength} {pluralize(order.dose / medication.strength, medication.orderableUnit)}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{order.frequency}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
@@ -90,7 +90,7 @@ export const renderMedCardDetails = (medication: AllMedicationTypes, order: Medi
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
+          <span className="text-nowrap">{order.dose / medication.strength} {pluralize(order.dose / medication.strength, medication.orderableUnit)}</span>
           {order.infusionRate && medication.infusionRateUnit &&
             <>
               <Separator className="bg-gray-300" orientation="vertical" />
@@ -124,7 +124,7 @@ export const renderMedCardDetails = (medication: AllMedicationTypes, order: Medi
         <div className="flex gap-2 h-5">
           <span className="text-nowrap">{medication.route}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{order.unitsOrdered} {pluralize(order.unitsOrdered, medication.orderableUnit)}</span>
+          <span className="text-nowrap">{order.dose / medication.strength} {pluralize(order.dose / medication.strength, medication.orderableUnit)}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{order.frequency}</span>
           <Separator className="bg-gray-300" orientation="vertical" />

@@ -8,9 +8,9 @@ import CardSkeleton from "./cardSkeleton"
 import type { ChartData } from "@/app/simulation/[sessionId]/chart/components/chartData";
 
 const ActiveProblems = () => {
-  const {data, isLoading, isError, isFetching, error} = useGetChartQuery()
+  const { data, isLoading, isFetching } = useGetChartQuery()
 
-  if (isLoading || isFetching ) {
+  if (isLoading || isFetching) {
     return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
         <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
@@ -20,29 +20,29 @@ const ActiveProblems = () => {
   }
 
   // from RTK query docs
-  if (isError) {
-    let errorMessage = "An unknown error occurred.";
-    if (error) {
-      if ('status' in error && error.status) {
-        errorMessage = `Error ${error.status}`;
-        if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
-          errorMessage += `: ${(error.data as any).message}`;
-        }
-      } else if ('message' in error) {
-        errorMessage = `Error: ${error.message}`;
-      } else {
-        errorMessage = `Error: ${JSON.stringify(error)}`;
-      }
-    }
-    console.log(errorMessage)
-    return (
-      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
-        <p>Failed to load data</p>
-      </Card>
+  // if (isError) {
+  //   let errorMessage = "An unknown error occurred.";
+  //   if (error) {
+  //     if ('status' in error && error.status) {
+  //       errorMessage = `Error ${error.status}`;
+  //       if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
+  //         errorMessage += `: ${(error.data as Error).message}`;
+  //       }
+  //     } else if ('message' in error) {
+  //       errorMessage = `Error: ${error.message}`;
+  //     } else {
+  //       errorMessage = `Error: ${JSON.stringify(error)}`;
+  //     }
+  //   }
+  //   // console.log(errorMessage)
+  //   return (
+  //     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+  //       <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+  //       <p>Failed to load data</p>
+  //     </Card>
 
-    )
-  }
+  //   )
+  // }
 
   const chartData: ChartData | undefined = data?.chartData
 
@@ -62,7 +62,7 @@ const ActiveProblems = () => {
       <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
       <CardContent className="px-4 space-y-1">
         {pmh.map(problem => {
-          return(
+          return (
             <div key={problem} className="">
               <p className="text-sm">{problem}</p>
               <Separator className="bg-red-200" />

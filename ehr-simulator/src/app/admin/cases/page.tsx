@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useEffect } from "react";
 import CaseListItem from "./CaseListItem";
-import { getAllSimCases } from "@/actions/cases";
+// import { getAllSimCases } from "@/actions/cases";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 

@@ -1,5 +1,5 @@
 "use client"
- 
+
 import {
   type ColumnDef,
   flexRender,
@@ -7,7 +7,7 @@ import {
   // type Row,
   useReactTable,
 } from "@tanstack/react-table"
- 
+
 import {
   Table,
   TableBody,
@@ -24,7 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import StyledTitle from "./styledTitle"
 import { useSelector } from "react-redux"
 import type { RootState } from "@/app/store/store"
- 
+
 
 export type vitalsOverviewTable = {
   field: string
@@ -33,28 +33,26 @@ export type vitalsOverviewTable = {
 
 // matching with row ID's in FlexSheet
 const vitalSignIds = [
-    "hrInput",
-    "bpInput",
-    "rrInput",
-    "tempInput",
-    "spo2Input",
-    "painInput",
-    "weightKgInput",
-  ];
+  "hrInput",
+  "bpInput",
+  "rrInput",
+  "tempInput",
+  "spo2Input",
+  "painInput",
+  "weightKgInput",
+];
 
 export function VitalsOverview() {
   const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
   const skip = !sessionStartTime
   const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip })
 
-  const timeOffsets = data?.timeOffsets.slice(-3) || [];
+  const timeOffsets = useMemo(() => data?.timeOffsets.slice(-3) || [], [data?.timeOffsets]);
 
   const chartingData = data?.chartingData || [];
 
   // move to backend
-  const filteredData = useMemo(() => {
-    return chartingData.filter(row => vitalSignIds.includes(row.id));
-  }, [data?.chartingData])
+  const filteredData = chartingData.filter(row => vitalSignIds.includes(row.id));
 
   const columns: ColumnDef<tableData>[] = useMemo(() => [
     {
@@ -62,7 +60,7 @@ export function VitalsOverview() {
       header: "",
       cell: info => {
         return (
-            <p className="text-left pl-2 text-xs">{info.row.original.field}</p>
+          <p className="text-left pl-2 text-xs">{info.row.original.field}</p>
         )
       }
     },
@@ -70,13 +68,13 @@ export function VitalsOverview() {
       return {
         id: String(timeKey),
         accessorKey: String(timeKey) as keyof tableData,
-       header: () => (
+        header: () => (
           <div className="flex flex-col justify-center items-center">
             <h2 className="my-1 text-neutral-500 text-xs font-light">7/29</h2>
             <h1 className="mb-1 text-xs">{timeKey}</h1>
           </div>
         ),
-        cell: ( ) => {   // { row }: { row: Row<tableData> }
+        cell: () => {   // { row }: { row: Row<tableData> }
           return (
             <div className="h-full">
               <p className="text-xs w-full min-w-12 text-right pr-2">~</p> {/*row.original[timekey]*/}
@@ -104,7 +102,7 @@ export function VitalsOverview() {
               <Skeleton className="h-6 col-span-1" />
               <Skeleton className="h-6 col-span-1" />
               <Skeleton className="h-6 col-span-1" />
-              {Array.from({length: 20}, (_, index) => {
+              {Array.from({ length: 20 }, (_, index) => {
                 return (
                   <Skeleton key={index} className="h-4 col-span-1" />
                 )
@@ -119,20 +117,30 @@ export function VitalsOverview() {
     // from RTK query docs
     if (isError) {
       let errorMessage = "An unknown error occurred.";
-      if (error) {
-        if ('status' in error && error.status) {
-          errorMessage = `Error ${error.status}`;
-          if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
-            errorMessage += `: ${(error.data as any).message}`;
-          }
-        } else if ('message' in error) {
-          errorMessage = `Error: ${error.message}`;
-        } else {
-          errorMessage = `Error: ${JSON.stringify(error)}`;
-        }
-      }
-      console.log(errorMessage)
+      const err = error as unknown;
 
+      function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
+        return typeof e === "object" && e !== null && "status" in e;
+      }
+
+      function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
+        return typeof e.data === "object" && e.data !== null && "message" in e.data;
+      }
+
+      if (isStatusError(err)) {
+        errorMessage = `Error ${err.status}`;
+        if (hasMessageData(err)) {
+          errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
+        } else if ("data" in err) {
+          errorMessage += `: ${JSON.stringify(err.data)}`;
+        }
+      } else if (typeof err === "object" && err !== null && "message" in err) {
+        errorMessage = `Error: ${(err as { message: string }).message}`;
+      } else {
+        errorMessage = `Error: ${JSON.stringify(err)}`;
+      }
+
+      console.log(errorMessage);
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
@@ -147,7 +155,7 @@ export function VitalsOverview() {
     if (table.getRowModel().rows?.length) {
       return table.getRowModel().rows.map((row) => (
         <TableRow
-          key={row.id} 
+          key={row.id}
           className="h-6 border-sky-200"
         >
           {row.getVisibleCells().map((cell) => (
@@ -168,8 +176,8 @@ export function VitalsOverview() {
         </TableCell>
       </TableRow>
     )
-    
-  }  
+
+  }
 
   return (
     <Card className="relative col-span-1 p-0 gap-3 pt-2 h-fit overflow-hidden">
@@ -186,9 +194,9 @@ export function VitalsOverview() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     )
                   })}

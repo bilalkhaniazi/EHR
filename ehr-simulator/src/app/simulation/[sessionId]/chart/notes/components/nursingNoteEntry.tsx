@@ -1,6 +1,6 @@
 'use client'
 
-import { 
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -14,7 +14,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { PencilLine } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
 import { ChangeEvent, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { SbarNote } from "./notesData"
@@ -27,7 +26,7 @@ interface NursingNoteEntryProps {
 const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
   const [newNote, setNewNote] = useState<SbarNote>({
     situation: '',
-    background: '', 
+    background: '',
     assessment: '',
     recommendation: ''
   }
@@ -36,9 +35,9 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  
+
   const handleNoteChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = event.target
+    const { name, value } = event.target
     setNewNote(prev => (
       {
         ...prev,
@@ -46,13 +45,13 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
       }
     ))
   }
-  
-  
+
+
   const handleSubmitNote = () => {
     submitNote(newNote);
     setNewNote({
       situation: '',
-      background: '', 
+      background: '',
       assessment: '',
       recommendation: ''
     });
@@ -69,34 +68,34 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
       </DialogTrigger>
       <DialogContent className="md:max-w-2xl xl:max-w-4xl">
         <DialogHeader>
-        <DialogTitle>Nursing Note</DialogTitle>
-        <DialogDescription>Prompt here</DialogDescription>
+          <DialogTitle>Nursing Note</DialogTitle>
+          <DialogDescription>Prompt here</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <form className="grid gap-3">
             <Label htmlFor="situation">Situation</Label>
-            <Input 
+            <Input
               id="situation"
               name="situation"
               value={newNote.situation}
               onChange={handleNoteChange}
             />
             <Label htmlFor="background">Background</Label>
-            <Input 
+            <Input
               id="background"
               name="background"
               value={newNote.background}
               onChange={handleNoteChange}
             />
             <Label htmlFor="assessment">Assessment</Label>
-            <Input 
+            <Input
               id="assessment"
               name="assessment"
               value={newNote.assessment}
               onChange={handleNoteChange}
             />
             <Label htmlFor="note">Recommendation</Label>
-            <Input 
+            <Input
               id="recommendation"
               name="recommendation"
               value={newNote.recommendation}
@@ -105,10 +104,10 @@ const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
           </form>
         </div>
         <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
-        </DialogClose>
-        <Button type="submit" onClick={handleSubmitNote}>Submit Note</Button>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button type="submit" onClick={handleSubmitNote}>Submit Note</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

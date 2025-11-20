@@ -1,11 +1,8 @@
-import { format } from "date-fns";
-import { medActionSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
-import MedAdminCardSelector from "@/app/simulation/[sessionId]/chart/mar/components/medAdminCardSelector";
+import { type AllMedicationTypes, type MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { renderMedTitleRow, renderMedCardDetails, isSlidingScaleInsulin } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
+import { isSlidingScaleInsulin } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { renderMedFormDetails, renderMedFormTitle } from "./medFormHelpers";
 import { X } from "lucide-react";
 
@@ -36,7 +33,7 @@ interface MedAdminCardProps {
   handleMedicationRemoval: (index: number) => void;
   index: number;
   orderData: Partial<MedicationOrder>; // Data comes from parent
-  onOrderChange: (index: number, field: keyof MedicationOrder, value: any) => void;
+  onOrderChange: (index: number, field: keyof MedicationOrder, value: string) => void;
 }
 
 const MedCardForm = ({
@@ -47,22 +44,11 @@ const MedCardForm = ({
   onOrderChange
 }: MedAdminCardProps) => {
 
-  // type MedAdminStatus = MedAdministrationInstance["status"];
-  // const getStatusColor = (status: MedAdminStatus) => {
-  //   const colorMap = {
-  //     Given: "bg-lime-200 text-lime-800",
-  //     Missed: "bg-red-200 text-red-800",
-  //     Held: "bg-yellow-200 text-yellow-800",
-  //     Due: "bg-blue-200 text-blue-800",
-  //     Refused: "bg-gray-300 text-gray-800",
-  //   };
-  //   return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
-  // };
 
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
-    <div className="border bg-gray-50 rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative">
+    <div className="border bg-blue-50 rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative">
       <button onClick={() => handleMedicationRemoval(index)} className="absolute top-2 right-2">
         <X size={18} />
       </button>
@@ -118,12 +104,12 @@ const MedCardForm = ({
               <Label>Dose</Label>
               <div className="flex items-end">
                 <Input
-                  onChange={(e) => onOrderChange(index, 'unitsOrdered', e.target.value)}
-                  value={orderData.unitsOrdered || ''}
+                  onChange={(e) => onOrderChange(index, 'dose', e.target.value)}
+                  value={orderData.dose || ''}
                   className="text-sm bg-white w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
                 />
                 <div className="h-9 bg-white border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
-                  <p className="text-sm">{medication.orderableUnit}</p>
+                  <p className="text-sm">{medication.strengthUnit}</p>
                 </div>
               </div>
             </div>
