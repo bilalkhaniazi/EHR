@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 
 function getComboboxData(orders: MedicationOrder[]) {
-  return medicationOrders.map(order => {
+  return orders.map(order => {
     const linkedMed = allMedications.find(med => med.id === order.medicationId)
     if (!linkedMed) {
       return {
@@ -53,9 +53,8 @@ const createColumns = () => {
   }
   return displayColumns
 }
-type NewMedAdministrationInstance = Partial<MedAdministrationInstance>
 
-const MedicationAdministrations = () => {
+const MedicationAdministrationsForm = () => {
   const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>([])
   const [selectedOrder, setSelectedOrder] = useState<MedicationOrder>()
   const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([])
@@ -66,8 +65,8 @@ const MedicationAdministrations = () => {
   const [days, setDays] = useState<number | ''>(0);
   const [hours, setHours] = useState<number | ''>(0);
   const [minutes, setMinutes] = useState<number | ''>(0);
+  const [startTime] = useState(new Date())
   const comboboxData = getComboboxData(medicationOrders)
-  const [startTime, setStartTime] = useState(new Date())
 
   const linkedMed = selectedOrder
     ? allMedications.find(med => med.id === selectedOrder.medicationId)
@@ -137,97 +136,98 @@ const MedicationAdministrations = () => {
     });
   }
 
-  const handleSubmit = () => {
-    console.log("Final Orders:", medAdministrations);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+    // router.push('/admin/case-builder/form/')
   }
 
   const displayColumns = createColumns()
   return (
-    <div className="flex flex-col h-screen relative bg-white gap-6 p-4 overflow-y-auto">
-      <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
-        <input name='medOrderData' type='hidden' value={JSON.stringify(medAdministrations)} />
-        <SubmitButton buttonText="Continue" />
-      </form>
-
-      <h1 className="text-3xl p-y-2 font-medium">Medication Administrations</h1>
-      <div>
-        <Label>Medication Order</Label>
-        <Combobox value={selectedOrder?.id || ''} onValueChange={handleMedicationOrderChange} data={comboboxData} displayText="Select order..." />
-      </div>
-
-      <div className="flex gap-8 items-end">
-        <fieldset className="flex flex-col gap-2 border border-gray-200 rounded-lg p-2 pt-4 w-fit shadow-xs">
-          <legend>Time Offset</legend>
-          <div className="flex items-start gap-3 pl-2">
-            <Checkbox checked={isInPast} onCheckedChange={setIsInPast} />
-            <Label htmlFor="toggle">In the past?</Label>
+    <div className="w-full h-screen">
+      <div className="flex flex-col p-4 relative bg-white gap-6">
+        <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
+          <input name='medOrderData' type='hidden' value={JSON.stringify(medAdministrations)} />
+          <SubmitButton buttonText="Continue" />
+        </form>
+        <h1 className="text-3xl p-y-2 font-medium">Medication Administrations</h1>
+        <div>
+          <Label>Medication Order</Label>
+          <Combobox value={selectedOrder?.id || ''} onValueChange={handleMedicationOrderChange} data={comboboxData} displayText="Select order..." />
+        </div>
+        <div className="flex gap-8 items-end">
+          <fieldset className="flex flex-col gap-2 border border-gray-200 rounded-lg p-2 pt-4 w-fit shadow-xs">
+            <legend><Label>Time Offset</Label></legend>
+            <div className="flex items-start gap-3 pl-2">
+              <Checkbox checked={isInPast} onCheckedChange={setIsInPast} />
+              <Label htmlFor="toggle">In the past?</Label>
+            </div>
+            <div className="flex gap-10 pt-1">
+              <div>
+                <Label htmlFor='days' className="text-xs">Days</Label>
+                <Input id='days' value={days} onChange={(e) => handleTimeChange(e, setDays)} className="w-12 p-0.5 text-center" />
+              </div>
+              <div>
+                <Label htmlFor='hours' className="text-xs">Hours</Label>
+                <Input id='hours' value={hours} onChange={(e) => handleTimeChange(e, setHours)} className="w-12 p-0.5 text-center" />
+              </div>
+              <div>
+                <Label htmlFor='minutes' className="text-xs">Minutes</Label>
+                <Input id='minutes' value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className="w-12 p-0.5 text-center" />
+              </div>
+            </div>
+          </fieldset>
+          <div className="w-40 space-y-1">
+            <Label>Administered Dose</Label>
+            <div className="flex items-end">
+              <Input onChange={(e) => handleDoseChange(e.target.value)} value={dose} className="text-sm w-24 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200" />
+              <div className="h-9 bg-gray-50 border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
+                <p className="text-sm">{linkedMed?.strengthUnit}</p>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-10 pt-1">
-            <div>
-              <Label htmlFor='days' className="text-xs">Days</Label>
-              <Input id='days' value={days} onChange={(e) => handleTimeChange(e, setDays)} className="w-12 p-0.5 text-center" />
-            </div>
-            <div>
-              <Label htmlFor='hours' className="text-xs">Hours</Label>
-              <Input id='hours' value={hours} onChange={(e) => handleTimeChange(e, setHours)} className="w-12 p-0.5 text-center" />
-            </div>
-            <div>
-              <Label htmlFor='minutes' className="text-xs">Minutes</Label>
-              <Input id='minutes' value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className="w-12 p-0.5 text-center" />
-            </div>
+          <div className="w-fit space-y-1">
+            <Label>Status</Label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as AdministrationStatus)}
+              className="w-full border rounded-md px-3 py-2 text-sm"
+            >
+              <option value="Given">Given</option>
+              <option value="Held">Held</option>
+              <option value="Missed">Missed</option>
+              <option value="Refused">Refused</option>
+              <option value="Due">Due</option>
+            </select>
           </div>
-        </fieldset>
-        <div className="w-40 space-y-1">
-          <Label>Administered Dose</Label>
-          <div className="flex items-end">
-            <Input onChange={(e) => handleDoseChange(e.target.value)} value={dose} className="text-sm w-24 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200" />
-            <div className="h-9 bg-gray-50 border border-l-0 rounded-r-xl border-gray-200 p-2 shadow-xs">
-              <p className="text-sm">{linkedMed?.strengthUnit}</p>
-            </div>
+          <div className="w-60 space-y-1">
+            <Label>Administrator Name</Label>
+            <Input
+              value={administratorId}
+              onChange={(e) => setAdministratorId(e.target.value)}
+              placeholder="Enter administrator name"
+            />
           </div>
         </div>
-        <div className="w-fit space-y-1">
-          <Label>Status</Label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as AdministrationStatus)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
+        <div className="">
+          <Button
+            type="button"
+            onClick={handleAddMedAdministration}
+            disabled={!selectedOrder}
+            className="w-42"
           >
-            <option value="Given">Given</option>
-            <option value="Held">Held</option>
-            <option value="Missed">Missed</option>
-            <option value="Refused">Refused</option>
-            <option value="Due">Due</option>
-          </select>
-        </div>
-        <div className="w-60 space-y-1">
-          <Label>Administrator Name</Label>
-          <Input
-            value={administratorId}
-            onChange={(e) => setAdministratorId(e.target.value)}
-            placeholder="Enter administrator name"
-          />
+            Add Administration
+          </Button>
         </div>
       </div>
 
-      <div className="">
-        <Button
-          type="button"
-          onClick={handleAddMedAdministration}
-          disabled={!selectedOrder}
-          className="w-42"
-        >
-          Add Administration
-        </Button>
-      </div>
-
-      <div className="w-full flex flex-col gap-6">
-        {medAdministrations.length > 0 &&
-          <h1 className="text-2xl font-medium tracking-tight">Medication Administration Record</h1>
-        }
-
+      <div className="w-full h-[calc(100vh-22rem)] flex flex-col gap-6 overflow-y-auto border-t shadow-inner p-4 overflow-auto">
+        {selectedOrders.length === 0 && <p className="text-gray-400 pl-4">Select an order to begin</p>}
         {selectedOrders.map((order, index) => {
-          const linkedMed = allMedications.find((med, index) => med.id === order.medicationId)
+          const linkedMed = allMedications.find(med => med.id === order.medicationId)
           const linkedAdministrations = medAdministrations.filter(admin => admin.medicationOrderId === order.id)
           if (!linkedMed || !linkedAdministrations) return
           console.log(linkedAdministrations)
@@ -250,4 +250,4 @@ const MedicationAdministrations = () => {
   )
 }
 
-export default MedicationAdministrations
+export default MedicationAdministrationsForm

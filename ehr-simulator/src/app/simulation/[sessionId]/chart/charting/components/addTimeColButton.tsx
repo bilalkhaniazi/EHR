@@ -1,10 +1,10 @@
 "use client"
-import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/button"; 
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"; 
-import { TimePickerInput } from "@/components/ui/time-picker-input"; 
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { Clock, Plus } from "lucide-react";
-import { toast } from "sonner"; 
+import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/app/store/store";
 import { differenceInMinutes } from "date-fns";
@@ -21,7 +21,7 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionS
     const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date());
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
-    const handleAddTime = useCallback(() => {
+    const handleAddTime = () => {
         if (!simulationTime || !sessionStartTime) {
             return
         }
@@ -34,10 +34,10 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionS
             return;
         }
 
-        onColumnAdd(timeOffset); 
-    }, [onColumnAdd, existingTimeColumns]); 
+        onColumnAdd(timeOffset);
+    }
 
-    const handleAddUserDefinedTime = useCallback(() => {
+    const handleAddUserDefinedTime = () => {
         if (!sessionStartTime) {
             return
         }
@@ -56,11 +56,11 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionS
             return;
         }
 
-        onColumnAdd(timeOffset); 
-        setIsPopoverOpen(false); 
-        setSelectedTime(new Date()); 
-    }, [selectedTime, existingTimeColumns, onColumnAdd, setIsPopoverOpen]); 
-    
+        onColumnAdd(timeOffset);
+        setIsPopoverOpen(false);
+        setSelectedTime(new Date());
+    }
+
     return (
         <div className="flex gap-4 pl-8">
             <Button onClick={handleAddTime} className="bg-white h-6 text-black text-xs hover:bg-gray-100 shadow shadow-black/20">

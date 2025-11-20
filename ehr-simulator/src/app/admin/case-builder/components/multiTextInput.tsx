@@ -81,7 +81,7 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
 
       <Button
         type="button"
-        onClick={(e) => { e.preventDefault; addInput() }}
+        onClick={(e) => { e.preventDefault(); addInput() }}
         variant="outline"
         size="sm"
         className="inline-flex ml-2 font-normal items-center gap-2"

@@ -84,6 +84,7 @@ export type AdministrationStatus = 'Given' | 'Held' | 'Missed' | 'Refused' | 'Du
 // an instance where a patient is given a medication (or refuses it)
 // is associated with a specific med order
 export interface MedAdministrationInstance {
+  id?: string;
   medicationOrderId: string;    // link to specific med order
   administratorId: string;
   adminTimeMinuteOffset: number;
@@ -512,7 +513,7 @@ export const medicationOrders: MedicationOrder[] = [
   {
     id: "orderVancomycinIv",
     medicationId: "medVancomycinIv1000",
-    unitsOrdered: 100000000, // Ordering 1 Bag (1000mg)
+    unitsOrdered: 1000, // Ordering 1 Bag (1000mg)
     dose: 1000,
     frequency: "Q12H",
     priority: "Routine",
@@ -704,6 +705,8 @@ export const medicationOrders: MedicationOrder[] = [
   }
 ]
 
+
+// negative time offset -> occurred in the past
 export const medAdministrations: MedAdministrationInstance[] = [
   {
     medicationOrderId: "orderMetoprololOral25", // Metoprolol

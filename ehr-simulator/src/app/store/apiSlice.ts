@@ -33,7 +33,7 @@ interface SimDisplayData {
   diagnosis: string;
   overview: string;
   tasks: string[]
-  gender:string;
+  gender: string;
   id: string;
 }
 
@@ -49,37 +49,29 @@ interface GetMarResponse {
   sessionStartDateString: string;
 }
 
-interface GetChartResponse {
-  chartData: ChartData, 
-  marData: {
-    prn: number,
-    scheduled: number,
-    continuous: number
-  }
-}
 
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({baseUrl: '/'}),
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   endpoints: (builder) => ({
     // LabPage
     getLabs: builder.query<GetLabsResponse, number | null>({
       queryFn: async (simStartTime) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         if (!simStartTime) {
-          return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };        
+          return { error: { status: 'CUSTOM_ERROR', error: 'Time has not been initialized.' } };
         }
-        
+
         const allTimePoints = generateAllInitialLabTimes(simStartTime);
 
         // get list of all time offsets for tanstack table columns
         const timeColumnDateKeys = allTimePoints.map(timePoint => timePoint.dateKey)
-        
+
         // assign lab results to their corresponding rows
         const initialLabTableData = generateInitialLabData(allTimePoints, labTemplate);
 
         // remove rarely used labs if every value in its row is empty
-        const filteredLabTableData = 
+        const filteredLabTableData =
           initialLabTableData.filter(row => {
             if (!row.hideable) {
               return true
@@ -87,11 +79,11 @@ export const apiSlice = createApi({
             const allValuesEmpty = timeColumnDateKeys.every(dateKey => {
               const labValue = row[dateKey]
               return !labValue
-              }
+            }
             )
             return !allValuesEmpty
           })
-        return { data: { labTableData: filteredLabTableData, timePoints: timeColumnDateKeys }};
+        return { data: { labTableData: filteredLabTableData, timePoints: timeColumnDateKeys } };
       }
     }),
     // addLabColumn: builder.mutation<
@@ -137,15 +129,15 @@ export const apiSlice = createApi({
     // }),
 
     // NotesPage
-    getNotes: builder.query<{notesData: NoteData[]}, void>({
+    getNotes: builder.query<{ notesData: NoteData[] }, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return { data: { notesData: sampleNotes } };
       }
     }),
-    
-    addNote: builder.mutation<NoteData, NoteData>({ 
-      queryFn: async(newNote) => {
+
+    addNote: builder.mutation<NoteData, NoteData>({
+      queryFn: async (newNote) => {
         await new Promise(resolve => setTimeout(resolve, 500));
         return { data: newNote }
       },
@@ -167,38 +159,39 @@ export const apiSlice = createApi({
     }),
 
     // OrderPage
-    getOrders: builder.query<GetOrdersResponse, void> ({
+    getOrders: builder.query<GetOrdersResponse, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
-          const medications = allMedications
-          const orders = medicationOrders
+        const medications = allMedications
+        const orders = medicationOrders
 
-          const medLookup = medications.reduce<Record<string, AllMedicationTypes>>((acc, med) => {
-            acc[med.id] = med
-            return acc;
-          }, {})
+        const medLookup = medications.reduce<Record<string, AllMedicationTypes>>((acc, med) => {
+          acc[med.id] = med
+          return acc;
+        }, {})
 
-          
 
-          const medData = orders.map(order => {
-            const brandName = medLookup[order.medicationId].brandName ? `(${medLookup[order.medicationId].brandName})` : ''
-            const dose = getMedDose(medLookup[order.medicationId], order)
-            return(
-              {
-                displayName: `${medLookup[order.medicationId].genericName} ${brandName}`,
-                route: medLookup[order.medicationId].route,
-                dose: dose,
-                frequency: order.frequency,
-                priority: order.priority,
-                administrationInstructions: order.instructions ? order.instructions : '',
-                orderingProvider: order.orderingProvider
-              } as MedOrderData
-            )
-          })
-        return {data: 
+
+        const medData = orders.map(order => {
+          const brandName = medLookup[order.medicationId].brandName ? `(${medLookup[order.medicationId].brandName})` : ''
+          const dose = getMedDose(medLookup[order.medicationId], order)
+          return (
+            {
+              displayName: `${medLookup[order.medicationId].genericName} ${brandName}`,
+              route: medLookup[order.medicationId].route,
+              dose: dose,
+              frequency: order.frequency,
+              priority: order.priority,
+              administrationInstructions: order.instructions ? order.instructions : '',
+              orderingProvider: order.orderingProvider
+            } as MedOrderData
+          )
+        })
+        return {
+          data:
           {
-            nursingOrders: nursingOrders, 
-            respiratoryOrders: respiratoryOrders, 
+            nursingOrders: nursingOrders,
+            respiratoryOrders: respiratoryOrders,
             labOrders: laboratoryOrders,
             medicationData: medData,
             consultOrders: consultOrders
@@ -208,22 +201,22 @@ export const apiSlice = createApi({
     }),
 
     // Chart Sidebar
-    getChart: builder.query<{chartData: ChartData, marData: {prn: number, scheduled: number, continuous: number}}, void>({
+    getChart: builder.query<{ chartData: ChartData, marData: { prn: number, scheduled: number, continuous: number } }, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         const orderCounts = medicationOrders.reduce((acc, order) => {
           if (order.frequency === "PRN") {
-            acc["prn"]++ 
+            acc["prn"]++
           } else if (order.frequency === "Continuous") {
             acc['continuous']++
           } else {
             acc['scheduled']++
           }
           return acc
-        }, {prn: 0, continuous: 0, scheduled: 0})
+        }, { prn: 0, continuous: 0, scheduled: 0 })
 
 
-        return { 
+        return {
           data: { chartData: jamesAllen, marData: orderCounts }
         }
       }
@@ -241,7 +234,7 @@ export const apiSlice = createApi({
         await new Promise(resolve => setTimeout(resolve, 1000));
         const allTimeOffsets = getAllTimeOffsets(nowTimestamp);
         const initialData = generateInitialChartingData(allTimeOffsets);
-        return { data: { chartingData: initialData, timeOffsets: allTimeOffsets}}
+        return { data: { chartingData: initialData, timeOffsets: allTimeOffsets } }
       },
     }),
     addTimeColumn: builder.mutation<
@@ -252,23 +245,23 @@ export const apiSlice = createApi({
         await new Promise(resolve => setTimeout(resolve, 500));
         console.log(`Mock backend received request to add time column: ${newTimeOffset}`);
         return { data: { message: `Time column ${newTimeOffset} added successfully`, newTimeOffset } };
-      
-      
-      // pre-redux column adding logic
-      //   const handleColumnAdd = (newTime: string) => {
-      //     setTimeColumns(prevColumns => {
-      //         const updatedColumns = [...prevColumns, newTime].sort();
-      //         return updatedColumns;
-      //     });
 
-      //     setData(prevData =>
-      //         prevData.map(row => {
-      //             const newRow = { ...row };
-      //             newRow[newTime] = '';
-      //             return newRow;
-      //         })
-      //     );
-      // }
+
+        // pre-redux column adding logic
+        //   const handleColumnAdd = (newTime: string) => {
+        //     setTimeColumns(prevColumns => {
+        //         const updatedColumns = [...prevColumns, newTime].sort();
+        //         return updatedColumns;
+        //     });
+
+        //     setData(prevData =>
+        //         prevData.map(row => {
+        //             const newRow = { ...row };
+        //             newRow[newTime] = '';
+        //             return newRow;
+        //         })
+        //     );
+        // }
       },
     }),
     updateFlexSheetData: builder.mutation<
@@ -281,7 +274,7 @@ export const apiSlice = createApi({
         // fake response 
         return { data: { message: "FlexSheet data updated successfully", updatedData: updatedRows } };
       },
-      
+
       // invalidatesTags: ['FlexSheetData'],
     }),
     getMar: builder.query<GetMarResponse, void>({
@@ -293,7 +286,7 @@ export const apiSlice = createApi({
         const allPtMedications: AllMedicationTypes[] = allMedications
         const simStartTime = new Date().toISOString()
 
-        return { data: { medicationOrders: ptMedicationOrders, medAdministrations: allMedAdministrations, allMedications: allPtMedications, sessionStartDateString: simStartTime}}
+        return { data: { medicationOrders: ptMedicationOrders, medAdministrations: allMedAdministrations, allMedications: allPtMedications, sessionStartDateString: simStartTime } }
       }
     }),
 
@@ -314,7 +307,7 @@ export const apiSlice = createApi({
             const newAdminTimes = new Map(administrations.map(admin => [admin.medicationOrderId, admin.adminTimeMinuteOffset]));
 
             const filteredAdministrations = draft.medAdministrations.filter(existingAdmin => {
-              if (existingAdmin.status !== "Due"){
+              if (existingAdmin.status !== "Due") {
                 return true;
               }
 
@@ -341,14 +334,14 @@ export const apiSlice = createApi({
         }
       },
     }),
-    
+
     // Gets all sim preps currently available to students
     // needs sim name, age, gender, dx, overview statement, and potentially specified tasks
     // unique ID for sim to be requested
     getSimPreps: builder.query<GetSimPrepsResponse, void>({
       queryFn: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const simPrepData1: SimDisplayData = { 
+        const simPrepData1: SimDisplayData = {
           name: 'Mark Smith',
           age: 67,
           gender: "Male",
@@ -357,7 +350,7 @@ export const apiSlice = createApi({
           tasks: ["Review chart", "Construct timeline of patients hospital stay.", "Review labratory values and connect them to the patient's diagnosis."],
           id: "sadfF32EfsfU786H"
         }
-        const simPrepData2: SimDisplayData = { 
+        const simPrepData2: SimDisplayData = {
           name: 'Mark Smith',
           age: 67,
           gender: "Male",
@@ -368,7 +361,7 @@ export const apiSlice = createApi({
         }
         const simData: SimDisplayData[] = [simPrepData1, simPrepData2]
 
-        return { data: {simPreps:  simData }};
+        return { data: { simPreps: simData } };
       }
     }),
   }),
@@ -376,7 +369,7 @@ export const apiSlice = createApi({
 
 
 
-export const { 
+export const {
   useGetLabsQuery,
   // useAddLabColumnMutation,
   useGetNotesQuery,

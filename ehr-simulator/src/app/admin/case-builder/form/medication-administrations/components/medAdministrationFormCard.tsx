@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import type { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
-import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers.tsx"
+import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers"
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -81,7 +81,7 @@ const MedAdministrationFormCard = ({ medication, administrations, order, columns
                       const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
                       const displayTime = format(adminAbsoluteTime, 'HHmm')
                       let statusColorClass;
-                      let statusText = admin.status;
+                      const statusText = admin.status;
 
                       switch (admin.status) {
                         case "Given":
@@ -102,7 +102,7 @@ const MedAdministrationFormCard = ({ medication, administrations, order, columns
                       }
                       return (
                         <div
-                          key={admin.id} // Use the unique ID for the key
+                          key={`${admin.id}-${index}`} // Use the unique ID for the key
                           className={`relative flex flex-col justify-center items-center pt-2.5 pb-1 px-2 rounded-xl shadow-sm w-full ${statusColorClass}`}
                         >
                           <button

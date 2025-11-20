@@ -13,7 +13,7 @@ interface MedAdminCardProps {
   realWorldNow: Date;
   onStatusChange: (status: string) => void;
   currentStatus: string
-  onDoseChange: (administeredDose: Number) => void;
+  onDoseChange: (administeredDose: number) => void;
   currentDose: number
 }
 

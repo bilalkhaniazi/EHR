@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
- 
+
 import {
   Table,
   TableBody,
@@ -18,20 +18,20 @@ import {
 } from "@/components/ui/table"
 import { Dot } from "lucide-react"
 
-interface OrdersTableProps<T> { 
-    columnNames: string[],
-    headerNames: T,
-    color: string,
-    data: T[]
+interface OrdersTableProps<T> {
+  columnNames: string[],
+  headerNames: T,
+  color: string,
+  data: T[]
 }
- 
-const OrdersTable = <T extends Record<string, any>>({ 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const OrdersTable = <T extends Record<string, any>>({
   columnNames,
   headerNames,
   color,
-  data 
+  data
 }: OrdersTableProps<T>) => {
-  
+
   const columnHelper = createColumnHelper<T>()
 
   const columns = useMemo(
@@ -49,11 +49,11 @@ const OrdersTable = <T extends Record<string, any>>({
                     style={{
                       top: '6%',
                       left: '0%',
-                      minWidth: '2.5rem', 
-                      minHeight: '2.2rem', 
+                      minWidth: '2.5rem',
+                      minHeight: '2.2rem',
                     }}
                   ></span>
-                  <span className="relative z-1"> 
+                  <span className="relative z-1">
                     {headerNames.displayName.substring(0, 1)}
                   </span>
                 </span>
@@ -61,7 +61,7 @@ const OrdersTable = <T extends Record<string, any>>({
               </h1>
             </div>
           )
-          },
+        },
         cell: info => {
           return (
             <h1 className="text-xs text-right font-medium text-wrap tracking-tight">{info.row.original.displayName}</h1>
@@ -71,30 +71,30 @@ const OrdersTable = <T extends Record<string, any>>({
 
       // map out remaining columns  
       ...columnNames.map(id =>
-          columnHelper.accessor((row: T) => row[id], {
-            id: id,
-            header: () => (
-              <div className="h-full flex justify-left items-end ">
-                <p className="text-sm font-light text-gray-400 tracking-tight">{headerNames[id]}</p>
+        columnHelper.accessor((row: T) => row[id], {
+          id: id,
+          header: () => (
+            <div className="h-full flex justify-left items-end ">
+              <p className="text-sm font-light text-gray-400 tracking-tight">{headerNames[id]}</p>
+            </div>
+          ),
+          cell: ({ getValue }) => {
+            return (
+              <div className="flex justify-start items-center gap-2">
+                <p className="text-xs text-wrap text-gray-700 tracking-tight">{getValue()}</p>
+                {id === "status" && <Dot color="#7bc421" size={12} strokeWidth={16} />}
               </div>
-            ),
-            cell: ({getValue}) => {
-              return (
-                <div className="flex justify-start items-center gap-2">
-                  <p className="text-xs text-wrap text-gray-700 tracking-tight">{getValue()}</p>
-                  { id === "status" && <Dot color="#7bc421" size={12} strokeWidth={16} /> }
-               </div>
-              )
-            }
-          })
+            )
+          }
+        })
       )
-    ], [data]
+    ], [color, columnHelper, headerNames, columnNames]
   );
   const table = useReactTable({
-      data,
-      columns,
-      enablePinning: true,
-      getCoreRowModel: getCoreRowModel(), 
+    data,
+    columns,
+    enablePinning: true,
+    getCoreRowModel: getCoreRowModel(),
   });
 
   return (
@@ -109,9 +109,9 @@ const OrdersTable = <T extends Record<string, any>>({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 )
               })}
@@ -126,7 +126,7 @@ const OrdersTable = <T extends Record<string, any>>({
                 data-state={row.getIsSelected() && "selected"}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell 
+                  <TableCell
                     key={cell.id}
                     className="h-12 border-r last:border-0 border-gray-200 py-2"
                   >

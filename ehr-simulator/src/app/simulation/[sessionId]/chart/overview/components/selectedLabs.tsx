@@ -9,22 +9,22 @@ import type { RootState } from "@/app/store/store"
 import { formatTimeFromOffset } from "@/app/simulation/[sessionId]/chart/charting/page"
 import { getResultStatus } from "@/app/simulation/[sessionId]/chart/labs/page"
 import { ShieldAlert } from "lucide-react"
- 
+
 
 const selectedLabs = [
-    "Sodium",
-    "Potassium",
-    "Creatinine",
-    "Glucose",
-    "RBC",
-    "WBC",
-    "Platelets"
-  ];
+  "Sodium",
+  "Potassium",
+  "Creatinine",
+  "Glucose",
+  "RBC",
+  "WBC",
+  "Platelets"
+];
 
 export function SelectedLabs() {
   const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
-  const skip = ! sessionStartTime
-  
+  const skip = !sessionStartTime
+
   const { data, isLoading, isError, error, isFetching } = useGetLabsQuery(sessionStartTime, { skip })
 
   if (isLoading || isFetching || skip) {
@@ -39,19 +39,30 @@ export function SelectedLabs() {
   // RTK Query error handling
   if (isError) {
     let errorMessage = "An unknown error occurred.";
-    if (error) {
-      if ('status' in error && error.status) {
-        errorMessage = `Error ${error.status}`;
-        if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
-          errorMessage += `: ${(error.data as any).message}`;
-        }
-      } else if ('message' in error) {
-        errorMessage = `Error: ${error.message}`;
-      } else {
-        errorMessage = `Error: ${JSON.stringify(error)}`;
-      }
+    const err = error as unknown;
+
+    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
+      return typeof e === "object" && e !== null && "status" in e;
     }
-    console.log(errorMessage)
+
+    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
+      return typeof e.data === "object" && e.data !== null && "message" in e.data;
+    }
+
+    if (isStatusError(err)) {
+      errorMessage = `Error ${err.status}`;
+      if (hasMessageData(err)) {
+        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
+      } else if ("data" in err) {
+        errorMessage += `: ${JSON.stringify(err.data)}`;
+      }
+    } else if (typeof err === "object" && err !== null && "message" in err) {
+      errorMessage = `Error: ${(err as { message: string }).message}`;
+    } else {
+      errorMessage = `Error: ${JSON.stringify(err)}`;
+    }
+
+    console.log(errorMessage);
 
     return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
@@ -60,9 +71,9 @@ export function SelectedLabs() {
       </Card>
     )
   }
-  
+
   if (!data || Object.keys(data).length === 0) {
-    return(
+    return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
         <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
         <p>No data exists</p>
@@ -77,9 +88,9 @@ export function SelectedLabs() {
     return selectedLabs.includes(row.field)
   })
 
-  
+
   const selectedLabData = filteredData.map(row => {
-    const selectedLab = {field: row.field, dateKey: 0, value: '', normalRange: row.normalRange, criticalRange: row.criticalRange}
+    const selectedLab = { field: row.field, dateKey: 0, value: '', normalRange: row.normalRange, criticalRange: row.criticalRange }
     for (let i = timePoints.length - 1; i >= 0; i--) {
       const timePoint = timePoints[i];
       if (row[timePoint]) {
@@ -90,7 +101,7 @@ export function SelectedLabs() {
     }
     if (selectedLab.value) {
       return selectedLab
-    } 
+    }
     // if no data exists for a selected lab
     return undefined
   }).filter(Boolean)
@@ -107,16 +118,16 @@ export function SelectedLabs() {
         {selectedLabData.map(labData => {
           if (!labData) return null
 
-          const {date: displayDate, time: displayTime} = formatTimeFromOffset(labData.dateKey, sessionStartTime)
+          const { date: displayDate, time: displayTime } = formatTimeFromOffset(labData.dateKey, sessionStartTime)
 
           const normalRange = labData.normalRange
           const criticalRange = labData.criticalRange
 
           const resultStatus = getResultStatus(labData.value, normalRange, criticalRange)
           const isCritical = resultStatus === "critical"
-          const isAbnormal = resultStatus === "abnormal" 
+          const isAbnormal = resultStatus === "abnormal"
 
-          
+
           return (
             <div key={labData.field} className="grid grid-cols-2 rounded-md">
               <div className="p-1 rounded-t-lg col-span-2 border bg-sky-200 border-sky-200 flex justify-center items-center gap-3">
@@ -132,7 +143,7 @@ export function SelectedLabs() {
           )
         })}
       </CardContent>
-      
+
       <div className="absolute bottom-0 bg-sky-200 w-full h-3"></div>
     </Card>
   )

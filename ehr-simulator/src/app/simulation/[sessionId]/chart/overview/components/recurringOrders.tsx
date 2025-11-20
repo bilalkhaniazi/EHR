@@ -1,6 +1,6 @@
 
 'use client'
- 
+
 import { Tooltip } from "@radix-ui/react-tooltip"
 import { Card, CardContent } from "@/components/ui/card"
 import { Info } from "lucide-react"
@@ -15,28 +15,39 @@ const RecurringOrders = () => {
   if (isLoading || (isFetching && !data)) {
     return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecurring Orders" /> 
+        <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecurring Orders" />
         <CardSkeleton />
-      </Card>   
+      </Card>
     )
   }
 
 
   if (isError) {
     let errorMessage = "An unknown error occurred.";
-    if (error) {
-      if ('status' in error && error.status) {
-        errorMessage = `Error ${error.status}`;
-        if ('data' in error && typeof error.data === 'object' && error.data !== null && 'message' in error.data) {
-          errorMessage += `: ${(error.data as any).message}`;
-        }
-      } else if ('message' in error) {
-        errorMessage = `Error: ${error.message}`;
-      } else {
-        errorMessage = `Error: ${JSON.stringify(error)}`;
-      }
+    const err = error as unknown;
+
+    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
+      return typeof e === "object" && e !== null && "status" in e;
     }
-    console.log(errorMessage)
+
+    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
+      return typeof e.data === "object" && e.data !== null && "message" in e.data;
+    }
+
+    if (isStatusError(err)) {
+      errorMessage = `Error ${err.status}`;
+      if (hasMessageData(err)) {
+        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
+      } else if ("data" in err) {
+        errorMessage += `: ${JSON.stringify(err.data)}`;
+      }
+    } else if (typeof err === "object" && err !== null && "message" in err) {
+      errorMessage = `Error: ${(err as { message: string }).message}`;
+    } else {
+      errorMessage = `Error: ${JSON.stringify(err)}`;
+    }
+
+    console.log(errorMessage);
     return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
         <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
@@ -46,7 +57,7 @@ const RecurringOrders = () => {
   }
 
   if (!data || Object.keys(data).length === 0) {
-    return(
+    return (
       <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
         <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
         <p>No data exists</p>
@@ -54,13 +65,13 @@ const RecurringOrders = () => {
     )
   }
 
-    const { nursingOrders, labOrders: labratoryOrders } = data;
+  const { nursingOrders, labOrders: labratoryOrders } = data;
 
 
 
   return (
     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-      <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecurring Orders" />    
+      <StyledTitle color="bg-sky-200" firstLetter="R" secondLetter="ecurring Orders" />
       <CardContent className="grid gap-4 px-8">
         <div className="flex flex-col w-full items-start gap-1">
           <div className="flex flex-col gap-2">
@@ -84,7 +95,7 @@ const RecurringOrders = () => {
                     </TooltipProvider>
                   </div>
                 )
-              } 
+              }
             })}
 
             <p className="text-sm font-medium leading-none">Labs</p>
@@ -107,7 +118,7 @@ const RecurringOrders = () => {
                     </TooltipProvider>
                   </div>
                 )
-              } 
+              }
             })}
           </div>
         </div>

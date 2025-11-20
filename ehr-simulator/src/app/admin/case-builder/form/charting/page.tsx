@@ -1,19 +1,15 @@
 'use client'
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type RowData } from "@tanstack/react-table";
-import { useMemo, useEffect, useState, use } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 
 // import { Skeleton } from "@/components/ui/skeleton";
-import { ShieldAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddLabColumn } from "../labs/components/addLabCol";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import Combobox from "@/components/ui/combobox";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { chartingOptions } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
@@ -30,11 +26,7 @@ interface ChartingData {
   hideableId?: string;
   hideable?: boolean;
   wdlDescription?: { assessment: string, description: string }[];
-  [key: number]: any;
-
-
-
-
+  [key: number]: string;
 }
 
 const chartingDataTemplate: ChartingData[] = [
@@ -1022,30 +1014,22 @@ const formatTimeOffset = (minuteOffset: number) => {
   return { days, hours, minutes };
 }
 
-export const getResultStatus = (initialValue: string, normalRange: { low: number, high: number } | undefined, criticalRange: { low: number, high: number } | undefined) => {
-  const numericValue = parseFloat(initialValue)
-
-  if (isNaN(numericValue)) {
-    return 'invalid';
-  }
-  if (criticalRange && (numericValue < criticalRange.low || numericValue > criticalRange.high)) {
-    return "critical";
-  }
-  if (normalRange && (numericValue < normalRange.low || numericValue > normalRange.high)) {
-    return "abnormal";
-  }
-  return "normal";
-}
-
 const columnHelper = createColumnHelper<ChartingData>();
 
 // left column pinned
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getPinnedStyles(column: any): React.CSSProperties {
+  const styles: React.CSSProperties = {
+    width: `${column.getSize()}px`,
+    minWidth: `${column.getSize()}px`,
+    maxWidth: `${column.getSize()}px`,
+  };
   if (!column.getIsPinned()) {
     return {};
   }
   const side = column.getIsPinned();
   return {
+    ...styles,
     position: 'sticky',
     [side]: `${column.getStart(side)}px`,
     zIndex: side === 'left' ? 10 : 1,
@@ -1053,52 +1037,11 @@ function getPinnedStyles(column: any): React.CSSProperties {
   };
 }
 
-export function LabPage() {
+export function ChartingForm() {
   const [chartingData, setChartingData] = useState<ChartingData[]>(chartingDataTemplate)
   const [timePoints, setTimePoints] = useState<number[]>([180, 60, 30])
 
-  // const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
-  // const [comboboxValue, setComboboxValue] = useState<string>("");
   const router = useRouter()
-
-  // Get all hideable options
-  // const hideableOptions = useMemo(() => {
-  //   return labTableData
-  // .filter(row => row.hideable === true)
-  //     .filter(row => !visibleItems.has(row.field)) // Only show unselected options
-  //     .map(row => ({
-  //       value: row.field,
-  //       label: row.field
-  //     }));
-  // }, [labTableData, visibleItems]);
-
-  // // Filter data to only show visible rows
-  // const filteredLabTableData = useMemo(() => {
-  //   return labTableData.filter(row => {
-  //     // Always show non-hideable rows
-  //     if (!row.hideable) return true;
-  //     // Show hideable rows only if they're in visibleItems
-  //     return visibleItems.has(row.field);
-  //   });
-  // }, [labTableData, visibleItems]);
-
-  // // Handler to add an item to visible list
-  // const handleAddVisibleItem = (fieldName: string) => {
-  //   if (fieldName) {
-  //     setVisibleItems(prev => new Set([...prev, fieldName]));
-  //     setComboboxValue(""); // Reset combobox after selection
-  //   }
-  // };
-
-  // const handleRemoveVisibleItem = (fieldName: string) => {
-  //   setVisibleItems(prev => {
-  //     const newSet = new Set(prev);
-  //     newSet.delete(fieldName);
-  //     return newSet;
-  //   });
-  // };
-
-
 
   const handleAddColumn = (offset: number) => {
     if (timePoints.includes(offset)) {
@@ -1129,6 +1072,8 @@ export function LabPage() {
     () => [
       // first column has unique formatting
       columnHelper.accessor("field", {
+        minSize: 220, // Optional: prevents it from getting too small if resizable
+        maxSize: 400,
         id: 'pinned',
         header: () => <div className="h-20 w-full bg-gray-50"></div>,
         cell: info => {
@@ -1148,7 +1093,7 @@ export function LabPage() {
                       <h1 className="text-sm font-bold">WDL Criteria</h1>
                       <div className="space-y-2">
                         {wdlDescription.map((row, index) => (
-                          <div key={index} className="">
+                          <div key={index} className="text-wrap">
                             <p className="pl-2 text-xs font-semibold text-gray-800 text-wrap">{row.assessment}:</p>
                             <p className="pl-4 text-xs text-gray-600 italic text-wrap">{row.description}</p>
                           </div>
@@ -1162,48 +1107,17 @@ export function LabPage() {
               // If wdlDescription is undefined or empty, just render the field content
               return (
                 <div className="flex items-center">
-                  <p className="min-w-24 h-full text-xs text-left py-0 pl-2 px-2 font-medium text-lime-900">
+                  <p className="w-full h-full text-xs text-left py-0 pl-2 px-2 font-medium text-lime-900">
                     {info.row.original.field}
                   </p>
                 </div>
               );
             }
-          } else if (rowType === "totalScoreRow") { // Handle the new total score row for assessment Tools
-            const toolName = info.row.original.field.replace(' Total Score', '');
-            // const toolInterpretation = assessmentTools.find(tool => tool.name === toolName)?.interpretations;
-
-            // Display total score with interpretation if available
-            return (
-              <div className="min-w-24 h-full text-xs text-left py-0 pl-4 font-semibold text-neutral-800">
-                {/* {info.getValue() && toolInterpretation ? (
-                  <Tooltip>
-                    <TooltipTrigger className="cursor-help">
-                      {info.getValue()} Total
-                    </TooltipTrigger>
-                    <TooltipPortal>
-                      <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm">
-                        <h1 className="text-sm font-bold">{toolName} Interpretation</h1>
-                        <div className="pl-2 space-y-2">
-                          {toolInterpretation.map((interpretation, index) => (
-                            <div key={index}>
-                              <p className="text-xs font-semibold text-gray-800">{interpretation.result} ({interpretation.range}):</p>
-                              <p className="pl-2 text-xs text-gray-600 italic">{interpretation.description}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </TooltipContent>
-                    </TooltipPortal>
-                  </Tooltip>
-                ) : (
-                  `${info.getValue()} Total`
-                )} */}
-              </div>
-            )
           } else {
             // This is for other row types that are not "titleRow" or 'totalScoreRow'
             return (
               <div className="flex items-center">
-                <p className="min-w-24 h-full text-left text-xs py-0 pl-4 text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                <p className="w-full h-full text-left text-xs py-0 pl-4 text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-wrap">
                   {info.getValue()}
                 </p>
               </div>
@@ -1242,7 +1156,7 @@ export function LabPage() {
                 case 'input':
                   const [value, setValue] = useState(initialValue)
 
-                  let alertFlag = getAlertFlag(row.original, value, componentType);
+                  const alertFlag = getAlertFlag(row.original, value, componentType);
 
                   const onBlur = () => {
                     if (value != initialValue) {
@@ -1292,40 +1206,6 @@ export function LabPage() {
                       className="p-0 h-6 hover:bg-muted/30"
                     />
                   )
-                // const abnormalRange = row.original?.normalRange
-                // const criticalRange = row.original?.criticalRange
-
-                // const resultStatus = getResultStatus(initialValue, abnormalRange, criticalRange);
-                // const isCritical = resultStatus === "critical"
-                // const isAbnormal = resultStatus === "abnormal"
-
-                // const [value, setValue] = useState(initialValue)
-                // const onBlur = () => {
-                //   table.options.meta?.updateData(row.index, column.id, value)
-                // }
-                // const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-                //   if (e.key === "Enter") {
-                //     (e.target as HTMLInputElement).blur();
-                //   }
-                // };
-                // useEffect(() => {
-                //   setValue(initialValue)
-                // }, [initialValue])
-
-                // return (
-                //   <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex h-6 items-center w-full hover:bg-gray-50">
-                //     <Input
-                //       value={value}
-                //       onChange={(e) => setValue(e.target.value)}
-                //       onBlur={onBlur}
-                //       className={`w-full h-6 text-right text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}
-                //       onKeyDown={onKeyDown}
-                //       key={`${row.id}-${column.id}-${row.original.field}`}
-                //     />
-                //     {isCritical && <ShieldAlert color="#e7000b" size={18} />}
-                //   </div>
-                // );
-
               }
             }
           }))
@@ -1364,28 +1244,8 @@ export function LabPage() {
   });
 
 
-  // if (isLoading || isFetching ) {
-  //   return (
-  //     <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
-  //       <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //       <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-  //     </div>
-  //   );
-  // }
-
-  // if (isError) {
-  //   return (
-  //     <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-  //       <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-gray-100 justify-center items-center px-4 pt-4 gap-2 ">
+    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-white justify-center items-center px-4 pt-4 gap-2 ">
       <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
         <input name='chartData' type='hidden' value={JSON.stringify(chartingData)} />
         <SubmitButton buttonText="Continue" />
@@ -1394,10 +1254,6 @@ export function LabPage() {
         <h1 className="text-3xl font-medium">FlexSheet Data</h1>
         <div className="flex gap-8 items-end">
           <AddLabColumn handleColumnAdd={handleAddColumn} />
-          {/* <div>
-            <Label>Imaging Options</Label>
-            <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
-          </div> */}
         </div>
       </div>
       <div className="w-full h-full border border-gray-200 rounded-t-lg overflow-auto">
@@ -1434,7 +1290,7 @@ export function LabPage() {
                     <TableCell
                       style={getPinnedStyles(cell.column)}
                       key={`${cell.id}-${row.original.field}`}
-                      className={`min-w-40 w-120 p-0 m-0 h-6 border-separate border-gray-200 border-b  ${componentType === "static" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
+                      className={`min-w-50 w-120 p-0 m-0 h-6 border-separate border-gray-200 border-b  ${componentType === "static" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
                     >
                       {/* Render the cell content using flexRender */}
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -1473,4 +1329,4 @@ export function LabPage() {
 
 
 
-export default LabPage
+export default ChartingForm

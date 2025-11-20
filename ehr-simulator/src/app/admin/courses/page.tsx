@@ -4,7 +4,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import CourseListItem from "./CourseListItem";
 import { getAllCourses } from "@/actions/courses";
-import Link from "next/link";
+// import Link from "next/link";
 
 type Course = {
   id: string;

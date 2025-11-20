@@ -104,9 +104,33 @@ const NotePage = () => {
   }
 
   if (notesFetchError) {
+    let errorMessage = "An unknown error occurred.";
+    const err = fetchErrorDetails as unknown;
+
+    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
+      return typeof e === "object" && e !== null && "status" in e;
+    }
+
+    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
+      return typeof e.data === "object" && e.data !== null && "message" in e.data;
+    }
+
+    if (isStatusError(err)) {
+      errorMessage = `Error ${err.status}`;
+      if (hasMessageData(err)) {
+        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
+      } else if ("data" in err) {
+        errorMessage += `: ${JSON.stringify(err.data)}`;
+      }
+    } else if (typeof err === "object" && err !== null && "message" in err) {
+      errorMessage = `Error: ${(err as { message: string }).message}`;
+    } else {
+      errorMessage = `Error: ${JSON.stringify(err)}`;
+    }
+    console.log(errorMessage)
     return (
       <div className="w-full h-full flex flex-col px-4 gap-3 bg-gray-100 justify-center items-center">
-        <p className="text-red-600">Error loading notes: {fetchErrorDetails ? (fetchErrorDetails as any).message : 'Unknown error'}</p>
+        <p className="text-red-600">Error loading notes.</p>
       </div>
     );
   }

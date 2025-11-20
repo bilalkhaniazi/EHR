@@ -33,7 +33,7 @@ interface MedAdminCardProps {
   handleMedicationRemoval: (index: number) => void;
   index: number;
   orderData: Partial<MedicationOrder>; // Data comes from parent
-  onOrderChange: (index: number, field: keyof MedicationOrder, value: any) => void;
+  onOrderChange: (index: number, field: keyof MedicationOrder, value: string) => void;
 }
 
 const MedCardForm = ({
@@ -44,22 +44,11 @@ const MedCardForm = ({
   onOrderChange
 }: MedAdminCardProps) => {
 
-  // type MedAdminStatus = MedAdministrationInstance["status"];
-  // const getStatusColor = (status: MedAdminStatus) => {
-  //   const colorMap = {
-  //     Given: "bg-lime-200 text-lime-800",
-  //     Missed: "bg-red-200 text-red-800",
-  //     Held: "bg-yellow-200 text-yellow-800",
-  //     Due: "bg-blue-200 text-blue-800",
-  //     Refused: "bg-gray-300 text-gray-800",
-  //   };
-  //   return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
-  // };
 
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
-    <div className="border bg-gray-50 rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative">
+    <div className="border bg-blue-50 rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative">
       <button onClick={() => handleMedicationRemoval(index)} className="absolute top-2 right-2">
         <X size={18} />
       </button>

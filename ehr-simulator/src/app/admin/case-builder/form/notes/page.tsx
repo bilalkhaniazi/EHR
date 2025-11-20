@@ -1,6 +1,6 @@
 "use client"
-import { useState, useEffect, use } from "react"
-import { sampleNotes, type TextNote, type SoapNote } from "./notesData"
+import { useState, useEffect } from "react"
+import { type TextNote, type SoapNote } from "./notesData"
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
@@ -439,7 +439,7 @@ const NotesForm = () => {
           {(notes.length > 0) &&
             <div className="flex flex-col grow gap-4 p-2 rounded-lg overflow-y-auto ">
               {notes.map((note, index) => (
-                <div className="border rounded-lg">
+                <div key={`${note.specialty}-${index}`} className="border rounded-lg">
                   <NoteDisplay onDelete={() => setNotes(notes.filter((_, i) => i !== index))} note={note} key={index} />
                 </div>
               ))}

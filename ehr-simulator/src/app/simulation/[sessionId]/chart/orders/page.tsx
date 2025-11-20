@@ -1,9 +1,9 @@
 "use client"
 
 import OrdersTable from "./components/ordersTable"
-import { 
-  nursingHeaderNames, 
-  respHeaderNames, 
+import {
+  nursingHeaderNames,
+  respHeaderNames,
   medHeaderNames,
   laboratoryHeaderNames,
   consultHeaderNames,
@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 const OrdersPage = () => {
   const { data, isLoading, isFetching, isError, error } = useGetOrdersQuery();
-  
+
   const nursingOrderData = data?.nursingOrders || []
   const labOrderData = data?.labOrders || []
   const medicationData = data?.medicationData || []
@@ -27,8 +27,8 @@ const OrdersPage = () => {
 
   // arrays for tanstack table to iterate over to build columns 
   const orderColumns = ["details", "status", "orderingProvider"]
-  const medOrderColumns = ["dose",  "route", "frequency", "priority", "administrationInstructions", "orderingProvider"]
-  
+  const medOrderColumns = ["dose", "route", "frequency", "priority", "administrationInstructions", "orderingProvider"]
+
   if (isLoading || isFetching) {
     return (
       <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
@@ -42,9 +42,34 @@ const OrdersPage = () => {
   }
 
   if (isError) {
+    let errorMessage = "An unknown error occurred.";
+    const err = error as unknown;
+
+    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
+      return typeof e === "object" && e !== null && "status" in e;
+    }
+
+    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
+      return typeof e.data === "object" && e.data !== null && "message" in e.data;
+    }
+
+    if (isStatusError(err)) {
+      errorMessage = `Error ${err.status}`;
+      if (hasMessageData(err)) {
+        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
+      } else if ("data" in err) {
+        errorMessage += `: ${JSON.stringify(err.data)}`;
+      }
+    } else if (typeof err === "object" && err !== null && "message" in err) {
+      errorMessage = `Error: ${(err as { message: string }).message}`;
+    } else {
+      errorMessage = `Error: ${JSON.stringify(err)}`;
+    }
+
+    console.log(errorMessage);
     return (
       <div className="flex flex-col h-full bg-gray-100 justify-center items-center px-4 py-2">
-        <p className="text-red-600">Error: {error ? (error as any).message : 'Unknown error'}</p>
+        <p className="text-red-600">Error while loading orders</p>
       </div>
     );
   }
