@@ -21,7 +21,6 @@ const HistoryForm = () => {
   const [socialHistory, setSocialHistory] = useState<string[]>([]);
   const [livingSituation, setLivingSituation] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
-  const [alerts, setAlerts] = useState<string[]>([]);
 
   const router = useRouter()
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,7 +54,7 @@ const HistoryForm = () => {
               <MultiTextInput labelText="Living Situation:" name="livingSituation" value={livingSituation} onChange={setLivingSituation} />
 
 
-              <MultiSelect labelText="Alerts:" placeholder="Select alerts..." name="alerts" value={alerts} onChange={setAlerts} options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
+              <MultiSelect labelText="Alerts:" placeholder="Select alerts..." name="alerts" options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))} />
             </div>
 
           </div>
