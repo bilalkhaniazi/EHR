@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
+import { nursingAlerts } from "@/utils/form";
 
 interface FamilyHistory {
   relation: string;
@@ -31,36 +32,6 @@ const HistoryForm = () => {
     console.log(payload);
     router.push("/admin/case-builder/form/notes")
   }
-
-  const nursingAlerts = [
-    "Seizure Risk",
-    "Aspiration Risk",
-    "Bleeding Precautions",
-    "NPO Status",
-    "Suicide / Self-Harm Risk",
-    "Violence / Aggression Risk",
-    "Elopement Risk",
-    "Restraint Order Active",
-    "Continuous Observation",
-    "Hearing Impaired",
-    "Vision Impaired",
-    "High Risk for Falls",
-    "Orthostatic Hypotension Risk",
-    "Confused / Impulsive Behavior",
-    "Delirium / Cognitive Impairment Risk",
-    "Head Injury Precautions",
-    "Increased Intracranial Pressure (ICP) Precautions",
-    "IV Line / Central Line / PICC in Place",
-    "Tracheostomy / Airway Precautions",
-    "Chest Tube Precautions",
-    "Pacemaker / ICD Precautions",
-    "Anticoagulant Therapy - Bleeding Precautions",
-    "Pressure Injury Risk (Braden <18)",
-    "Immunocompromised Precautions",
-    "Chemotherapy Precautions / Cytotoxic Drugs",
-    "Advanced Directive on File",
-    "Court-Ordered Observation / Police Hold",
-  ];
 
   return (
     <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
