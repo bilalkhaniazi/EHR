@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { generateAllInitialLabTimes, generateInitialLabData, labTemplate, type LabTableData } from '@/app/simulation/[sessionId]/chart/labs/components/labsData'
 import { sampleNotes, type NoteData } from '@/app/simulation/[sessionId]/chart/notes/components/notesData';
 import { consultOrders, laboratoryOrders, nursingOrders, respiratoryOrders, type MedOrderData, type OrderData } from '@/app/simulation/[sessionId]/chart/orders/components/orderData';
-import { generateInitialChartingData, getAllTimeOffsets, type tableData } from '@/app/simulation/[sessionId]/chart/charting/components/flexSheetData';
+import { generateInitialChartingData, getAllTimeOffsets, type FlexSheetData } from '@/app/simulation/[sessionId]/chart/charting/components/flexSheetData';
 import { jamesAllen, type ChartData } from '../simulation/[sessionId]/chart/components/chartData';
 import { allMedications, medAdministrations, medicationOrders } from '@/app/simulation/[sessionId]/chart/mar/components/marData';
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from '@/app/simulation/[sessionId]/chart/mar/components/marData';
@@ -15,7 +15,7 @@ interface GetLabsResponse {
 }
 
 interface GetFlexSheetsResponse {
-  chartingData: tableData[];
+  chartingData: FlexSheetData[];
   timeOffsets: number[]
 }
 
@@ -265,8 +265,8 @@ export const apiSlice = createApi({
       },
     }),
     updateFlexSheetData: builder.mutation<
-      { message: string, updatedData: tableData[] }, // Expected response from backend
-      tableData[] // Payload: array of modified rows (the full current state of the sheet)
+      { message: string, updatedData: FlexSheetData[] }, // Expected response from backend
+      FlexSheetData[] // Payload: array of modified rows (the full current state of the sheet)
     >({
       queryFn: async (updatedRows) => {
         await new Promise(resolve => setTimeout(resolve, 500));

@@ -1,14 +1,14 @@
-import { tableData } from "./flexSheetData";
+import { FlexSheetData } from "./flexSheetData";
 
 const bpThresholds = {
   diastolic: { low: 60, high: 120 },
   systolic: { low: 90, high: 180 }
-} 
+}
 
 
 
 export function getAlertFlag(
-  rowOriginal: tableData,
+  rowOriginal: FlexSheetData,
   value: string,
   componentType: string
 ): boolean {
@@ -24,7 +24,7 @@ export function getAlertFlag(
     let diaAlert = false;
     let sysAlert = false;
 
-    if(!isNaN(systolic)) { 
+    if (!isNaN(systolic)) {
       sysAlert = systolic < bpThresholds.systolic.low || systolic > bpThresholds.systolic.high;
       diaAlert = diastolic < bpThresholds.diastolic.low || diastolic > bpThresholds.diastolic.high;
 
@@ -32,12 +32,12 @@ export function getAlertFlag(
     }
   }
   const normalRange = rowOriginal?.normalRange;
-    if (normalRange) {
-        const numericValue = parseFloat(value);
-        if (!isNaN(numericValue)) {
-            return numericValue < normalRange.low || numericValue > normalRange.high;
-        }
+  if (normalRange) {
+    const numericValue = parseFloat(value);
+    if (!isNaN(numericValue)) {
+      return numericValue < normalRange.low || numericValue > normalRange.high;
     }
+  }
 
-    return false;
+  return false;
 }

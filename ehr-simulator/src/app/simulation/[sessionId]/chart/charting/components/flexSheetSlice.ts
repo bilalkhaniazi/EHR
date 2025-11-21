@@ -1,10 +1,10 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import type { tableData } from "./flexSheetData";
+import type { FlexSheetData } from "./flexSheetData";
 
 export interface FlexSheetState {
   fieldSelections: Record<string, string[]>;
   isSidebarOpen: boolean;
-  editableData: tableData[];
+  editableData: FlexSheetData[];
 }
 
 const initialState: FlexSheetState = {
@@ -17,16 +17,11 @@ export const flexSheetSlice = createSlice({
   name: 'flexSheet',
   initialState,
   reducers: {
-    setFieldSelection: (state, action: PayloadAction<{ key: string, selectedIds: string[]}>) => {
+    setFieldSelection: (state, action: PayloadAction<{ key: string, selectedIds: string[] }>) => {
       state.fieldSelections[action.payload.key] = action.payload.selectedIds;
     },
-    toggleSidebar: (state) => {
-      state.isSidebarOpen = !state.isSidebarOpen;
-    },
-    setSidebarOpen: (state, action: PayloadAction<boolean>) => {
-      state.isSidebarOpen = action.payload
-    },
-    updateEditableData: (state, action: PayloadAction<{rowId: string, columnId: string, newValue: string | string[]}>) => {
+
+    updateEditableData: (state, action: PayloadAction<{ rowId: string, columnId: string, newValue: string | string[] }>) => {
       const { rowId, columnId, newValue } = action.payload
       const rowIndex = state.editableData.findIndex(row => row.id === rowId);
       if (rowIndex !== -1) {
@@ -36,17 +31,17 @@ export const flexSheetSlice = createSlice({
         };
       }
     },
-    initializeEditableData: (state, action: PayloadAction<tableData[]>) => {
+    initializeEditableData: (state, action: PayloadAction<FlexSheetData[]>) => {
       state.editableData = action.payload;
     },
   }
 });
 
-export const { 
+export const {
   setFieldSelection,
-  toggleSidebar,
-  setSidebarOpen,
+  // toggleSidebar,
+  // setSidebarOpen,
   updateEditableData,
   initializeEditableData
-  } = flexSheetSlice.actions
+} = flexSheetSlice.actions
 export default flexSheetSlice.reducer;

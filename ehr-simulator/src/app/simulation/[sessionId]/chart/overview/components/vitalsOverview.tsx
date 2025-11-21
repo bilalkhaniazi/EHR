@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
 import { useGetFlexSheetChartingQuery } from "@/app/store/apiSlice"
-import type { tableData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
+import type { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
 import { useMemo } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import StyledTitle from "./styledTitle"
@@ -54,7 +54,7 @@ export function VitalsOverview() {
   // move to backend
   const filteredData = chartingData.filter(row => vitalSignIds.includes(row.id));
 
-  const columns: ColumnDef<tableData>[] = useMemo(() => [
+  const columns: ColumnDef<FlexSheetData>[] = useMemo(() => [
     {
       accessorKey: "field",
       header: "",
@@ -67,7 +67,7 @@ export function VitalsOverview() {
     ...timeOffsets.map(timeKey => {
       return {
         id: String(timeKey),
-        accessorKey: String(timeKey) as keyof tableData,
+        accessorKey: String(timeKey) as keyof FlexSheetData,
         header: () => (
           <div className="flex flex-col justify-center items-center">
             <h2 className="my-1 text-neutral-500 text-xs font-light">7/29</h2>

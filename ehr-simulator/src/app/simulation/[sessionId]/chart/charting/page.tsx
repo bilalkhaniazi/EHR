@@ -2,7 +2,7 @@
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import type { tableData, chartingOptions } from "./components/flexSheetData";
+import type { FlexSheetData, chartingOptions } from "./components/flexSheetData";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import CheckBoxList from "./components/checkBoxList";
@@ -12,12 +12,12 @@ import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { assessmentTools } from "./components/flexSheetData";
+import { assessmentTools, tempFlexSheetData } from "./components/flexSheetData";
 import { Button } from "@/components/ui/button";
 import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import { useAddTimeColumnMutation, useGetFlexSheetChartingQuery, useUpdateFlexSheetDataMutation } from "@/app/store/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleSidebar, setSidebarOpen, updateEditableData, setFieldSelection, initializeEditableData } from "./components/flexSheetSlice";
+import { updateEditableData, setFieldSelection, initializeEditableData } from "./components/flexSheetSlice";
 import type { RootState, AppDispatch } from "@/app/store/store";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +26,7 @@ import { useFlexSheetData } from "@/hooks/useFlexSheetData";
 import FlexSheetSidebar from "./components/flexSheetSidebar"
 import { getAlertFlag } from "./components/flexSheetHelpers";
 
-const columnHelper = createColumnHelper<tableData>();
+const columnHelper = createColumnHelper<FlexSheetData>();
 
 // left column pinned
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,8 +56,8 @@ export const formatTimeFromOffset = (offsetMinutes: number, nowTimestamp: number
 };
 
 // for tallying scored assessment tools at the bottom of flexsheet table
-export function calculateColTotal(toolName: string, grouped: tableData[], timeOffsets: number[]) {
-  const totalRow: tableData = {
+export function calculateColTotal(toolName: string, grouped: FlexSheetData[], timeOffsets: number[]) {
+  const totalRow: FlexSheetData = {
     id: `${toolName}TotalScore`,
     field: `${toolName} Total Score`,
     componentType: "totalScoreRow", // This will be a static display
@@ -82,13 +82,15 @@ export function calculateColTotal(toolName: string, grouped: tableData[], timeOf
 }
 
 export function FlexSheet() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [data1, setData1] = useState<FlexSheetData[]>(tempFlexSheetData)
   const dispatch = useDispatch<AppDispatch>();
   const [triggerUpdateFlexSheetData, { isLoading: isSaving }] = useUpdateFlexSheetDataMutation();
   const [triggerAddTimeColumn] = useAddTimeColumnMutation();
   const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
   const skip = !sessionStartTime;
 
-  const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen);
+  // const isSidebarOpen = useSelector((state: RootState) => state.flexSheet.isSidebarOpen);
 
 
   const { data, isLoading, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip }) // make call only once global time has been initialized
@@ -147,12 +149,14 @@ export function FlexSheet() {
       }
     }
     if (shouldOpen != isSidebarOpen) {
-      dispatch(setSidebarOpen(shouldOpen))
+      setIsSidebarOpen(shouldOpen)
+      // dispatch(setSidebarOpen(shouldOpen))
     }
   }, [visibleSubsetIds, isSidebarOpen, dispatch]);
 
   const handleManualToggleSidebar = () => {
-    dispatch(toggleSidebar());
+    setIsSidebarOpen(prev => !prev)
+    // dispatch(toggleSidebar());
   };
 
   const handleSave = async () => {
@@ -353,12 +357,29 @@ export function FlexSheet() {
   );
 
   const ptTable = useReactTable({
-    data: filteredData,
+    data: data1,
     columns,
     enablePinning: true,
     initialState: {
       columnPinning: {
         left: ['pinned']
+      },
+    },
+    meta: {
+      updateData: (rowIndex, columnId, value) => {
+        const filteredRow = filteredData[rowIndex];
+        const actualIndex = editableData.findIndex(row => row.field === filteredRow?.field);
+        setData1(old =>
+          old.map((row, index) => {
+            if (index === actualIndex) {
+              return {
+                ...old[actualIndex]!,
+                [columnId]: value,
+              }
+            }
+            return row
+          })
+        )
       },
     },
     getCoreRowModel: getCoreRowModel(),
@@ -382,7 +403,7 @@ export function FlexSheet() {
     <SidebarProvider
       className=""
       open={isSidebarOpen}
-      onOpenChange={(isOpen) => dispatch(setSidebarOpen(isOpen))}
+      onOpenChange={(isOpen) => setIsSidebarOpen(isOpen)}
     >
       <SidebarInset className="">
         <div className="flex flex-col bg-gray-100 w-[calc(100vw-16rem)] h-[calc(100vh-4rem)] px-4">

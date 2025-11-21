@@ -5,9 +5,9 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/app/store/store';
 import { calculateColTotal } from '@/app/simulation/[sessionId]/chart/charting/page';
-import type { tableData } from '@/app/simulation/[sessionId]/chart/charting/components/flexSheetData';
+import type { FlexSheetData } from '@/app/simulation/[sessionId]/chart/charting/components/flexSheetData';
 
-export function useFlexSheetData(chartingData: tableData[] = [], timeOffsets: number[] = []) {
+export function useFlexSheetData(chartingData: FlexSheetData[] = [], timeOffsets: number[] = []) {
     const editableData = useSelector((state: RootState) => state.flexSheet.editableData);
     const fieldSelections = useSelector((state: RootState) => state.flexSheet.fieldSelections);
 
@@ -22,8 +22,8 @@ export function useFlexSheetData(chartingData: tableData[] = [], timeOffsets: nu
     const filteredData = useMemo(() => {
         const currentDataToFilter = editableData.length > 0 ? editableData : chartingData;
         // Group rows by their toolName to calculate totals
-        const groupedByTool: Record<string, tableData[]> = {};
-        
+        const groupedByTool: Record<string, FlexSheetData[]> = {};
+
         currentDataToFilter.forEach(row => {
             if (row.toolName) {
                 groupedByTool[row.toolName] = groupedByTool[row.toolName] || [];
@@ -31,14 +31,14 @@ export function useFlexSheetData(chartingData: tableData[] = [], timeOffsets: nu
             }
         });
 
-        const newFilteredData: tableData[] = [];
+        const newFilteredData: FlexSheetData[] = [];
         currentDataToFilter.forEach(row => {
             // Include hideable rows if their hideableId is in visibleSubsetIds
             const isVisible = !row.hideable || (row.hideableId && visibleSubsetIds.has(row.hideableId));
             if (isVisible) {
                 newFilteredData.push(row);
             }
-            
+
             // Handling assessment tools with numeric score totals
             // After adding all rows for a specific tool, add the total score row  
             if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
