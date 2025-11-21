@@ -1,25 +1,22 @@
 'use client'
 
-import { useGetChartQuery } from "@/app/store/apiSlice"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import StyledTitle from "./styledTitle"
-import CardSkeleton from "./cardSkeleton"
+import { jamesAllen } from "@/app/simulation/[sessionId]/chart/components/chartData"
+// import CardSkeleton from "./cardSkeleton"
 import type { ChartData } from "@/app/simulation/[sessionId]/chart/components/chartData";
 
 const ActiveProblems = () => {
-  const { data, isLoading, isFetching } = useGetChartQuery()
+  // if (isLoading || isFetching) {
+  //   return (
+  //     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+  //       <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+  //       <CardSkeleton />
+  //     </Card>
+  //   )
+  // }
 
-  if (isLoading || isFetching) {
-    return (
-      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
-        <CardSkeleton />
-      </Card>
-    )
-  }
-
-  // from RTK query docs
   // if (isError) {
   //   let errorMessage = "An unknown error occurred.";
   //   if (error) {
@@ -44,7 +41,7 @@ const ActiveProblems = () => {
   //   )
   // }
 
-  const chartData: ChartData | undefined = data?.chartData
+  const chartData: ChartData | undefined = jamesAllen
 
   if (!chartData || Object.keys(chartData).length === 0) {
     return (

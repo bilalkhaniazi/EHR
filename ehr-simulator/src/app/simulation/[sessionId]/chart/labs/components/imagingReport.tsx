@@ -1,6 +1,7 @@
 import type { ImagingData } from "./labsData"
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FileText } from "lucide-react";
 
 interface ImagingReportProps {
   cellName: string;
@@ -12,6 +13,7 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
       <DialogTrigger
         className="w-full text-xs"
       >
+        <FileText size={12} />
         {cellName}
       </DialogTrigger>
       <DialogContent className="px-4 py-6 sm:max-w-3/4 xl:max-w-4xl overflow-y-auto gap-0" id="asdf" aria-describedby="asdf">

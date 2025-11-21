@@ -60,7 +60,7 @@ export interface LabTableData {
   normalRange?: { low: number, high: number };
   criticalRange?: { low: number, high: number };
   hideable?: boolean
-  [dateKey: string]: string | { labName: string, value: string } | ImagingData | MicrobiologyReportData | any;   // need ability to add any timekey with any type of lab data
+  [key: string | number]: string | number | boolean | undefined | object | ImagingData | MicrobiologyReportData;
 }
 
 

@@ -1,14 +1,13 @@
 'use client'
 
 import { Card, CardContent } from "@/components/ui/card"
-import { useGetLabsQuery } from "@/app/store/apiSlice"
 import StyledTitle from "./styledTitle"
-import CardSkeleton from "./cardSkeleton"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/app/store/store"
+// import CardSkeleton from "./cardSkeleton"
 import { formatTimeFromOffset } from "@/app/simulation/[sessionId]/chart/charting/page"
 import { getResultStatus } from "@/app/simulation/[sessionId]/chart/labs/page"
 import { ShieldAlert } from "lucide-react"
+import { useState } from "react"
+import { generateAllInitialLabTimes, generateInitialLabData, labTemplate } from "../../labs/components/labsData"
 
 
 const selectedLabs = [
@@ -22,94 +21,66 @@ const selectedLabs = [
 ];
 
 export function SelectedLabs() {
-  const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
-  const skip = !sessionStartTime
+  const [startTime] = useState(new Date().getTime())
+  const [labTimes] = useState(generateAllInitialLabTimes(startTime))
+  const [initialLabTableData] = useState(generateInitialLabData(labTimes, labTemplate));
 
-  const { data, isLoading, isError, error, isFetching } = useGetLabsQuery(sessionStartTime, { skip })
 
-  if (isLoading || isFetching || skip) {
-    return (
-      <Card className="relative pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-lime-200" firstLetter="S" secondLetter="elected Labs" />
-        <CardSkeleton />
-      </Card>
-    )
-  }
 
-  // RTK Query error handling
-  if (isError) {
-    let errorMessage = "An unknown error occurred.";
-    const err = error as unknown;
+  // if (isLoading || isFetching || skip) {
+  //   return (
+  //     <Card className="relative pt-2 overflow-hidden h-fit gap-3">
+  //       <StyledTitle color="bg-lime-200" firstLetter="S" secondLetter="elected Labs" />
+  //       <CardSkeleton />
+  //     </Card>
+  //   )
+  // }
 
-    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
-      return typeof e === "object" && e !== null && "status" in e;
-    }
 
-    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
-      return typeof e.data === "object" && e.data !== null && "message" in e.data;
-    }
+  // if (!data || Object.keys(data).length === 0) {
+  //   return (
+  //     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
+  //       <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
+  //       <p>No data exists</p>
+  //     </Card>
+  //   )
+  // }
 
-    if (isStatusError(err)) {
-      errorMessage = `Error ${err.status}`;
-      if (hasMessageData(err)) {
-        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
-      } else if ("data" in err) {
-        errorMessage += `: ${JSON.stringify(err.data)}`;
-      }
-    } else if (typeof err === "object" && err !== null && "message" in err) {
-      errorMessage = `Error: ${(err as { message: string }).message}`;
-    } else {
-      errorMessage = `Error: ${JSON.stringify(err)}`;
-    }
 
-    console.log(errorMessage);
-
-    return (
-      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="S" secondLetter="elected Labs" />
-        <p>Error: {errorMessage}</p>
-      </Card>
-    )
-  }
-
-  if (!data || Object.keys(data).length === 0) {
-    return (
-      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
-        <p>No data exists</p>
-      </Card>
-    )
-  }
-
-  const { labTableData, timePoints } = data
-  console.log(timePoints)
-
-  const filteredData = labTableData.filter(row => {
+  const filteredData = initialLabTableData.filter(row => {
     return selectedLabs.includes(row.field)
   })
 
 
   const selectedLabData = filteredData.map(row => {
-    const selectedLab = { field: row.field, dateKey: 0, value: '', normalRange: row.normalRange, criticalRange: row.criticalRange }
-    for (let i = timePoints.length - 1; i >= 0; i--) {
-      const timePoint = timePoints[i];
-      if (row[timePoint]) {
-        selectedLab.value = row[timePoint] as string;
-        selectedLab.dateKey = timePoint;
+    const selectedLab = {
+      field: row.field,
+      dateKey: 0,
+      value: '',
+      normalRange: row.normalRange,
+      criticalRange: row.criticalRange
+    }
+
+    // Iterate backwards through time
+    for (let i = labTimes.length - 1; i >= 0; i--) {
+      const timePoint = labTimes[i];
+      const timestampKey = timePoint.dateKey;
+
+      const valueAtTime = row[timestampKey];
+
+      if (valueAtTime) {
+        selectedLab.value = valueAtTime as string;
+        selectedLab.dateKey = timestampKey;
         break
       }
     }
+
     if (selectedLab.value) {
       return selectedLab
     }
-    // if no data exists for a selected lab
     return undefined
   }).filter(Boolean)
 
-
-
-  console.log(filteredData)
-  console.log(selectedLabData)
 
   return (
     <Card className="relative col-span-1 p-0 gap-3 pt-2 h-fit overflow-hidden">
@@ -118,7 +89,7 @@ export function SelectedLabs() {
         {selectedLabData.map(labData => {
           if (!labData) return null
 
-          const { date: displayDate, time: displayTime } = formatTimeFromOffset(labData.dateKey, sessionStartTime)
+          const { date: displayDate, time: displayTime } = formatTimeFromOffset(labData.dateKey, startTime)
 
           const normalRange = labData.normalRange
           const criticalRange = labData.criticalRange

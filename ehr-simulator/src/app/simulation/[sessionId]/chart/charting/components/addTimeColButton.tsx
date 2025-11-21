@@ -5,8 +5,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover
 import { TimePickerInput } from "@/components/ui/time-picker-input";
 import { Clock, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/app/store/store";
 import { differenceInMinutes } from "date-fns";
 
 interface AddTimeColumnButtonProps {
@@ -16,7 +14,7 @@ interface AddTimeColumnButtonProps {
 }
 
 export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionStartTime }: AddTimeColumnButtonProps) {
-    const simulationTime = useSelector((state: RootState) => state.time.simulationNow);
+    const [simulationTime] = useState(new Date().getTime());
 
     const [selectedTime, setSelectedTime] = useState<Date | undefined>(new Date());
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
@@ -63,7 +61,7 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionS
 
     return (
         <div className="flex gap-4 pl-8">
-            <Button onClick={handleAddTime} className="bg-white h-6 text-black text-xs hover:bg-gray-100 shadow shadow-black/20">
+            <Button onClick={handleAddTime} className="bg-white h-6 text-black text-xs hover:bg-gray-100 shadow">
                 <Plus className="" />
                 Add Time
             </Button>
@@ -85,20 +83,20 @@ export function AddTimeColumnButton({ onColumnAdd, existingTimeColumns, sessionS
                             picker={'hours'}
                             setDate={setSelectedTime}
                             date={selectedTime}
-                            className="bg-gray-100/50 border border-gray-300 focus:border-0"
+                            className="bg-gray-100/50 border border-gray-300"
                         />
                         <span>:</span>
                         <TimePickerInput
                             picker={'minutes'}
                             setDate={setSelectedTime}
                             date={selectedTime}
-                            className="bg-gray-100/50 border border-gray-300 focus:border-0"
+                            className="bg-gray-100/50 border border-gray-300"
                         />
                     </div>
                     <Button
                         variant="secondary"
                         onClick={handleAddUserDefinedTime}
-                        className="w-full shadow shadow-black/20"
+                        className="w-full shadow hover:bg-neutral-200"
                     >
                         Insert Time
                     </Button>

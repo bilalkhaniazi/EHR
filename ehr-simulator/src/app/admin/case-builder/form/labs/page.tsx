@@ -1,7 +1,7 @@
 'use client'
 
 import type { ImagingData, LabTableData, MicrobiologyReportData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData"
-import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type RowData } from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useEffect, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
@@ -926,11 +926,13 @@ export const labData: LabTableData[] = [
   },
 ];
 
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData extends RowData> {
-    updateData: (rowIndex: number, columnId: string, value: unknown) => void
-  }
-}
+// declare module '@tanstack/react-table' {
+//   interface TableMeta<TData extends RowData> {
+//     // Use 'any' here to allow string, string[], ImagingData, etc.
+//     // We handle strict typing inside the component implementation.
+//     updateData: (rowIndex: number, columnId: string, value: any) => void
+//   }
+// }
 
 const formatTimeOffset = (minuteOffset: number) => {
   const minutesInDay = 1440;
@@ -1025,8 +1027,6 @@ export function LabForm() {
   //     return newSet;
   //   });
   // };
-
-
 
   const handleAddColumn = (offset: number) => {
     if (timePoints.includes(offset)) {

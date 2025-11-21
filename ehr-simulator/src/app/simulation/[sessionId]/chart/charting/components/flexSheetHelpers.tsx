@@ -5,8 +5,6 @@ const bpThresholds = {
   systolic: { low: 90, high: 180 }
 }
 
-
-
 export function getAlertFlag(
   rowOriginal: FlexSheetData,
   value: string,

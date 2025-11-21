@@ -1,12 +1,21 @@
 import { CircleUserRound, Info } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { ChartData } from "./chartData";
-import { useGetChartQuery } from "@/app/store/apiSlice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { format, subDays, subYears } from "date-fns";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/app/store/store";
 
+// You need to import your mock data sources here
+// Adjust paths as necessary based on your project structure
+import { jamesAllen } from "./chartData";
+import { medicationOrders } from "../mar/components/marData"; // Adjust path to where medicationOrders lives
+
+// Define types for local state
+interface MarCounts {
+  prn: number;
+  scheduled: number;
+  continuous: number;
+}
 
 function ChartSidebarSkeleton() {
   return (
@@ -26,10 +35,50 @@ function ChartSidebarSkeleton() {
 }
 
 export default function ChartSidebar() {
-  const { data, isLoading, isError, error, isFetching } = useGetChartQuery();
-  const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
+  // 1. Local State for Data
+  const [sidebarData, setSidebarData] = useState<ChartData | null>(null);
+  const [marData, setMarData] = useState<MarCounts | null>(null);
 
-  if (isLoading || isFetching || !sessionStartTime) {
+  // 2. Local State for UI & Time
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [sessionStartTime] = useState(new Date().getTime());
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Perform the MAR calculations (formerly done in queryFn)
+        const orderCounts = medicationOrders.reduce((acc, order) => {
+          if (order.frequency === "PRN") {
+            acc["prn"]++;
+          } else if (order.frequency === "Continuous") {
+            acc['continuous']++;
+          } else {
+            acc['scheduled']++;
+          }
+          return acc;
+        }, { prn: 0, continuous: 0, scheduled: 0 });
+
+        setSidebarData(jamesAllen);
+        setMarData(orderCounts);
+        setIsLoading(false);
+
+      } catch (err) {
+        console.error("Failed to load chart data", err);
+        setIsError(true);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // --- Render Logic ---
+
+  if (isLoading) {
     return (
       <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <ChartSidebarSkeleton />
@@ -37,52 +86,23 @@ export default function ChartSidebar() {
     )
   }
 
-  // from RTK query docs
   if (isError) {
-    let errorMessage = "An unknown error occurred.";
-    const err = error as unknown;
-
-    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
-      return typeof e === "object" && e !== null && "status" in e;
-    }
-
-    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
-      return typeof e.data === "object" && e.data !== null && "message" in e.data;
-    }
-
-    if (isStatusError(err)) {
-      errorMessage = `Error ${err.status}`;
-      if (hasMessageData(err)) {
-        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
-      } else if ("data" in err) {
-        errorMessage += `: ${JSON.stringify(err.data)}`;
-      }
-    } else if (typeof err === "object" && err !== null && "message" in err) {
-      errorMessage = `Error: ${(err as { message: string }).message}`;
-    } else {
-      errorMessage = `Error: ${JSON.stringify(err)}`;
-    }
-
-    console.log(errorMessage);
     return (
       <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
-        <p>Failed to load data</p>
+        <p className="text-red-600 mt-10">Failed to load data</p>
       </div>
     );
   }
 
-  const sidebarData: ChartData | undefined = data?.chartData;
-  const marData = data?.marData;
-
-
-
   if (!sidebarData || Object.keys(sidebarData).length === 0) {
     return (
       <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
-        <p>No patient data.</p>
+        <p className="mt-10">No patient data.</p>
       </div>
     )
   }
+
+  // --- Helper Functions ---
 
   const displayDob = (sessionStartDate: number, age: number) => {
     const birthDate = subYears(sessionStartDate, age);
@@ -95,7 +115,7 @@ export default function ChartSidebar() {
   };
 
   const displayOrderCount = (count: number | undefined) => {
-    if (!count) return
+    if (count === undefined) return '';
     if (count === 1) {
       return 'order'
     }
@@ -161,9 +181,6 @@ export default function ChartSidebar() {
           <p className="text-purple-900 text-xs font-light tracking-tight">
             <span className="underline text-nowrap">{sidebarData.isolation.label}:</span>
             <span className="pl-2 font-normal">{sidebarData.isolation.value}</span>
-            {/* <span className='font-normal decoration-none no-underline px-2 bg-yellow-200 rounded-md'>
-                  {sidebarData.isolation.value.join(", ") : row.value}
-                </span> */}
             <span className="pl-1">
               <TooltipProvider>
                 <Tooltip>
@@ -207,11 +224,8 @@ export default function ChartSidebar() {
             <span className="underline">Continuous:</span>
             <span className="pl-2 font-medium">{marData?.continuous} {displayOrderCount(marData?.continuous)}</span>
           </p>
-
-
         </div>
       </div>
-
     </div>
   )
 }

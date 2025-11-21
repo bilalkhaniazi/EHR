@@ -1,6 +1,6 @@
 'use client'
 
-import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type RowData } from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useEffect, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
@@ -15,21 +15,10 @@ import { useRouter } from "next/navigation";
 import { chartingOptions } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import AssessmentSelect from "@/app/simulation/[sessionId]/chart/charting/components/assessmentSelector";
 import { getAlertFlag } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetHelpers";
+import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 
-interface ChartingData {
-  id: string;
-  field: string;
-  componentType: string;
-  rowType?: string;
-  chartingOptions?: chartingOptions[];
-  normalRange?: { low: number, high: number },
-  hideableId?: string;
-  hideable?: boolean;
-  wdlDescription?: { assessment: string, description: string }[];
-  [key: number]: string;
-}
 
-const chartingDataTemplate: ChartingData[] = [
+const chartingDataTemplate: FlexSheetData[] = [
 
   {
     id: "vitalSignsTitle",
@@ -996,11 +985,6 @@ const chartingDataTemplate: ChartingData[] = [
   },
 ];
 
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData extends RowData> {
-    updateData: (rowIndex: number, columnId: string, value: unknown) => void
-  }
-}
 
 const formatTimeOffset = (minuteOffset: number) => {
   const minutesInDay = 1440;
@@ -1014,7 +998,7 @@ const formatTimeOffset = (minuteOffset: number) => {
   return { days, hours, minutes };
 }
 
-const columnHelper = createColumnHelper<ChartingData>();
+const columnHelper = createColumnHelper<FlexSheetData>();
 
 // left column pinned
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1038,7 +1022,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
 }
 
 export function ChartingForm() {
-  const [chartingData, setChartingData] = useState<ChartingData[]>(chartingDataTemplate)
+  const [chartingData, setChartingData] = useState<FlexSheetData[]>(chartingDataTemplate)
   const [timePoints, setTimePoints] = useState<number[]>([180, 60, 30])
 
   const router = useRouter()
@@ -1229,19 +1213,23 @@ export function ChartingForm() {
         setChartingData(old =>
           old.map((row, index) => {
             if (index === rowIndex) {
-              return {
+              // 1. Create the new object
+              const updatedRow = {
                 ...old[rowIndex]!,
                 [columnId]: value,
-              }
+              };
+
+              // 2. Force TypeScript to accept it matches your Interface
+              return updatedRow as FlexSheetData;
             }
-            return row
+            return row;
           })
         )
       },
     },
     getCoreRowModel: getCoreRowModel(),
-
   });
+
 
 
   return (
