@@ -15,10 +15,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import StyledTitle from "./styledTitle"
-import { useSelector } from "react-redux";
-import type { RootState } from "@/app/store/store";
 import { format } from "date-fns"
 import CardSkeleton from "./cardSkeleton"
+import { useState } from "react"
 
 const chartData = [
   { timeId: "day1-morning", startTime: "0000", endTime: "1159", intake: 886, output: 400 },
@@ -50,7 +49,7 @@ interface CustomTickProps {
 }
 
 export function IntakeOutput() {
-  const simStartTime = useSelector((state: RootState) => state.time.sessionStartTime) // timeStamp
+  const [simStartTime] = useState(new Date().getTime())
 
   if (!simStartTime) {
     return (

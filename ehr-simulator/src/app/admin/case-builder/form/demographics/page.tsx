@@ -1,34 +1,37 @@
 "use client"
-import { Card } from "@/components/ui/card"
-
+import {
+  User,
+  FileText,
+  Ruler,
+  Briefcase,
+  Building2,
+  Clock,
+  ChevronDown
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import InfoTooltip from "../../components/helpTooltip";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { relationshipStatuses, precautions, months, codeStatuses, days, insuranceOptions } from "@/utils/form";
 
 const limits = {
-  minAge: 0,
-  maxAge: 120,
-
-  minDay: 1,
-  maxDay: 31,
-
-  minKilograms: 0,
-  maxKilograms: 999,
-
-  minFeet: 0,
-  maxFeet: 8,
-
-  minInches: 0,
-  maxInches: 11,
+  minAge: 0, maxAge: 120,
+  minDay: 1, maxDay: 31,
+  minKilograms: 0, maxKilograms: 999,
+  minFeet: 0, maxFeet: 8,
+  minInches: 0, maxInches: 11,
 }
 
-const DemographicsForm = () => {
+export default function DemographicsForm() {
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
@@ -36,204 +39,282 @@ const DemographicsForm = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
-      <Card className="h-fit relative">
-        <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
-          <div className="w-full flex flex-col gap-3 p-2">
+    <div className="flex flex-col min-h-screen w-full bg-slate-50/50">
 
-            <p className="m-2 ml-0 text-2xl font-bold">Case Summary</p>
+      <header className="sticky top-0 flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <User className="text-slate-400" />
+            Patient Demographics
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">Step 1 of 6: Basic identification and admission details</p>
+        </div>
+      </header>
 
-            <label htmlFor="summary">Please enter a brief summary of the case:</label>
-            <textarea required rows={3} placeholder="Enter text..." name="summary" id="summary" className="case-form-textarea"></textarea>
-
-            <br />
-            <hr />
-
-            <p className="m-2 ml-0 text-2xl font-bold">Patient Demographics</p>
-
-            <div className="flex">
-              <label className="case-form-label" htmlFor="firstName">First Name: </label>
-              <input
-                id="firstName" name="firstName" required
-                className="case-form-input-text shadow-xs rounded-lg"
-                type="text" placeholder="First Name"
+      <div className="flex-1 p-6 md:px-12 lg:px-24">
+        <form id="demo-form" onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-6 pb-20">
+          <div className="fixed top-6 right-8 z-10">
+            <SubmitButton buttonText="Save & Continue" />
+          </div>
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                Case Overview
+              </CardTitle>
+              <CardDescription>Brief description of the patient scenario.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                required
+                name="summary"
+                placeholder="e.g. 68-year-old male admitted with shortness of breath..."
+                className="min-h-[100px] bg-white"
               />
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="lastName">Last Name: </label>
-              <input
-                id="lastName" name="lastName" required
-                className="case-form-input-text"
-                type="text" placeholder="Last Name"
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-6">
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="MRN">Medical Record Number: </label>
-              <input
-                id="MRN" name="MRN" required
-                className="case-form-input-text"
-                type="text" placeholder="MRN"
-              />
-            </div>
+            {/* SECTION 2: Personal Info */}
+            <Card className="border-slate-200 shadow-sm h-fit">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  Identity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input required id="firstName" name="firstName" placeholder="Jane" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input required id="lastName" name="lastName" placeholder="Doe" />
+                  </div>
+                </div>
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="codeStatus">Code Status: </label>
-              <select required defaultValue="" id="codeStatus" name="codeStatus" className="case-form-select" >
-                <option disabled hidden value="">Select status...</option>
-                {codeStatuses.map((status, index) => (
-                  <option value={status} key={index}>{status}</option>
-                ))}
-              </select>
-            </div>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-2 col-span-2">
+                    <Label>Date of Birth</Label>
+                    <div className="flex gap-2">
+                      <Select required name="DOBMonth">
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="Month" />
+                          <ChevronDown />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {months.map((m, i) => <SelectItem key={i} value={m}>{m}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <Select required name="DOBDay">
+                        <SelectTrigger className="w-[80px] bg-white"><SelectValue placeholder="Day" /></SelectTrigger>
+                        <SelectContent>
+                          {days.map((d, i) => <SelectItem key={i} value={d.toString()}>{d}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="age">Age</Label>
+                    <div className="relative">
+                      <Input required id="age" name="age" type="number" min={limits.minAge} max={limits.maxAge} className="pr-8" />
+                      <span className="absolute right-3 top-2.5 text-xs text-slate-400">y.o.</span>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="DOBMonth">Date of Birth: </label>
-              <select required id="DOBMonth" name="DOBMonth" defaultValue="" className="mr-2 case-form-select" >
-                <option value="" disabled hidden>Month...</option>
-                {/* Validate, e.g. September 31 isn't real */}
-                {months.map((month, index) => (
-                  <option value={month} key={index}>{month}</option>
-                ))}
-              </select>
+                {/* <div className="space-y-2">
+                    <Label htmlFor="MRN">MRN</Label>
+                    <Input required id="MRN" name="MRN" placeholder="123456" className="font-mono" />
+                  </div> */}
+                <div className="space-y-2">
+                  <Label htmlFor="codeStatus">Code Status</Label>
+                  <Select required name="codeStatus">
+                    <SelectTrigger className="bg-white w-fit">
+                      <SelectValue placeholder="Select..." />
+                      <ChevronDown />
 
-              <select required defaultValue="" id="DOBDay" name="DOBDay" className="case-form-select">
-                <option value="" disabled hidden>Day...</option>
-                {days.map((day, index) => (
-                  <option value={day} key={index}>{day}</option>
-                ))}
-              </select>
-            </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {codeStatuses.map((s, i) => <SelectItem key={i} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="age">Age: </label>
-              <input
-                required id="age" name="age"
-                min={limits.minAge} max={limits.maxAge}
-                placeholder="yrs" className="case-form-input-number" type="number" />
-            </div>
+            {/* SECTION 3: Clinical & Social */}
+            <div className="space-y-6">
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Ruler className="w-5 h-5 text-blue-600" />
+                    Physical Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Height</Label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Input required name="heightFeet" type="number" min={limits.minFeet} max={limits.maxFeet} className="pr-6" />
+                          <span className="absolute right-3 top-2.5 text-xs text-slate-400">ft</span>
+                        </div>
+                        <div className="relative flex-1">
+                          <Input required name="heightInches" type="number" min={limits.minInches} max={limits.maxInches} className="pr-6" />
+                          <span className="absolute right-3 top-2.5 text-xs text-slate-400">in</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dosingWeight">Dosing Weight</Label>
+                      <div className="relative">
+                        <Input required id="dosingWeight" name="dosingWeight" type="number" min={limits.minKilograms} max={limits.maxKilograms} className="pr-8" />
+                        <span className="absolute right-3 top-2.5 text-xs text-slate-400">kg</span>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="language">Primary Language: </label>
-              <input required id="language" name="language" className="case-form-input-text" placeholder="Language" type="text" />
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="precautions">Isolation Precautions</Label>
+                    <Select required name="precautions">
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select..." />
+                        <ChevronDown />
 
-            <div className="flex items-baseline">
-              <label className="case-form-label" htmlFor="needsInterpreter">Interpreter Needed:</label>
-              <input id="needsInterpreter" name="needsInterpreter" type="checkbox" />
-            </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {precautions.map((p, i) => <SelectItem key={i} value={p}>{p}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="relationshipStatus">Relationship Status: </label>
-              <select required defaultValue="" id="relationshipStatus" name="relationshipStatus" className="case-form-select" >
-                <option disabled hidden value="">Select status...</option>
-                {relationshipStatuses.map((status, index) => (
-                  <option value={status} key={index}>{status}</option>
-                ))}
-              </select>
-            </div>
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-blue-600" />
+                    Social Context
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="language">Language</Label>
+                      <Input required id="language" name="language" placeholder="e.g. English" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="insurance">Insurance</Label>
+                      <Select required name="insurance">
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select..." />
+                          <ChevronDown />
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="employment">Employment: </label>
-              <input required placeholder="Employment" type="text" name="employment" className="case-form-input-text" />
-            </div>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {insuranceOptions.map((o, i) => <SelectItem key={i} value={o}>{o}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-            <div className="flex">
-              <label htmlFor="religion" className="case-form-label">Religion: </label>
-              <input required placeholder="Religion" className="case-form-input-text" type="text" name="religion" id="religion" />
-            </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="employment">Employment</Label>
+                      <Input required id="employment" name="employment" placeholder="Occupation" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="relationshipStatus">Relationship</Label>
+                      <Select required name="relationshipStatus">
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select..." />
+                          <ChevronDown />
 
-            <div className="flex">
-              <label className="case-form-label" htmlFor="heightFeet">Height: </label>
-              <input
-                id="heightFeet" name="heightFeet"
-                min={limits.minFeet} max={limits.maxFeet}
-                required placeholder="ft" className="mr-2 case-form-input-number" type="number" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {relationshipStatuses.map((s, i) => <SelectItem key={i} value={s}>{s}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-              <input
-                id="heightInches" name="heightInches"
-                min={limits.minInches} max={limits.maxInches}
-                required placeholder="in" className="case-form-input-number" type="number" />
-            </div>
-
-            <div className="flex">
-              <label className="case-form-label" htmlFor="dosingWeight">Dosing Weight: </label>
-              <input
-                id="dosingWeight" name="dosingWeight"
-                min={limits.minKilograms} max={limits.maxKilograms}
-                required placeholder="kg" className="case-form-input-number" type="number" />
-            </div>
-
-            <div className="flex">
-              <label className="case-form-label" htmlFor="precautions">Precautions:</label>
-              <select required id="precautions" name="precautions" defaultValue="" className="case-form-select">
-                <option value="" hidden disabled>Select...</option>
-                {precautions.map((precaution, index) => (
-                  <option value={precaution} key={index}>{precaution}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex">
-              <label htmlFor="insurance" className="case-form-label">Insurance</label>
-              <select required defaultValue="" name="insurance" id="insurance" className="case-form-select">
-                <option value="" hidden disabled>Select...</option>
-                {insuranceOptions.map((option, index) => (
-                  <option value={option} key={index}>{option}</option>
-                ))}
-
-              </select>
-            </div>
-
-            <br />
-            <hr />
-
-            <p className="m-2 ml-0 text-2xl font-bold">Admission Details</p>
-
-            <div className="flex">
-              <label htmlFor="admissionDateOffest" className="case-form-label">Duration of Inpatient Stay: </label>
-              <input required min={0} placeholder="days" name="admissionDateOffest" id="admissionDateOffest" type="number" className="mr-2 case-form-input-number" />
-              <InfoTooltip
-                content={
-                  "The number of days before the start of the simulation that the patient has been hospitalized. Enter zero (0) if the date of admission is the day of the simulation."
-                } />
-            </div>
-
-            <div className="flex">
-              <label htmlFor="admissionTime" className="case-form-label">Time of Admission:</label>
-              <input required defaultValue={"00:00"} className="w-26 border-1 pl-1 pr-1 rounded-lg shadow-xs" name="admissionTime" id="admissionTime" type="time" />
-            </div>
-
-            <div className="flex">
-              <label className="case-form-label" htmlFor="admittingDiagnosis">Admitting Diagnosis: </label>
-              <input required name="admittingDiagnosis" id="admittingDiagnosis" placeholder="Diagnosis" className="case-form-input-text" type="text" />
-            </div>
-
-            {/* <div className="flex">
-              <label className="case-form-label" htmlFor="admissionReason">Reason for Admission: </label>
-              <input name="admissionReason" id="admissionReason" placeholder="Reason" className="case-form-input-text" type="text" />
-            </div> */}
-
-            <div className="flex">
-              <label className="case-form-label" htmlFor="attendingProviderName">Attending Provider: </label>
-              <select required name="attendingProviderTitle" id="attendingProviderTitle" defaultValue="" className="mr-2 case-form-select">
-                <option value="" hidden disabled>Title</option>
-                <option value="NP">NP</option>
-                <option value="PA">PA</option>
-                <option value="MD">MD</option>
-                <option value="DO">DO</option>
-              </select>
-              <input required name="attendingProviderName" id="attendingProviderName" placeholder="Name" className="case-form-input-text" type="text" />
-            </div>
-            <div className="absolute top-8 right-8">
-              <SubmitButton buttonText="Continue" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="religion">Religion</Label>
+                      <Input required id="religion" name="religion" placeholder="Optional" />
+                    </div>
+                    <div className="flex items-center space-x-2 pt-8">
+                      <Checkbox id="needsInterpreter" name="needsInterpreter" />
+                      <Label htmlFor="needsInterpreter" className="font-normal text-slate-600">Needs Interpreter</Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
+
+          {/* SECTION 4: Admission Details */}
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-blue-600" />
+                Admission Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="admittingDiagnosis">Admitting Diagnosis</Label>
+                <Input required id="admittingDiagnosis" name="admittingDiagnosis" placeholder="e.g. Acute Appendicitis" />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Attending Provider</Label>
+                <div className="flex gap-2">
+                  <Select required name="attendingProviderTitle">
+                    <SelectTrigger className="w-[80px] bg-white">
+                      <SelectValue placeholder="Title" />
+                      <ChevronDown />
+
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MD">MD</SelectItem>
+                      <SelectItem value="DO">DO</SelectItem>
+                      <SelectItem value="NP">NP</SelectItem>
+                      <SelectItem value="PA">PA</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input required name="attendingProviderName" placeholder="First & Last Name" className="flex-1" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Inpatient Duration
+                  <InfoTooltip content="Number of days hospitalized BEFORE simulation start." />
+                </Label>
+                <div className="relative max-w-[180px]">
+                  <Input required min={0} name="admissionDateOffest" type="number" className="pr-12" />
+                  <span className="absolute right-3 top-2.5 text-xs text-slate-400">days</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="admissionTime">Time of Admission</Label>
+                <div className="relative max-w-[180px]">
+                  <Clock className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                  <Input required name="admissionTime" id="admissionTime" type="time" defaultValue="00:00" className="pl-10" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
         </form>
-      </Card>
+      </div>
     </div>
   )
 }
-
-export default DemographicsForm

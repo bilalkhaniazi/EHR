@@ -1,10 +1,33 @@
 "use client"
 import { useEffect, useState } from "react"
-import { X } from "lucide-react"
-import { Card } from "@/components/ui/card"
+import {
+  X,
+  Plus,
+  Stethoscope,
+  FlaskConical,
+  Wind,
+  UserRound,
+  ClipboardList,
+  AlertCircle,
+  ChevronDown
+} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import SubmitButton from "../../components/submitButton"
 import { useRouter } from "next/navigation"
-
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface OrderType {
   category: "Nursing" | "Respiratory" | "Laboratory" | "Consult"
@@ -17,219 +40,291 @@ interface OrderType {
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
 
+// Category styling helpers
+const getCategoryIcon = (cat: string) => {
+  switch (cat) {
+    case "Nursing": return <Stethoscope className="w-4 h-4" />;
+    case "Respiratory": return <Wind className="w-4 h-4" />;
+    case "Laboratory": return <FlaskConical className="w-4 h-4" />;
+    case "Consult": return <UserRound className="w-4 h-4" />;
+    default: return <ClipboardList className="w-4 h-4" />;
+  }
+}
 
-const OrdersForm = () => {
+const getCategoryColor = (cat: string) => {
+  switch (cat) {
+    case "Nursing": return "bg-blue-100 text-blue-700 border-blue-200";
+    case "Respiratory": return "bg-cyan-100 text-cyan-700 border-cyan-200";
+    case "Laboratory": return "bg-purple-100 text-purple-700 border-purple-200";
+    case "Consult": return "bg-orange-100 text-orange-700 border-orange-200";
+    default: return "bg-slate-100 text-slate-700 border-slate-200";
+  }
+}
+
+export default function OrdersForm() {
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
-
-    router.push('/admin/case-builder/form/labs')
-  }
-
   const [orders, setOrders] = useState<OrderType[]>([]);
-  const [canAddOrder, setCanAddOrder] = useState<boolean>(false);
 
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string>("");
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<string>("Active");
   const [provider, setProvider] = useState("");
-  const [importance, setImportance] = useState(false)
+  const [important, setImportant] = useState(false)
+
+  const [canAddOrder, setCanAddOrder] = useState<boolean>(false);
+
 
   useEffect(() => {
-    // Check if all required fields are filled (importance is optional)
-    setCanAddOrder([
-      category,
-      title,
-      details,
-      status,
-      provider
-    ].every(inputField => (inputField.trim() !== "")));
+    setCanAddOrder([category, title, provider].every(s => s.trim() !== ""));
   }, [category, title, details, status, provider]);
 
-  function clears() {
-    setCategory("")
+  const clearForm = () => {
     setTitle("")
     setDetails("")
-    setStatus("")
-    setProvider("")
-    setImportance(false)
+    setStatus("Active")
+    setImportant(false)
   }
 
-  function createOrder() {
+  const createOrder = () => {
     setOrders([...orders, {
       category: category as OrderType["category"],
-      title: title,
-      details: details,
+      title,
+      details,
       status: status as OrderType["status"],
-      provider: provider,
-      important: importance
+      provider,
+      important
     }])
-    clears();
+    clearForm();
   }
 
-  function removeOrder(index: number) {
+  const removeOrder = (index: number) => {
     setOrders(orders.filter((_, i) => i !== index))
   }
 
-  function OrdersTable({ orders, category }: { orders: OrderType[]; category: OrderType["category"] }) {
-    const categoryOrders = orders.filter(order => order.category == category);
-    return (
-      <>
-        {
-          categoryOrders.length > 0 && (
-            <>
-              <p className="text-xl">{category} Orders</p><table className="w-full mb-8 border-collapse">
-                <tbody className="w-full">
-                  <tr className="">
-                    {["Title", "Details", "Status", "Provider", "Important", ""].map((header, index) => (
-                      <th className="text-left" key={index}>{header}</th>
-                    ))}
-                  </tr>
-
-                  {categoryOrders
-                    .map((order, index) => (
-                      <tr className="even:bg-accent" key={index}>
-                        {[
-                          (order as OrderType).title.trim(),
-                          (order as OrderType).details.trim(),
-                          (order as OrderType).status.trim(),
-                          (order as OrderType).provider.trim(),
-                          (order as OrderType).important ? "Yes" : "No"
-                        ].map((entry, entryIndex) => (
-                          <td className="pl-2 pr-4 border" key={entryIndex}>{entry}</td>
-                        ))}
-                        <td className="bg-white border-0 pl-2 pr-4">
-                          <button
-                            onClick={() => {
-                              const originalIndex = orders.indexOf(order)
-                              if (originalIndex !== -1) removeOrder(originalIndex)
-                            }}
-                            className="p-1 hover:bg-red-100 bg-red-50 cursor-pointer rounded transition-colors"
-                            title="Remove order"
-                            type="button"
-                          >
-                            <X size={20} className="text-red-600" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </>
-          )
-        }
-      </>
-
-
-    )
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const payload = Object.fromEntries(formData);
+    console.log(payload);
+    router.push('/admin/case-builder/form/labs')
   }
 
   return (
-    <>
-      <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 pb-2 overflow-y-auto">
-        <Card className="relative pb-0">
-          <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit}>
-            <div className="absolute top-8 right-8">
-              <SubmitButton buttonText="Continue" />
-            </div>
-            <div className="w-full flex flex-col gap-2 p-2">
-              <input type="hidden" name="orders" value={JSON.stringify(orders)} />
+    <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
+      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <ClipboardList className="text-slate-400" />
+            Order Entry
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">Step 4 of 5: Create provider orders</p>
+        </div>
+      </header>
 
-              <p className="m-2 mb-4 ml-0 text-2xl font-bold">Orders</p>
+      <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
+        <form id="orders-form" onSubmit={handleSubmit} className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
+          <input type="hidden" name="orders" value={JSON.stringify(orders)} />
+          <div className="fixed top-6 right-8 z-10">
+            <SubmitButton buttonText="Save & Continue" />
 
-              <div className="w-full grid gap-4">
-                <div className="flex">
-                  <label htmlFor="" className="case-form-label">Category:</label>
-                  <select
-                    value={category}
-                    className="case-form-select"
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="" hidden disabled>Select...</option>
-                    <option value="Nursing">Nursing</option>
-                    <option value="Respiratory">Respiratory</option>
-                    <option value="Laboratory">Laboratory</option>
-                    <option value="Consult">Consult</option>
-                  </select>
+          </div>
+
+          <div className="lg:col-span-5 space-y-6">
+            <Card className="border-slate-200 shadow-sm h-fit pt-0">
+              <CardHeader className="bg-slate-50/50 border-b border-slate-200/70 rounded-t-xl pt-4 !pb-3">
+                <CardTitle className="text-lg">New Order</CardTitle>
+                <CardDescription>Enter order details below</CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Category <span className="text-red-500">*</span></Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select..." />
+                        <ChevronDown />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map(c => (
+                          <SelectItem key={c} value={c}>
+                            <div className="flex items-center gap-2">
+                              {getCategoryIcon(c)} {c}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Provider <span className="text-red-500">*</span></Label>
+                    <Input
+                      value={provider}
+                      onChange={e => setProvider(e.target.value)}
+                      placeholder="e.g. Dr. Smith"
+                      className="bg-white"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="case-form-label">Title:</label>
-                  <input
+                {/* Title */}
+                <div className="space-y-2">
+                  <Label>Order Title <span className="text-red-500">*</span></Label>
+                  <Input
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    type="text"
-                    className="case-form-input-text"
-                    placeholder="Title..."
+                    onChange={e => setTitle(e.target.value)}
+                    placeholder="e.g. Insert Peripheral IV"
+                    className="bg-white font-medium"
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="case-form-label">Details:</label>
-                  <textarea
+                {/* Details */}
+                <div className="space-y-2">
+                  <Label>Instructions / Details</Label>
+                  <Textarea
                     value={details}
-                    onChange={(e) => setDetails(e.target.value)}
-                    className="case-form-textarea"
-                    placeholder="Enter text..."
+                    onChange={e => setDetails(e.target.value)}
+                    placeholder="e.g. 20G or larger, prefer left forearm..."
+                    className="bg-white min-h-[100px]"
                   />
                 </div>
 
-                <div className="flex">
-                  <label className="case-form-label">Status:</label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="case-form-select"
-                  >
-                    <option value="" disabled hidden>Select...</option>
-                    <option value="Active">Active</option>
-                    <option value="Held">Held</option>
-                  </select>
+                {/* Status & Flags */}
+                <div className="grid grid-cols-2 gap-4 items-end">
+                  <div className="space-y-2">
+                    <Label>Initial Status</Label>
+                    <Select value={status} onValueChange={setStatus}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue />
+                        <ChevronDown />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Held">Held</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center space-x-2 border rounded-md p-2 h-10 bg-white">
+                    <Switch id="important" checked={important} onCheckedChange={setImportant} />
+                    <Label htmlFor="important" className="text-sm font-normal cursor-pointer">Mark as Important</Label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <AlertCircle className="text-slate-400" size={18} />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Marking as important will display the order on the Overview EHR page</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
 
-                <div className="flex flex-col">
-                  <label className="case-form-label">Provider:</label>
-                  <input
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                    type="text"
-                    className="case-form-input-text"
-                    placeholder="Name..."
-                  />
-                </div>
+                <Button
+                  type="button"
+                  onClick={createOrder}
+                  disabled={!canAddOrder}
+                  className="w-full bg-blue-600 hover:bg-blue-700 mt-2"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Order
+                </Button>
 
-                <div className="">
-                  <label className="case-form-label">Mark as Important:</label>
-                  <input type="checkbox" checked={importance} onChange={(e) => setImportance(e.target.checked)} />
-                </div>
-              </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              <button
-                disabled={!canAddOrder}
-                title={!canAddOrder ? "Order incomplete" : ""}
-                className="disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer mb-4 border border-[#333] rounded bg-[#eaeaea] pl-2 pr-2 inline w-fit"
-                type="button"
-                onClick={createOrder}>
-                Add Order to Case +
-              </button>
-
-
-              {categories.map((category, index) => (
-                <OrdersTable key={index} orders={orders} category={category} />
-              ))}
-
+          <div className="lg:col-span-7 space-y-6">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="font-semibold text-slate-600 flex items-center gap-2">
+                Current Orders
+              </h3>
+              <Badge variant="secondary" className="bg-slate-200 text-slate-700 hover:bg-slate-200">
+                {orders.length} Total
+              </Badge>
             </div>
-          </form>
-        </Card>
-      </div>
-    </>
+
+            <div className="space-y-6 h-full overflow-y-auto pr-2">
+              {orders.length === 0 && (
+                <div className="h-64 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50/50">
+                  <ClipboardList className="w-10 h-10 mb-3 opacity-20" />
+                  <p className="font-medium">No orders created yet.</p>
+                  <p className="text-sm">Use the form to add orders to the case.</p>
+                </div>
+              )}
+
+              {categories.map(cat => {
+                const catOrders = orders.filter(o => o.category === cat);
+                if (catOrders.length === 0) return null;
+
+                return (
+                  <div key={cat} className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">
+                      {getCategoryIcon(cat)} {cat} Orders
+                    </div>
+
+                    <div className="grid gap-3">
+                      {catOrders.map((order, idx) => {
+                        const globalIdx = orders.indexOf(order);
+
+                        return (
+                          <div
+                            key={idx}
+                            className="group relative bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col md:grid md:grid-cols-13 overflow-hidden"
+                          >
+                            {/* Color Indicator Strip */}
+                            <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${getCategoryColor(order.category)}`} />
+
+                            {/* Left: Title (Col 3) */}
+                            <div className="md:col-span-2 p-2 pl-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200">
+                              <h4 className="font-medium text-xs text-slate-900 leading-tight">{order.title}</h4>
+                              {order.important && (
+                                <span className="inline-flex w-fit items-center mt-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-50 text-yellow-600 border border-red-100 uppercase tracking-wide">
+                                  Important
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Middle: Details (Col 5) */}
+                            <div className="md:col-span-6 p-2 flex items-center border-b md:border-b-0 md:border-r border-slate-50 bg-slate-50/30">
+                              <p className="text-xs tracking-tight text-slate-600  whitespace-pre-wrap">
+                                {order.details || <span className="text-slate-400 italic">No additional details.</span>}
+                              </p>
+                            </div>
+
+                            {/* Right: Status (Col 2) */}
+                            <div className="md:col-span-2 p-2 flex items-center">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-slate-700">{order.status}</span>
+                                <span className={`w-2 h-2 rounded-full ring-2 ring-white shadow-sm ${order.status === 'Active' ? 'bg-green-500' : 'bg-amber-400'}`} />
+                              </div>
+                            </div>
+
+                            {/* Far Right: Provider & Delete (Col 2) */}
+                            <div className="md:col-span-3 p-2 flex items-center justify-between bg-slate-50/50">
+                              <span className="text-xs text-slate-500 font-medium truncate" title={order.provider}>
+                                {order.provider}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeOrder(globalIdx)}
+                                className="p-1.5 hover:bg-red-100 rounded text-slate-400 hover:text-red-600"
+                                title="Remove Order"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
   )
 }
-
-export default OrdersForm

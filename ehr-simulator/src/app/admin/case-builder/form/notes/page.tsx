@@ -1,410 +1,314 @@
 "use client"
 import { useState, useEffect } from "react"
-import { type TextNote, type SoapNote } from "./notesData"
-import { Separator } from "@/components/ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  FilePlus,
+  Stethoscope,
+  User,
+  FileText,
+  ListPlus,
+  ChevronDown
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, X } from "lucide-react";
-import { Card } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator";
 import SubmitButton from "../../components/submitButton";
 import InfoTooltip from "../../components/helpTooltip";
 import { useRouter } from "next/navigation";
-import { categories, specialties } from "@/utils/form"
+import { categories, specialties } from "@/utils/form";
 
-const TextNoteContentDisplay = (note: TextNote) => {
-  return (
-    <p className="text-sm">{note.text}</p>
-  )
-}
-
-const SoapNoteContentDisplay = (note: SoapNote) => {
-  return (
-    <div>
-      {note.body.subjective && (
-        <div className="flex flex-col justify-left pb-2">
-          <h1 className="text-sm font-medium underline">Subjective</h1>
-          <p className="text-sm pt-1 pl-2">{note.body.subjective}</p>
-        </div>
-      )}
-      {note.body.objective && (
-        <div className="flex flex-col justify-left pb-2">
-          <h1 className="text-sm font-medium underline">Objective</h1>
-          <p className="text-sm pt-1 pl-2">{note.body.objective}</p>
-        </div>
-      )}
-      <div className="flex flex-col justify-left pb-2">
-        <h1 className="text-sm font-medium underline">Assessment</h1>
-        <p className="text-sm pt-1 pl-2">{note.body.assessment}</p>
-      </div>
-      {note.body.plan && (
-        <div className="flex flex-col justify-left pb-2">
-          <h1 className="text-sm font-medium underline">Plan</h1>
-          <p className="text-sm pt-1 pl-2">{note.body.plan}</p>
-        </div>
-      )}
-    </div>
-  )
-}
-
-const minutesToDHM = (minutes: number) => [Math.floor(minutes / 1440), Math.floor((minutes % 1440) / 60), minutes % 60];
-
-const DHMToMinutes = (days: number | "", hours: number | "", minutes: number | "") => {
-  return ((days || 0) * 24 * 60) + ((hours || 0) * 60) + (minutes || 0)
-}
-
-// const dateFromOffset = (dateOffset: number) => {
-//   const date = new Date()
-//   date.setDate(date.getDate() - dateOffset)
-
-//   return date.toLocaleDateString("en-US", {
-//     month: "numeric",
-//     day: "numeric",
-//     year: "2-digit"
-//   });
-// };
-
-function displayTimeOffset(timeOffset: number): string {
-  const [days, hours, minutes] = minutesToDHM(timeOffset)
-
-  const parts = [];
-  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
-  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
-  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
-
-  return parts.join(', ') || '0 minutes';
-}
-
-const NoteDisplay = ({ note, onDelete }: { note: TextNote | SoapNote, onDelete: () => void }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="w-full flex flex-col space-y-1 bg-white pt-2 px-4 rounded-lg shadow"
-    >
-      <div className="flex justify-between">
-        <h1 className="text-lg font-medium">{note.title}</h1>
-        <div className="flex items-center gap-2">
-
-          <p className="text-md font-light">
-            {displayTimeOffset(note.timeOffset)} before simulation
-          </p>
-          <Separator className="mx-3 bg-gray-200" orientation="vertical" />
-
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            onClick={onDelete}
-            className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 h-8 p-1"
-          >
-            <X />
-          </Button>
-
-        </div>
-      </div>
-      <h2 className="text-sm">{note.specialty}</h2>
-      <h2 className="text-sm">{note.author}</h2>
-      <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-        <Separator className="my-2 bg-gray-300" />
-        <div className="w-full">
-
-          {/* Text Note or Soap Note */}
-          {('text' in note && typeof note.text === 'string') && (
-            <TextNoteContentDisplay {...note} />
-          )}
-
-          {('body' in note) && (
-            <SoapNoteContentDisplay {...note} />
-          )}
-
-        </div>
-      </CollapsibleContent>
-      <div className="flex justify-center">
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" className="cursor-pointer focus-visible:ring-none focus:ring-none hover:bg-transparent p-1 h-fit">
-            <ChevronDown style={{ transform: isOpen ? `rotate(180deg)` : "none" }} />
-          </Button>
-        </CollapsibleTrigger>
-      </div>
-    </Collapsible>
-  )
-}
+// Import strict types from your data file
+import {
+  type NoteData,
+  type SoapNoteData,
+} from "@/app/simulation/[sessionId]/chart/notes/components/notesData"; // Adjust path as needed
+import NoteFormDisplay from "./noteFormDisplay";
 
 
-const NotesForm = () => {
+
+
+
+
+
+export default function NotesForm() {
   const router = useRouter();
+  const [notes, setNotes] = useState<NoteData[]>([]);
 
-  const [notes, setNotes] = useState<(TextNote | SoapNote)[]>([]);
+  const [category, setCategory] = useState<string>("");
+  const [specialty, setSpecialty] = useState<string>("");
+  const [author, setAuthor] = useState<string>("");
+  const [isSoap, setIsSoap] = useState<boolean>(true);
 
-  const [category, setCategory] = useState<string>("")
-  const [specialty, setSpecialty] = useState<string>("")
-  const [author, setAuthor] = useState<string>("")
-  const [isSoap, setIsSoap] = useState<boolean>(false)
-
+  // Content Fields
   const [plainNote, setPlainNote] = useState<string>("");
-  const [subjective, setSubjective] = useState<string>("");
-  const [objective, setObjective] = useState<string>("");
-  const [assessment, setAssessment] = useState<string>("");
-  const [plan, setPlan] = useState<string>("");
+  const [soapContent, setSoapContent] = useState<SoapNoteData>({
+    subjective: "",
+    objective: "",
+    assessment: "",
+    plan: ""
+  });
 
+  // Time Offset
   const [days, setDays] = useState<number | ''>(0);
   const [hours, setHours] = useState<number | ''>(0);
   const [minutes, setMinutes] = useState<number | ''>(0);
 
   const [canAddNote, setCanAddNote] = useState(false);
 
-  const clears = () => {
+  const clearForm = () => {
     setCategory("");
-    setSpecialty("");
-    setAuthor("");
     setPlainNote("");
-    setSubjective("");
-    setObjective("");
-    setAssessment("");
-    setPlan("");
+    setSoapContent({ subjective: "", objective: "", assessment: "", plan: "" });
     setDays(0);
     setHours(0);
     setMinutes(0);
-  }
-
-  const handleFormatSwitch = (isSoap: boolean) => {
-    setIsSoap(isSoap);
-
-    // Clear inputs south of choosing the format that depend on the format
-    setPlainNote("");
-    setSubjective("");
-    setObjective("");
-    setAssessment("");
-    setPlan("");
-  }
+  };
 
   useEffect(() => {
-    // Check if note is complete (enough to be added to the array)
-    if (isSoap) {
-      setCanAddNote([
-        assessment, // Only assessment is required for a SOAP note
-        category,
-        specialty,
-        author].every(
-          inputField => (inputField.trim() !== ""))
-      )
-    }
-    else {
-      setCanAddNote([
-        plainNote,
-        category,
-        specialty,
-        author].every(
-          inputField => (inputField.trim() !== ""))
-      )
-    }
-  }, [
-    plainNote,
-    assessment,
-    category,
-    specialty,
-    author,
-    isSoap
-  ]);
+    // Basic validation: need author, specialty, and content
+    const hasMetadata = specialty && author;
+    const hasContent = isSoap
+      ? soapContent.assessment?.trim().length > 0
+      : plainNote.trim().length > 0;
+
+    setCanAddNote(!!(hasMetadata && hasContent));
+  }, [specialty, author, isSoap, soapContent, plainNote]);
+
 
   const createNote = () => {
+    const timeOffset = ((Number(days) || 0) * 1440) + ((Number(hours) || 0) * 60) + (Number(minutes) || 0);
+
+    let newNote: NoteData;
+
     if (isSoap) {
-      setNotes([...notes, {
-        title: category + " Note",
-        author: author,
-        specialty: specialty,
-        timeOffset: DHMToMinutes(days, hours, minutes), // days, hours, minutes to minutes
-        body: {
-          subjective: subjective,
-          objective: objective,
-          assessment: assessment,
-          plan: plan
-        }
-      }])
+      // Create ProviderNote
+      newNote = {
+        title: category ? `${category} Note` : "Progress Note",
+        author,
+        specialty,
+        timeOffset,
+        noteBody: soapContent
+      };
+    } else {
+      newNote = {
+        title: category ? `${category} Note` : "Progress Note",
+        author,
+        specialty,
+        timeOffset,
+        noteBody: plainNote
+      };
     }
-    else {
-      setNotes([...notes, {
-        title: category + " Note",
-        author: author,
-        specialty: specialty,
-        timeOffset: DHMToMinutes(days, hours, minutes), // Days, hours, minutes to minutes
-        text: plainNote
-      }])
-    }
-    clears();
-  }
+
+    setNotes(prev => [newNote, ...prev]);
+    clearForm();
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-
-    router.push('/admin/case-builder/form/orders')
+    router.push('/admin/case-builder/form/orders');
   }
 
   return (
-    <>
-      <div className="flex flex-col h-screen bg-neutral-100 flex-1 gap-2 p-2 overflow-y-auto ">
-        <Card className="relative pb-0">
-          <form className="w-full pl-16 pr-16 flex" onSubmit={handleSubmit} >
-            <div className="w-full flex flex-col gap-6 p-2">
-              <input type="hidden" name="notes" value={JSON.stringify(notes)} />
-              <div className="absolute top-8 right-8">
-                <SubmitButton buttonText="Continue" />
-              </div>
+    <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
+      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <FilePlus className="text-slate-400" />
+            Clinical Documentation
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">Step 3 of 5: Add historical and simulation notes</p>
+        </div>
+      </header>
 
+      {/* Content */}
+      <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
+        <form id="notes-form" onSubmit={handleSubmit} className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
+          <input type="hidden" name="notes" value={JSON.stringify(notes)} />
+          <div className="fixed top-6 right-8 z-10">
+            <SubmitButton buttonText="Save & Continue" />
+          </div>
+          {/* LEFT COLUMN: Note Editor */}
+          <div className="lg:col-span-7 space-y-6">
+            <Card className="border-slate-200 shadow-sm pt-0">
+              <CardHeader className="bg-slate-100/70 border-b border-slate-200 pt-4 !pb-2 rounded-t-xl">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> New Entry</span>
+                  <div className="flex items-center gap-2 text-sm font-normal">
+                    <Switch id="soap-mode" checked={isSoap} onCheckedChange={setIsSoap} className="border border-slate-300" />
+                    <Label htmlFor="soap-mode">SOAP Format</Label>
+                  </div>
+                </CardTitle>
+              </CardHeader>
 
-              <p className="m-2 ml-0 text-2xl font-bold">Notes</p>
-
-              <div className="flex">
-                <label className="case-form-label">Category:</label>
-                <select
-                  onChange={(e) => { setCategory(e.target.value) }}
-                  value={category} className="case-form-select">
-                  <option value="" hidden disabled>Select</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex">
-                <label className="case-form-label">Specialty:</label>
-                <select
-                  onChange={(e) => { setSpecialty(e.target.value) }}
-                  value={specialty} className="case-form-select">
-                  <option value="" hidden disabled>Select</option>
-                  {specialties.map((specialty, index) => (
-                    <option key={index} value={specialty}>{specialty}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex">
-                <label htmlFor="author" className="case-form-label">Author:</label>
-                <input
-                  type="text" value={author} className="case-form-input-text"
-                  onChange={(e) => { setAuthor(e.target.value) }}
-                  id="author" placeholder="" />
-              </div>
-
-              <div className="flex-col">
-                <label htmlFor="timeOffset" className="case-form-label">Time Offset:</label>
-                <InfoTooltip content="" />
-                <div className="flex ml-4">
-
-                  <label htmlFor="days" className="case-form-label">Days:</label>
-                  <input
-                    value={days}
-                    onChange={(e) => { setDays(parseFloat(e.target.value)) }} type="number"
-                    id="days" min={0}
-                    className="mr-4 case-form-input-number" />
-
-                  <label htmlFor="hours" className="case-form-label">Hours:</label>
-                  <input
-                    value={hours}
-                    onChange={(e) => { setHours(parseFloat(e.target.value)) }}
-                    type="number"
-                    id="hours" min={0}
-                    className="mr-4 case-form-input-number" />
-
-                  <label htmlFor="minutes" className="case-form-label">Minutes:</label>
-                  <input
-                    value={minutes}
-                    onChange={(e) => { setMinutes(parseFloat(e.target.value)) }}
-                    type="number"
-                    id="minutes" min={0}
-                    className="mr-4 case-form-input-number" />
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <Select
+                      value={category}
+                      onValueChange={setCategory}
+                    >
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select type..." />
+                        <ChevronDown />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((c, i) => <SelectItem key={i} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Specialty</Label>
+                    <Select value={specialty} onValueChange={setSpecialty}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select specialty..." />
+                        <ChevronDown />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {specialties.map((s, i) => <SelectItem key={i} value={s}>{s}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex">
-                <label className="case-form-label">SOAP Format:</label>
-                <div className="flex gap-1">
-                  <input
-                    id="isSoapYes" type="radio" value={"Yes"} checked={isSoap === true}
-                    onChange={(e) => { if (e.target.value === "Yes") { handleFormatSwitch(true) } }} />
-                  <label htmlFor="isSoapYes" className="case-form-label">Yes</label>
-
-                  <input
-                    id="isSoapNo" type="radio" value={"No"} checked={isSoap === false}
-                    onChange={(e) => { if (e.target.value === "No") { handleFormatSwitch(false) } }} />
-                  <label htmlFor="isSoapNo" className="case-form-label">No</label>
-                </div>
-              </div>
-
-
-              {/* SOAP format inputs */}
-              <div className="space-y-3">
-                <p>Note Contents:</p>
-
-                {isSoap && (
-                  <div className="ml-4">
-                    <div className="flex flex-col">
-                      <label htmlFor="subjective" className="case-form-label ">Subjective:</label>
-                      <textarea
-                        onChange={(e) => { setSubjective(e.target.value) }} value={subjective}
-                        id="subjective" className="min-h-25 case-form-textarea" />
-                    </div>
-                    <div className="flex flex-col">
-                      <label htmlFor="objective" className="case-form-label">Objective:</label>
-                      <textarea
-                        onChange={(e) => { setObjective(e.target.value) }} value={objective}
-                        id="objective" className="min-h-25 case-form-textarea" />
-                    </div>
-                    <div className="flex flex-col">
-                      <label htmlFor="assessment" className="case-form-label">Assessment:</label>
-                      <textarea
-                        onChange={(e) => { setAssessment(e.target.value) }} value={assessment}
-                        id="assessment" className="min-h-25 case-form-textarea" />
-                    </div>
-                    <div className="flex flex-col">
-                      <label htmlFor="plan" className="case-form-label">Plan:</label>
-                      <textarea
-                        onChange={(e) => { setPlan(e.target.value) }} value={plan}
-                        id="plan" className="min-h-25 case-form-textarea" />
+                {/* Author & Time Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-2">
+                  <div className="space-y-2">
+                    <Label>Author</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <Input
+                        value={author}
+                        onChange={e => setAuthor(e.target.value)}
+                        className="pl-9 bg-white"
+                        placeholder="e.g. Dr. Smith"
+                      />
                     </div>
                   </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label>Time Before Sim</Label>
+                      <InfoTooltip content="How long before the simulation start time was this note written?" />
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Input type="number" min={0} value={days} onChange={e => setDays(Number(e.target.value))} className="pr-8 bg-white" />
+                        <span className="absolute right-3 top-2.5 text-xs text-slate-400">d</span>
+                      </div>
+                      <div className="relative flex-1">
+                        <Input type="number" min={0} value={hours} onChange={e => setHours(Number(e.target.value))} className="pr-8 bg-white" />
+                        <span className="absolute right-3 top-2.5 text-xs text-slate-400">h</span>
+                      </div>
+                      <div className="relative flex-1">
+                        <Input type="number" min={0} value={minutes} onChange={e => setMinutes(Number(e.target.value))} className="pr-8 bg-white" />
+                        <span className="absolute right-3 top-2.5 text-xs text-slate-400">m</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Dynamic Input Area */}
+                {isSoap ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase text-slate-500 font-semibold">Subjective</Label>
+                      <Textarea
+                        className="bg-white min-h-[80px]"
+                        value={soapContent.subjective}
+                        onChange={e => setSoapContent({ ...soapContent, subjective: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase text-slate-500 font-semibold">Objective</Label>
+                      <Textarea
+                        className="bg-white min-h-[80px]"
+                        value={soapContent.objective}
+                        onChange={e => setSoapContent({ ...soapContent, objective: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase text-slate-500 font-semibold">Assessment</Label>
+                      <Textarea
+                        className="bg-white min-h-[80px]"
+                        value={soapContent.assessment}
+                        onChange={e => setSoapContent({ ...soapContent, assessment: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase text-slate-500 font-semibold">Plan</Label>
+                      <Textarea
+                        className="bg-white min-h-[80px]"
+                        value={soapContent.plan}
+                        onChange={e => setSoapContent({ ...soapContent, plan: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 animate-in fade-in duration-300">
+                    <Label>Note Body</Label>
+                    <Textarea
+                      className="bg-white min-h-[200px] font-mono text-sm leading-relaxed"
+                      placeholder="Enter note text..."
+                      value={plainNote}
+                      onChange={e => setPlainNote(e.target.value)}
+                    />
+                  </div>
                 )}
-              </div>
 
-              {/* Text input, not in SOAP format */}
-              {!isSoap &&
-                <textarea
-                  onChange={(e) => { setPlainNote(e.target.value) }} value={plainNote}
-                  className="ml-4 min-h-25 case-form-textarea" />
-              }
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    disabled={!canAddNote}
+                    onClick={createNote}
+                  >
+                    <ListPlus className="mr-2 h-4 w-4" />
+                    Add Note to Chart
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              <button
-                onClick={createNote}
-                disabled={!canAddNote}
-                title={!canAddNote ? "Note incomplete" : ""}
-                className="
-                disabled:cursor-not-allowed disabled:opacity-55
-                cursor-pointer mb-4 border border-[#333] rounded bg-[#eaeaea] pl-2 pr-2 inline w-fit"
-                type="button">
-                Add Note to Case +
-              </button>
+          <div className="lg:col-span-5 space-y-4">
+            <div className="flex items-center justify-between text-slate-600 px-1">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Stethoscope className="w-4 h-4" />
+                Chart Preview
+              </h3>
+              <span className="text-xs bg-slate-200 px-2 py-1 rounded-full">{notes.length} Notes</span>
             </div>
-          </form>
-          {(notes.length > 0) &&
-            <div className="flex flex-col grow gap-4 p-2 rounded-lg overflow-y-auto ">
+
+            <div className="space-y-3 h-full overflow-y-auto pr-2 scrollbar-thin">
+              {notes.length === 0 && (
+                <div className="h-48 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400">
+                  <FileText className="w-8 h-8 mb-2 opacity-50" />
+                  <p className="text-sm">No notes added yet.</p>
+                </div>
+              )}
+
               {notes.map((note, index) => (
-                <div key={`${note.specialty}-${index}`} className="border rounded-lg">
-                  <NoteDisplay onDelete={() => setNotes(notes.filter((_, i) => i !== index))} note={note} key={index} />
+                <div key={index} className="group relative">
+                  <NoteFormDisplay
+                    note={note}
+                    onDelete={() => setNotes(notes.filter((_, i) => i !== index))}
+                  />
                 </div>
               ))}
             </div>
-          }
-
-        </Card>
-      </div>
-    </>
-  )
+          </div>
+        </form>
+      </main>
+    </div>
+  );
 }
-
-export default NotesForm

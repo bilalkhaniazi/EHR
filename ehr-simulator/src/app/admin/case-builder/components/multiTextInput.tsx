@@ -2,52 +2,51 @@ import { useState } from "react";
 import { Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from "@/components/ui/input";
 
 interface MultiTextInputProps {
   value?: string[];
   onChange: (value: string[]) => void;
   placeholder?: string;
   name?: string;
-  labelText: string
-  required?: boolean
-  titleCase?: boolean
+  labelText: string;
+  required?: boolean;
+  titleCase?: boolean;
 }
 
-function MultiTextInput({ value = [], onChange, placeholder = "Add item...", name, labelText, required = false, titleCase = false }: MultiTextInputProps) {
+function MultiTextInput({
+  value = [],
+  onChange,
+  placeholder = "Add item...",
+  name,
+  labelText,
+  required = false,
+  titleCase = false
+}: MultiTextInputProps) {
   const [currentInput, setCurrentInput] = useState('');
-  const [requiredState, setRequiredState] = useState(required)
 
-  const checkRequired = () => {
-    if (required) {
-      if (currentInput.length > 0) {
-        setRequiredState(false)
-      }
-      else {
-        setRequiredState(true)
-      }
-    }
-  }
+  // We can simplify the required check logic slightly
+  const [isMissing, setIsMissing] = useState(required && value.length === 0);
 
   const addInput = () => {
     let input = currentInput.trim();
+
+    if (!input) return;
+
     if (titleCase) {
       input = input.split(' ')
-        .map(word => {
-          if (word.length === 0) {
-            return '';
-          }
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        })
+        .map(word => word.length > 0 ? word.charAt(0).toUpperCase() + word.slice(1) : '')
         .join(' ');
-    }
-    else {
+    } else {
       input = input.charAt(0).toUpperCase() + input.slice(1);
     }
 
     // Avoid duplicates and empty strings
-    if (!value.includes(input) && input !== '') {
-      onChange([...value, input]);
+    if (!value.includes(input)) {
+      const newValue = [...value, input];
+      onChange(newValue);
       setCurrentInput('');
+      if (required) setIsMissing(false);
     }
   }
 
@@ -55,55 +54,71 @@ function MultiTextInput({ value = [], onChange, placeholder = "Add item...", nam
     if (e.key === 'Enter') {
       e.preventDefault();
       addInput();
-      checkRequired();
     }
   };
+
   const removeItem = (index: number) => {
-    onChange(value.filter((_, i) => i !== index));
-    checkRequired();
+    const newValue = value.filter((_, i) => i !== index);
+    onChange(newValue);
+    if (required && newValue.length === 0) setIsMissing(true);
   };
 
   return (
-    <div className="mb-2">
+    <div className="w-full">
       {/* Hidden input holds JSON of inputs for form submission */}
       {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
 
-      <label className="case-form-label">{labelText}</label>
-      <input
-        className="case-form-input-text shadow-xs"
-        type="text"
-        value={currentInput}
-        onChange={(e) => setCurrentInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        required={requiredState}
-      />
+      {/* Header Label */}
+      <label className="text-xs font-medium text-slate-500 mb-1.5 block">
+        {labelText} {required && <span className="text-red-500">*</span>}
+      </label>
 
-      <Button
-        type="button"
-        onClick={(e) => { e.preventDefault(); addInput() }}
-        variant="outline"
-        size="sm"
-        className="inline-flex ml-2 font-normal items-center gap-2"
-      >
-        Add
-        <Plus className="h-4 w-4" />
-      </Button>
+      {/* Input Group */}
+      <div className="flex gap-2">
+        <Input
+          className={`bg-white h-9 ${isMissing ? 'border-red-300 focus-visible:ring-red-200' : ''}`}
+          type="text"
+          value={currentInput}
+          onChange={(e) => setCurrentInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+        />
 
-
-      {/* Display a badge for each input */}
-      <div className="flex flex-wrap gap-2 mt-2 ml-4">
-        {value.map((item: string, index: number) => (
-          <Badge key={index} variant="secondary" className="pl-4 py-1.5 flex items-center gap-1 shadow">
-            {item}
-            <button className="cursor-pointer" type="button" onClick={() => removeItem(index)}>
-              <X className="w-4 h-4 ml-2" />
-            </button>
-          </Badge>
-        ))}
+        <Button
+          type="button"
+          onClick={(e) => { e.preventDefault(); addInput() }}
+          variant="secondary"
+          size="sm"
+          disabled={!currentInput.trim()}
+          className="h-9 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
+
+      {/* Badge Display Area */}
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {value.map((item: string, index: number) => (
+            <Badge
+              key={index}
+              variant="outline"
+              className="pl-2.5 pr-1 py-1 h-7 text-sm font-normal bg-slate-50 text-slate-700 border-slate-200 flex items-center gap-1 hover:bg-slate-100 transition-colors"
+            >
+              {item}
+              <button
+                className="h-5 w-5 flex items-center justify-center rounded-full hover:bg-red-100 hover:text-red-600 transition-colors cursor-pointer"
+                type="button"
+                onClick={() => removeItem(index)}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-export default MultiTextInput
+export default MultiTextInput;

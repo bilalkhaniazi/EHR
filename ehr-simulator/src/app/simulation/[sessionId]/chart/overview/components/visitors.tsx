@@ -3,57 +3,12 @@
 import { Phone } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import StyledTitle from "./styledTitle"
-import { useGetChartQuery } from "@/app/store/apiSlice"
-import CardSkeleton from "./cardSkeleton"
-import type { ChartData } from "@/app/simulation/[sessionId]/chart/components/chartData"
+// import CardSkeleton from "./cardSkeleton"
+import { jamesAllen, type ChartData } from "@/app/simulation/[sessionId]/chart/components/chartData"
 
 const Visitors = () => {
-  const { data, isLoading, isError, isFetching, error } = useGetChartQuery();
 
-  if (isLoading || isFetching) {
-    return (
-      <Card className="relative pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-lime-200" firstLetter="C" secondLetter="ontacts" />
-        <CardSkeleton />
-      </Card>
-    )
-  }
-
-  if (isError) {
-    let errorMessage = "An unknown error occurred.";
-    const err = error as unknown;
-
-    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
-      return typeof e === "object" && e !== null && "status" in e;
-    }
-
-    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
-      return typeof e.data === "object" && e.data !== null && "message" in e.data;
-    }
-
-    if (isStatusError(err)) {
-      errorMessage = `Error ${err.status}`;
-      if (hasMessageData(err)) {
-        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
-      } else if ("data" in err) {
-        errorMessage += `: ${JSON.stringify(err.data)}`;
-      }
-    } else if (typeof err === "object" && err !== null && "message" in err) {
-      errorMessage = `Error: ${(err as { message: string }).message}`;
-    } else {
-      errorMessage = `Error: ${JSON.stringify(err)}`;
-    }
-
-    console.log(errorMessage);
-    return (
-      <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">
-        <StyledTitle color="bg-red-200" firstLetter="A" secondLetter="ctive Problems" />
-        <p>Error: {errorMessage}</p>
-      </Card>
-    )
-  }
-
-  const chartData: ChartData | undefined = data?.chartData
+  const chartData: ChartData | undefined = jamesAllen
 
   if (!chartData || Object.keys(chartData).length === 0) {
     return (

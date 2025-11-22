@@ -4,8 +4,8 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
-  // type Row,
   useReactTable,
+  type CellContext,
 } from "@tanstack/react-table"
 
 import {
@@ -17,21 +17,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
-import { useGetFlexSheetChartingQuery } from "@/app/store/apiSlice"
-import type { tableData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
-import { useMemo } from "react"
-import { Skeleton } from "@/components/ui/skeleton"
+import type { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
+import { useMemo, useState } from "react"
 import StyledTitle from "./styledTitle"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/app/store/store"
-
+import { getMinutes } from "date-fns" // Ensure this is imported
+// You likely need to import these from your data file
+import { predefinedVitalsData2, generateInitialChartingData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
+import { formatTimeFromOffset } from "../../charting/page"
 
 export type vitalsOverviewTable = {
   field: string
   [key: string]: string
 }
 
-// matching with row ID's in FlexSheet
 const vitalSignIds = [
   "hrInput",
   "bpInput",
@@ -42,49 +40,92 @@ const vitalSignIds = [
   "weightKgInput",
 ];
 
+// --- Helper Functions (Moved from Redux slice/api file) ---
+
+export const getAllTimeOffsets = (simulationNow: number) => {
+  // Assuming simulationNow is a timestamp
+  const dateObj = new Date(simulationNow);
+  const minutesPastTheHour = getMinutes(dateObj);
+
+  const dynamicTimeOffsets = Array.from({ length: 4 }, (_, index) => {
+    const temp = minutesPastTheHour - (60 * index)
+    return temp
+  })
+
+  const predefinedTimeOffsets = Object.keys(predefinedVitalsData2 || {}).map(Number)
+
+  const allTimeOffsets = [...new Set([...dynamicTimeOffsets, ...predefinedTimeOffsets])];
+
+  return allTimeOffsets.sort((a, b) => b - a)
+};
+
+
 export function VitalsOverview() {
-  const sessionStartTime = useSelector((state: RootState) => state.time.sessionStartTime);
-  const skip = !sessionStartTime
-  const { data, isLoading, isError, error, isFetching } = useGetFlexSheetChartingQuery(sessionStartTime, { skip })
+  const [sessionStartTime] = useState(new Date().getTime());
 
-  const timeOffsets = useMemo(() => data?.timeOffsets.slice(-3) || [], [data?.timeOffsets]);
+  const { allTimeOffsets, fullChartingData } = useMemo(() => {
+    if (!sessionStartTime) return { allTimeOffsets: [], fullChartingData: [] };
 
-  const chartingData = data?.chartingData || [];
+    const offsets = getAllTimeOffsets(sessionStartTime);
+    const data = generateInitialChartingData(offsets);
 
-  // move to backend
-  const filteredData = chartingData.filter(row => vitalSignIds.includes(row.id));
+    return { allTimeOffsets: offsets, fullChartingData: data };
+  }, [sessionStartTime]);
 
-  const columns: ColumnDef<tableData>[] = useMemo(() => [
+  const displayTimeOffsets = useMemo(() => {
+    return allTimeOffsets.slice(-3);
+  }, [allTimeOffsets]);
+
+  const filteredData = useMemo(() => {
+    return fullChartingData.filter(row => vitalSignIds.includes(row.id));
+  }, [fullChartingData]);
+
+
+  const columns: ColumnDef<FlexSheetData>[] = useMemo(() => [
     {
       accessorKey: "field",
       header: "",
-      cell: info => {
-        return (
-          <p className="text-left pl-2 text-xs">{info.row.original.field}</p>
-        )
-      }
+      cell: info => (
+        <p className="text-left pl-2 text-xs">{info.row.original.field}</p>
+      )
     },
-    ...timeOffsets.map(timeKey => {
+    ...displayTimeOffsets.map(timeKey => {
       return {
         id: String(timeKey),
-        accessorKey: String(timeKey) as keyof tableData,
-        header: () => (
-          <div className="flex flex-col justify-center items-center">
-            <h2 className="my-1 text-neutral-500 text-xs font-light">7/29</h2>
-            <h1 className="mb-1 text-xs">{timeKey}</h1>
-          </div>
-        ),
-        cell: () => {   // { row }: { row: Row<tableData> }
+        accessorKey: String(timeKey) as keyof FlexSheetData,
+        header: () => {
+          const result = formatTimeFromOffset(timeKey, sessionStartTime)
+          // Since formatTimeFromOffset can return an error object, 
+          // we should handle that or default to empty strings to satisfy TS
+          if (result.error) {
+            return <span>Error</span>;
+          }
+
+          return (
+            <div className="flex flex-col justify-center items-center">
+              <h2 className="my-1 text-neutral-500 text-xs font-light">
+                {result.date}
+              </h2>
+              <h1 className="mb-1 text-xs">
+                {result.time}
+              </h1>
+            </div>
+          );
+        },
+        cell: (info: CellContext<FlexSheetData, unknown>) => {
+          const value = info.getValue();
           return (
             <div className="h-full">
-              <p className="text-xs w-full min-w-12 text-right pr-2">~</p> {/*row.original[timekey]*/}
+              <p className="text-xs w-full min-w-12 text-right pr-2">
+                {/* Render value if exists, otherwise placeholder */}
+                {value ? String(value) : "~"}
+              </p>
             </div>
           )
         }
       }
     })
-  ], [timeOffsets])
-
+  ], [displayTimeOffsets, sessionStartTime])
 
   const table = useReactTable({
     data: filteredData,
@@ -93,90 +134,30 @@ export function VitalsOverview() {
   })
 
   const renderTableContent = () => {
-    if (isLoading || isFetching || skip) {
-      return (
-        <TableRow>
-          <TableCell colSpan={columns.length} className="h-fit p-0 w-full justify-center items-center">
-            <div className="w-full h-full grid grid-cols-4 gap-2 p-2">
-              <Skeleton className="h-6 col-span-1" />
-              <Skeleton className="h-6 col-span-1" />
-              <Skeleton className="h-6 col-span-1" />
-              <Skeleton className="h-6 col-span-1" />
-              {Array.from({ length: 20 }, (_, index) => {
-                return (
-                  <Skeleton key={index} className="h-4 col-span-1" />
-                )
-              })}
-
-            </div>
-          </TableCell>
-        </TableRow>
-      )
-    }
-
-    // from RTK query docs
-    if (isError) {
-      let errorMessage = "An unknown error occurred.";
-      const err = error as unknown;
-
-      function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
-        return typeof e === "object" && e !== null && "status" in e;
-      }
-
-      function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
-        return typeof e.data === "object" && e.data !== null && "message" in e.data;
-      }
-
-      if (isStatusError(err)) {
-        errorMessage = `Error ${err.status}`;
-        if (hasMessageData(err)) {
-          errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
-        } else if ("data" in err) {
-          errorMessage += `: ${JSON.stringify(err.data)}`;
-        }
-      } else if (typeof err === "object" && err !== null && "message" in err) {
-        errorMessage = `Error: ${(err as { message: string }).message}`;
-      } else {
-        errorMessage = `Error: ${JSON.stringify(err)}`;
-      }
-
-      console.log(errorMessage);
+    if (!table.getRowModel().rows?.length) {
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
             <div className="flex flex-col justify-center items-center gap-2 h-full w-full py-2">
-              <p>Error loading vitals data</p>
+              <p className="text-sm text-neutral-500">No vitals data available</p>
             </div>
           </TableCell>
         </TableRow>
       )
     }
 
-    if (table.getRowModel().rows?.length) {
-      return table.getRowModel().rows.map((row) => (
-        <TableRow
-          key={row.id}
-          className="h-6 border-sky-200"
-        >
-          {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id} className="border-sky-200 first:border-0 border-l p-0">
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </TableCell>
-          ))}
-        </TableRow>
-      ))
-    }
-
-    return (
-      <TableRow>
-        <TableCell colSpan={columns.length} className="h-24 p-0 w-full justify-center items-center">
-          <div className="flex flex-col justify-center items-center gap-2 h-full w-full py-2">
-            <p className="text-sm text-neutral-500">No vitals data available</p>
-          </div>
-        </TableCell>
+    return table.getRowModel().rows.map((row) => (
+      <TableRow
+        key={row.id}
+        className="h-6 border-sky-200"
+      >
+        {row.getVisibleCells().map((cell) => (
+          <TableCell key={cell.id} className="border-sky-200 first:border-0 border-l p-0">
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
       </TableRow>
-    )
-
+    ))
   }
 
   return (

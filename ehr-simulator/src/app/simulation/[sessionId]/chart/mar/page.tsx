@@ -1,15 +1,23 @@
 'use client'
 
-import { useGetMarQuery } from "@/app/store/apiSlice";
 import { format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance } from "./components/marData";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "@/app/store/store";
-import { handleMedicationSelectionChange } from "./components/marSlice";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
+import { medicationOrders, allMedications, medAdministrations } from './components/marData';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from '@/components/ui/button';
+import { Filter, PillBottle } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Toggle } from '@/components/ui/toggle';
+
+// --- Types (Previously in Slice) ---
+
+export interface NewAdministrationData {
+  [medOrderId: string]: MedAdministrationInstance;
+}
 
 export interface MedCardColumns {
   startTime: Date;
@@ -18,40 +26,103 @@ export interface MedCardColumns {
   associatedAdministrations?: MedAdministrationInstance[];
 }
 
-
+const routes = ["PO", "IV", "SC", "IM", "Topical", "Inhalation", "SL"]
 export default function Mar() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const selectedMeds = useSelector((state: RootState) => state.mar.selectedMeds);
-  const { data, isLoading, isFetching, isError, error } = useGetMarQuery()
-  // Mar still needs to be updated to use the time from timeSlice
+  const [selectedMeds, setSelectedMeds] = useState<string[]>([]);
+  const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
   const [realWorldNow, setRealWorldNow] = useState(new Date());
+  const [medFilters, setMedFilters] = useState<string[]>([]);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
 
-  const medicationOrders = data?.medicationOrders || [];
-  const allMedications = data?.allMedications || [];
-  const medAdministrations = data?.medAdministrations || [];
-
-  // will be replaced by scanning
   const handleMedChange = (payload: { id: string, checked: boolean }) => {
-    dispatch(handleMedicationSelectionChange(payload));
+    const { id, checked } = payload;
+    if (checked) {
+      setSelectedMeds(prev => [...prev, id]);
+      setNewAdministrations(prev => ({
+        ...prev,
+        [id]: {
+          medicationOrderId: id,
+          status: "Given",
+          administratorId: "currentUser",
+          adminTimeMinuteOffset: 0,
+          administeredDose: 0
+        }
+      }));
+    } else {
+      setSelectedMeds(prev => prev.filter(medId => medId !== id));
+
+      setNewAdministrations(prev => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+    }
   };
 
-  // lookup map grouping all administrations by order id, so each med card gets only the data it needs
-  const groupedAdministrationsByOrder =
-    medAdministrations.reduce((acc, admin) => {
+  const handleFilterChange = (route: string, checked: boolean | "indeterminate") => {
+    setMedFilters(prev => {
+      if (checked === true) {
+        return [...prev, route];
+      } else {
+        return prev.filter(s => s !== route);
+      }
+    });
+  };
+
+  const handleUpdateAdministration = (medicationOrderId: string, field: keyof MedAdministrationInstance, value: number | string) => {
+    setNewAdministrations(prev => {
+      const currentInstance = prev[medicationOrderId];
+      if (!currentInstance) return prev;
+
+      return {
+        ...prev,
+        [medicationOrderId]: {
+          ...currentInstance,
+          [field]: value
+        }
+      };
+    });
+  };
+
+  const handleClearAll = () => {
+    setSelectedMeds([]);
+    setNewAdministrations({});
+    setMedFilters([])
+  };
+  const handleClearFilters = () => {
+    setMedFilters([]);
+    setIsPRN(false);
+    setIsPopoverOpen(false)
+  };
+
+
+  const groupedAdministrationsByOrder = useMemo(() => {
+    return medAdministrations.reduce((acc, admin) => {
       if (!acc[admin.medicationOrderId]) {
         acc[admin.medicationOrderId] = [];
       }
       acc[admin.medicationOrderId].push(admin)
       return acc
     }, {} as { [orderId: string]: MedAdministrationInstance[] })
+  }, []);
 
-  const medsById = allMedications.reduce((acc, med) => {
-    acc[med.id] = med;
-    return acc;
-  }, {} as { [id: string]: AllMedicationTypes });
+  const medsById = useMemo(() => {
+    return allMedications.reduce((acc, med) => {
+      acc[med.id] = med;
+      return acc;
+    }, {} as { [id: string]: AllMedicationTypes });
+  }, []);
 
+  const filteredMedOrders = useMemo(() => {
+    return medicationOrders.filter(order => {
+      const med = medsById[order.medicationId];
+      const matchesRoute = medFilters.length === 0 || medFilters.includes(med.route);
+      const matchesPRN = !isPRN || order.frequency === "PRN";
 
+      return matchesRoute && matchesPRN;
+    });
+  }, [medFilters, medsById, isPRN]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -60,64 +131,8 @@ export default function Mar() {
     return () => clearInterval(intervalId);
   }, []);
 
-  if (isLoading || isFetching) {
-    return (
-      <div className="px-2 pt-14  w-full h-[calc(100vh-4rem)] grid gap-4 bg-gray-100 overflow-y-auto">
-        <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
-          <Skeleton className="w-full h-30 px-4 bg-gray-200" />
-        </div>
-      </div>
-    )
-  }
 
-  if (isError) {
-    let errorMessage = "An unknown error occurred.";
-    const err = error as unknown;
-
-    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
-      return typeof e === "object" && e !== null && "status" in e;
-    }
-
-    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
-      return typeof e.data === "object" && e.data !== null && "message" in e.data;
-    }
-
-    if (isStatusError(err)) {
-      errorMessage = `Error ${err.status}`;
-      if (hasMessageData(err)) {
-        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
-      } else if ("data" in err) {
-        errorMessage += `: ${JSON.stringify(err.data)}`;
-      }
-    } else if (typeof err === "object" && err !== null && "message" in err) {
-      errorMessage = `Error: ${(err as { message: string }).message}`;
-    } else {
-      errorMessage = `Error: ${JSON.stringify(err)}`;
-    }
-    console.log(errorMessage)
-    return (
-      <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
-        <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-          <p>Error loading med data </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!data || Object.keys(data).length === 0) {
-    return (
-      <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 bg-gray-100 overflow-y-auto">
-        <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-          <p>No med data exists</p>
-        </div>
-      </div>
-    )
-  }
-
-  const sessionStartDateNumber = new Date(data.sessionStartDateString).getTime();
+  const sessionStartDateNumber = new Date(realWorldNow).getTime();
 
   const columnAnchorTime = new Date(
     realWorldNow.getFullYear(),
@@ -130,7 +145,7 @@ export default function Mar() {
   const columnCount = 6
   const displayColumns = [] as MedCardColumns[]
 
-  // create 6 columns, 2 future hours, one current hour, and three past hours
+  // Create 6 columns: 2 future hours, current hour, 3 past hours
   for (let i = 0; i < columnCount; i++) {
     const colStartTime = new Date(columnAnchorTime.getTime() - ((i - 2) * 60 * 60 * 1000));
     const colEndTime = new Date(colStartTime.getTime() + (60 * 60 * 1000) - 1);
@@ -144,17 +159,70 @@ export default function Mar() {
   }
 
   return (
-    <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] grid gap-4 p-4 pb-0 bg-gray-100 overflow-y-auto">
-      <MedAdministrationPanel
-        selectedMedIds={selectedMeds}
-        allOrders={medicationOrders}
-        medicationLookup={medsById}
-        administrationsLookup={groupedAdministrationsByOrder}
-        sessionStartTime={sessionStartDateNumber}
-        realWorldTime={realWorldNow}
-      />
-      <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-        {medicationOrders.map((order) => {
+    <div className="flex flex-col p-2 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
+      <div className='flex gap-2'>
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-sm">
+              Route
+              <Filter className="ml-1 h-2 w-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-fit p-4 border rounded-lg shadow">
+            <div className="grid gap-4">
+              <div className="flex flex-col gap-2">
+                {routes.map(route => (
+                  <div key={route} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`filter-${route}`}
+                      checked={medFilters.includes(route)}
+                      onCheckedChange={(checked) => handleFilterChange(route, checked)}
+                    />
+                    <Label htmlFor={`filter-${route}`} className="font-normal">
+                      {route}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {routes.length > 0 && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleClearFilters}
+                  className="h-6 border shadow"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+        <Toggle
+          pressed={isPRN}
+          onPressedChange={setIsPRN}
+          aria-label="Toggle bookmark"
+          size="sm"
+          variant="outline"
+          className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-22 bg-white h-8 mb-2 text-xs"
+        >
+          <PillBottle />
+          PRNs
+        </Toggle>
+        <MedAdministrationPanel
+          selectedMedIds={selectedMeds}
+          newAdministrations={newAdministrations}
+          onUpdateAdministration={handleUpdateAdministration}
+          onClearAll={handleClearAll}
+          allOrders={medicationOrders}
+          medicationLookup={medsById}
+          administrationsLookup={groupedAdministrationsByOrder}
+          sessionStartTime={sessionStartDateNumber}
+          realWorldTime={realWorldNow}
+        />
+      </div>
+
+      <div className="flex w-full h-full flex-col flex-1 gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+        {filteredMedOrders.map((order) => {
           const isSelected = selectedMeds.includes(order.id);
           const associatedMedication = medsById[order.medicationId]
           const orderSpecifcAdministrations = groupedAdministrationsByOrder[order.id] || [];

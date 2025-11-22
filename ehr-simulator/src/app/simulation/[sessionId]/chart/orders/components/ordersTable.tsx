@@ -54,17 +54,17 @@ const OrdersTable = <T extends Record<string, any>>({
                     }}
                   ></span>
                   <span className="relative z-1">
-                    {headerNames.displayName.substring(0, 1)}
+                    {headerNames.title.substring(0, 1)}
                   </span>
                 </span>
-                <span className="-ml-3 relative z-1">{headerNames.displayName.substring(1)}</span>
+                <span className="-ml-3 relative z-1">{headerNames.title.substring(1)}</span>
               </h1>
             </div>
           )
         },
         cell: info => {
           return (
-            <h1 className="text-xs text-right font-medium text-wrap tracking-tight">{info.row.original.displayName}</h1>
+            <h1 className="text-xs text-right font-medium text-wrap tracking-tight">{info.row.original.title}</h1>
           )
         }
       }),

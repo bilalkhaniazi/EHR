@@ -1,7 +1,7 @@
-
 "use client"
 
-import { sampleNotes, SbarNote, type NoteData } from "./components/notesData";
+import { useState, useEffect, useMemo } from "react";
+import { NoteData, sampleNotes, SbarNote, StudentNote } from "./components/notesData"; // Assuming sampleNotes is exported from here
 import NursingNoteEntry from "./components/nursingNoteEntry";
 import NoteDisplay from "./components/noteDisplay";
 import { toast } from "sonner";
@@ -11,87 +11,85 @@ import { Filter } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FilterBadges from "./components/filterBadges";
-import { useSelector, useDispatch } from "react-redux";
-import type { RootState, AppDispatch } from "@/app/store/store";
-import {
-  addSpecialtyFilter,
-  removeSpecialtyFilter,
-  clearSpecialtyFilters
-} from './components/noteSlice'
-import { useAddNoteMutation, useGetNotesQuery } from "@/app/store/apiSlice";
 import { Skeleton } from "@/components/ui/skeleton";
-
-
-
+import { differenceInMinutes, format } from "date-fns";
 
 const NotePage = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { data, isLoading: areNotesLoading, isFetching, isError: notesFetchError, error: fetchErrorDetails } = useGetNotesQuery();
-  const [addNote] = useAddNoteMutation()
-  const filteredSpecialties = useSelector((state: RootState) => state.notes.filteredSpecialties)
+  const [notesData, setNotesData] = useState<NoteData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [sessionStartTime] = useState(new Date().getTime())
 
-  const notesData = data?.notesData || [];
+  const [filteredSpecialties, setFilteredSpecialties] = useState<string[]>([]);
 
-  // get all specialties from RTK queried data to build filter options
-  const specialties = [...new Set(sampleNotes.map((note) => (note.specialty)))];
+  useEffect(() => {
+    const fetchNotes = async () => {
+      setIsLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network
+        setNotesData(sampleNotes as NoteData[]);
+      } catch (err) {
+        console.error(err);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const filteredNotesData = notesData.filter(note => {
+    fetchNotes();
+  }, []);
+
+  const specialties = useMemo(() => {
+    return [...new Set(notesData.map((note) => note.specialty))];
+  }, [notesData]);
+
+  const filteredNotesData = useMemo(() => {
     if (filteredSpecialties.length === 0) {
-      return true
+      return notesData;
     }
-    return filteredSpecialties.includes(note.specialty);
-  })
+    return notesData.filter(note => filteredSpecialties.includes(note.specialty));
+  }, [notesData, filteredSpecialties]);
 
   const handleFilterChange = (specialty: string, checked: boolean | "indeterminate") => {
-    if (checked) {
-      dispatch(addSpecialtyFilter(specialty));
-    } else {
-      dispatch(removeSpecialtyFilter(specialty))
-    }
-  };
-
-  const clearAllFilters = () => {
-    dispatch(clearSpecialtyFilters())
-  };
-
-  const displayDate = (dateOffset: number) => {
-    const date = new Date()
-    date.setDate(date.getDate() - dateOffset)
-
-    return date.toLocaleDateString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "2-digit"
+    setFilteredSpecialties(prev => {
+      if (checked === true) {
+        return [...prev, specialty];
+      } else {
+        return prev.filter(s => s !== specialty);
+      }
     });
   };
 
-  const onSubmitNote = async (studentNote: SbarNote) => {
-    const date = new Date()
-    const addedTime = date.toLocaleTimeString("en-GB", {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).replace(":", '');
+  const clearAllFilters = () => {
+    setFilteredSpecialties([]);
+  };
 
-    const newNote: NoteData = {
+
+
+  const onSubmitNote = async (sbar: SbarNote) => {
+    const now = differenceInMinutes(new Date(), sessionStartTime)
+
+    const newNote: StudentNote = {
       title: "Student Note",
       author: "Current User, RN BSN",
       specialty: "Nursing",
-      dateOffset: 0,
-      hospitalDay: "3",
-      publishTime: addedTime,
-      noteBody: studentNote
+      timeOffset: now,
+      noteBody: sbar
     }
+
+    const previousNotes = [...notesData];
+    setNotesData(prev => [newNote, ...prev]);
+
     try {
-      await addNote(newNote).unwrap();
-      toast.success(`Nursing note submitted for {patient} at ${addedTime}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      toast.success(`Nursing note submitted at ${format(now, 'HH:mm')}`);
     } catch (err) {
+      setNotesData(previousNotes);
       toast.error(`Failed to submit note: ${err instanceof Error ? err.message : String(err)}`);
-      console.error("Failed to submit note:", err);
     }
   };
 
-  if (areNotesLoading || isFetching) {
+  if (isLoading) {
     return (
       <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
         <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
@@ -103,31 +101,7 @@ const NotePage = () => {
     );
   }
 
-  if (notesFetchError) {
-    let errorMessage = "An unknown error occurred.";
-    const err = fetchErrorDetails as unknown;
-
-    function isStatusError(e: unknown): e is { status: number | string; data?: unknown } {
-      return typeof e === "object" && e !== null && "status" in e;
-    }
-
-    function hasMessageData(e: { data?: unknown }): e is { data: { message?: string } } {
-      return typeof e.data === "object" && e.data !== null && "message" in e.data;
-    }
-
-    if (isStatusError(err)) {
-      errorMessage = `Error ${err.status}`;
-      if (hasMessageData(err)) {
-        errorMessage += `: ${err.data.message ?? JSON.stringify(err.data)}`;
-      } else if ("data" in err) {
-        errorMessage += `: ${JSON.stringify(err.data)}`;
-      }
-    } else if (typeof err === "object" && err !== null && "message" in err) {
-      errorMessage = `Error: ${(err as { message: string }).message}`;
-    } else {
-      errorMessage = `Error: ${JSON.stringify(err)}`;
-    }
-    console.log(errorMessage)
+  if (isError) {
     return (
       <div className="w-full h-full flex flex-col px-4 gap-3 bg-gray-100 justify-center items-center">
         <p className="text-red-600">Error loading notes.</p>
@@ -141,7 +115,7 @@ const NotePage = () => {
         <div className="flex h-full flex-col gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="text-xs w-fit h-6">
+              <Button variant="outline" size="sm" className="text-xs w-fit h-6 bg-white shadow-sm">
                 Specialty
                 <Filter className="ml-1 h-2 w-0" />
               </Button>
@@ -175,6 +149,7 @@ const NotePage = () => {
               </div>
             </PopoverContent>
           </Popover>
+
           <FilterBadges
             activeFilters={filteredSpecialties}
             handleFilterChange={handleFilterChange}
@@ -183,12 +158,17 @@ const NotePage = () => {
         </div>
         <NursingNoteEntry submitNote={onSubmitNote} />
       </div>
+
       <div className="flex flex-col flex-grow gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
-        {filteredNotesData.map((note, index) => {
-          return (
-            <NoteDisplay key={index} displayDate={displayDate} note={note} />
-          )
-        })}
+        {filteredNotesData.length === 0 ? (
+          <p className="text-center text-gray-500 mt-10">No notes found.</p>
+        ) : (
+          filteredNotesData.map((note, index) => {
+            return (
+              <NoteDisplay key={index} startTime={sessionStartTime} note={note} />
+            )
+          })
+        )}
       </div>
     </div>
   )
