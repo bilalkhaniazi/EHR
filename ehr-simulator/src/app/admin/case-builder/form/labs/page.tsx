@@ -8,8 +8,7 @@ import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 
-// import { Skeleton } from "@/components/ui/skeleton";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, TestTube2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddLabColumn } from "./components/addLabCol";
 import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -926,14 +925,6 @@ export const labData: LabTableData[] = [
   },
 ];
 
-// declare module '@tanstack/react-table' {
-//   interface TableMeta<TData extends RowData> {
-//     // Use 'any' here to allow string, string[], ImagingData, etc.
-//     // We handle strict typing inside the component implementation.
-//     updateData: (rowIndex: number, columnId: string, value: any) => void
-//   }
-// }
-
 const formatTimeOffset = (minuteOffset: number) => {
   const minutesInDay = 1440;
   const minutesInHour = 60;
@@ -1019,14 +1010,6 @@ export function LabForm() {
       setComboboxValue(""); // Reset combobox after selection
     }
   };
-
-  // const handleRemoveVisibleItem = (fieldName: string) => {
-  //   setVisibleItems(prev => {
-  //     const newSet = new Set(prev);
-  //     newSet.delete(fieldName);
-  //     return newSet;
-  //   });
-  // };
 
   const handleAddColumn = (offset: number) => {
     if (timePoints.includes(offset)) {
@@ -1269,92 +1252,99 @@ export function LabForm() {
   });
 
   return (
-    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-white justify-center items-center px-4 pt-4 gap-2 ">
-      <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
-        <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
-        <SubmitButton buttonText="Continue" />
-      </form>
-      <div className="w-full">
-        <h1 className="text-3xl font-medium">Labs</h1>
-        <div className="flex gap-24 items-end">
+    // CHANGED: Replaced 'fixed inset-0' with 'h-[calc(100vh-4rem)]'
+    // This respects the sidebar width but locks the height so internal scrolling works.
+    <div className="flex flex-col w-[calc(100vw-16rem)] h-[calc(100vh)] bg-white overflow-hidden shadow-sm border border-slate-200">
+      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10">
+        <div className="">
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <TestTube2 className="text-slate-400" />
+            Lab Results
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">Step 5 of 6: Enter laboratory and imaging results</p>
+        </div>
+
+        <form onSubmit={handleSubmit} >
+          <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
+          <SubmitButton buttonText="Continue" />
+        </form>
+      </header>
+
+      <main className="flex-1 flex flex-col min-h-0 px-6 pt-4 overflow-auto">
+        <div className="flex-none w-full flex gap-24 mb-2 px-1">
           <AddLabColumn handleColumnAdd={handleAddColumn} />
           <div>
             <Label>Imaging Options</Label>
             <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
           </div>
         </div>
-      </div>
-      <div className="w-full h-full border border-gray-200 rounded-t-lg overflow-auto">
-        <Table className="w-full overflow-x-auto">
-          <TableHeader className=" bg-gray-50 sticky top-0 h">
-            {ptTable.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <TableHead
-                    style={getPinnedStyles(header.column)}
-                    key={header.id}
-                    className="border-b-2 border-gray-200 p-0"
-                  >
-                    {/* Render the header content using flexRender */}
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody>
-            {ptTable.getRowModel().rows.map(row => (
-              <TableRow key={row.id} className="h-6">
-                {row.getVisibleCells().map(cell => {
-                  const rowType = row.original.rowType
-
-                  return (
-                    <TableCell
-                      style={getPinnedStyles(cell.column)}
-                      key={`${cell.id}-${row.original.field}`}
-                      className={`p-0 m-0 h-6 border-separate border-gray-200 border-b min-w-40 ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+        <div className="flex-1 w-full border border-gray-200 rounded-t-lg overflow-auto bg-white shadow-sm relative">
+          <Table className="w-full overflow-x-auto">
+            <TableHeader className=" bg-gray-50 sticky top-0 z-20">
+              {ptTable.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <TableHead
+                      style={getPinnedStyles(header.column)}
+                      key={header.id}
+                      className="border-b-2 border-gray-200 p-0 bg-gray-50"
                     >
-                      {/* Render the cell content using flexRender */}
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-
-          <TableFooter className="bg-gray-100">
-            {ptTable.getFooterGroups().map(footerGroup => (
-              <TableRow key={footerGroup.id}>
-                {footerGroup.headers.map(header => (
-                  <TableHead
-                    key={header.id}
-                    className="h-6 p-0 text-left text-gray-700 border-gray-300">
-
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.footer,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableFooter>
-        </Table>
-      </div>
+                      {/* Render the header content using flexRender */}
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {ptTable.getRowModel().rows.map(row => (
+                <TableRow key={row.id} className="h-6">
+                  {row.getVisibleCells().map(cell => {
+                    const rowType = row.original.rowType
+                    return (
+                      <TableCell
+                        style={getPinnedStyles(cell.column)}
+                        key={`${cell.id}-${row.original.field}`}
+                        className={`p-0 m-0 h-6 border-separate border-gray-200 border-b min-w-40 bg-white ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                      >
+                        {/* Render the cell content using flexRender */}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter className="bg-gray-100">
+              {ptTable.getFooterGroups().map(footerGroup => (
+                <TableRow key={footerGroup.id}>
+                  {footerGroup.headers.map(header => (
+                    <TableHead
+                      key={header.id}
+                      className="h-6 p-0 text-left text-gray-700 border-gray-300">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.footer,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableFooter>
+          </Table>
+        </div>
+      </main>
     </div>
 
   );
 }
 
-
-
 export default LabForm
+

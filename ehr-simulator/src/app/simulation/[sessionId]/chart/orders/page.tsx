@@ -28,7 +28,7 @@ const OrdersPage = () => {
     const dose = getMedDose(medLookup[order.medicationId], order)
     return (
       {
-        displayName: `${medLookup[order.medicationId].genericName} ${brandName}`,
+        title: `${medLookup[order.medicationId].genericName} ${brandName}`,
         route: medLookup[order.medicationId].route,
         dose: dose,
         frequency: order.frequency,

@@ -5,7 +5,8 @@ import {
   Ruler,
   Briefcase,
   Building2,
-  Clock
+  Clock,
+  ChevronDown
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,7 +101,10 @@ export default function DemographicsForm() {
                     <Label>Date of Birth</Label>
                     <div className="flex gap-2">
                       <Select required name="DOBMonth">
-                        <SelectTrigger className="w-full bg-white"><SelectValue placeholder="Month" /></SelectTrigger>
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="Month" />
+                          <ChevronDown />
+                        </SelectTrigger>
                         <SelectContent>
                           {months.map((m, i) => <SelectItem key={i} value={m}>{m}</SelectItem>)}
                         </SelectContent>
@@ -117,7 +121,7 @@ export default function DemographicsForm() {
                     <Label htmlFor="age">Age</Label>
                     <div className="relative">
                       <Input required id="age" name="age" type="number" min={limits.minAge} max={limits.maxAge} className="pr-8" />
-                      <span className="absolute right-3 top-2.5 text-xs text-slate-400">yo</span>
+                      <span className="absolute right-3 top-2.5 text-xs text-slate-400">y.o.</span>
                     </div>
                   </div>
                 </div>
@@ -129,7 +133,11 @@ export default function DemographicsForm() {
                 <div className="space-y-2">
                   <Label htmlFor="codeStatus">Code Status</Label>
                   <Select required name="codeStatus">
-                    <SelectTrigger className="bg-white w-fit"><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectTrigger className="bg-white w-fit">
+                      <SelectValue placeholder="Select..." />
+                      <ChevronDown />
+
+                    </SelectTrigger>
                     <SelectContent>
                       {codeStatuses.map((s, i) => <SelectItem key={i} value={s}>{s}</SelectItem>)}
                     </SelectContent>
@@ -174,7 +182,11 @@ export default function DemographicsForm() {
                   <div className="space-y-2">
                     <Label htmlFor="precautions">Isolation Precautions</Label>
                     <Select required name="precautions">
-                      <SelectTrigger className="bg-white"><SelectValue placeholder="Select..." /></SelectTrigger>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Select..." />
+                        <ChevronDown />
+
+                      </SelectTrigger>
                       <SelectContent>
                         {precautions.map((p, i) => <SelectItem key={i} value={p}>{p}</SelectItem>)}
                       </SelectContent>
@@ -199,7 +211,11 @@ export default function DemographicsForm() {
                     <div className="space-y-2">
                       <Label htmlFor="insurance">Insurance</Label>
                       <Select required name="insurance">
-                        <SelectTrigger className="bg-white"><SelectValue placeholder="Select..." /></SelectTrigger>
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select..." />
+                          <ChevronDown />
+
+                        </SelectTrigger>
                         <SelectContent>
                           {insuranceOptions.map((o, i) => <SelectItem key={i} value={o}>{o}</SelectItem>)}
                         </SelectContent>
@@ -215,7 +231,11 @@ export default function DemographicsForm() {
                     <div className="space-y-2">
                       <Label htmlFor="relationshipStatus">Relationship</Label>
                       <Select required name="relationshipStatus">
-                        <SelectTrigger className="bg-white"><SelectValue placeholder="Select..." /></SelectTrigger>
+                        <SelectTrigger className="bg-white">
+                          <SelectValue placeholder="Select..." />
+                          <ChevronDown />
+
+                        </SelectTrigger>
                         <SelectContent>
                           {relationshipStatuses.map((s, i) => <SelectItem key={i} value={s}>{s}</SelectItem>)}
                         </SelectContent>
@@ -256,7 +276,11 @@ export default function DemographicsForm() {
                 <Label>Attending Provider</Label>
                 <div className="flex gap-2">
                   <Select required name="attendingProviderTitle">
-                    <SelectTrigger className="w-[80px] bg-white"><SelectValue placeholder="Title" /></SelectTrigger>
+                    <SelectTrigger className="w-[80px] bg-white">
+                      <SelectValue placeholder="Title" />
+                      <ChevronDown />
+
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="MD">MD</SelectItem>
                       <SelectItem value="DO">DO</SelectItem>
