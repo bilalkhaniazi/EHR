@@ -97,7 +97,7 @@ const MedAdministrationPanel = ({
         <DialogTrigger asChild>
           <Button
             onClick={() => setIsOpen(true)}
-            className="w-fit h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
+            className="w-fit h-8 bg-lime-500 text-white hover:bg-lime-600 shadow"
             disabled={!hasSelections}
           >
             <PencilLine className="mr-2 h-4 w-4" />

@@ -201,7 +201,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
       {
         labName: "CT R. Foot",
         value: {
-          isCritical: false,
+          isCritical: true,
           displayName: "CT OF THE RIGHT FOOT",
           technique: "Non-contrast axial and sagittal CT images of the right foot were obtained. Multiplanar reconstructions performed.",
           findings: [

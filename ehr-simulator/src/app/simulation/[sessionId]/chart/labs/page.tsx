@@ -22,7 +22,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { ShieldAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { formatTimeFromOffset } from "../charting/page";
 
 // Import Components
@@ -142,9 +142,9 @@ export function LabPage() {
                     {unit && <p className="text-right font-normal pr-2 text-xs tracking-tight text-neutral-400">{unit}</p>}
                   </div>
                 </TooltipTrigger>
-                <TooltipContent className="bg-white shadow border border-gray-200 rounded-xl ml-4 p-2 z-10">
-                  <h1 className="text-md font-semibold">{field}</h1>
-                  <div className="space-y-2">
+                <TooltipContent className="bg-white shadow border border-gray-200 rounded-xl ml-4 z-10">
+                  <h1 className="text-md font-semibold text-black">{field}</h1>
+                  <div className="">
                     <div className="text-xs">
                       <p className="pl-2 text-gray-800 text-xs font-medium">
                         <span className="font-normal">Low: </span>
@@ -195,7 +195,7 @@ export function LabPage() {
 
             return (
               <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex items-center w-full px-2">
-                {isCritical && <ShieldAlert color="#e7000b" size={18} />}
+                {isCritical && <TriangleAlert color="#e7000b" size={18} />}
                 <p className={`w-full text-right text-xs ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}>{initialValue}</p>
               </div>
             );
