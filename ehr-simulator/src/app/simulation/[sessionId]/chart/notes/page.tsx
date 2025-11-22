@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
-import { sampleNotes } from "./components/notesData"; // Assuming sampleNotes is exported from here
+import { NoteData, sampleNotes, SbarNote, StudentNote } from "./components/notesData"; // Assuming sampleNotes is exported from here
 import NursingNoteEntry from "./components/nursingNoteEntry";
 import NoteDisplay from "./components/noteDisplay";
 import { toast } from "sonner";
@@ -12,53 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FilterBadges from "./components/filterBadges";
 import { Skeleton } from "@/components/ui/skeleton";
-
-export interface BaseNote {
-  title: "Nursing Note" | "Progress Note" | "Admission Note" | "Consult Note" | "Student Note";
-  author: string;
-  specialty: string;
-  dateOffset: number;
-  hospitalDay: string;
-  publishTime: string;
-}
-
-export interface SoapNoteData {
-  subjective?: string;
-  objective?: string;
-  assessment: string;
-  plan?: string;
-}
-
-export interface SbarNote {
-  situation: string;
-  background: string;
-  assessment: string;
-  recommendation: string;
-}
-
-interface StudentNote extends BaseNote {
-  title: "Student Note"
-  noteBody: SbarNote
-}
-
-interface NursingNote extends BaseNote {
-  title: "Nursing Note"
-  noteBody: string
-}
-
-interface ProviderNote extends BaseNote {
-  title: "Progress Note" | "Admission Note" | "Consult Note";
-  noteBody: SoapNoteData;
-}
-
-export type NoteData = NursingNote | ProviderNote | StudentNote;
-
-// --- MAIN COMPONENT ---
+import { differenceInMinutes, format } from "date-fns";
 
 const NotePage = () => {
   const [notesData, setNotesData] = useState<NoteData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [sessionStartTime] = useState(new Date().getTime())
 
   const [filteredSpecialties, setFilteredSpecialties] = useState<string[]>([]);
 
@@ -105,33 +65,16 @@ const NotePage = () => {
   };
 
 
-  const displayDate = (dateOffset: number) => {
-    const date = new Date()
-    date.setDate(date.getDate() - dateOffset)
 
-    return date.toLocaleDateString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "2-digit"
-    });
-  };
-
-  const onSubmitNote = async (studentNote: SbarNote) => {
-    const date = new Date()
-    const addedTime = date.toLocaleTimeString("en-GB", {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).replace(":", '');
+  const onSubmitNote = async (sbar: SbarNote) => {
+    const now = differenceInMinutes(new Date(), sessionStartTime)
 
     const newNote: StudentNote = {
       title: "Student Note",
       author: "Current User, RN BSN",
       specialty: "Nursing",
-      dateOffset: 0,
-      hospitalDay: "3",
-      publishTime: addedTime,
-      noteBody: studentNote
+      timeOffset: now,
+      noteBody: sbar
     }
 
     const previousNotes = [...notesData];
@@ -139,7 +82,7 @@ const NotePage = () => {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 500));
-      toast.success(`Nursing note submitted at ${addedTime}`);
+      toast.success(`Nursing note submitted at ${format(now, 'HH:mm')}`);
     } catch (err) {
       setNotesData(previousNotes);
       toast.error(`Failed to submit note: ${err instanceof Error ? err.message : String(err)}`);
@@ -222,7 +165,7 @@ const NotePage = () => {
         ) : (
           filteredNotesData.map((note, index) => {
             return (
-              <NoteDisplay key={index} displayDate={displayDate} note={note} />
+              <NoteDisplay key={index} startTime={sessionStartTime} note={note} />
             )
           })
         )}

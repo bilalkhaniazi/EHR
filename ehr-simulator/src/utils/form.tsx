@@ -91,7 +91,8 @@ export const precautions = [
   "Contact-Enteric",
   "Airbourne",
   "Droplet",
-  "Neutropenic"
+  "Neutropenic",
+  "None"
 ]
 
 export const codeStatuses = [

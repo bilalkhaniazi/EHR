@@ -1,10 +1,8 @@
 export interface BaseNote {
-    title: "Nursing Note" | "Progress Note" | "Admission Note" | "Consult Note" | "Student Note";
+    title: string;
     author: string;
     specialty: string;
-    dateOffset: number;
-    hospitalDay: string;
-    publishTime: string;
+    timeOffset: number; // Minutes before simulation start
 }
 
 export interface SoapNoteData {
@@ -15,64 +13,56 @@ export interface SoapNoteData {
 }
 
 export interface SbarNote {
-  situation: string;
-  background: string;
-  assessment: string;
-  recommendation: string;
+    situation: string;
+    background: string;
+    assessment: string;
+    recommendation: string;
 }
 
-interface StudentNote extends BaseNote {
-    title: "Student Note"
-    noteBody: SbarNote
+export interface StudentNote extends BaseNote {
+    title: "Student Note";
+    noteBody: SbarNote;
 }
 
-interface NursingNote extends BaseNote {
-    title: "Nursing Note"
-    noteBody: string
+interface TextNote extends BaseNote {
+    title: string;
+    noteBody: string;
 }
 
-interface ProviderNote extends BaseNote {
-    title: "Progress Note" | "Admission Note" | "Consult Note" ;
+export interface ProviderNote extends BaseNote {
+    title: string;
     noteBody: SoapNoteData;
 }
 
-export type NoteData = NursingNote | ProviderNote | StudentNote;
+export type NoteData = TextNote | ProviderNote | StudentNote;
 
 
-export const sampleNotes: NoteData [] = [
+export const sampleNotes: NoteData[] = [
     {
         title: "Progress Note",
         author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 0, // Hospital Day 3 (July 18) - Current Day
-        publishTime: "0900", // Matches the initial order time for the "current" day
-        hospitalDay: "3",
+        timeOffset: 0, // Day 3 @ 09:00 (Start)
         noteBody: {
-            subjective: 'Patient continues to report improvement in energy and overall well-being. Foot numbness persists. Right great toe ulcer has no new pain. Patient verbalizes understanding of diabetes management and wound care principles.', 
-            objective:    "Temp: 36.9°C, HR: 78 bpm, BP: 128/76 mmHg, RR: 16/min, SpO₂: 98% RA. Right great toe ulcer: 2x2 cm, clean base, good granulation. Erythema nearly resolved. No drainage or odor. Left foot: no changes. Lungs clear, heart RRR. Daily BMP stable.", 
+            subjective: 'Patient continues to report improvement in energy and overall well-being. Foot numbness persists. Right great toe ulcer has no new pain. Patient verbalizes understanding of diabetes management and wound care principles.',
+            objective: "Temp: 36.9°C, HR: 78 bpm, BP: 128/76 mmHg, RR: 16/min, SpO₂: 98% RA. Right great toe ulcer: 2x2 cm, clean base, good granulation. Erythema nearly resolved. No drainage or odor. Left foot: no changes. Lungs clear, heart RRR. Daily BMP stable.",
             assessment: "60-year-old male, T2DM with infected right great toe ulcer. Significant improvement in local infection signs and systemic symptoms. Glycemic control is improving. Patient is stable and trending towards discharge.",
             plan: "1. Continue current medical regimen and wound care. 2. Continue daily BMP until 3 days are complete. 3. Continue to encourage progressive ambulation and deep breathing. 4. Case management consult to finalize home health services for wound care post-discharge. Daughter contacted and prepared for discharge. 5. Discuss discharge plan with patient, including medication reconciliation, follow-up with PCP and Podiatry, and signs of worsening infection. 6. Aim for discharge by end of day if home health is confirmed and patient remains stable on room air with good functional mobility."
-        
+
         }
     },
     {
         title: "Nursing Note",
         author: "Samantha Bell, RN BSN",
         specialty: "Nursing",
-        dateOffset: 0, 
-        publishTime: "0800",
-        hospitalDay: "3",
+        timeOffset: 60, // Day 3 @ 08:00 (1 hour ago)
         noteBody: "Morning shift: Patient awoke alert and oriented. Vital signs stable, within parameters. BG at 07:00 was 155 mg/dL, administered insulin lispro per sliding scale. Assisted with full bed bath and linen change. Right great toe dressing changed, wound site clean and dry, no foul odor noted. Patient states 'my foot feels a bit better today.' Reinforcement of foot care education provided. Discussed importance of wearing hospital non-skid socks for fall prevention. Tolerated breakfast well."
     },
-
-    // need to convert these notes to new structure
     {
         title: "Consult Note",
         author: "Dr. Lena Khan, DPM",
         specialty: "Podiatry",
-        dateOffset: 1,
-        publishTime: "1400",
-        hospitalDay: "2",
+        timeOffset: 1140, // Day 2 @ 14:00 (19 hours ago)
         noteBody: {
             objective: 'Right great toe ulcer re-assessed. Size unchanged (2x2 cm). Surrounding erythema appears diminished compared to yesterday. No new signs of active infection (no increased drainage, odor, or pain). Wound base remains clean and granulating. Performed sharp debridement of peri-wound callus. Reinforced importance of offloading to patient. Discussed potential for specialized diabetic shoes upon discharge with Case Management. Intervention: Sharp debridement, wound cleansing, offloading reinforcement.',
             assessment: "Right great toe diabetic foot ulcer, improving.",
@@ -83,9 +73,7 @@ export const sampleNotes: NoteData [] = [
         title: "Progress Note",
         author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 1,
-        publishTime: "1100",
-        hospitalDay: "2",
+        timeOffset: 1320, // Day 2 @ 11:00 (22 hours ago)
         noteBody: {
             subjective: 'Patient reports decreased fatigue, improved energy. Numbness in feet remains unchanged. Right great toe ulcer without new pain. Reports good appetite today, tolerating diabetic diet. No fever or chills.',
             objective: "Vitals (10:00): Temp: 36.8°C, HR: 80 bpm, BP: 130/78 mmHg, RR: 16/min, SpO₂: 97% RA. Physical Exam: Right great toe ulcer: mild erythema, no purulent drainage. Clean base. Distal pulses strong. Left foot: no changes. Lungs clear. Heart RRR. Labs (09:00): BMP stable. HbA1c returned at 9.8% (confirming poor glycemic control).",
@@ -97,18 +85,14 @@ export const sampleNotes: NoteData [] = [
         title: "Nursing Note",
         author: "Chris Johnson, RN",
         specialty: "Nursing",
-        dateOffset: 1,
-        publishTime: "0730",
-        hospitalDay: "2",
+        timeOffset: 1530, // Day 2 @ 07:30 (25.5 hours ago)
         noteBody: "Overnight: Patient rested well. Vital signs stable, within parameters. BG at 06:00 was 188 mg/dL, administered insulin lispro per sliding scale. Assisted with morning hygiene and partial bed bath. Patient ambulated to bathroom with 1-person assist. Wound dressing dry and intact. No new complaints of pain or dyspnea. Patient states he is 'feeling a bit better.' Continues to verbalize understanding of MRSA precautions and call light use. Pain: 2/10 (managed with Gabapentin) Activity: Ambulated with 1-person assist."
     },
     {
         title: "Consult Note",
         author: "Dr. Lena Khan, DPM",
         specialty: "Podiatry",
-        dateOffset: 2,
-        publishTime: "1500",
-        hospitalDay: "1",
+        timeOffset: 2520, // Day 1 @ 15:00 (42 hours ago)
         noteBody: {
             subjective: 'Patient reports chronic foot numbness. Ulcer present for approx. 1 week, gradual onset of redness. Denies purulent drainage at home. Reports difficulty checking foot due to limited mobility. Primary concern is healing and preventing further complications.',
             objective: "Foot Exam: Right Foot: Great toe, dorsal aspect, 2x2 cm ulcer. Erythema extending 1 cm from wound edge. No fluctuance. Surrounding skin dry, intact. Pulse (DP/PT): 2+ bilaterally. Capillary refill: <3 sec. Protective sensation absent. Left Foot: Intact skin, no open wounds. Protective sensation diminished globally. Nails: Hypertrophic, mycotic on bilateral great toes. Foot deformities: mild hammertoes bilaterally. Wound: 2x2 cm, deep to dermis, mild erythema, no purulence, faint odor. Base clean, granulating. Probe to bone negative.",
@@ -120,18 +104,14 @@ export const sampleNotes: NoteData [] = [
         title: "Nursing Note",
         author: "Maria Sanchez, RN BSN",
         specialty: "Nursing",
-        dateOffset: 2,
-        publishTime: "1130",
-        hospitalDay: "1",
+        timeOffset: 2730, // Day 1 @ 11:30 (45.5 hours ago)
         noteBody: "Patient admitted from ED with right great toe ulcer. Contact precautions initiated per orders. Oriented to room, call light, and precautions. Initial vital signs stable. BG 275 mg/dL, administered insulin lispro per sliding scale. Assisted patient with changing into hospital gown. Discussed basic foot safety and call light use. Patient expressed understanding of most instructions. Daughter contacted and updated on admission. Wound dressing observed: clean, dry, intact post-ED application. Pain: 3/10 (neuropathic baseline) Activity: Assisted with ambulation to bathroom, steady with help."
     },
     {
         title: "Admission Note",
         author: "Dr. John Smith, MD",
         specialty: "Internal Medicine",
-        dateOffset: 2,
-        publishTime: "1000",
-        hospitalDay: "1",
+        timeOffset: 2820, // Day 1 @ 10:00 (47 hours ago)
         noteBody: {
             subjective: '60-year-old male with PMH of T2DM, HTN, peripheral neuropathy. Presents with non-healing right great toe ulcer over past week, associated with increasing redness. Reports feeling fatigued and bilateral foot numbness. Admits to inconsistent insulin use (missed doses for last 3 days). Denies fever, chills, or new pain in foot, but states baseline neuropathic pain is present. Reports poor dietary adherence, eating prepackaged foods.',
             objective: "Vitals (09:30): Temp: 37.0°C, HR: 88 bpm, BP: 145/85 mmHg, RR: 18/min, SpO₂: 97% RA. BG: 275 mg/dL (on admission). Physical Exam: Alert, oriented x3. Right great toe: 2x2 cm ulcer with mild surrounding erythema, no purulent drainage noted. Warm to touch. Distal pulses palpable (DP/PT 2+ bilaterally). Monofilament testing: absent sensation over right great toe and plantar aspect of foot. Left foot: intact skin, decreased sensation. Nails: Hypertrophic, mycotic on bilateral great toes. Foot deformities: mild hammertoes bilaterally. Labs (09:45): Initial BMP drawn. HbA1c pending. Wound culture from right great toe sent.",

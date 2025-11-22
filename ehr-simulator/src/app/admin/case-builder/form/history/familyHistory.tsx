@@ -1,9 +1,10 @@
 'use client'
-import { ChevronDown, Plus, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { useState, useRef } from 'react';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 
 export interface FamilyHistoryData {
   relation: string;
@@ -14,124 +15,105 @@ interface FamilyHistoryProps {
   name?: string;
   value: FamilyHistoryData[];
   onChange: (entries: FamilyHistoryData[]) => void;
-  labelText?: string;
-  placeholder?: string;
-  notesPlaceholder?: string;
 }
 
 const relations: string[] = [
-
-  'Paternal Grandmother',
-  'Maternal Grandmother',
-  'Paternal Grandfather',
-  'Maternal Grandfather',
-  'Maternal Aunt',
-  'Paternal Aunt',
-  'Maternal Uncle',
-  'Paternal  Uncle',
-  'Maternal Cousin',
-  'Paternal Cousin',
-  'Mother',
-  'Father',
-  'Brother',
-  'Sister',
+  'Mother', 'Father', 'Brother', 'Sister',
+  'Paternal Grandmother', 'Paternal Grandfather', 'Paternal Aunt', 'Paternal Uncle', 'Paternal Cousin',
+  'Maternal Grandmother', 'Maternal Grandfather', 'Maternal Aunt', 'Maternal Uncle', 'Maternal Cousin',
 ];
 
-export function FamilyHistory({
-  name,
-  value,
-  onChange,
-  labelText = "Family History:",
-  placeholder = "Select relation...",
-  notesPlaceholder = "Enter condition..."
-}: FamilyHistoryProps) {
+export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
   const [relation, setRelation] = useState('');
   const [condition, setCondition] = useState('');
 
+  // Ref to focus back on the select after adding
+  const selectTriggerRef = useRef<HTMLButtonElement>(null);
 
   const addEntry = (): void => {
-    const newEntry: FamilyHistoryData = {
-      relation: relation,
-      condition: condition
-    };
-    onChange([...value, newEntry]);
-  };
+    if (!relation || !condition) return; // Prevent empty adds
 
-  // const updateEntry = (index: number, field: keyof FamilyHistoryData, val: string): void => {
-  //   onChange(
-  //     value.map((entry, i) =>
-  //       i === index ? { ...entry, [field]: val } : entry
-  //     )
-  //   );
-  // };
+    const newEntry: FamilyHistoryData = { relation, condition };
+    onChange([...value, newEntry]);
+
+    // Reset fields
+    setRelation('');
+    setCondition('');
+    // Optional: Focus back for rapid entry
+    // selectTriggerRef.current?.focus(); 
+  };
 
   const deleteEntry = (index: number): void => {
     onChange(value.filter((_, i) => i !== index));
   };
 
-
   return (
-    <div className="mb-2">
+    <div className="space-y-3">
       {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
-      <div className="flex items-center">
-        <label className="case-form-label">{labelText}</label>
-        <div className="flex flex-1 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Relation</label>
-            <Select
-              value={relation}
-              onValueChange={setRelation}
-              defaultValue='Select relation...'
-            >
-              <SelectTrigger className="w-fit !h-7">
-                <SelectValue placeholder={placeholder} />
-                <ChevronDown />
-              </SelectTrigger>
-              <SelectContent>
-                {relations.map((relation) => (
-                  <SelectItem key={relation} value={relation}>
-                    {relation}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Medical Condition</label>
-            <input
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-              placeholder={notesPlaceholder}
-              className="flex w-full rounded-md h-8 shadow-xs border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-            />
-
-          </div>
-          <Button
-            type="button"
-            onClick={addEntry}
-            variant="outline"
-            size="sm"
-            className="inline-flex h-8 mt-6 font-normal items-center gap-2"
-          >
-            Add
-            <Plus className="h-4 w-4" />
-          </Button>
-
+      <div className="flex flex-col sm:flex-row gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-200">
+        <div className="space-y-1.5 flex-1 w-full">
+          <label className="text-xs font-medium text-slate-500">Relation</label>
+          <Select value={relation} onValueChange={setRelation}>
+            <SelectTrigger ref={selectTriggerRef} className="bg-white h-9">
+              <SelectValue placeholder="Select..." />
+            </SelectTrigger>
+            <SelectContent>
+              {relations.map((r) => (
+                <SelectItem key={r} value={r}>{r}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        <div className="space-y-1.5 flex-[2] w-full">
+          <label className="text-xs font-medium text-slate-500">Condition / Disease</label>
+          <Input
+            value={condition}
+            onChange={(e) => setCondition(e.target.value)}
+            placeholder="e.g. Type 2 Diabetes, Hypertension"
+            className="bg-white h-9"
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEntry())}
+          />
+        </div>
+
+        <Button
+          type="button"
+          onClick={addEntry}
+          disabled={!relation || !condition}
+          className="h-9 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-fit"
+        >
+          <Plus className="h-4 w-4 mr-1" /> Add
+        </Button>
       </div>
 
-      {/* Display a badge for each input */}
-      <div className="flex flex-wrap gap-2 mt-2 ml-4">
-        {value.map((item: FamilyHistoryData, index: number) => (
-          <Badge key={index} variant="secondary" className="pl-4 py-1.5 flex items-center gap-1 shadow">
-            {item.relation}: {item.condition}
-            <button className="cursor-pointer" type="button" onClick={() => deleteEntry(index)}>
-              <X className="w-4 h-4 ml-2" />
-            </button>
-          </Badge>
-        ))}
-      </div>
-    </div >
+      {/* Results List */}
+      {value.length > 0 ? (
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableBody>
+              {value.map((item, index) => (
+                <TableRow key={index} className="hover:bg-slate-50">
+                  <TableCell className="font-medium w-1/3 py-2">{item.relation}</TableCell>
+                  <TableCell className="py-2 text-slate-600">{item.condition}</TableCell>
+                  <TableCell className="text-right py-2 w-12">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-slate-400 hover:text-red-600"
+                      onClick={() => deleteEntry(index)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <p className="text-xs text-slate-400 italic pl-1">No family history recorded.</p>
+      )}
+    </div>
   );
 }
