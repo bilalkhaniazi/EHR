@@ -17,7 +17,6 @@ interface MultiSelectProps {
   placeholder?: string;
   searchPlaceholder?: string;
   emptyMessage?: string;
-  onChange?: (values: string[]) => void;
   defaultValues?: string[];
 }
 
@@ -27,7 +26,6 @@ export function MultiSelect({
   placeholder = "Select items...",
   searchPlaceholder = "Search...",
   emptyMessage = "No items found.",
-  onChange = () => { },
   defaultValues = [],
   labelText
 }: MultiSelectProps) {
@@ -38,14 +36,12 @@ export function MultiSelect({
     if (!selectedValues.includes(currentValue)) {
       const newValues = [...selectedValues, currentValue];
       setSelectedValues(newValues);
-      onChange(newValues);
     }
   };
 
   const handleRemove = (valueToRemove: string): void => {
     const newValues = selectedValues.filter((value) => value !== valueToRemove);
     setSelectedValues(newValues);
-    onChange(newValues);
   };
 
   // Filter out already selected items from the list

@@ -79,12 +79,11 @@ export function FamilyHistory({
           <div className="space-y-2">
             <label className="text-sm font-medium">Relation</label>
             <Select
-              required
               value={relation}
               onValueChange={setRelation}
               defaultValue='Select relation...'
             >
-              <SelectTrigger className="w-fit !h-8 sm:h-7 lg:h-7">
+              <SelectTrigger className="w-fit !h-7">
                 <SelectValue placeholder={placeholder} />
                 <ChevronDown />
               </SelectTrigger>
@@ -101,7 +100,6 @@ export function FamilyHistory({
           <div className="space-y-2">
             <label className="text-sm font-medium">Medical Condition</label>
             <input
-              required
               value={condition}
               onChange={(e) => setCondition(e.target.value)}
               placeholder={notesPlaceholder}

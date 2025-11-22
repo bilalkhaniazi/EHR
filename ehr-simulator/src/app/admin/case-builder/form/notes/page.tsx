@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import SubmitButton from "../../components/submitButton";
 import InfoTooltip from "../../components/helpTooltip";
 import { useRouter } from "next/navigation";
+import { categories, specialties } from "@/utils/form"
 
 const TextNoteContentDisplay = (note: TextNote) => {
   return (
@@ -135,52 +136,6 @@ const NoteDisplay = ({ note, onDelete }: { note: TextNote | SoapNote, onDelete: 
 const NotesForm = () => {
   const router = useRouter();
 
-  const categories = [
-    "Admission",
-    "Consent",
-    "Consult",
-    "Discharge",
-    "History & Physical",
-    "Nursing",
-    "Post-op",
-    "Pre-op",
-    "Progress",
-    "Rapid Response",
-    "Telehealth"
-  ]
-  const specialties = [
-    "Cardiology",
-    "Care Management",
-    "Critical Care",
-    "Dermatology",
-    "ENT",
-    "Emergency Medicine",
-    "Family Medicine",
-    "Gastroenterology",
-    "General Surgery",
-    "Geriatrics",
-    "Hematology",
-    "Infectious Disease",
-    "Internal Medicine",
-    "Neurology",
-    "Nursing",
-    "Obstetrics",
-    "Occupational Therapy",
-    "Oncology",
-    "Orthopedics",
-    "Pathology",
-    "Pediatrics",
-    "Physical Therapy",
-    "Psychiatry",
-    "Pulmonology",
-    "Radiology",
-    "Respiratory Therapy",
-    "SLP",
-    "Social Work",
-    "Spiritual Care",
-    "Urology"
-  ]
-
   const [notes, setNotes] = useState<(TextNote | SoapNote)[]>([]);
 
   const [category, setCategory] = useState<string>("")
@@ -288,7 +243,7 @@ const NotesForm = () => {
     const payload = Object.fromEntries(formData);
     console.log(payload);
 
-    router.push('/admin/case-builder/form/labs')
+    router.push('/admin/case-builder/form/orders')
   }
 
   return (
