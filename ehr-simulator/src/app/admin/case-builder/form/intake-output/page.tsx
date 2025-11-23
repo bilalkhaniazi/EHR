@@ -167,9 +167,7 @@ export default function IntakeOutputForm() {
         <form id="demo-form" onSubmit={handleSubmit} className="w-full max-w-7xl mx-auto space-y-6 pb-20">
           <div className="fixed top-6 right-8 z-10">
             <SubmitButton buttonText="Save & Continue" />
-            {/* This ensures the button is positioned relative to the overall form layout */}
           </div>
-          {/* Use max-w-* classes to constrain the content width to match the column width of the NotesForm */}
           <div className="flex flex-col lg:max-w-3xl 2xl:max-w-4xl w-full">
             <input name='intake-output' type='hidden' value={JSON.stringify(intakeOutput)} />
 
