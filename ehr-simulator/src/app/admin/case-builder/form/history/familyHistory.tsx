@@ -1,5 +1,5 @@
 'use client'
-import { Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -57,6 +57,7 @@ export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
           <Select value={relation} onValueChange={setRelation}>
             <SelectTrigger ref={selectTriggerRef} className="bg-white h-9">
               <SelectValue placeholder="Select..." />
+              <ChevronDown />
             </SelectTrigger>
             <SelectContent>
               {relations.map((r) => (

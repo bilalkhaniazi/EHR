@@ -118,7 +118,7 @@ export default function Mar() {
     return medicationOrders.filter(order => {
       const med = medsById[order.medicationId];
       const matchesRoute = medFilters.length === 0 || medFilters.includes(med.route);
-      const matchesPRN = !isPRN || order.frequency === "PRN";
+      const matchesPRN = !isPRN || order.priority === "PRN";
 
       return matchesRoute && matchesPRN;
     });
@@ -203,7 +203,7 @@ export default function Mar() {
           aria-label="Toggle bookmark"
           size="sm"
           variant="outline"
-          className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-22 bg-white h-8 mb-2 text-xs"
+          className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-22 bg-white h-8 mb-2 text-xs"
         >
           <PillBottle />
           PRNs

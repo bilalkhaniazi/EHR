@@ -1,12 +1,3 @@
-// export interface OrderData {
-//   displayName: string;
-//   details: string;
-//   status: string;
-//   orderingProvider: string;
-//   recurring?: boolean
-//   [key: string]: string | boolean | undefined;
-// }
-
 interface OrderType {
   category?: "Nursing" | "Respiratory" | "Laboratory" | "Consult"
   title: string

@@ -17,6 +17,11 @@ export interface OralMedication extends BaseMedication {
   takeWithFood?: boolean;
 }
 
+export interface SublingualMedication extends BaseMedication {
+  route: "SL";
+  form: "tablet" | "tab";
+}
+
 export interface IvMedication extends BaseMedication {
   route: "IV";
   // infusionRate?: number;
@@ -61,7 +66,8 @@ export type AllMedicationTypes =     // route property acts as discriminator
   InjectableMedication |
   TopicalMedication |
   InhalerMedication |
-  InsulinMedication
+  InsulinMedication |
+  SublingualMedication
 
 
 // Each order is associated with one medication and details how, when, why it should be given  
@@ -70,7 +76,7 @@ export interface MedicationOrder {
   medicationId: string;
   unitsOrdered: number;
   frequency: string;
-  priority: "STAT" | "NOW" | "Routine";
+  priority: "STAT" | "NOW" | "Routine" | 'PRN';
   instructions?: string;
   indication: string;
   status: "active" | "completed" | "Held" | "cancelled";
@@ -308,13 +314,10 @@ export const allMedications: AllMedicationTypes[] = [
     genericName: "morphine sulfate",
     brandName: "Morphine IV",
     route: "IV",
-    strength: 10,
+    strength: 4,
     strengthUnit: "mg",
     orderableUnit: "Ampule",
     administrationFrequencies: ["PRN", "Q4H"],
-    infusionRateUnit: "mL/hr",
-    diluent: "NS 0.9%",
-    totalVolume: 50,
     infusionDurationHours: 1,
     isContinuous: false,
   },
@@ -415,19 +418,282 @@ export const allMedications: AllMedicationTypes[] = [
     administrationFrequencies: ["Once", "Q6H"],
     isContinuous: false,
   },
+  {
+    id: "medNitroglycerin04mgSl",
+    genericName: "nitroglycerin",
+    brandName: 'Nitrostat',
+    route: "SL",
+    strength: 0.4,
+    strengthUnit: "mg",
+    orderableUnit: "Tab",
+    administrationFrequencies: ["PRN"],
+    form: "tab",
+  },
+  {
+    id: 'medLidocaineInDex5',
+    genericName: "lidocaine",
+    route: 'IV',
+    strength: 2,
+    strengthUnit: 'mg',
+    orderableUnit: "Bag",
+    administrationFrequencies: ["Q6H", "Q8H"],
+    infusionRateUnit: 'mL/hr',
+    diluent: "dextrose 5.0%",
+    totalVolume: 500,
+    infusionDurationHours: 10,
+    isContinuous: false,
+  },
+  {
+    id: "medDopamine400InDex5",
+    genericName: 'dopamine',
+    route: 'IV',
+    strength: 400,
+    strengthUnit: 'mg',
+    orderableUnit: "Bag",
+    infusionRateUnit: "mL/hr",
+    diluent: "dextrose 5.0%",
+    totalVolume: 250,
+    isContinuous: false,
+    administrationFrequencies: []
+  },
+  {
+    id: "medAtropinePush",
+    genericName: "atropine sulfate",
+    route: "IV",
+    strength: 0.5,
+    strengthUnit: "mg",
+    orderableUnit: "Syringe",
+    administrationFrequencies: ["Once", "Q6H"],
+    isContinuous: false,
+  },
+  {
+    id: "medDextrose5inNS45",
+    genericName: "dextrose 5% in NS 0.45%",
+    route: "IV",
+    strength: 1000,
+    strengthUnit: 'mL',
+    orderableUnit: 'Bag',
+    infusionRateUnit: 'mL/hr',
+    isContinuous: true,
+    administrationFrequencies: []
+  },
+  {
+    id: "medAcetaminophenOral325",
+    genericName: "acetaminophen",
+    brandName: "Tylenol",
+    route: "PO",
+    strength: 325,
+    strengthUnit: "mg",
+    orderableUnit: "Tablet",
+    administrationFrequencies: ["PRN"], // As needed
+    form: "tablet",
+    canBeCrushedOrSplit: true,
+    takeWithFood: false,
+  },
+  {
+    id: "medCefazolin1000",
+    genericName: "cefazolin",
+    brandName: "Ancef",
+    route: "IV",
+    strength: 1000,
+    strengthUnit: "mg",
+    orderableUnit: 'Vial',
+    administrationFrequencies: [],
+    isContinuous: false
+  }
 ];
 
-// interface IvMedication extends BaseMedication {
-//   route: "IV"; 
-//   infusionRate?: number;
-//   infusionRateUnit?: "mL/hr" | "mg/hr" | "units/hr";
-//   diluent?: string; 
-//   totalVolume?: number; 
-//   infusionDurationHours?: number;
-//   isContinuous: boolean;
-// }
+// const pilotSimMeds: AllMedicationTypes[] = [
+//   {
+//     id: "medNormalSaline09Iv",
+//     genericName: "normal saline 0.9%",
+//     route: "IV",
+//     strength: 1000,
+//     strengthUnit: "mL",
+//     orderableUnit: "Bag",
+//     administrationFrequencies: ["Q6H", "Q8H"],
+//     infusionRateUnit: 'mL/hr',
+//     totalVolume: 1000,
+//     infusionDurationHours: 10,
+//     isContinuous: true,
+//   },
+//   {
+//     id: "medMetoprololIvPush",
+//     genericName: "metoprolol tartate",
+//     brandName: "Lopressor",
+//     route: "IV",
+//     strength: 10,
+//     strengthUnit: "mg",
+//     orderableUnit: "Vial",
+//     administrationFrequencies: ["Once", "Q6H"],
+//     isContinuous: false,
+//   },
+//   {
+//     id: "medAcetaminophenOral650",
+//     genericName: "acetaminophen",
+//     brandName: "Tylenol",
+//     route: "PO",
+//     strength: 650,
+//     strengthUnit: "mg",
+//     orderableUnit: "Tablet",
+//     administrationFrequencies: ["PRN"], // As needed
+//     form: "tablet",
+//     canBeCrushedOrSplit: true,
+//     takeWithFood: false,
+//   },
+//   {
+//     id: "medNitroglycerin04mgSl",
+//     genericName: "nitroglycerin",
+//     brandName: 'Nitrostat',
+//     route: "SL",
+//     strength: 0.4,
+//     strengthUnit: "mg",
+//     orderableUnit: "Tab",
+//     administrationFrequencies: ["PRN"],
+//     form: "tab",
+//   },
+//   {
+//     id: "medMorphineIv10",
+//     genericName: "morphine sulfate",
+//     brandName: "Morphine IV",
+//     route: "IV",
+//     strength: 4,
+//     strengthUnit: "mg",
+//     orderableUnit: "Ampule",
+//     administrationFrequencies: ["PRN", "Q4H"],
+//     infusionDurationHours: 1,
+//     isContinuous: false,
+//   },
+//   {
+//     id: 'medLidocaineInDex5',
+//     genericName: "lidocaine",
+//     route: 'IV',
+//     strength: 2,
+//     strengthUnit: 'mg',
+//     orderableUnit: "Bag",
+//     administrationFrequencies: ["Q6H", "Q8H"],
+//     infusionRateUnit: 'mL/hr',
+//     diluent: "dextrose 5.0%",
+//     totalVolume: 500,
+//     infusionDurationHours: 10,
+//     isContinuous: false,
+//   },
+//   {
+//     id: "medDopamine400InDex5",
+//     genericName: 'dopamine',
+//     route: 'IV',
+//     strength: 400,
+//     strengthUnit: 'mg',
+//     orderableUnit: "Bag",
+//     infusionRateUnit: "mL/hr",
+//     diluent: "dextrose 5.0%",
+//     totalVolume: 250,
+//     isContinuous: false,
+//     administrationFrequencies: []
+//   },
+//   {
+//     id: "medAtropinePush",
+//     genericName: "atropine sulfate",
+//     route: "IV",
+//     strength: 0.5,
+//     strengthUnit: "mg",
+//     orderableUnit: "Syringe",
+//     administrationFrequencies: ["Once", "Q6H"],
+//     isContinuous: false,
+//   },
+//   {
+//     id: "medDextrose5inNS45",
+//     genericName: "dextrose 5% in NS 0.45%",
+//     route: "IV",
+//     strength: 1000,
+//     strengthUnit: 'mL',
+//     orderableUnit: 'Bag',
+//     infusionRateUnit: 'mL/hr',
+//     isContinuous: true,
+//     administrationFrequencies: []
+//   },
+//   {
+//     id: "medAcetaminophenOral325",
+//     genericName: "acetaminophen",
+//     brandName: "Tylenol",
+//     route: "PO",
+//     strength: 325,
+//     strengthUnit: "mg",
+//     orderableUnit: "Tablet",
+//     administrationFrequencies: ["PRN"], // As needed
+//     form: "tablet",
+//     canBeCrushedOrSplit: true,
+//     takeWithFood: false,
+//   },
+//   {
+//     id: "medCefazolin1000",
+//     genericName: "cefazolin",
+//     brandName: "Ancef",
+//     route: "IV",
+//     strength: 1000,
+//     strengthUnit: "mg",
+//     orderableUnit: 'Vial',
+//     administrationFrequencies: [],
+//     isContinuous: false
+//   }
+// ]
 
 export const medicationOrders: MedicationOrder[] = [
+  {
+    id: 'orderCefazolin1000',
+    medicationId: 'medCefazolin1000',
+    unitsOrdered: 1,
+    dose: 1000,
+    frequency: "Q6hr",
+    priority: "Routine",
+    indication: 'Infx',
+    status: 'active',
+    orderingProvider: 'Dr. Samuel Wanjouri'
+  },
+  {
+    id: "orderDextrose5inNS45",
+    medicationId: "medDextrose5inNS45",
+    unitsOrdered: 1,
+    dose: 1000,
+    frequency: 'Continuous',
+    priority: "Routine",
+    indication: '??',
+    status: "active",
+    orderingProvider: "Dr. Nigel Amos"
+  },
+  {
+    id: "orderAtropinePush",
+    medicationId: "medAtropinePush",
+    unitsOrdered: 1,
+    dose: 0.5,
+    frequency: 'Q1hr',
+    priority: "PRN",
+    indication: "Bradycardia",
+    status: 'active',
+    orderingProvider: 'Dr. Beatrice Chebet'
+  },
+  {
+    id: "orderDopamine400InDex5",
+    medicationId: 'medDopamine400InDex5',
+    unitsOrdered: 1,
+    dose: 400,
+    frequency: 'Once',
+    priority: "Routine",
+    indication: "Bradycardia",
+    status: 'active',
+    orderingProvider: "Dr. Hicham Makloufi"
+  },
+  {
+    id: 'orderLidocaineInDex5',
+    medicationId: 'medLidocaineInDex5',
+    unitsOrdered: 1,
+    dose: 2,
+    frequency: 'Continuous',
+    priority: 'Routine',
+    indication: 'PVCs',
+    status: 'active',
+    orderingProvider: 'Dr. Muhammad Al-Berzi'
+  },
   {
     id: "orderMetoprololIvPush",
     medicationId: "medMetoprololIvPush",
@@ -448,6 +714,18 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "STAT",
     indication: "Asthma",
     status: "active",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderAcetaminophenOral325",
+    medicationId: "medAcetaminophenOral325",
+    dose: 325,
+    unitsOrdered: 1,
+    frequency: "Q6hr",
+    priority: "PRN",
+    status: "active",
+    indication: "Pain",
+    instructions: "For pain of 4/10 or greater. Max dose of 8 tablets per 24 hours.",
     orderingProvider: "Dr. Rahul Gupta"
   },
   {
@@ -519,7 +797,7 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     infusionRate: 250,
     status: "active",
-    indication: "Severe Bacterial Infection",
+    indication: "Infx",
     instructions: "Infuse over 2 hours. Monitor for Red Man Syndrome. Obtain trough level before 4th dose.",
     orderingProvider: "Dr. Rahul Gupta"
   },
@@ -540,8 +818,8 @@ export const medicationOrders: MedicationOrder[] = [
     medicationId: "medAcetaminophenOral650",
     dose: 650,
     unitsOrdered: 1,
-    frequency: "PRN",
-    priority: "Routine",
+    frequency: "Q6hr",
+    priority: "PRN",
     status: "active",
     indication: "Pain",
     instructions: "For pain of 4/10 or greater. Max dose of 4 tablets per 24 hours.",
@@ -586,8 +864,8 @@ export const medicationOrders: MedicationOrder[] = [
     medicationId: "medHydrocortisoneCream",
     unitsOrdered: 1, // Represents "one application"
     dose: 1,
-    frequency: "PRN",
-    priority: "Routine",
+    frequency: "Q4hr",
+    priority: "PRN",
     status: "active",
     indication: "Itching",
     instructions: "Apply thin layer to affected area as needed for rash or itching.",
@@ -634,58 +912,57 @@ export const medicationOrders: MedicationOrder[] = [
     medicationId: "medMorphineIv10",
     unitsOrdered: 0.2, // 0.2 of the 10mg Ampule = 2mg dose
     dose: 2,
-    frequency: "PRN",
-    priority: "Routine",
-    infusionRate: 50, // 50mL over 1hr = 50mL/hr (for a piggyback)
+    frequency: "Q3hr",
+    priority: "PRN",
     status: "active",
     indication: "Severe Pain",
-    instructions: "For pain 7-10/10. Reassess pain in 30 minutes. Dilute in 50mL NS.",
+    instructions: "For pain 7-10. Reassess pain in 30 minutes.",
     orderingProvider: "Dr. Rahul Gupta"
   },
-  {
-    id: "orderNitroPatchTd",
-    medicationId: "medNitroPatchTd",
-    unitsOrdered: 1, // 1 Patch
-    dose: 0.4,
-    frequency: "Daily",
-    priority: "Routine",
-    status: "active",
-    indication: "Angina Prophylaxis",
-    instructions: "Apply one patch daily in AM. Remove at night (12-hour nitrate-free interval). Rotate sites.",
-    orderingProvider: "Dr. Rahul Gupta"
-  },
-  {
-    id: "orderOndansetronIv4",
-    medicationId: "medOndansetronIv4",
-    unitsOrdered: 1, // 1 Vial
-    frequency: "PRN",
-    priority: "Routine",
-    infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
-    dose: 4,
-    status: "active",
-    indication: "Nausea/Vomiting",
-    instructions: "As needed for nausea.",
-    orderingProvider: "Dr. Rahul Gupta"
-  },
-  {
-    id: "orderCeftriaxoneIm250",
-    medicationId: "medCeftriaxoneIm250",
-    unitsOrdered: 1, // 1 Vial
-    dose: 250,
-    frequency: "Once",
-    priority: "STAT",
-    status: "active",
-    indication: "Bacterial Infection",
-    instructions: "Reconstitute with 1.8 mL sterile water and administer IM.",
-    orderingProvider: "Dr. Rahul Gupta"
-  },
+  // {
+  //   id: "orderNitroPatchTd",
+  //   medicationId: "medNitroPatchTd",
+  //   unitsOrdered: 1, // 1 Patch
+  //   dose: 0.4,
+  //   frequency: "Daily",
+  //   priority: "Routine",
+  //   status: "active",
+  //   indication: "Angina Prophylaxis",
+  //   instructions: "Apply one patch daily in AM. Remove at night (12-hour nitrate-free interval). Rotate sites.",
+  //   orderingProvider: "Dr. Rahul Gupta"
+  // },
+  // {
+  //   id: "orderOndansetronIv4",
+  //   medicationId: "medOndansetronIv4",
+  //   unitsOrdered: 1, // 1 Vial
+  //   frequency: "Q6hr",
+  //   priority: "RN",
+  //   infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
+  //   dose: 4,
+  //   status: "active",
+  //   indication: "Nausea/Vomiting",
+  //   instructions: "As needed for nausea.",
+  //   orderingProvider: "Dr. Rahul Gupta"
+  // },
+  // {
+  //   id: "orderCeftriaxoneIm250",
+  //   medicationId: "medCeftriaxoneIm250",
+  //   unitsOrdered: 1, // 1 Vial
+  //   dose: 250,
+  //   frequency: "Once",
+  //   priority: "STAT",
+  //   status: "active",
+  //   indication: "Bacterial Infection",
+  //   instructions: "Reconstitute with 1.8 mL sterile water and administer IM.",
+  //   orderingProvider: "Dr. Rahul Gupta"
+  // },
   {
     id: "orderEpinephrineIm1mg",
     medicationId: "medEpinephrineIm1mg",
-    unitsOrdered: 1, // 1 Auto-Injector
+    unitsOrdered: 1,
     dose: 1,
-    frequency: "PRN",
-    priority: "STAT",
+    frequency: "Q12hr",
+    priority: "PRN",
     status: "active",
     indication: "Anaphylaxis",
     instructions: "Administer immediately for signs of severe allergic reaction (wheezing, hives, swelling).",
@@ -701,6 +978,17 @@ export const medicationOrders: MedicationOrder[] = [
     infusionRate: 100, // 100mL over 1hr = 100mL/hr
     status: "active",
     indication: "Severe Inflammation",
+    orderingProvider: "Dr. Rahul Gupta"
+  },
+  {
+    id: "orderNitroglycerin04mgSl",
+    medicationId: "medNitroglycerin04mgSl",
+    unitsOrdered: 1,
+    dose: 0.4,
+    frequency: "Q5min",
+    priority: "PRN",
+    status: "active",
+    indication: "Angina",
     orderingProvider: "Dr. Rahul Gupta"
   }
 ]

@@ -120,7 +120,7 @@ export default function DemographicsForm() {
                   <div className="space-y-2">
                     <Label htmlFor="age">Age</Label>
                     <div className="relative">
-                      <Input required id="age" name="age" type="number" min={limits.minAge} max={limits.maxAge} className="pr-8" />
+                      <Input required id="age" name="age" type="number" min={limits.minAge} max={limits.maxAge} className="pr-12" />
                       <span className="absolute right-3 top-2.5 text-xs text-slate-400">y.o.</span>
                     </div>
                   </div>
@@ -161,11 +161,11 @@ export default function DemographicsForm() {
                       <Label>Height</Label>
                       <div className="flex gap-2">
                         <div className="relative flex-1">
-                          <Input required name="heightFeet" type="number" min={limits.minFeet} max={limits.maxFeet} className="pr-6" />
+                          <Input required name="heightFeet" type="number" min={limits.minFeet} max={limits.maxFeet} className="pr-8" />
                           <span className="absolute right-3 top-2.5 text-xs text-slate-400">ft</span>
                         </div>
                         <div className="relative flex-1">
-                          <Input required name="heightInches" type="number" min={limits.minInches} max={limits.maxInches} className="pr-6" />
+                          <Input required name="heightInches" type="number" min={limits.minInches} max={limits.maxInches} className="pr-8" />
                           <span className="absolute right-3 top-2.5 text-xs text-slate-400">in</span>
                         </div>
                       </div>
@@ -276,7 +276,7 @@ export default function DemographicsForm() {
                 <Label>Attending Provider</Label>
                 <div className="flex gap-2">
                   <Select required name="attendingProviderTitle">
-                    <SelectTrigger className="w-[80px] bg-white">
+                    <SelectTrigger className="bg-white w-fit">
                       <SelectValue placeholder="Title" />
                       <ChevronDown />
 

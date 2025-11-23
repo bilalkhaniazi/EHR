@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { SidebarProvider } from "@/components/ui/sidebar";
+// import { SidebarProvider } from "@/components/ui/sidebar";
 import { UserProvider } from "@/context/UserContext";
-import { AppSidebar } from "@/components/app-sidebar";
+// import { AppSidebar } from "@/components/app-sidebar";
 import "./globals.css";
 
 // Font
@@ -25,12 +25,12 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable}`}>
       <body>
         <UserProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="w-full">
-              {children}
-            </main>
-          </SidebarProvider>
+          {/* <SidebarProvider> */}
+          {/* <AppSidebar /> */}
+          <main className="w-full">
+            {children}
+          </main>
+          {/* </SidebarProvider> */}
         </UserProvider>
       </body>
     </html>
