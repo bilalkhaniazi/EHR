@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Roboto_Mono } from "next/font/google";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { UserProvider } from "@/context/UserContext";
 import { AppSidebar } from "@/components/app-sidebar";
 import "./globals.css";
 
-const roboto = Roboto_Mono({
-  variable: "--font-roboto-mono",
-  subsets: ["latin"],
-});
+// Font
+import { Inter } from "next/font/google";
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"]
+})
 
 export const metadata: Metadata = {
   title: "GVSU EHR Simulator",
@@ -21,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={roboto.variable}>
+    <html lang="en" className={`${inter.variable}`}>
       <body>
         <UserProvider>
           <SidebarProvider>
