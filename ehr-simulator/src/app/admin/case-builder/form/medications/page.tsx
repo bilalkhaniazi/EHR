@@ -1,5 +1,10 @@
 'use client'
 import { useMemo, useState } from "react"
+import {
+  Pill,
+  Search,
+  Tablets
+} from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { allMedications, AllMedicationTypes, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
 import Combobox from "@/components/ui/combobox"
@@ -23,13 +28,12 @@ function getComboboxData(medications: AllMedicationTypes[]) {
 
 type NewOrderData = Partial<MedicationOrder> & { medicationId: string };
 
-
-const MedicationOrderForm = () => {
-  const [selectedMed, setSelectedMed] = useState('')
-  const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([]) // when user selects a medication, add the medication object to the array here
-  const [orders, setOrders] = useState<NewOrderData[]>([])
+export default function MedicationOrderForm() {
   const router = useRouter()
 
+  const [selectedMed, setSelectedMed] = useState('')
+  const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([])
+  const [orders, setOrders] = useState<NewOrderData[]>([])
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
@@ -38,9 +42,10 @@ const MedicationOrderForm = () => {
       if (newMedObject) {
         const isAlreadyAdded = selectedMeds.some(med => med.id === newMedId)
         if (!isAlreadyAdded) {
-          setSelectedMeds(prev => [...prev, newMedObject])
-          setOrders(prev => [...prev, { medicationId: newMedObject.id }])
+          setSelectedMeds(prev => [newMedObject, ...prev])
+          setOrders(prev => [{ medicationId: newMedObject.id }, ...prev])
         }
+        setSelectedMed('')
       }
     }
   }
@@ -48,39 +53,33 @@ const MedicationOrderForm = () => {
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
     setOrders(prev => prev.filter((_, i) => i !== index))
-
   }
 
   const handleOrderChange = (index: number, field: keyof NewOrderData, value: string) => {
     setOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
-
-          // Handle fields that should be numbers
+          // Number validation logic
           if (field === 'dose' || field === 'infusionRate') {
-            const regex = /^[0-9]*\.?[0-9]*$/; // Allows decimals, "1.", ".5"
-
+            const regex = /^[0-9]*\.?[0-9]*$/;
             if (value === '' || regex.test(value)) {
               return { ...order, [field]: value };
             }
-            // If invalid (e.g., "1.5.2" or "abc"), just return the old state
             return order;
           }
-
-          // Handle all other string fields
           return { ...order, [field]: value };
         }
         return order;
       })
     );
   };
+
   const comboboxData = useMemo(() => {
     return getComboboxData(allMedications);
   }, []);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
@@ -88,43 +87,87 @@ const MedicationOrderForm = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen relative bg-white gap-6 pt-4 pb-0 overflow-y-auto">
-      <form className="fixed top-8 right-8 z-10" onSubmit={handleSubmit} >
-        <input name='medOrderData' type='hidden' value={JSON.stringify(orders)} />
-        <SubmitButton buttonText="Continue" />
-      </form>
-
-      <div className="w-full px-4 space-y-4">
-        <h1 className="text-3xl p-y-2 font-medium">Medication Orders</h1>
+    <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
+      {/* Header */}
+      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
         <div>
-          <Label>Medication</Label>
-          <Combobox value={selectedMed} onValueChange={handleAddMedication} data={comboboxData} displayText="Select medication" />
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Pill className="text-slate-400" />
+            Medication Orders
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">Step 7 of 8: Configure MAR entries</p>
         </div>
-      </div>
-      <div className="w-full flex flex-col gap-6 h-[calc(100vh-8rem)] overflow-y-auto border-t p-4 shadow-inner">
-        {selectedMeds.length > 0 ?
-          <>
-            {selectedMeds.map((med, index) => {
-              return (
-                <MedCardForm
-                  key={med.id}
-                  medication={med}
-                  handleMedicationRemoval={handleRemoveMedication}
-                  index={index}
-                  orderData={orders[index]}
-                  onOrderChange={handleOrderChange}
-                />
-              )
-            })}
 
+        <form onSubmit={handleSubmit}>
+          <input name='medOrderData' type='hidden' value={JSON.stringify(orders)} />
+          <SubmitButton buttonText="Save and Continue" />
+        </form>
+      </header>
 
-          </> :
-          <p className="text-gray-400 pl-4">Select a medication to get started</p>
-        }
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto p-4 md:px-8 lg:px-12">
+        <div className="max-w-5xl mx-auto pb-20 space-y-8">
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <Label className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <Search className="w-4 h-4 text-blue-600" />
+              Search Formulary
+            </Label>
+            <div className="max-w-2xl">
+              <Combobox
+                value={selectedMed}
+                onValueChange={handleAddMedication}
+                data={comboboxData}
+                displayText="Type to search medications..."
+              />
+            </div>
+            <p className="text-xs text-slate-400 mt-2 pl-1">
+              Selecting a medication will automatically add it to the order list below.
+            </p>
+          </div>
 
-      </div>
+          {/* Order List Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+              <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                {/* <Prescription className="w-5 h-5 text-slate-500" /> */}
+                Active Orders
+              </h2>
+              <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">
+                {selectedMeds.length} Added
+              </span>
+            </div>
+
+            {selectedMeds.length > 0 ? (
+              <div className="grid gap-4">
+                {selectedMeds.map((med, index) => (
+                  // Wrapping MedCardForm in a generic container just in case, 
+                  // but styling mostly depends on the child component.
+                  <div key={`${med.id}-${index}`} className="animate-in slide-in-from-top-2 duration-300">
+                    <MedCardForm
+                      medication={med}
+                      handleMedicationRemoval={handleRemoveMedication}
+                      index={index}
+                      orderData={orders[index]}
+                      onOrderChange={handleOrderChange}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Empty State
+              <div className="h-64 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50/30">
+                <div className="p-4 bg-white rounded-full shadow-sm mb-4">
+                  <Tablets className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="font-medium text-slate-600">No medications added.</p>
+                <p className="text-sm max-w-sm text-center mt-1">
+                  Search for a medication above to begin configuring doses, routes, and frequencies.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
-
-export default MedicationOrderForm

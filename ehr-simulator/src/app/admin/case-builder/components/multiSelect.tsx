@@ -73,7 +73,7 @@ export function MultiSelect({
               ? <span className="text-slate-900 font-medium">{selectedValues.length} selected</span>
               : <span className="text-slate-400">{placeholder}</span>
             }
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-slate-400" />
+            <ChevronsUpDown className="ml-2 shrink-0 opacity-50 text-slate-400" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">

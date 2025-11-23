@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Roboto_Mono } from "next/font/google";
-import { SidebarProvider } from "@/components/ui/sidebar";
+// import { SidebarProvider } from "@/components/ui/sidebar";
 import { UserProvider } from "@/context/UserContext";
-import { AppSidebar } from "@/components/app-sidebar";
+// import { AppSidebar } from "@/components/app-sidebar";
 import "./globals.css";
 
 const roboto = Roboto_Mono({
@@ -24,12 +24,12 @@ export default function RootLayout({
     <html lang="en" className={roboto.variable}>
       <body>
         <UserProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="w-full">
-              {children}
-            </main>
-          </SidebarProvider>
+          {/* <SidebarProvider> */}
+          {/* <AppSidebar /> */}
+          <main className="w-full">
+            {children}
+          </main>
+          {/* </SidebarProvider> */}
         </UserProvider>
       </body>
     </html>

@@ -1,7 +1,8 @@
+import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
+import { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
 import { format } from "date-fns";
-import type { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
-import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
-import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers"
+import { Trash2 } from "lucide-react";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -12,21 +13,17 @@ interface MedCardProps {
   onDeleteAdministration: (adminId: string) => void;
 }
 
-const MedAdministrationFormCard = ({ medication, administrations, order, columns, sessionStartTime, onDeleteAdministration }: MedCardProps) => {
-  // using columns passed from main mar component, add relevant administration data (given, held, refused...)
+export default function MedAdministrationFormCard({ medication, administrations, order, columns, sessionStartTime, onDeleteAdministration }: MedCardProps) {
+
+  // Calculate columns logic
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
       const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
       return adminAbsoluteTime >= col.startTime && adminAbsoluteTime <= col.endTime;
     })
-
-    return {
-      ...col,
-      associatedAdministrations: administrationsInColumn
-    }
+    return { ...col, associatedAdministrations: administrationsInColumn }
   })
 
-  // most recent time of any administration instance where patient actually consumed the med (given, patient administered)
   const findLastAdminTime = () => {
     if (!administrations || administrations.length === 0) {
       return "Never";
@@ -45,88 +42,73 @@ const MedAdministrationFormCard = ({ medication, administrations, order, columns
 
 
   return (
-    <div className="relative w-full border bg-white rounded-2xl p-0 overflow-hidden flex-shrink-0 shadow">
-      <div className="grid grid-cols-2 ">
-        <div className="py-3 px-4 flex flex-col justify-between">
-          <div className="pb-1 pl-2 flex items-center gap-2 font-semibold">
-            {renderMedTitleRow(medication, order)}
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
+      {/* Left Info Panel */}
+      <div className="px-4 py-3 md:w-80 lg:w-110 2xl:w-140  border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/30 flex flex-col justify-between">
+        <div>
+          <div className="flex items-start justify-between mb-2">
+            <h4 className="font-bold text-slate-900 leading-tight text-sm">
+              {renderMedTitleRow(medication, order)}
+            </h4>
           </div>
-          <div className="text-xs tracking-tight pl-2 pb-2 text-gray-500">
+          <div className="text-xs text-slate-500 space-y-1 mb-3">
             {renderMedCardDetails(medication, order)}
           </div>
-          <div className="pl-6">
-            {order.instructions &&
-              <div className="pb-2">
-                <h2 className="font-light">Administration Instructions:</h2>
-                <p className="pl-2 text-xs font-light text-gray-700">
-                  {order.instructions}
-                </p>
-              </div>
-            }
-          </div>
-          <div className="flex w-full justify-end gap-2 pr-4">
-            <p className="text-sm">Last Administered:</p>
-            <p className="text-sm font-light">{findLastAdminTime()}</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-6">
-          {processedColumns.map((col, colIndex) => {
-            const hasAdministrations = col.associatedAdministrations.length > 0;
-            return (
-              <div key={`${colIndex}-${medication.id}`} className="flex flex-col items-center border-l">
-                <p className={` text-sm  ${colIndex === 3 ? "font-bold underline" : "font-medium"}`}>{col.colHeader}</p>
-                {hasAdministrations && (
-                  <div className="h-full flex flex-col justify-center items-center py-2 gap-2">
-                    {col.associatedAdministrations.map((admin, index) => {
-                      const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
-                      const displayTime = format(adminAbsoluteTime, 'HHmm')
-                      let statusColorClass;
-                      const statusText = admin.status;
+          {order.instructions && (
+            <div className="text-xs  text-slate-800 p-2 rounded border border-slate-200 mb-3">
+              <span className="font-bold">Note:</span> {order.instructions}
+            </div>
+          )}
 
-                      switch (admin.status) {
-                        case "Given":
-                          statusColorClass = "bg-lime-200";
-                          break;
-                        case "Held":
-                          statusColorClass = "bg-yellow-200";
-                          break;
-                        case "Missed":
-                          statusColorClass = "bg-red-200";
-                          break;
-                        case "Due":
-                          statusColorClass = "bg-sky-200";
-                          break;
-                        default:
-                          statusColorClass = "bg-gray-200";
-                          break;
-                      }
-                      return (
-                        <div
-                          key={`${admin.id}-${index}`} // Use the unique ID for the key
-                          className={`relative flex flex-col justify-center items-center pt-2.5 pb-1 px-2 rounded-xl shadow-sm w-full ${statusColorClass}`}
-                        >
-                          <button
-                            onClick={() => onDeleteAdministration(admin.id!)}
-                            className="absolute top-0 right-1 text-sm font-bold leading-none w-4 h-4 flex items-center justify-center rounded-full transition-all hover:backdrop-brightness-90"
-                            aria-label={`Delete administration at ${displayTime} with status ${admin.status}`}
-                            title="Delete Administration"
-                          >
-                            &times;
-                          </button>
-                          <p className="text-center text-xs font-medium pt-1">{displayTime}</p>
-                          <p className="text-xs font-normal pb-1">{statusText}</p>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            )
-          })}
         </div>
+        <div className="flex w-full justify-end gap-2 pr-4">
+          <p className="text-xs">Last Administered:</p>
+          <p className="text-xs font-light">{findLastAdminTime()}</p>
+        </div>
+      </div>
+
+      {/* Right Grid Panel */}
+      <div className="flex-1 grid grid-cols-6 divide-x divide-slate-100 overflow-x-auto">
+        {processedColumns.map((col, colIndex) => {
+          const isCurrentHour = colIndex === 3; // Assuming index 3 is always current hour based on your logic
+
+          return (
+            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour ? 'bg-blue-50/30' : ''}`}>
+              <div className={`text-xs text-center py-1 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
+                {col.colHeader}
+              </div>
+
+              <div className="flex-1 p-2 space-y-2 flex flex-col items-center justify-center min-h-[80px]">
+                {col.associatedAdministrations?.map(admin => {
+                  const adminTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
+
+                  // Status Colors
+                  let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
+                  if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
+                  if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
+                  if (admin.status === "Refused") statusStyle = "bg-red-100 text-red-700 border-red-200";
+
+                  return (
+                    <div key={admin.id} className={`relative w-fit text-center p-1.5 rounded border text-xs ${statusStyle} group`}>
+                      <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
+                      <div className="text-[10px] opacity-80">{admin.status}</div>
+
+                      {/* Delete Overlay Button */}
+                      <button
+                        onClick={() => onDeleteAdministration(admin.id!)}
+                        className="absolute -top-1.5 -right-1.5 bg-white border border-slate-200 rounded-full p-0.5 text-slate-400 hover:text-red-600 hover:border-red-200 shadow-sm  transition-all"
+                        title="Remove Record"
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
 }
-
-export default MedAdministrationFormCard

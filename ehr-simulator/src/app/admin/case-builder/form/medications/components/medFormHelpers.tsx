@@ -74,8 +74,8 @@ export const renderMedFormDetails = (
           </span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{freq}</span>
-          {/* <Separator className="bg-gray-300" orientation="vertical" />
-          <span className="text-nowrap">{priority}</span> */}
+          <Separator className="bg-gray-300" orientation="vertical" />
+          <span className="text-nowrap">{priority}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{indic}</span>
         </div>
@@ -102,6 +102,8 @@ export const renderMedFormDetails = (
           <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{freq}</span>
           <Separator className="bg-gray-300" orientation="vertical" />
+          <span className="text-nowrap">{priority}</span>
+          <Separator className="bg-gray-300" orientation="vertical" />
           <span className="text-nowrap">{indic}</span>
         </div>
       );
@@ -118,6 +120,8 @@ export const renderMedFormDetails = (
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{freq}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
+            <span className="text-nowrap">{priority}</span>
+            <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{indic}</span>
           </div>
         );
@@ -133,13 +137,14 @@ export const renderMedFormDetails = (
             <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{freq}</span>
             <Separator className="bg-gray-300" orientation="vertical" />
+            <span className="text-nowrap">{priority}</span>
+            <Separator className="bg-gray-300" orientation="vertical" />
             <span className="text-nowrap">{indic}</span>
           </div>
         );
       }
 
     // Default case for Inhalation, Topical, IM, etc.
-    // This handles Inhalation and your previous default
     default:
       return (
         <div className="flex gap-2 h-5">

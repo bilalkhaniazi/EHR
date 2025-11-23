@@ -17,6 +17,7 @@ import MedAdminCard from "./medAdminCard";
 import { differenceInMinutes } from "date-fns";
 import { toast } from "sonner";
 import type { NewAdministrationData } from "../page"; // Ensure this imports the interface from Mar.tsx
+import { Badge } from "@/components/ui/badge"
 
 interface MedAdministrationProps {
   selectedMedIds: string[];
@@ -111,9 +112,9 @@ const MedAdministrationPanel = ({
           <h1 className="text-2xl font-medium">Medication Administration Panel</h1>
           <div className="flex pr-8 gap-4 items-center">
             {isScanned ? (
-              <p className="text-lime-800 bg-lime-200/50 py-1 px-2 rounded-xl">Patient Scanned</p>
+              <Badge className="text-lime-800 bg-lime-200/50 py-1 px-2 rounded-xl">Patient Scanned</Badge>
             ) : (
-              <p className="text-red-800 bg-red-200/50 py-1 px-2 rounded-xl">Patient Not Scanned</p>
+              <Badge className="text-red-800 bg-red-200/50 py-1 px-2 rounded-xl">Patient Not Scanned</Badge>
             )}
             <Button
               className="w-fit h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
@@ -124,7 +125,7 @@ const MedAdministrationPanel = ({
           </div>
 
         </div>
-        <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300">
+        <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300 shadow-inner">
           <div className="grid gap-4 w-full p-2 ">
             {selectedMedOrders.map(order => {
               // Safeguard in case the ID exists in selection but object isn't ready yet
@@ -156,9 +157,9 @@ const MedAdministrationPanel = ({
         </div>
         <DialogFooter className="items-center h-fit">
           <Button
-            variant="outline"
             disabled={isLoading || !isScanned}
             onClick={handleSubmit}
+            className="bg-blue-600 hover:bg-blue-700 shadow"
           >
             {isLoading ? "Saving..." : "Accept"}
           </Button>

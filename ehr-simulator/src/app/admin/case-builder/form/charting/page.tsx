@@ -16,6 +16,7 @@ import { chartingOptions } from "@/app/simulation/[sessionId]/chart/charting/com
 import AssessmentSelect from "@/app/simulation/[sessionId]/chart/charting/components/assessmentSelector";
 import { getAlertFlag } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetHelpers";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
+import { Clipboard } from "lucide-react";
 
 
 const chartingDataTemplate: FlexSheetData[] = [
@@ -1233,82 +1234,92 @@ export function ChartingForm() {
 
 
   return (
-    <div className="flex flex-col h-screen w-[calc(100vw-16rem)] bg-white justify-center items-center px-4 pt-4 gap-2 ">
-      <form className="fixed top-8 right-8" onSubmit={handleSubmit} >
-        <input name='chartData' type='hidden' value={JSON.stringify(chartingData)} />
-        <SubmitButton buttonText="Continue" />
-      </form>
-      <div className="w-full space-y-6">
-        <h1 className="text-3xl font-medium">FlexSheet Data</h1>
-        <div className="flex gap-8 items-end">
-          <AddLabColumn handleColumnAdd={handleAddColumn} />
+    // CHANGED: Replaced 'fixed inset-0' with 'h-[calc(100vh-4rem)]'
+    // This respects the sidebar width but locks the height so internal scrolling works.
+    <div className="flex flex-col w-[calc(100vw-16rem)] h-[calc(100vh)] bg-white overflow-hidden shadow-sm border border-slate-200">
+      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10 shadow">
+        <div className="">
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Clipboard className="text-slate-400" />
+            Documentation Results
+          </h1>
+
+          <p className="text-xs text-slate-500 mt-1">Step 6 of 8: Enter laboratory and imaging results</p>
         </div>
+
+        <form onSubmit={handleSubmit} >
+          <input name='labData' type='hidden' value={JSON.stringify(chartingData)} />
+          <SubmitButton buttonText="Continue" />
+        </form>
+      </header>
+      <div className="px-8 py-2">
+        <AddLabColumn handleColumnAdd={handleAddColumn} />
+
       </div>
-      <div className="w-full h-full border border-gray-200 rounded-t-lg overflow-auto">
-        <Table className="w-full overflow-x-auto">
-          <TableHeader className=" bg-gray-50 sticky top-0">
-            {ptTable.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <TableHead
-                    style={getPinnedStyles(header.column)}
-                    key={header.id}
-                    className="border-b-2 border-gray-200 p-0"
-                  >
-                    {/* Render the header content using flexRender */}
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
 
-          <TableBody>
-            {ptTable.getRowModel().rows.map(row => (
-              <TableRow key={row.id} className="h-6">
-                {row.getVisibleCells().map(cell => {
-                  const componentType = row.original.componentType
-
-                  return (
-                    <TableCell
-                      style={getPinnedStyles(cell.column)}
-                      key={`${cell.id}-${row.original.field}`}
-                      className={`min-w-50 w-120 p-0 m-0 h-6 border-separate border-gray-200 border-b  ${componentType === "static" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
+      <div className="w-full px-4 ">
+        <main className="h-[calc(100vh-8.5rem)] w-full border border-gray-200 rounded-t-lg overflow-auto bg-white shadow-sm relative">
+          <Table className="w-full overflow-x-auto">
+            <TableHeader className=" bg-gray-50 ">
+              {ptTable.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <TableHead
+                      style={getPinnedStyles(header.column)}
+                      key={header.id}
+                      className="border-b-2 border-gray-200 p-0"
                     >
-                      {/* Render the cell content using flexRender */}
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-
-          <TableFooter className="bg-gray-100">
-            {ptTable.getFooterGroups().map(footerGroup => (
-              <TableRow key={footerGroup.id}>
-                {footerGroup.headers.map(header => (
-                  <TableHead
-                    key={header.id}
-                    className="h-6 p-0 text-left text-gray-700 border-gray-300">
-
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                        header.column.columnDef.footer,
-                        header.getContext()
-                      )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableFooter>
-        </Table>
+                      {/* Render the header content using flexRender */}
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {ptTable.getRowModel().rows.map(row => (
+                <TableRow key={row.id} className="h-6">
+                  {row.getVisibleCells().map(cell => {
+                    const componentType = row.original.componentType
+                    return (
+                      <TableCell
+                        style={getPinnedStyles(cell.column)}
+                        key={`${cell.id}-${row.original.field}`}
+                        className={`min-w-50 w-120 p-0 m-0 h-6 border-separate border-gray-200 border-b  ${componentType === "static" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
+                      >
+                        {/* Render the cell content using flexRender */}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter className="bg-gray-100">
+              {ptTable.getFooterGroups().map(footerGroup => (
+                <TableRow key={footerGroup.id}>
+                  {footerGroup.headers.map(header => (
+                    <TableHead
+                      key={header.id}
+                      className="h-6 p-0 text-left text-gray-700 border-gray-300">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.footer,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableFooter>
+          </Table>
+        </main>
       </div>
     </div>
 

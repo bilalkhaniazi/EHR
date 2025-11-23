@@ -7,7 +7,6 @@ import { renderMedFormDetails, renderMedFormTitle } from "./medFormHelpers";
 import { X } from "lucide-react";
 
 const medicationFrequencies = [
-  // --- Time-based Frequencies (Scheduled Doses) ---
   { value: 'QD', label: 'QD (Once Daily)' },
   { value: 'BID', label: 'BID (Twice Daily)' },
   { value: 'TID', label: 'TID (Three Times Daily)' },
@@ -20,8 +19,6 @@ const medicationFrequencies = [
   { value: 'Q8H', label: 'Q8H (Every 8 Hours)' },
   { value: 'Q12H', label: 'Q12H (Every 12 Hours)' },
   { value: 'Q24H', label: 'Q24H (Every 24 Hours)' },
-  { value: 'PRN', label: 'PRN (As Needed)' },
-  { value: 'NOW', label: 'NOW (Within 90 Minutes)' },
   { value: 'ACHS', label: 'ACHS' },
   { value: 'DAILY', label: 'Daily (Every Day)' },
   { value: 'ONCE', label: 'Once (Single Dose)' },
@@ -142,6 +139,7 @@ const MedCardForm = ({
               <option value="STAT">STAT</option>
               <option value="NOW">NOW</option>
               <option value="Routine">Routine</option>
+              <option value="PRN">PRN</option>
             </select>
           </div>
           <div className="w-full space-y-1">

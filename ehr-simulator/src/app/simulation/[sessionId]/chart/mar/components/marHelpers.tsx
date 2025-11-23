@@ -22,85 +22,101 @@ export function getMedDose(medication: AllMedicationTypes, order: MedicationOrde
   }
 }
 
+
 export const renderMedTitleRow = (medication: AllMedicationTypes, order: MedicationOrder) => {
-  if (medication.route == "IV" && medication.isContinuous) {
-    return (
-      <div className="flex flex-wrap gap-2 h-fit font-semibold">
-        <span className="text-nowrap">{medication.genericName}</span>
-        {medication.brandName && (
-          <span className="text-nowrap">({medication.brandName})</span>
-        )}
-        <span className="text-nowrap">{order.dose}{medication.strengthUnit}</span>
-      </div>
-    )
-  }
-  if (medication.route == "IV" && !medication.isContinuous) {
-    return (
-      <div className="flex flex-wrap gap-1.5 h-fit font-semibold">
-        <span className="text-nowrap">{medication.genericName}</span>
-        {medication.brandName && (
-          <span className="text-nowrap">({medication.brandName})</span>
-        )}
-        <span className="text-nowrap">{order.dose}{medication.strengthUnit}</span>
-        {medication.diluent &&
-          <span className="text-nowrap">in {medication.diluent} {medication.totalVolume}mL</span>
-        }
-      </div>
-    )
-  }
-  if (isSlidingScaleInsulin(medication)) {
-    return (
-      <div className="flex flex-wrap gap-2 h-fit font-semibold">
-        <span className="text-nowrap">{medication.genericName}</span>
-        {medication.brandName && (
-          <span className="text-nowrap">({medication.brandName})</span>
-        )}
-      </div>
-    )
-  }
-  else {
-    return (
-      <div className="flex flex-wrap gap-2 h-fit font-semibold">
-        <span className="text-nowrap">{medication.genericName}</span>
-        {medication.brandName && (
-          <span className="text-nowrap">({medication.brandName})</span>
-        )}
-        <span className="text-nowrap">{order.dose}{medication.strengthUnit}</span>
-      </div>
-    )
+  const brandNameDisplay = `(${medication.brandName})`
+  switch (medication.route) {
+    case 'IV':
+      if (medication.isContinuous) {
+        const medTitle = `${medication.genericName} ${medication.brandName ? brandNameDisplay : ''} ${order.dose}${medication.strengthUnit} `
+        return (
+          <p className="font-semibold">{medTitle}</p>
+        )
+      }
+      else {
+        const diluent = `in ${medication.diluent} ${medication.totalVolume}mL`
+        const medTitle = `${medication.genericName} ${medication.brandName ? brandNameDisplay : ""} ${order.dose}${medication.strengthUnit} ${medication.diluent ? diluent : ''}`
+        return (
+          <p className="font-semibold">{medTitle}</p>
+        )
+      }
+    case "SC":
+      if (isSlidingScaleInsulin(medication)) {
+        const medTitle = `${medication.genericName} ${medication.brandName ? brandNameDisplay : ''}`
+        return (
+          <p className="font-semibold">{medTitle}</p>
+        )
+      }
+      else {
+        const strengthUnit = `${medication.strengthUnit === 'units' ? " units" : medication.strengthUnit}`
+        const medTitle = `${medication.genericName} ${medication.brandName ? brandNameDisplay : ''} ${order.dose}${strengthUnit}`
+        return (
+          <p className="font font-semibold">{medTitle}</p>
+        )
+      }
+    default:
+      const medTitle = `${medication.genericName} ${medication.brandName ? brandNameDisplay : ''} ${order.dose}${medication.strengthUnit}`
+      return (
+        <p className="font font-semibold">{medTitle}</p>
+
+      )
   }
 }
 
 export const renderMedCardDetails = (medication: AllMedicationTypes, order: MedicationOrder) => {
   switch (medication.route) {
     case "PO":
+    case "SL":
+    case "IM":
       return (
-        <div className="flex gap-2 h-5">
+        <div className="flex gap-1.5 h-fit flex-wrap">
           <span className="text-nowrap">{medication.route}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.dose / medication.strength} {pluralize(order.dose / medication.strength, medication.orderableUnit)}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.frequency}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
+          <span className="text-nowrap">{order.priority}</span>
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.indication}</span>
         </div>
       )
     case "IV":
       return (
-        <div className="flex gap-2 h-5">
+        <div className="flex gap-1.5 h-fit flex-wrap">
           <span className="text-nowrap">{medication.route}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.dose / medication.strength} {pluralize(order.dose / medication.strength, medication.orderableUnit)}</span>
           {order.infusionRate && medication.infusionRateUnit &&
             <>
-              <Separator className="bg-gray-300" orientation="vertical" />
+              <div className="h-5">
+                <Separator className="bg-gray-300" orientation="vertical" />
+              </div>
               <span className="text-nowrap">{order.infusionRate} {medication.infusionRateUnit}</span>
             </>
           }
 
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.frequency}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
+          <span className="text-nowrap">{order.priority}</span>
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.indication}</span>
         </div>
       )
@@ -108,29 +124,50 @@ export const renderMedCardDetails = (medication: AllMedicationTypes, order: Medi
       if (isSlidingScaleInsulin(medication)) {
         const doseRange = `${medication.bgDosing[0]?.units ?? '0'} - ${medication.bgDosing[medication.bgDosing.length - 1]?.units ?? 'N/A'}`;
         return (
-          <div className="flex gap-2 h-5">
+          <div className="flex gap-1.5 h-fit flex-wrap ">
             <span className="text-nowrap">{medication.route}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
+            <div className="h-5">
+              <Separator className="bg-gray-300" orientation="vertical" />
+            </div>
             <span className="text-nowrap">{doseRange} units</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
+            <div className="h-5">
+              <Separator className="bg-gray-300" orientation="vertical" />
+            </div>
             <span className="text-nowrap">{order.frequency}</span>
-            <Separator className="bg-gray-300" orientation="vertical" />
+            <div className="h-5">
+              <Separator className="bg-gray-300" orientation="vertical" />
+            </div>
+            <span className="text-nowrap">{order.priority}</span>
+            <div className="h-5">
+              <Separator className="bg-gray-300" orientation="vertical" />
+            </div>
             <span className="text-nowrap">{order.indication}</span>
           </div>
         )
       }
     case "Inhalation": {
       return (
-        <div className="flex gap-2 h-5">
+        <div className="flex gap-1.5 h-fit flex-wrap">
           <span className="text-nowrap">{medication.route}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.dose / medication.strength} {pluralize(order.dose / medication.strength, medication.orderableUnit)}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.frequency}</span>
-          <Separator className="bg-gray-300" orientation="vertical" />
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
+          <span className="text-nowrap">{order.priority}</span>
+          <div className="h-5">
+            <Separator className="bg-gray-300" orientation="vertical" />
+          </div>
           <span className="text-nowrap">{order.indication}</span>
         </div>
       )
     }
+    default:
   }
 }
