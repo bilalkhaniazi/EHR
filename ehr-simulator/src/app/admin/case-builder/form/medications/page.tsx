@@ -59,7 +59,6 @@ export default function MedicationOrderForm() {
     setOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
-          // Number validation logic
           if (field === 'dose' || field === 'infusionRate') {
             const regex = /^[0-9]*\.?[0-9]*$/;
             if (value === '' || regex.test(value)) {
@@ -95,7 +94,7 @@ export default function MedicationOrderForm() {
             <Pill className="text-slate-400" />
             Medication Orders
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 7 of 8: Configure MAR entries</p>
+          <p className="text-xs text-slate-500 mt-1">Step 8 of 9: Configure MAR entries</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -129,7 +128,6 @@ export default function MedicationOrderForm() {
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                {/* <Prescription className="w-5 h-5 text-slate-500" /> */}
                 Active Orders
               </h2>
               <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">
@@ -140,8 +138,6 @@ export default function MedicationOrderForm() {
             {selectedMeds.length > 0 ? (
               <div className="grid gap-4">
                 {selectedMeds.map((med, index) => (
-                  // Wrapping MedCardForm in a generic container just in case, 
-                  // but styling mostly depends on the child component.
                   <div key={`${med.id}-${index}`} className="animate-in slide-in-from-top-2 duration-300">
                     <MedCardForm
                       medication={med}
@@ -154,7 +150,6 @@ export default function MedicationOrderForm() {
                 ))}
               </div>
             ) : (
-              // Empty State
               <div className="h-64 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50/30">
                 <div className="p-4 bg-white rounded-full shadow-sm mb-4">
                   <Tablets className="w-8 h-8 text-slate-300" />

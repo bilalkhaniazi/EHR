@@ -7,7 +7,7 @@ export interface chartingOptions {
 export interface FlexSheetData {
   id: string;
   field: string;
-  componentType: string;
+  componentType: 'input' | 'assessmentselect' | 'static' | 'checkboxlist' | 'totalScoreRow' | 'static';
   rowType?: string;
   chartingOptions?: chartingOptions[];
   wdlDescription?: { assessment: string, description: string }[];

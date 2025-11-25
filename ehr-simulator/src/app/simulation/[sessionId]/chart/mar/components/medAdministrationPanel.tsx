@@ -27,7 +27,6 @@ interface MedAdministrationProps {
   sessionStartTime: number;
   realWorldTime: Date;
 
-  // NEW PROPS: State passed from parent
   newAdministrations: NewAdministrationData;
   onUpdateAdministration: (orderId: string, field: keyof MedAdministrationInstance, value: string | number) => void;
   onClearAll: () => void;
@@ -59,7 +58,6 @@ const MedAdministrationPanel = ({
 
 
   const handleSubmit = async () => {
-    // Logic to assemble the final payload, adding the time offset and student ID
     const payload = Object.keys(newAdministrations).map(orderId => {
       const currentAdmin = newAdministrations[orderId];
       const offset = differenceInMinutes(realWorldTime, sessionStartTime);
@@ -155,17 +153,26 @@ const MedAdministrationPanel = ({
             })}
           </div>
         </div>
-        <DialogFooter className="items-center h-fit">
-          <Button
-            disabled={isLoading || !isScanned}
-            onClick={handleSubmit}
-            className="bg-blue-600 hover:bg-blue-700 shadow"
+        <DialogFooter className="flex flex-col items-start sm:justify-between  h-fit w-full">
+          <a
+            href="https://online.lexi.com/lco/action/ivcompatibility/trissels"
+            target="_blank"
+            className="text-blue-800 hover:underline text-sm pl-8"
           >
-            {isLoading ? "Saving..." : "Accept"}
-          </Button>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
+            Trissel&apos;s IV Compatilibity
+          </a>
+          <div className="flex gap-4">
+            <Button
+              disabled={isLoading || !isScanned}
+              onClick={handleSubmit}
+              className="bg-blue-600 hover:bg-blue-700 shadow"
+            >
+              {isLoading ? "Saving..." : "Accept"}
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

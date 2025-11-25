@@ -1,23 +1,20 @@
 'use client'
 
-import type { ImagingData, LabTableData, MicrobiologyReportData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData"
-import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
+import type { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData"
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, Column } from "@tanstack/react-table";
 import { useMemo, useEffect, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 
-import { ShieldAlert, TestTube2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { TestTube2 } from "lucide-react";
 import { AddLabColumn } from "./components/addLabCol";
-import { Dialog, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import AddMicrobiologyReport from "@/app/admin/case-builder/form/labs/components/addMicrobiologyReport";
 import { Label } from "@/components/ui/label";
 import Combobox from "@/components/ui/combobox";
-import AddImagingReport from "@/app/admin/case-builder/form/labs/components/addImagingReport";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
+import { LabTableImagingReport, LabTableInputCell, LabTableMicrobioReport } from "./components/labTableInputCell";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -937,26 +934,11 @@ const formatTimeOffset = (minuteOffset: number) => {
   return { days, hours, minutes };
 }
 
-const getResultStatus = (initialValue: string, normalRange: { low: number, high: number } | undefined, criticalRange: { low: number, high: number } | undefined) => {
-  const numericValue = parseFloat(initialValue)
-
-  if (isNaN(numericValue)) {
-    return 'invalid';
-  }
-  if (criticalRange && (numericValue < criticalRange.low || numericValue > criticalRange.high)) {
-    return "critical";
-  }
-  if (normalRange && (numericValue < normalRange.low || numericValue > normalRange.high)) {
-    return "abnormal";
-  }
-  return "normal";
-}
 
 const columnHelper = createColumnHelper<LabTableData>();
 
 // left column pinned
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getPinnedStyles(column: any): React.CSSProperties {
+function getPinnedStyles(column: Column<LabTableData>): React.CSSProperties {
   const styles: React.CSSProperties = {
     width: `${column.getSize()}px`,
     minWidth: `${column.getSize()}px`,
@@ -969,7 +951,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
   return {
     ...styles,
     position: 'sticky',
-    [side]: `${column.getStart(side)}px`,
+    [side as string]: `${column.getStart(side)}px`,
     zIndex: side === 'left' ? 2 : 1,
   };
 }
@@ -1013,7 +995,7 @@ export function LabForm() {
 
   const handleAddColumn = (offset: number) => {
     if (timePoints.includes(offset)) {
-      // sonner time offset already used
+
       return
     }
     setTimePoints(prev =>
@@ -1041,7 +1023,7 @@ export function LabForm() {
       // first column has unique formatting
       columnHelper.accessor("field", {
         id: 'pinned',
-        minSize: 200, // Optional: prevents it from getting too small if resizable
+        minSize: 200,
         maxSize: 400,
         header: () => <h1 className="h-20 bg-gray-50"></h1>,
         cell: info => {
@@ -1121,96 +1103,16 @@ export function LabForm() {
 
               switch (rowType) {
                 case 'results':
-                  const initialValue = (getValue() as string) || '';
-                  const abnormalRange = row.original?.normalRange
-                  const criticalRange = row.original?.criticalRange
-
-                  const resultStatus = getResultStatus(initialValue, abnormalRange, criticalRange);
-                  const isCritical = resultStatus === "critical"
-                  const isAbnormal = resultStatus === "abnormal"
-
-                  const [value, setValue] = useState(initialValue)
-                  const onBlur = () => {
-                    table.options.meta?.updateData(row.index, column.id, value)
-                  }
-                  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === "Enter") {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  };
-                  useEffect(() => {
-                    setValue(initialValue)
-                  }, [initialValue])
-
                   return (
-                    <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex h-6 items-center w-full hover:bg-gray-50">
-                      <Input
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        onBlur={onBlur}
-                        className={`w-full h-6 text-right text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}
-                        onKeyDown={onKeyDown}
-                        key={`${row.id}-${column.id}-${row.original.field}`}
-                      />
-                      {isCritical && <ShieldAlert color="#e7000b" size={18} />}
-                    </div>
+                    <LabTableInputCell row={row} getValue={getValue} column={column} table={table} />
                   );
                 case 'imaging':
-                  const imagingReport = (getValue() as ImagingData) || {}
-                  const [isImageReportOpen, setIsImageReportOpen] = useState(false)
-                  const isImageEditMode = Object.keys(imagingReport).length > 0;
-
-                  const handleAddorEditImageReport = (newReportData: ImagingData) => {
-                    table.options.meta?.updateData(row.index, column.id, newReportData);
-                    setIsImageReportOpen(false); // Close the popover on submit
-                  };
-
                   return (
-                    <Dialog open={isImageReportOpen} onOpenChange={setIsImageReportOpen}>
-                      <DialogTitle />
-                      <DialogTrigger asChild className="hover:bg-gray-50">
-                        {isImageEditMode ? (
-                          <button type='button' className="w-full h-6 text-center text-xs">
-                            {imagingReport.displayName}
-                          </button>
-                        ) : (
-                          <button type='button' className="w-full h-6"></button>
-                        )}
-                      </DialogTrigger>
-                      <AddImagingReport
-                        imagingType={row.original.field}
-                        initialData={isImageEditMode ? imagingReport : undefined}
-                        handleAddImagingReport={handleAddorEditImageReport}
-                      />
-                    </Dialog>
+                    <LabTableImagingReport column={column} row={row} table={table} getValue={getValue} />
                   )
                 case 'microbiology':
-                  const microbiologyReport = (getValue() as MicrobiologyReportData) || {}
-                  const isEditMode = Object.keys(microbiologyReport).length > 0;
-
-                  const [isOpen, setIsOpen] = useState<boolean>(false)
-
-                  const handleAddorEditReport = (newReportData: MicrobiologyReportData) => {
-                    table.options.meta?.updateData(row.index, column.id, newReportData);
-                    setIsOpen(false); // Close the popover on submit
-                  };
                   return (
-                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                      <DialogTitle />
-                      <DialogTrigger asChild className="hover:bg-gray-50">
-                        {isEditMode ? (
-                          <button type='button' className="w-full h-6 text-center text-xs">
-                            {microbiologyReport.sampleType}
-                          </button>
-                        ) : (
-                          <button type='button' className="w-full h-6"></button>
-                        )}
-                      </DialogTrigger>
-                      <AddMicrobiologyReport
-                        handleAddMicrobiologyReport={handleAddorEditReport}
-                        initialData={isEditMode ? microbiologyReport : undefined}
-                      />
-                    </Dialog>
+                    <LabTableMicrobioReport column={column} row={row} table={table} getValue={getValue} />
                   )
               }
             }

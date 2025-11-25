@@ -7,6 +7,7 @@ import {
   Plus,
   History,
   Syringe,
+  ChevronDown,
 } from "lucide-react"
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -21,7 +22,6 @@ import { Badge } from "@/components/ui/badge"
 import Combobox from "@/components/ui/combobox"
 import SubmitButton from "../../components/submitButton"
 
-// Data & Types
 import {
   MedicationOrder,
   medicationOrders,
@@ -76,7 +76,7 @@ export default function MedicationAdministrationsForm() {
 
   const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>([])
   const [selectedOrder, setSelectedOrder] = useState<MedicationOrder>()
-  const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([]) // For displaying the list
+  const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([])
 
   const [administratorId, setAdministratorId] = useState('')
   const [status, setStatus] = useState<AdministrationStatus>('Given')
@@ -108,7 +108,6 @@ export default function MedicationAdministrationsForm() {
 
     setMedAdministrations(prev => [...prev, newMedAdministration])
 
-    // Add to list if unique
     setSelectedOrders(prev => {
       if (!prev.find(order => order.id === selectedOrder.id)) {
         return [selectedOrder, ...prev]
@@ -160,14 +159,13 @@ export default function MedicationAdministrationsForm() {
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
-      {/* Header */}
       <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Syringe className="text-slate-400" />
             Medication History
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 6 of 6: Document past administrations</p>
+          <p className="text-xs text-slate-500 mt-1">Step 9 of 9: Document past administrations and add Due times</p>
         </div>
         <form onSubmit={handleSubmit}>
           <input name='medAdministrationData' type='hidden' value={JSON.stringify(medAdministrations)} />
@@ -175,11 +173,9 @@ export default function MedicationAdministrationsForm() {
         </form>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="max-w-6xl mx-auto space-y-8 pb-20">
 
-          {/* Top Card: Entry Form */}
           <Card className="border-slate-200 shadow-sm overflow-hidden py-0">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pt-4 !pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -204,7 +200,6 @@ export default function MedicationAdministrationsForm() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Row 2 Left: Timing */}
                 <div className="lg:col-span-7 bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between mb-2">
                     <Label className="flex items-center gap-2 text-slate-700">
@@ -243,7 +238,6 @@ export default function MedicationAdministrationsForm() {
                   </div>
                 </div>
 
-                {/* Row 2 Right: Details */}
                 <div className="lg:col-span-5 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -264,12 +258,15 @@ export default function MedicationAdministrationsForm() {
                       <Select value={status} onValueChange={(v: AdministrationStatus) => setStatus(v)}>
                         <SelectTrigger>
                           <SelectValue />
+                          <ChevronDown />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Given">Given</SelectItem>
                           <SelectItem value="Held">Held</SelectItem>
                           <SelectItem value="Missed">Missed</SelectItem>
                           <SelectItem value="Refused">Refused</SelectItem>
+                          <SelectItem value="Due">Due</SelectItem>
+
                         </SelectContent>
                       </Select>
                     </div>

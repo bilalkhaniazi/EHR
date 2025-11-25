@@ -34,6 +34,7 @@ export default function CoursesPage() {
   return (
     <div className="pl-4">
       <h1 className="container mx-auto pt-10 text-4xl font-bold">COURSES</h1>
+      {loading && <p>Loading</p>}
       {courses.map((course) =>
         <CourseListItem key={course.id} course={course} />
       )}

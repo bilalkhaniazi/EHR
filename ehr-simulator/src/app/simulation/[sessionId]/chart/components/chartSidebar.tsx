@@ -35,11 +35,9 @@ function ChartSidebarSkeleton() {
 }
 
 export default function ChartSidebar() {
-  // 1. Local State for Data
   const [sidebarData, setSidebarData] = useState<ChartData | null>(null);
   const [marData, setMarData] = useState<MarCounts | null>(null);
 
-  // 2. Local State for UI & Time
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [sessionStartTime] = useState(new Date().getTime());
@@ -52,7 +50,7 @@ export default function ChartSidebar() {
 
         // Perform the MAR calculations (formerly done in queryFn)
         const orderCounts = medicationOrders.reduce((acc, order) => {
-          if (order.frequency === "PRN") {
+          if (order.priority === "PRN") {
             acc["prn"]++;
           } else if (order.frequency === "Continuous") {
             acc['continuous']++;

@@ -1,22 +1,18 @@
 'use client'
 
-import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, Column } from "@tanstack/react-table";
 import { useMemo, useEffect, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
-
 // import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 import { AddLabColumn } from "../labs/components/addLabCol";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
-import { chartingOptions } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
-import AssessmentSelect from "@/app/simulation/[sessionId]/chart/charting/components/assessmentSelector";
-import { getAlertFlag } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetHelpers";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { Clipboard } from "lucide-react";
+import { TableAssessmentSelectCell, TableInputCell } from "./components/tableInputCell";
 
 
 const chartingDataTemplate: FlexSheetData[] = [
@@ -1002,8 +998,7 @@ const formatTimeOffset = (minuteOffset: number) => {
 const columnHelper = createColumnHelper<FlexSheetData>();
 
 // left column pinned
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getPinnedStyles(column: any): React.CSSProperties {
+function getPinnedStyles(column: Column<FlexSheetData>): React.CSSProperties {
   const styles: React.CSSProperties = {
     width: `${column.getSize()}px`,
     minWidth: `${column.getSize()}px`,
@@ -1016,7 +1011,7 @@ function getPinnedStyles(column: any): React.CSSProperties {
   return {
     ...styles,
     position: 'sticky',
-    [side]: `${column.getStart(side)}px`,
+    [side as string]: `${column.getStart(side)}px`,
     zIndex: side === 'left' ? 10 : 1,
     borderCollapse: 'separate'
   };
@@ -1030,7 +1025,6 @@ export function ChartingForm() {
 
   const handleAddColumn = (offset: number) => {
     if (timePoints.includes(offset)) {
-      // sonner time offset already used
       return
     }
     setTimePoints(prev =>
@@ -1044,7 +1038,7 @@ export function ChartingForm() {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    router.push('/admin/case-builder/form/medications')
+    router.push('/admin/case-builder/form/intake-output')
   }
 
   useEffect(() => {
@@ -1057,7 +1051,7 @@ export function ChartingForm() {
     () => [
       // first column has unique formatting
       columnHelper.accessor("field", {
-        minSize: 220, // Optional: prevents it from getting too small if resizable
+        minSize: 220,
         maxSize: 400,
         id: 'pinned',
         header: () => <div className="h-20 w-full bg-gray-50"></div>,
@@ -1089,7 +1083,6 @@ export function ChartingForm() {
                 </Tooltip>
               );
             } else {
-              // If wdlDescription is undefined or empty, just render the field content
               return (
                 <div className="flex items-center">
                   <p className="w-full h-full text-xs text-left py-0 pl-2 px-2 font-medium text-lime-900">
@@ -1099,7 +1092,6 @@ export function ChartingForm() {
               );
             }
           } else {
-            // This is for other row types that are not "titleRow" or 'totalScoreRow'
             return (
               <div className="flex items-center">
                 <p className="w-full h-full text-left text-xs py-0 pl-4 text-neutral-600 shadow-none rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 text-wrap">
@@ -1136,61 +1128,27 @@ export function ChartingForm() {
             },
             cell: ({ row, column, getValue, table }) => {
               const componentType = row.original.componentType
-              const initialValue = (getValue() as string) || '';
               switch (componentType) {
                 case 'input':
-                  const [value, setValue] = useState(initialValue)
-
-                  const alertFlag = getAlertFlag(row.original, value, componentType);
-
-                  const onBlur = () => {
-                    if (value != initialValue) {
-                      table.options.meta?.updateData(row.index, column.id, value);
-                    }
-                  };
-
-                  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === "Enter") {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  };
-
                   return (
-                    <div key={`${row.id}-${column.id}-${row.original.field}`} className="flex h-6 items-center w-full hover:bg-gray-50">
-                      <Input
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        onBlur={onBlur}
-                        className={`w-full h-6 text-right text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${alertFlag ? "text-red-600 font-medium" : ""}`}
-                        onKeyDown={onKeyDown}
-                        key={`${row.id}-${column.id}-${row.original.field}`}
-                      />
-                    </div>
+                    <TableInputCell getValue={getValue}
+                      row={row}
+                      column={column}
+                      table={table}
+                    />
                   )
                 case 'static':
                   return (
                     <p></p>
                   );
                 case 'assessmentselect':
-                  const [selectedValue, setSelectedValue] = useState(initialValue)
-
-                  const chartingOptions = (row.original.chartingOptions || []) as chartingOptions[];
-
-                  const handleComponentChange = (newValue: string) => {
-                    setSelectedValue(newValue);
-                    table.options.meta?.updateData(row.index, column.id, newValue);
-                  };
-
                   return (
-                    <AssessmentSelect
-                      options={chartingOptions}
-                      value={selectedValue}
-                      rowId={row.original.id}
-                      columnId={column.id}
-                      onValueChange={handleComponentChange}
-                      className="p-0 h-6 hover:bg-muted/30"
-                    />
-                  )
+                    <TableAssessmentSelectCell
+                      getValue={getValue}
+                      row={row}
+                      column={column}
+                      table={table}
+                    />)
               }
             }
           }))
@@ -1234,8 +1192,6 @@ export function ChartingForm() {
 
 
   return (
-    // CHANGED: Replaced 'fixed inset-0' with 'h-[calc(100vh-4rem)]'
-    // This respects the sidebar width but locks the height so internal scrolling works.
     <div className="flex flex-col w-[calc(100vw-16rem)] h-[calc(100vh)] bg-white overflow-hidden shadow-sm border border-slate-200">
       <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10 shadow">
         <div className="">
@@ -1244,7 +1200,7 @@ export function ChartingForm() {
             Documentation Results
           </h1>
 
-          <p className="text-xs text-slate-500 mt-1">Step 6 of 8: Enter laboratory and imaging results</p>
+          <p className="text-xs text-slate-500 mt-1">Step 5 of 9: Enter laboratory and imaging results</p>
         </div>
 
         <form onSubmit={handleSubmit} >
@@ -1292,7 +1248,6 @@ export function ChartingForm() {
                         key={`${cell.id}-${row.original.field}`}
                         className={`min-w-50 w-120 p-0 m-0 h-6 border-separate border-gray-200 border-b  ${componentType === "static" ? "bg-lime-50" : "bg-white border-r border-separate"}`}
                       >
-                        {/* Render the cell content using flexRender */}
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     )

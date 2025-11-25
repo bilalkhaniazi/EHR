@@ -24,8 +24,7 @@ interface OrdersTableProps<T> {
   color: string,
   data: T[]
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const OrdersTable = <T extends Record<string, any>>({
+const OrdersTable = <T extends Record<string, string>>({
   columnNames,
   headerNames,
   color,

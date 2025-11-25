@@ -70,7 +70,7 @@ function getTimeBlocks() {
   now.setHours(currentHour, 0, 0, 0);
 
   const isFirstBlock = currentHour < 12;
-  let blockStart = new Date(now);
+  const blockStart = new Date(now);
 
   if (isFirstBlock) {
     blockStart.setDate(blockStart.getDate() - 1);
@@ -107,7 +107,7 @@ export default function IntakeOutputForm() {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    router.push("/admin/case-builder/form/history");
+    router.push("/admin/case-builder/form/medications");
   }
   const blocks = useMemo(() => getTimeBlocks(), []);
 
@@ -157,9 +157,9 @@ export default function IntakeOutputForm() {
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Droplets className="text-slate-400" />
-            Patient Demographics
+            Intake & Output
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step ? of ?: Review and record patient fluid intake and output over the past four 12-hour periods</p>
+          <p className="text-xs text-slate-500 mt-1">Step 7 of 9: Record patient intake and output</p>
         </div>
       </header>
 

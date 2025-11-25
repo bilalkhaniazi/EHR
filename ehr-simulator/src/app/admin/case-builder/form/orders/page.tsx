@@ -119,7 +119,7 @@ export default function OrdersForm() {
             <ClipboardList className="text-slate-400" />
             Order Entry
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 4 of 5: Create provider orders</p>
+          <p className="text-xs text-slate-500 mt-1">Step 4 of 9: Create provider orders</p>
         </div>
       </header>
 
@@ -207,12 +207,12 @@ export default function OrdersForm() {
                     </Select>
                   </div>
 
-                  <div className="flex items-center space-x-2 border rounded-md p-2 h-10 bg-white">
+                  <div className="flex items-center space-x-2 border rounded-md p-2 h-10 bg-white w-fit">
                     <Switch id="important" checked={important} onCheckedChange={setImportant} />
                     <Label htmlFor="important" className="text-sm font-normal cursor-pointer">Mark as Important</Label>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <AlertCircle className="text-slate-400" size={18} />
+                        <AlertCircle className="text-slate-300" size={18} />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Marking as important will display the order on the Overview EHR page</p>

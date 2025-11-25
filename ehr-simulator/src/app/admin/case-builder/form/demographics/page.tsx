@@ -47,7 +47,7 @@ export default function DemographicsForm() {
             <User className="text-slate-400" />
             Patient Demographics
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 1 of 6: Basic identification and admission details</p>
+          <p className="text-xs text-slate-500 mt-1">Step 1 of 9: Basic identification and admission details</p>
         </div>
       </header>
 
@@ -56,7 +56,7 @@ export default function DemographicsForm() {
           <div className="fixed top-6 right-8 z-10">
             <SubmitButton buttonText="Save & Continue" />
           </div>
-          <Card className="border-slate-200 shadow-sm">
+          <Card className="border-slate-200 shadow-sm pt-4">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-600" />
@@ -77,7 +77,7 @@ export default function DemographicsForm() {
           <div className="grid grid-cols-1 gap-6">
 
             {/* SECTION 2: Personal Info */}
-            <Card className="border-slate-200 shadow-sm h-fit">
+            <Card className="border-slate-200 shadow-sm h-fit pt-4">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <User className="w-5 h-5 text-blue-600" />
@@ -148,7 +148,7 @@ export default function DemographicsForm() {
 
             {/* SECTION 3: Clinical & Social */}
             <div className="space-y-6">
-              <Card className="border-slate-200 shadow-sm">
+              <Card className="border-slate-200 shadow-sm pt-4">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Ruler className="w-5 h-5 text-blue-600" />
@@ -195,7 +195,7 @@ export default function DemographicsForm() {
                 </CardContent>
               </Card>
 
-              <Card className="border-slate-200 shadow-sm">
+              <Card className="border-slate-200 shadow-sm pt-4">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Briefcase className="w-5 h-5 text-blue-600" />
@@ -259,7 +259,7 @@ export default function DemographicsForm() {
           </div>
 
           {/* SECTION 4: Admission Details */}
-          <Card className="border-slate-200 shadow-sm">
+          <Card className="border-slate-200 shadow-sm pt-4">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-blue-600" />

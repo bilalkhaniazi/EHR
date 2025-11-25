@@ -15,7 +15,6 @@ import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
 
-// --- Reusable Section Wrapper for styling ---
 const FormSection = ({
   icon: Icon,
   title,
@@ -62,26 +61,25 @@ const HistoryForm = () => {
     "Suicide / Self-Harm Risk", "Violence / Aggression Risk", "Elopement Risk",
     "Restraint Order Active", "Continuous Observation", "Hearing Impaired",
     "Vision Impaired", "High Risk for Falls", "Orthostatic Hypotension Risk",
-    "Confused / Impulsive Behavior", "Delirium / Cognitive Impairment Risk",
+    "Confused / Impulsive Behavior", "Delirium Risk",
     "Head Injury Precautions", "Increased Intracranial Pressure (ICP) Precautions",
-    "IV Line / Central Line / PICC in Place", "Tracheostomy / Airway Precautions",
-    "Chest Tube Precautions", "Pacemaker / ICD Precautions",
+    "Central Line / PICC in Place", "Tracheostomy / Airway Precautions",
+    "Chest Tube Precautions", "ICD Precautions",
     "Anticoagulant Therapy - Bleeding Precautions", "Pressure Injury Risk (Braden <18)",
-    "Immunocompromised Precautions", "Chemotherapy Precautions / Cytotoxic Drugs",
-    "Advanced Directive on File", "Court-Ordered Observation / Police Hold",
+    "Immunocompromised Precautions", "Chemotherapy Precautions",
+    "Court-Ordered Observation / Police Hold",
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden">
+    <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
 
-      {/* Sticky Header */}
       <div className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm flex-shrink-0 z-10">
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <FileClock className="text-slate-400" />
             Patient History
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 2 of ?: Document medical history and social context</p>
+          <p className="text-xs text-slate-500 mt-1">Step 2 of 9: Document medical history and social context</p>
         </div>
         {/* The submit button must form-associate or we place form outside */}
       </div>

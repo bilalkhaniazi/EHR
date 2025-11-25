@@ -8,10 +8,11 @@ import {
   Column,
   Table
 } from "@tanstack/react-table";
-// Component for the Input type cells
+
 
 interface CellProps {
-  getValue: () => string | number | undefined | null; row: Row<FlexSheetData>;
+  getValue: () => string | number | boolean | string[] | { subsetId: string; label: string; }[] | { low: number; high: number; } | { assessment: string; description: string; }[] | undefined;
+  row: Row<FlexSheetData>;
   column: Column<FlexSheetData, unknown>;
   table: Table<FlexSheetData>;
 }
@@ -19,7 +20,6 @@ export const TableInputCell = ({ getValue, row, column, table }: CellProps) => {
   const initialValue = (getValue() as string) || "";
   const [value, setValue] = useState(initialValue);
 
-  // Sync internal state if external data changes (optional, but good practice in tables)
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -44,15 +44,13 @@ export const TableInputCell = ({ getValue, row, column, table }: CellProps) => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onBlur={onBlur}
-        className={`w-full h-6 text-right text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${alertFlag ? "text-red-600 font-medium" : ""
-          }`}
+        className={`w-full h-6 text-right md:text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${alertFlag ? "text-red-600 font-medium" : ""}`}
         onKeyDown={onKeyDown}
       />
     </div>
   );
 };
 
-// Component for the Assessment Select cells
 export const TableAssessmentSelectCell = ({ getValue, row, column, table }: CellProps) => {
   const initialValue = (getValue() as string) || "";
   const [selectedValue, setSelectedValue] = useState(initialValue);

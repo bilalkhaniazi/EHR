@@ -25,16 +25,14 @@ import {
 import { TriangleAlert } from "lucide-react";
 import { formatTimeFromOffset } from "../charting/page";
 
-// Import Components
 import ImagingReport from "./components/imagingReport";
 import PathologyReport from "./components/microbiologyReport";
 
-// Import Data & Helpers
 import {
   type ImagingData,
   type LabTableData,
   type MicrobiologyReportData,
-  generateAllInitialLabTimes, // Ensure these are exported from your data file
+  generateAllInitialLabTimes,
   generateInitialLabData,
   labTemplate
 } from "./components/labsData"
@@ -60,8 +58,7 @@ export const getResultStatus = (initialValue: string, normalRange: { low: number
 }
 
 const columnHelper = createColumnHelper<LabTableData>();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getPinnedStyles(column: Column<any>): React.CSSProperties {
+function getPinnedStyles(column: Column<LabTableData>): React.CSSProperties {
   const isPinned = column.getIsPinned();
   if (!isPinned) {
     return {};
@@ -74,16 +71,13 @@ function getPinnedStyles(column: Column<any>): React.CSSProperties {
   };
 }
 
-// --- Main Component ---
 
 export function LabPage() {
-  // 1. LOCAL STATE (Replaces Redux/RTK Query)
   const [simStartTime] = useState(new Date().getTime()); // Initialize locally
   const [labTableData, setLabTableData] = useState<LabTableData[]>([]);
   const [timePoints, setTimePoints] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 2. DATA GENERATION (Replaces queryFn logic)
   useEffect(() => {
     const generateData = async () => {
       setIsLoading(true);

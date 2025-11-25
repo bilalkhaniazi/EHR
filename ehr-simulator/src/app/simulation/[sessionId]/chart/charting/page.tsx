@@ -3,10 +3,8 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type Column, type RowData } from "@tanstack/react-table";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import CheckBoxList from "./components/checkBoxList";
 import { AddTimeColumnButton } from "./components/addTimeColButton";
-import AssessmentSelect from "./components/assessmentSelector";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -15,21 +13,18 @@ import { toast } from "sonner";
 // import { Skeleton } from "@/components/ui/skeleton";
 import { differenceInMilliseconds, format } from "date-fns";
 import FlexSheetSidebar from "./components/flexSheetSidebar";
-import { getAlertFlag } from "./components/flexSheetHelpers";
 
-// Imports for types and static data
 import {
   type FlexSheetData,
-  type chartingOptions,
   assessmentTools,
   getAllTimeOffsets,
   tempFlexSheetData
 } from "./components/flexSheetData";
 import { ImagingData, MicrobiologyReportData } from "../labs/components/labsData";
+import { TableAssessmentSelectCell, TableInputCell } from "@/app/admin/case-builder/form/charting/components/tableInputCell";
 
 const columnHelper = createColumnHelper<FlexSheetData>();
 
-// --- Helper Functions ---
 
 function getPinnedStyles(column: Column<FlexSheetData>): React.CSSProperties {
   const isPinned = column.getIsPinned();
@@ -45,9 +40,11 @@ function getPinnedStyles(column: Column<FlexSheetData>): React.CSSProperties {
 }
 
 declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData extends RowData> {
-    updateData: (rowIndex: number, columnId: string, value: string | string[] | ImagingData | MicrobiologyReportData) => void
+    updateData: (
+      rowIndex: number,
+      columnId: string,
+      value: string | string[] | ImagingData | MicrobiologyReportData | Partial<TData>) => void
   }
 }
 
@@ -109,7 +106,6 @@ export function FlexSheet() {
     return combinedSet;
   }, [fieldSelections]);
 
-  // The Heavy Lifter: Filters rows AND injects Total Score rows dynamically
   const filteredData = useMemo(() => {
     // 1. Group rows by toolName first (needed to calculate totals correctly)
     const groupedByTool: Record<string, FlexSheetData[]> = {};
@@ -125,7 +121,6 @@ export function FlexSheet() {
 
     // 2. Iterate and Build Result
     data.forEach(row => {
-      // Determine visibility: Show if NOT hideable OR if it IS hideable and its ID is selected
       const isVisible = !row.hideable || (row.hideableId && visibleSubsetIds.has(row.hideableId));
 
       if (isVisible) {
@@ -133,7 +128,6 @@ export function FlexSheet() {
       }
 
       // 3. Inject Total Score Row
-      // Logic: If we just added a Title Row for a visible tool, insert the calculated total row immediately after.
       if (row.rowType === "titleRow" && row.hideableId && visibleSubsetIds.has(row.hideableId)) {
         const toolName = row.hideableId;
         if (groupedByTool[toolName]) {
@@ -219,8 +213,6 @@ export function FlexSheet() {
   }, [visibleSubsetIds]);
 
 
-  // --- Table Configuration ---
-
   const columns = useMemo(() => [
     columnHelper.accessor("field", {
       id: 'pinned',
@@ -289,64 +281,46 @@ export function FlexSheet() {
         ),
         cell: ({ row, column, getValue, table }) => {
           const initialValue = (getValue() as string) || '';
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          const [value, setValue] = useState(initialValue);
           const componentType = row.original.componentType;
 
-          // Sync state if external data changes (e.g. initial load or reset)
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          useEffect(() => setValue(initialValue), [initialValue]);
-
-          if (componentType === "static") return <p></p>;
-
-          if (componentType === "totalScoreRow") {
-            return <p className="text-right pr-2 py-0 text-xs font-semibold">{initialValue}</p>;
+          switch (componentType) {
+            case 'static':
+              return <p></p>
+            case 'input':
+              return (
+                <TableInputCell
+                  row={row}
+                  column={column}
+                  getValue={getValue}
+                  table={table}
+                />
+              )
+            case 'totalScoreRow':
+              return (
+                <p className="text-right pr-2 py-0 text-xs font-semibold">{initialValue}</p>
+              )
+            case 'assessmentselect':
+              return (
+                <TableAssessmentSelectCell
+                  row={row}
+                  column={column}
+                  getValue={getValue}
+                  table={table}
+                />
+              )
+            case 'checkboxlist':
+              const selectionKey = `${row.original.id}-${column.id}`;
+              const currentSelectedSubsets = fieldSelections[selectionKey] || [];
+              return (
+                <CheckBoxList
+                  options={row.original.assessmentSubsets || []}
+                  selectedOptions={currentSelectedSubsets}
+                  rowId={row.original.id}
+                  columnId={column.id}
+                  onSelectionChange={handleSubsetSelection}
+                />
+              );
           }
-
-          if (componentType === "assessmentselect") {
-            return (
-              <AssessmentSelect
-                options={(row.original.chartingOptions || []) as chartingOptions[]}
-                value={value}
-                rowId={row.original.id}
-                columnId={column.id}
-                onValueChange={(newVal) => {
-                  setValue(newVal);
-                  table.options.meta?.updateData(row.index, column.id, newVal);
-                }}
-                className="p-0 h-6 hover:bg-muted/30"
-              />
-            );
-          }
-
-          if (componentType === "checkboxlist") {
-            const selectionKey = `${row.original.id}-${column.id}`;
-            const currentSelectedSubsets = fieldSelections[selectionKey] || [];
-            return (
-              <CheckBoxList
-                options={row.original.assessmentSubsets || []}
-                selectedOptions={currentSelectedSubsets}
-                rowId={row.original.id}
-                columnId={column.id}
-                onSelectionChange={handleSubsetSelection}
-              />
-            );
-          }
-
-          const alertFlag = getAlertFlag(row.original, value, componentType);
-          return (
-            <Input
-              id={`cell-${row.id}-${column.id}`}
-              type="text"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onBlur={() => {
-                if (value !== initialValue) table.options.meta?.updateData(row.index, column.id, value);
-              }}
-              onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
-              className={`min-w-12 h-6 text-right pr-2 py-0 lg:text-xs text-xs border-none shadow-none rounded-none hover:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 ${alertFlag ? "text-red-600 font-medium" : ""}`}
-            />
-          );
         }
       })
     })

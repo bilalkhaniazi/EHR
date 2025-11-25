@@ -12,7 +12,7 @@ const Header = ({ tabs }: HeaderProps) => {
       <div className="flex h-(--header-height) justify-between items-center pl-12 gap-2">
         <div className="flex items-center gap-2">
           <Stethoscope color="white" size={26} strokeWidth={2.5} />
-          <Link href="/admin" >
+          <Link href="#" >
             <h1 className="text-3xl font-bold text-white hover:underline">
               <span>Flex</span>
               <span className="font-normal">Chart</span>
