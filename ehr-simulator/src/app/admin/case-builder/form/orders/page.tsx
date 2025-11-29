@@ -28,20 +28,12 @@ import { Label } from "@/components/ui/label"
 import SubmitButton from "../../components/submitButton"
 import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData"
 
-interface OrderType {
-  category: "Nursing" | "Respiratory" | "Laboratory" | "Consult"
-  title: string
-  details: string
-  status: "Active" | "Held"
-  provider: string
-  important: boolean
-}
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
 
-// Category styling helpers
-const getCategoryIcon = (cat: string) => {
+const getCategoryIcon = (cat: string | undefined) => {
   switch (cat) {
     case "Nursing": return <Stethoscope className="w-4 h-4" />;
     case "Respiratory": return <Wind className="w-4 h-4" />;
@@ -51,7 +43,7 @@ const getCategoryIcon = (cat: string) => {
   }
 }
 
-const getCategoryColor = (cat: string) => {
+const getCategoryColor = (cat: string | undefined) => {
   switch (cat) {
     case "Nursing": return "bg-blue-100 text-blue-700 border-blue-200";
     case "Respiratory": return "bg-cyan-100 text-cyan-700 border-cyan-200";
@@ -72,6 +64,7 @@ export default function OrdersForm() {
   const [status, setStatus] = useState<string>("Active");
   const [provider, setProvider] = useState("");
   const [important, setImportant] = useState(false)
+  const [visibleInPresim, setVisibleInPresim] = useState<boolean>(true)
 
   const [canAddOrder, setCanAddOrder] = useState<boolean>(false);
 
@@ -93,8 +86,9 @@ export default function OrdersForm() {
       title,
       details,
       status: status as OrderType["status"],
-      provider,
-      important
+      orderingProvider: provider,
+      important,
+      visibleInPresim
     }])
     clearForm();
   }
@@ -113,7 +107,7 @@ export default function OrdersForm() {
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
-      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
+      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow z-10">
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <ClipboardList className="text-slate-400" />
@@ -133,7 +127,7 @@ export default function OrdersForm() {
 
           <div className="lg:col-span-5 space-y-6">
             <Card className="border-slate-200 shadow-sm h-fit pt-0">
-              <CardHeader className="bg-slate-50/50 border-b border-slate-200/70 rounded-t-xl pt-4 !pb-3">
+              <CardHeader className="bg-slate-50/50 border-b border-slate-200/70 rounded-t-xl pt-3 !pb-3">
                 <CardTitle className="text-lg">New Order</CardTitle>
                 <CardDescription>Enter order details below</CardDescription>
               </CardHeader>
@@ -148,13 +142,19 @@ export default function OrdersForm() {
                         <ChevronDown />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map(c => (
-                          <SelectItem key={c} value={c}>
-                            <div className="flex items-center gap-2">
-                              {getCategoryIcon(c)} {c}
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {categories.map(c => {
+                          if (c) {
+                            return (
+                              <SelectItem key={c} value={c}>
+                                <div className="flex items-center gap-2">
+                                  {getCategoryIcon(c)} {c}
+                                </div>
+                              </SelectItem>
+                            )
+                          }
+                        }
+
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -180,7 +180,6 @@ export default function OrdersForm() {
                   />
                 </div>
 
-                {/* Details */}
                 <div className="space-y-2">
                   <Label>Instructions / Details</Label>
                   <Textarea
@@ -191,8 +190,7 @@ export default function OrdersForm() {
                   />
                 </div>
 
-                {/* Status & Flags */}
-                <div className="grid grid-cols-2 gap-4 items-end">
+                <div className="grid grid-cols-3 gap-4 items-end">
                   <div className="space-y-2">
                     <Label>Initial Status</Label>
                     <Select value={status} onValueChange={setStatus}>
@@ -205,6 +203,11 @@ export default function OrdersForm() {
                         <SelectItem value="Held">Held</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="flex items-center space-x-2 border rounded-md p-2 h-10 bg-white w-fit">
+                    <Switch id="presim" checked={visibleInPresim} onCheckedChange={setVisibleInPresim} />
+                    <Label htmlFor="presim" className="text-sm font-normal cursor-pointer">{visibleInPresim ? 'Included in Pre-Sim' : 'Excluded from Pre-Sim'}</Label>
                   </div>
 
                   <div className="flex items-center space-x-2 border rounded-md p-2 h-10 bg-white w-fit">
@@ -272,10 +275,8 @@ export default function OrdersForm() {
                             key={idx}
                             className="group relative bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col md:grid md:grid-cols-13 overflow-hidden"
                           >
-                            {/* Color Indicator Strip */}
                             <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${getCategoryColor(order.category)}`} />
 
-                            {/* Left: Title (Col 3) */}
                             <div className="md:col-span-2 p-2 pl-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200">
                               <h4 className="font-medium text-xs text-slate-900 leading-tight">{order.title}</h4>
                               {order.important && (
@@ -283,27 +284,37 @@ export default function OrdersForm() {
                                   Important
                                 </span>
                               )}
+                              {order.visibleInPresim ? (
+                                <span className="inline-flex w-fit items-center mt-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-100 uppercase tracking-wide">
+                                  In Pre-Sim
+                                </span>
+                              ) : (
+                                <span className="inline-flex w-fit items-center mt-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-100 uppercase tracking-wide">
+                                  Not in Pre-Sim
+                                </span>
+                              )}
+
                             </div>
 
-                            {/* Middle: Details (Col 5) */}
-                            <div className="md:col-span-6 p-2 flex items-center border-b md:border-b-0 md:border-r border-slate-50 bg-slate-50/30">
+                            <div className="md:col-span-6 p-2 flex items-center md:border-r bg-slate-50/30">
                               <p className="text-xs tracking-tight text-slate-600  whitespace-pre-wrap">
                                 {order.details || <span className="text-slate-400 italic">No additional details.</span>}
                               </p>
                             </div>
 
-                            {/* Right: Status (Col 2) */}
-                            <div className="md:col-span-2 p-2 flex items-center">
+                            <div className="md:col-span-2 p-2 flex items-center md:border-r">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-slate-700">{order.status}</span>
                                 <span className={`w-2 h-2 rounded-full ring-2 ring-white shadow-sm ${order.status === 'Active' ? 'bg-green-500' : 'bg-amber-400'}`} />
                               </div>
                             </div>
 
-                            {/* Far Right: Provider & Delete (Col 2) */}
                             <div className="md:col-span-3 p-2 flex items-center justify-between bg-slate-50/50">
-                              <span className="text-xs text-slate-500 font-medium truncate" title={order.provider}>
-                                {order.provider}
+                              {
+
+                              }
+                              <span className="text-xs text-slate-500 font-medium truncate" title={order.orderingProvider}>
+                                {order.orderingProvider}
                               </span>
                               <button
                                 type="button"

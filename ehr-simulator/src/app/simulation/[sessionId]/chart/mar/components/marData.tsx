@@ -82,7 +82,8 @@ export interface MedicationOrder {
   status: "active" | "completed" | "Held" | "cancelled";
   orderingProvider: string;
   infusionRate?: number
-  dose: number
+  dose: number,
+  visibleInPresim: boolean
 }
 
 export type AdministrationStatus = 'Given' | 'Held' | 'Missed' | 'Refused' | 'Due'
@@ -96,7 +97,8 @@ export interface MedAdministrationInstance {
   adminTimeMinuteOffset: number;
   status: AdministrationStatus;
   notes?: string;
-  administeredDose: number
+  administeredDose: number;
+  visibleInPresim: boolean;
 }
 
 // List of all medications that could be used in a medicationOrder. 
@@ -648,7 +650,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     indication: 'Infx',
     status: 'active',
-    orderingProvider: 'Dr. Samuel Wanjouri'
+    orderingProvider: 'Dr. Samuel Wanjouri',
+    visibleInPresim: true
   },
   {
     id: "orderDextrose5inNS45",
@@ -659,7 +662,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     indication: '??',
     status: "active",
-    orderingProvider: "Dr. Nigel Amos"
+    orderingProvider: "Dr. Nigel Amos",
+    visibleInPresim: true
   },
   {
     id: "orderAtropinePush",
@@ -670,7 +674,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "PRN",
     indication: "Bradycardia",
     status: 'active',
-    orderingProvider: 'Dr. Beatrice Chebet'
+    orderingProvider: 'Dr. Beatrice Chebet',
+    visibleInPresim: true
   },
   {
     id: "orderDopamine400InDex5",
@@ -681,7 +686,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     indication: "Bradycardia",
     status: 'active',
-    orderingProvider: "Dr. Hicham Makloufi"
+    orderingProvider: "Dr. Hicham Makloufi",
+    visibleInPresim: true
   },
   {
     id: 'orderLidocaineInDex5',
@@ -692,7 +698,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: 'Routine',
     indication: 'PVCs',
     status: 'active',
-    orderingProvider: 'Dr. Muhammad Al-Berzi'
+    orderingProvider: 'Dr. Muhammad Al-Berzi',
+    visibleInPresim: true
   },
   {
     id: "orderMetoprololIvPush",
@@ -703,7 +710,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "STAT",
     indication: "Tachycardia",
     status: "active",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderAlbuterolInh",
@@ -714,7 +722,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "STAT",
     indication: "Asthma",
     status: "active",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderAcetaminophenOral325",
@@ -726,7 +735,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Pain",
     instructions: "For pain of 4/10 or greater. Max dose of 8 tablets per 24 hours.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderAmoxIv",
@@ -738,7 +748,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     indication: "Infection",
     status: "active",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderPiperacillinTazobactamIV",
@@ -750,7 +761,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     indication: "Infection",
     status: "active",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderNormalSaline09",
@@ -762,7 +774,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     indication: "IV Fluids",
     status: "active",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderMetoprololOral25",
@@ -774,7 +787,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Blood Pressure",
     instructions: "Check HR and BP within 30 minutes of administration.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderLisinoprilOral10",
@@ -786,7 +800,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Hypertension",
     instructions: "Monitor blood pressure daily.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderVancomycinIv",
@@ -799,7 +814,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Infx",
     instructions: "Infuse over 2 hours. Monitor for Red Man Syndrome. Obtain trough level before 4th dose.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderAtorvastatinOral40",
@@ -811,7 +827,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Hyperlipidemia",
     instructions: "Administer in the evening.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderAcetaminophenOral650",
@@ -823,7 +840,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Pain",
     instructions: "For pain of 4/10 or greater. Max dose of 4 tablets per 24 hours.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderInsulinGlargineSc",
@@ -834,7 +852,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     status: "active",
     indication: "Type 2 Diabetes",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderInsulinAspartHum",
@@ -845,7 +864,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     status: "active",
     indication: "Type 2 Diabetes",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderLactatedRingers",
@@ -857,7 +877,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     status: "active",
     indication: "Maintainence Fluids",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderHydrocortisoneCream",
@@ -869,7 +890,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Itching",
     instructions: "Apply thin layer to affected area as needed for rash or itching.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderFurosemideOral20",
@@ -881,7 +903,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Edema",
     instructions: "Monitor daily weight and I/O.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderPantoprazoleIv40",
@@ -893,7 +916,8 @@ export const medicationOrders: MedicationOrder[] = [
     infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
     status: "active",
     indication: "GERD / Stress Ulcer Prophylaxis",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderEnoxaparinSc40",
@@ -905,7 +929,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "DVT Prophylaxis",
     instructions: "Administer to abdomen, 2 inches from umbilicus. Do not expel air bubble.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderMorphineIv",
@@ -917,7 +942,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Severe Pain",
     instructions: "For pain 7-10. Reassess pain in 30 minutes.",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   // {
   //   id: "orderNitroPatchTd",
@@ -966,7 +992,8 @@ export const medicationOrders: MedicationOrder[] = [
     status: "active",
     indication: "Anaphylaxis",
     instructions: "Administer immediately for signs of severe allergic reaction (wheezing, hives, swelling).",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderMethylprednisoloneIv125",
@@ -978,7 +1005,8 @@ export const medicationOrders: MedicationOrder[] = [
     infusionRate: 100, // 100mL over 1hr = 100mL/hr
     status: "active",
     indication: "Severe Inflammation",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   },
   {
     id: "orderNitroglycerin04mgSl",
@@ -989,7 +1017,8 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "PRN",
     status: "active",
     indication: "Angina",
-    orderingProvider: "Dr. Rahul Gupta"
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
   }
 ]
 
@@ -1002,7 +1031,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -200,
     status: 'Given',
     notes: " metoprolol",
-    administeredDose: 25
+    administeredDose: 25,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderAmoxIv",
@@ -1010,7 +1040,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -31,
     status: 'Given',
     notes: "-61 amox.",
-    administeredDose: 200
+    administeredDose: 200,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderAmoxIv",
@@ -1018,7 +1049,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -180,
     status: 'Held',
     notes: "-61 amox.",
-    administeredDose: 100
+    administeredDose: 100,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderMetoprololOral25",
@@ -1026,7 +1058,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: 0,
     status: 'Due',
     notes: "-121 metoprolol dose.",
-    administeredDose: 100
+    administeredDose: 100,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderLisinoprilOral10",
@@ -1034,7 +1067,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -121,
     status: 'Missed',
     notes: "-121 metoprolol dose.",
-    administeredDose: 100
+    administeredDose: 100,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderLisinoprilOral10",
@@ -1042,7 +1076,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: 60,
     status: 'Due',
     notes: "-121 metoprolol dose.",
-    administeredDose: 100
+    administeredDose: 100,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderVancomycinIv",
@@ -1050,7 +1085,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: 60,
     status: 'Due',
     notes: "-121 metoprolol dose.",
-    administeredDose: 100
+    administeredDose: 100,
+    visibleInPresim: true
   },
   {
     medicationOrderId: "orderVancomycinIv",
@@ -1058,7 +1094,8 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -140,
     status: 'Refused',
     notes: "-121 metoprolol dose.",
-    administeredDose: 100
+    administeredDose: 100,
+    visibleInPresim: true
   },
 ]
 

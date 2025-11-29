@@ -1,5 +1,5 @@
 import AssessmentSelect from "@/app/simulation/[sessionId]/chart/charting/components/assessmentSelector";
-import { chartingOptions, FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
+import { chartingOptions, FlexSheetData, FlexSheetFormCellValue } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { getAlertFlag } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetHelpers";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -11,7 +11,7 @@ import {
 
 
 interface CellProps {
-  getValue: () => string | number | boolean | string[] | { subsetId: string; label: string; }[] | { low: number; high: number; } | { assessment: string; description: string; }[] | undefined;
+  getValue: () => string | number | boolean | string[] | { subsetId: string; label: string; }[] | { low: number; high: number; } | { assessment: string; description: string; }[] | FlexSheetFormCellValue | undefined;
   row: Row<FlexSheetData>;
   column: Column<FlexSheetData, unknown>;
   table: Table<FlexSheetData>;

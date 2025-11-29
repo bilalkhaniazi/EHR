@@ -15,6 +15,7 @@ import Combobox from "@/components/ui/combobox";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { LabTableImagingReport, LabTableInputCell, LabTableMicrobioReport } from "./components/labTableInputCell";
+import { Switch } from "@/components/ui/switch";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -957,8 +958,10 @@ function getPinnedStyles(column: Column<LabTableData>): React.CSSProperties {
 }
 
 export function LabForm() {
-  const [labTableData, setLabTableData] = useState<LabTableData[]>(labData)
-  const [timePoints, setTimePoints] = useState([0])
+  const [labTableData, setLabTableData] = useState<LabTableData[]>(labData);
+  const [timePoints, setTimePoints] = useState([0]);
+  const [visibleInPresim, setVisibleInPresim] = useState<boolean>(false);
+
 
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [comboboxValue, setComboboxValue] = useState<string>("");
@@ -980,7 +983,6 @@ export function LabForm() {
     return labTableData.filter(row => {
       // Always show non-hideable rows
       if (!row.hideable) return true;
-      // Show hideable rows only if they're in visibleItems
       return visibleItems.has(row.field);
     });
   }, [labTableData, visibleItems]);
@@ -989,7 +991,7 @@ export function LabForm() {
   const handleAddVisibleItem = (fieldName: string) => {
     if (fieldName) {
       setVisibleItems(prev => new Set([...prev, fieldName]));
-      setComboboxValue(""); // Reset combobox after selection
+      setComboboxValue("");
     }
   };
 
@@ -1089,30 +1091,49 @@ export function LabForm() {
                 <div className="flex justify-center items-center">
                   <div className="grid grid-cols-2 gap-x-2">
                     <p className="text-gray-800 font-light">Days: </p>
-                    <p className="mb-1 ml-1">{days}</p>
+                    <p className="mb-1 ml-1">{days * -1}</p>
                     <p className="text-gray-800 font-light">Hours: </p>
-                    <p className="mb-1 ml-1">{hours}</p>
+                    <p className="mb-1 ml-1">{hours * -1}</p>
                     <p className="text-gray-800 font-light">Minutes: </p>
-                    <p className="mb-1 ml-1">{minutes}</p>
+                    <p className="mb-1 ml-1">{minutes * -1}</p>
                   </div>
                 </div>
               )
             },
             cell: ({ row, column, getValue, table }) => {
               const rowType = row.original.rowType
-
+              const x = row.original.field
+              console.log(x)
               switch (rowType) {
                 case 'results':
                   return (
-                    <LabTableInputCell row={row} getValue={getValue} column={column} table={table} />
+                    <LabTableInputCell
+                      row={row}
+                      getValue={getValue}
+                      column={column}
+                      table={table}
+                      visibleInPresim={visibleInPresim}
+                    />
                   );
                 case 'imaging':
                   return (
-                    <LabTableImagingReport column={column} row={row} table={table} getValue={getValue} />
+                    <LabTableImagingReport
+                      column={column}
+                      row={row}
+                      table={table}
+                      getValue={getValue}
+                      visibleInPresim={visibleInPresim}
+                    />
                   )
                 case 'microbiology':
                   return (
-                    <LabTableMicrobioReport column={column} row={row} table={table} getValue={getValue} />
+                    <LabTableMicrobioReport
+                      column={column}
+                      row={row}
+                      table={table}
+                      getValue={getValue}
+                      visibleInPresim={visibleInPresim}
+                    />
                   )
               }
             }
@@ -1120,7 +1141,7 @@ export function LabForm() {
       }
       )
     ],
-    [timePoints]
+    [timePoints, visibleInPresim]
   );
 
   const ptTable = useReactTable({
@@ -1152,10 +1173,8 @@ export function LabForm() {
     getCoreRowModel: getCoreRowModel(),
 
   });
-
+  console.log(labTableData)
   return (
-    // CHANGED: Replaced 'fixed inset-0' with 'h-[calc(100vh-4rem)]'
-    // This respects the sidebar width but locks the height so internal scrolling works.
     <div className="flex flex-col w-[calc(100vw-16rem)] h-[calc(100vh)] bg-white overflow-hidden shadow-sm border border-slate-200">
       <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10">
         <div className="">
@@ -1173,12 +1192,28 @@ export function LabForm() {
       </header>
 
       <main className="flex-1 flex flex-col min-h-0 px-6 pt-4 overflow-auto">
-        <div className="flex-none w-full flex gap-24 mb-2 px-1">
+        <div className="w-full flex justify-start gap-12 mb-3 px-4 items-end">
           <AddLabColumn handleColumnAdd={handleAddColumn} />
           <div>
             <Label>Imaging Options</Label>
             <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
           </div>
+          <div className="flex items-end gap-2">
+            <div className="flex items-center space-x-2 border rounded-md p-2 bg-white w-fit h-fit">
+              <Switch id="presim" checked={visibleInPresim} onCheckedChange={setVisibleInPresim} />
+              <Label htmlFor="presim" className="text-sm font-normal cursor-pointer">{visibleInPresim ? 'Included in Pre-Sim' : 'Excluded from Pre-Sim'}</Label>
+            </div>
+            <div className="space-y-1.5">
+              <p className="w-fit items-center  px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
+                Not included in Pre-Sim
+              </p>
+              <p className="w-fit items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
+                Included in Pre-Sim
+              </p>
+            </div>
+          </div>
+
+
         </div>
         <div className="flex-1 w-full border border-gray-200 rounded-t-lg overflow-auto bg-white shadow-sm relative">
           <Table className="w-full overflow-x-auto">
@@ -1191,7 +1226,6 @@ export function LabForm() {
                       key={header.id}
                       className="border-b-2 border-gray-200 p-0 bg-gray-50"
                     >
-                      {/* Render the header content using flexRender */}
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -1212,9 +1246,8 @@ export function LabForm() {
                       <TableCell
                         style={getPinnedStyles(cell.column)}
                         key={`${cell.id}-${row.original.field}`}
-                        className={`p-0 m-0 h-6 border-separate border-gray-200 border-b min-w-40 bg-white ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                        className={`!p-0 m-0 h-6 border-separate border-gray-200 border-b min-w-40 ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
                       >
-                        {/* Render the cell content using flexRender */}
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     )

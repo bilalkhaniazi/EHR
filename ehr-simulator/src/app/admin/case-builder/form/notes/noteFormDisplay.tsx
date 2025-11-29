@@ -11,8 +11,8 @@ import {
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
 import { NoteData, ProviderNote } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
+import { Badge } from "@/components/ui/badge";
 
-// Type Guards for safe rendering
 function isSoapNote(note: NoteData): note is ProviderNote {
   return typeof note.noteBody === 'object' && 'assessment' in note.noteBody;
 }
@@ -47,10 +47,20 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
             <h4 className="text-sm font-semibold text-slate-800">{note.title}</h4>
             <p className="text-xs text-slate-500">{note.specialty} • {note.author}</p>
           </div>
+          {note.visibleInPresim ? (
+            <Badge className="bg-lime-600/10 text-lime-600 border-lime-600/60 shadow-none rounded-full ml-8">
+              Included in Pre-Sim
+            </Badge>
+          ) : (
+            <Badge className="bg-amber-600/10 text-amber-600 border-amber-600/60 shadow-none rounded-full ml-8">
+              Hidden from Pre-Sim
+            </Badge>
+          )
+          }
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-mono text-slate-400 bg-white border px-1.5 py-0.5 rounded">
-            {displayTimeOffset(note.timeOffset)}
+            -{displayTimeOffset(note.timeOffset)}
           </span>
           <Button
             variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-red-600"

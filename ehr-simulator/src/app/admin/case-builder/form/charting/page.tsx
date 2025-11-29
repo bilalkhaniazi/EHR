@@ -12,7 +12,9 @@ import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { Clipboard } from "lucide-react";
-import { TableAssessmentSelectCell, TableInputCell } from "./components/tableInputCell";
+import { TableAssessmentSelectFormCell, TableInputFormCell } from "./components/tableInputFormCell";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 
 const chartingDataTemplate: FlexSheetData[] = [
@@ -1020,6 +1022,7 @@ function getPinnedStyles(column: Column<FlexSheetData>): React.CSSProperties {
 export function ChartingForm() {
   const [chartingData, setChartingData] = useState<FlexSheetData[]>(chartingDataTemplate)
   const [timePoints, setTimePoints] = useState<number[]>([180, 60, 30])
+  const [visibleInPresim, setVisibleInPresim] = useState(true)
 
   const router = useRouter()
 
@@ -1131,10 +1134,11 @@ export function ChartingForm() {
               switch (componentType) {
                 case 'input':
                   return (
-                    <TableInputCell getValue={getValue}
+                    <TableInputFormCell getValue={getValue}
                       row={row}
                       column={column}
                       table={table}
+                      visibleInPresim={visibleInPresim}
                     />
                   )
                 case 'static':
@@ -1143,11 +1147,12 @@ export function ChartingForm() {
                   );
                 case 'assessmentselect':
                   return (
-                    <TableAssessmentSelectCell
+                    <TableAssessmentSelectFormCell
                       getValue={getValue}
                       row={row}
                       column={column}
                       table={table}
+                      visibleInPresim={visibleInPresim}
                     />)
               }
             }
@@ -1155,7 +1160,7 @@ export function ChartingForm() {
       }
       )
     ],
-    [timePoints]
+    [timePoints, visibleInPresim]
   );
 
   const ptTable = useReactTable({
@@ -1208,13 +1213,28 @@ export function ChartingForm() {
           <SubmitButton buttonText="Continue" />
         </form>
       </header>
-      <div className="px-8 py-2">
+      <div className="flex gap-12 items-end px-8 py-2">
         <AddLabColumn handleColumnAdd={handleAddColumn} />
-
+        <div className="flex items-end gap-2">
+          <div className="flex items-center space-x-2 border rounded-md p-2 bg-white w-fit h-fit">
+            <Switch id="presim" checked={visibleInPresim} onCheckedChange={setVisibleInPresim} />
+            <Label htmlFor="presim" className="text-sm font-normal cursor-pointer">{visibleInPresim ? 'Included in Pre-Sim' : 'Excluded from Pre-Sim'}</Label>
+          </div>
+          <div className="space-y-1.5">
+            <p className="w-fit items-center justify-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
+              <div className="size-1.5 rounded full bg-yellow-600"></div>
+              Not included in Pre-Sim
+            </p>
+            <p className="w-fit items-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
+              <div className="size-1.5 rounded full bg-lime-600"></div>
+              Included in Pre-Sim
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="w-full px-4 ">
-        <main className="h-[calc(100vh-8.5rem)] w-full border border-gray-200 rounded-t-lg overflow-auto bg-white shadow-sm relative">
+        <main className="h-[calc(100vh-9rem)] w-full border border-gray-200 rounded-t-lg overflow-auto bg-white shadow-sm relative">
           <Table className="w-full overflow-x-auto">
             <TableHeader className=" bg-gray-50 ">
               {ptTable.getHeaderGroups().map(headerGroup => (

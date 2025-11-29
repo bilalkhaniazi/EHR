@@ -11,7 +11,6 @@ interface ImagingReportProps {
 
 const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) => {
 
-  // Helper to determine report status color
   const isCritical = imagingReportContents.isCritical === true;
 
   return (
@@ -38,7 +37,7 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
             <div className="flex gap-4 text-xs text-slate-500 font-medium">
               <p>Status: <span className="text-slate-700">Finalized</span></p>
               <p>Modality: <span className="text-slate-700">CT</span></p>
-              <p>Accession: <span className="text-slate-700">#{Math.floor(Math.random() * 1000000)}</span></p>
+              <p>Scan ID: <span className="text-slate-700">#{Math.floor(Math.random() * 1000000)}</span></p>
             </div>
           </div>
         </DialogHeader>
@@ -46,7 +45,6 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
         <ScrollArea className="flex-1 overflow-auto">
           <div className="px-8 py-6 space-y-8">
 
-            {/* 2. Technique Section (De-emphasized) */}
             <section>
               <h3 className="text-md font-bold uppercase tracking-wider text-slate-900 mb-2">Procedure & Technique</h3>
               <p className="text-sm leading-relaxed border-l-2 border-slate-300 pl-3">
@@ -54,7 +52,6 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
               </p>
             </section>
 
-            {/* 3. Findings Section (Grid Layout) */}
             <section>
               <h3 className="text-md font-bold uppercase tracking-wider text-slate-900 mb-3">Detailed Findings</h3>
               <div className="grid grid-cols-1 gap-y-2 pl-2">
@@ -71,7 +68,6 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
               </div>
             </section>
 
-            {/* 4. Impressions Section (Highlighted) */}
             <section className="bg-slate-50 border border-slate-200 rounded-lg p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 {isCritical ? <AlertCircle className="w-4 h-4 text-red-600" /> : <CheckCircle2 className="w-4 h-4 text-slate-500" />}
@@ -88,7 +84,6 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
               </ul>
             </section>
 
-            {/* 5. Footer Signature */}
             <div className="pt-4 mt-4 border-t border-slate-100">
               <p className="text-xs text-slate-400 font-mono">
                 Electronically Signed by: RADIOLOGY DEPARTMENT at {new Date().toLocaleTimeString()}

@@ -24,7 +24,7 @@ interface OrdersTableProps<T> {
   color: string,
   data: T[]
 }
-const OrdersTable = <T extends Record<string, string>>({
+const OrdersTable = <T extends Record<string, string | boolean | undefined>>({
   columnNames,
   headerNames,
   color,
@@ -53,10 +53,10 @@ const OrdersTable = <T extends Record<string, string>>({
                     }}
                   ></span>
                   <span className="relative z-1">
-                    {headerNames.title.substring(0, 1)}
+                    {typeof headerNames.title === 'string' ? headerNames.title.substring(0, 1) : ''}
                   </span>
                 </span>
-                <span className="-ml-3 relative z-1">{headerNames.title.substring(1)}</span>
+                <span className="-ml-3 relative z-1">{typeof headerNames.title === 'string' ? headerNames.title.substring(1) : ''}</span>
               </h1>
             </div>
           )

@@ -1,10 +1,10 @@
 "use client"
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Clock } from "lucide-react";
+import { Clock, Info } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface AddTimeColumnButtonProps {
   handleColumnAdd: (timeString: number) => void;
@@ -46,33 +46,45 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
     <div className="">
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
-          <Button className="text-xs">
+          <Button
+            className="text-sm"
+            variant='outline'
+          >
             <Clock className="mr-1" />
-            Time Offset
+            Add Past Time Column
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="z-100 p-3 flex flex-col bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
-          <div className="flex mt-2 mb-4 gap-3">
+        <PopoverContent className="z-100 p-3 flex flex-col gap-4 items-center bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
+          <h1 className="font-semibold text-lg">New Time Column</h1>
+          <div className="flex gap-3">
             <div>
-              <Label htmlFor='days' className="text-xs">Days</Label>
-              <Input id='days' value={days} onChange={(e) => handleTimeChange(e, setDays)} className="w-12 p-0.5 text-center" />
+              <Label htmlFor='days' className="text-xs font-semibold pb-1">Days</Label>
+              <Input id='days' value={days} onChange={(e) => handleTimeChange(e, setDays)} className=" p-0.5 text-center" />
             </div>
             <div>
-              <Label htmlFor='hours' className="text-xs">Hours</Label>
-              <Input id='hours' value={hours} onChange={(e) => handleTimeChange(e, setHours)} className="w-12 p-0.5 text-center" />
+              <Label htmlFor='hours' className="text-xs font-semibold pb-1">Hours</Label>
+              <Input id='hours' value={hours} onChange={(e) => handleTimeChange(e, setHours)} className=" p-0.5 text-center" />
             </div>
             <div>
-              <Label htmlFor='minutes' className="text-xs">Minutes</Label>
-              <Input id='minutes' value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className="w-12 p-0.5 text-center" />
+              <Label htmlFor='minutes' className="text-xs font-semibold pb-1">Minutes</Label>
+              <Input id='minutes' value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className=" p-0.5 text-center" />
             </div>
+          </div>
+          <div className={`rounded-md p-2.5 text-xs flex items-start gap-2 border ${timeOffset > 0 ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-slate-50 border-slate-100 text-slate-500'}`}>
+            <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <p>
+              {timeOffset === 0
+                ? "This column will appear at the exact moment the simulation begins (T-0)."
+                : <span>Results will appear as if collected <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of the scenario.</span>
+              }
+            </p>
           </div>
           <Button
             type='button'
-            variant="secondary"
             onClick={() => onColumnAdd(timeOffset)}
-            className="w-full shadow shadow-black/20"
+            className="w-full shadow bg-blue-600 hover:bg-blue-700 font-medium"
           >
-            Insert Time
+            Insert Time Column
           </Button>
         </PopoverContent>
       </Popover>

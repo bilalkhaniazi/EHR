@@ -52,7 +52,7 @@ const HistoryForm = () => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
-    console.log(payload);
+    console.dir(payload)
     router.push("/admin/case-builder/form/notes")
   }
 
@@ -70,6 +70,7 @@ const HistoryForm = () => {
     "Court-Ordered Observation / Police Hold",
   ];
 
+
   return (
     <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
 
@@ -81,7 +82,6 @@ const HistoryForm = () => {
           </h1>
           <p className="text-xs text-slate-500 mt-1">Step 2 of 9: Document medical history and social context</p>
         </div>
-        {/* The submit button must form-associate or we place form outside */}
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">

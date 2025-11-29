@@ -126,7 +126,6 @@ const MedAdministrationPanel = ({
         <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300 shadow-inner">
           <div className="grid gap-4 w-full p-2 ">
             {selectedMedOrders.map(order => {
-              // Safeguard in case the ID exists in selection but object isn't ready yet
               const currentAdminData = newAdministrations[order.id] || { status: "Given", administeredDose: 0 };
 
               return (

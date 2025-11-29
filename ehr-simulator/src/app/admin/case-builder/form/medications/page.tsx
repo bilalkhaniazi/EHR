@@ -49,17 +49,17 @@ export default function MedicationOrderForm() {
       }
     }
   }
-
+  console.log(orders)
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
     setOrders(prev => prev.filter((_, i) => i !== index))
   }
 
-  const handleOrderChange = (index: number, field: keyof NewOrderData, value: string) => {
+  const handleOrderChange = (index: number, field: keyof NewOrderData, value: string | boolean) => {
     setOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
-          if (field === 'dose' || field === 'infusionRate') {
+          if (typeof value === 'string' && (field === 'dose' || field === 'infusionRate')) {
             const regex = /^[0-9]*\.?[0-9]*$/;
             if (value === '' || regex.test(value)) {
               return { ...order, [field]: value };
@@ -87,14 +87,14 @@ export default function MedicationOrderForm() {
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
-      {/* Header */}
+
       <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Pill className="text-slate-400" />
             Medication Orders
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 8 of 9: Configure MAR entries</p>
+          <p className="text-xs text-slate-500 mt-1">Step 8 of 9: Create Medication Orders</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -103,7 +103,6 @@ export default function MedicationOrderForm() {
         </form>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-4 md:px-8 lg:px-12">
         <div className="max-w-5xl mx-auto pb-20 space-y-8">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -124,7 +123,6 @@ export default function MedicationOrderForm() {
             </p>
           </div>
 
-          {/* Order List Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">

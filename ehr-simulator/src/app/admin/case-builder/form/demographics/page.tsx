@@ -34,7 +34,7 @@ export default function DemographicsForm() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
-    console.log(payload);
+    console.dir(payload);
     router.push("/admin/case-builder/form/history");
   }
 
@@ -126,10 +126,6 @@ export default function DemographicsForm() {
                   </div>
                 </div>
 
-                {/* <div className="space-y-2">
-                    <Label htmlFor="MRN">MRN</Label>
-                    <Input required id="MRN" name="MRN" placeholder="123456" className="font-mono" />
-                  </div> */}
                 <div className="space-y-2">
                   <Label htmlFor="codeStatus">Code Status</Label>
                   <Select required name="codeStatus">

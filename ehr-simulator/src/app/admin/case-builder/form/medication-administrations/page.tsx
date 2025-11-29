@@ -31,6 +31,7 @@ import {
 } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
 import type { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page"
 import MedAdministrationFormCard from "./components/medAdministrationFormCard"
+import { Checkbox } from "@/components/ui/checkbox"
 
 
 function getComboboxData(orders: MedicationOrder[]) {
@@ -82,6 +83,7 @@ export default function MedicationAdministrationsForm() {
   const [status, setStatus] = useState<AdministrationStatus>('Given')
   const [isInPast, setIsInPast] = useState<boolean>(false)
   const [dose, setDose] = useState(0)
+  const [visibleInPresim, setVisibleInPresim] = useState<boolean>(true)
 
   const [days, setDays] = useState<number | ''>(0);
   const [hours, setHours] = useState<number | ''>(0);
@@ -103,7 +105,8 @@ export default function MedicationAdministrationsForm() {
       administratorId: administratorId || "System",
       adminTimeMinuteOffset: isInPast ? -1 * timeOffset : timeOffset,
       status: status,
-      administeredDose: dose
+      administeredDose: dose,
+      visibleInPresim: visibleInPresim
     }
 
     setMedAdministrations(prev => [...prev, newMedAdministration])
@@ -146,7 +149,7 @@ export default function MedicationAdministrationsForm() {
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
     console.log(payload);
-    router.push('/admin/case-builder/finish')
+    router.push('/admin/case-builder/form/review')
   }
 
   const handleDoseChange = (val: string) => {
@@ -266,7 +269,6 @@ export default function MedicationAdministrationsForm() {
                           <SelectItem value="Missed">Missed</SelectItem>
                           <SelectItem value="Refused">Refused</SelectItem>
                           <SelectItem value="Due">Due</SelectItem>
-
                         </SelectContent>
                       </Select>
                     </div>
@@ -276,12 +278,21 @@ export default function MedicationAdministrationsForm() {
                     <div className="relative">
                       <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                       <Input
-                        placeholder="e.g. Student Name"
+                        placeholder="RN Name"
                         value={administratorId}
                         onChange={e => setAdministratorId(e.target.value)}
                         className="pl-9"
                       />
                     </div>
+                  </div>
+                  <div className="flex items-center space-x-2 border bg-white rounded-md w-fit p-2">
+                    <Checkbox
+                      id='presim'
+                      checked={visibleInPresim}
+                      onCheckedChange={(checked) => setVisibleInPresim(!!checked)}
+                      className="bg-white data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                    />
+                    <Label>Included in Pre-Sim?</Label>
                   </div>
                 </div>
               </div>
@@ -299,7 +310,6 @@ export default function MedicationAdministrationsForm() {
             </CardContent>
           </Card>
 
-          {/* Bottom Section: List */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-700 flex items-center gap-2">

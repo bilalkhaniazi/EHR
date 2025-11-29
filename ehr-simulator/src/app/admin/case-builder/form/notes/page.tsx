@@ -21,18 +21,11 @@ import InfoTooltip from "../../components/helpTooltip";
 import { useRouter } from "next/navigation";
 import { categories, specialties } from "@/utils/form";
 
-// Import strict types from your data file
 import {
   type NoteData,
   type SoapNoteData,
-} from "@/app/simulation/[sessionId]/chart/notes/components/notesData"; // Adjust path as needed
+} from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import NoteFormDisplay from "./noteFormDisplay";
-
-
-
-
-
-
 
 export default function NotesForm() {
   const router = useRouter();
@@ -42,8 +35,8 @@ export default function NotesForm() {
   const [specialty, setSpecialty] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [isSoap, setIsSoap] = useState<boolean>(true);
+  const [visibleInPresim, setVisibleInPresim] = useState<boolean>(true)
 
-  // Content Fields
   const [plainNote, setPlainNote] = useState<string>("");
   const [soapContent, setSoapContent] = useState<SoapNoteData>({
     subjective: "",
@@ -91,7 +84,8 @@ export default function NotesForm() {
         author,
         specialty,
         timeOffset,
-        noteBody: soapContent
+        noteBody: soapContent,
+        visibleInPresim: visibleInPresim
       };
     } else {
       newNote = {
@@ -99,7 +93,8 @@ export default function NotesForm() {
         author,
         specialty,
         timeOffset,
-        noteBody: plainNote
+        noteBody: plainNote,
+        visibleInPresim: visibleInPresim
       };
     }
 
@@ -139,6 +134,13 @@ export default function NotesForm() {
               <CardHeader className="bg-slate-100/70 border-b border-slate-200 pt-4 !pb-2 rounded-t-xl">
                 <CardTitle className="text-lg flex items-center justify-between">
                   <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> New Entry</span>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="presim" className={``}>
+                      {visibleInPresim ? "Note included in Pre-Sim" : "Note excluded from Pre-Sim"}
+                    </Label>
+                    <Switch checked={visibleInPresim} onCheckedChange={setVisibleInPresim} id="presim" />
+
+                  </div>
                   <div className="flex items-center gap-2 text-sm font-normal">
                     <Switch id="soap-mode" checked={isSoap} onCheckedChange={setIsSoap} className="border border-slate-300" />
                     <Label htmlFor="soap-mode">SOAP Format</Label>
@@ -216,7 +218,6 @@ export default function NotesForm() {
 
                 <Separator />
 
-                {/* Dynamic Input Area */}
                 {isSoap ? (
                   <div className="space-y-4 animate-in fade-in duration-300">
                     <div className="space-y-2">

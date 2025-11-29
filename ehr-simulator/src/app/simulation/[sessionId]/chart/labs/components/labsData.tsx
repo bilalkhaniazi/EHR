@@ -24,24 +24,39 @@ export interface MicrobiologyReportData {
   isCritical: boolean | 'indeterminate';
 }
 
+export interface LabCellValue {
+  value: string | ImagingData | MicrobiologyReportData;
+  visibleInPresim: boolean;
+}
+
+// dataset to be used by tanstack table
+export interface LabTableData {
+  field: string;
+  rowType: "divider" | "results" | "imaging" | "microbiology";
+  unit?: string;
+  normalRange?: { low: number, high: number };
+  criticalRange?: { low: number, high: number };
+  hideable?: boolean;
+  visibleInPresim?: boolean;
+  [key: string | number]: string | number | boolean | undefined | object | ImagingData | MicrobiologyReportData | LabCellValue;
+}
+
+
+
+
 export interface Lab {
   labName: string;
   value: string | ImagingData | MicrobiologyReportData;
 }
-
 export interface PredefinedLabEntry {
   daysOffset: number,
   hoursOffset: number,
   labs: Lab[]
 }
-
-// predefined lab data with an offset time stamp
 export interface LabTimePoint {
   dateKey: number;
   labs: Lab[]
 }
-
-// info for table row 
 export interface LabDataTemplate {
   field: string,
   unit?: string,
@@ -52,16 +67,7 @@ export interface LabDataTemplate {
 }
 
 
-// dataset to be used by tanstack table
-export interface LabTableData {
-  field: string;
-  rowType: "divider" | "results" | "imaging" | "microbiology";
-  unit?: string;
-  normalRange?: { low: number, high: number };
-  criticalRange?: { low: number, high: number };
-  hideable?: boolean
-  [key: string | number]: string | number | boolean | undefined | object | ImagingData | MicrobiologyReportData;
-}
+
 
 
 export const generateAllInitialLabTimes = (referenceDate: number) => {

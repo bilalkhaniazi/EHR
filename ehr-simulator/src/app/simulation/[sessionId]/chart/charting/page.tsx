@@ -20,8 +20,8 @@ import {
   getAllTimeOffsets,
   tempFlexSheetData
 } from "./components/flexSheetData";
-import { ImagingData, MicrobiologyReportData } from "../labs/components/labsData";
-import { TableAssessmentSelectCell, TableInputCell } from "@/app/admin/case-builder/form/charting/components/tableInputCell";
+import { ImagingData, LabCellValue } from "../labs/components/labsData";
+import { TableAssessmentSelectCell, TableInputCell } from "./components/tableInputCell";
 
 const columnHelper = createColumnHelper<FlexSheetData>();
 
@@ -44,7 +44,7 @@ declare module '@tanstack/react-table' {
     updateData: (
       rowIndex: number,
       columnId: string,
-      value: string | string[] | ImagingData | MicrobiologyReportData | Partial<TData>) => void
+      value: string | string[] | ImagingData | LabCellValue | Partial<TData>) => void
   }
 }
 

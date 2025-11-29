@@ -5,6 +5,7 @@ import { isSlidingScaleInsulin } from "@/app/simulation/[sessionId]/chart/mar/co
 import { Textarea } from "@/components/ui/textarea";
 import { renderMedFormDetails, renderMedFormTitle } from "./medFormHelpers";
 import { X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const medicationFrequencies = [
   { value: 'QD', label: 'QD (Once Daily)' },
@@ -30,7 +31,7 @@ interface MedAdminCardProps {
   handleMedicationRemoval: (index: number) => void;
   index: number;
   orderData: Partial<MedicationOrder>; // Data comes from parent
-  onOrderChange: (index: number, field: keyof MedicationOrder, value: string) => void;
+  onOrderChange: (index: number, field: keyof MedicationOrder, value: string | boolean) => void;
 }
 
 const MedCardForm = ({
@@ -56,6 +57,16 @@ const MedCardForm = ({
             <div className="text-xs tracking-tight pb-2 text-gray-500">
               {renderMedFormDetails(medication, orderData)}
             </div>
+
+          </div>
+          <div className="flex items-center space-x-2 border bg-white rounded-md w-fit p-2">
+            <Checkbox
+              id='presim'
+              checked={orderData.visibleInPresim || false}
+              onCheckedChange={(checked) => onOrderChange(index, 'visibleInPresim', !!checked)}
+              className="bg-white"
+            />
+            <Label>Included in Pre-Sim?</Label>
           </div>
 
           <div>
@@ -127,6 +138,7 @@ const MedCardForm = ({
               </div>
             </div>
           }
+
           <div className="w-full space-y-1">
             <Label htmlFor={`Priority-${index}`}>Priority</Label>
             <select
@@ -142,6 +154,7 @@ const MedCardForm = ({
               <option value="PRN">PRN</option>
             </select>
           </div>
+
           <div className="w-full space-y-1">
             <Label htmlFor={`Frequency-${index}`}>Frequency</Label>
             <select
@@ -158,6 +171,7 @@ const MedCardForm = ({
               }
             </select>
           </div>
+
           <div className="w-full space-y-1">
             <Label>Indication</Label>
             <Input
@@ -166,6 +180,7 @@ const MedCardForm = ({
               className="bg-white sm:text-xs md:text-xs"
             />
           </div>
+
           <div className="w-full space-y-1">
             <Label>Ordering Provider</Label>
             <Input

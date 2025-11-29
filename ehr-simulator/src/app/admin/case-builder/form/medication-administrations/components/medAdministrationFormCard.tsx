@@ -2,7 +2,7 @@ import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "
 import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
 import { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -61,16 +61,15 @@ export default function MedAdministrationFormCard({ medication, administrations,
           )}
 
         </div>
-        <div className="flex w-full justify-end gap-2 pr-4">
-          <p className="text-xs">Last Administered:</p>
-          <p className="text-xs font-light">{findLastAdminTime()}</p>
+        <div className="flex w-full justify-end gap-2 pr-4 text-sm">
+          <p className="">Last Administered:</p>
+          <p className="font-light">{findLastAdminTime()}</p>
         </div>
       </div>
 
-      {/* Right Grid Panel */}
       <div className="flex-1 grid grid-cols-6 divide-x divide-slate-100 overflow-x-auto">
         {processedColumns.map((col, colIndex) => {
-          const isCurrentHour = colIndex === 3; // Assuming index 3 is always current hour based on your logic
+          const isCurrentHour = colIndex === 3;
 
           return (
             <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour ? 'bg-blue-50/30' : ''}`}>
@@ -82,7 +81,6 @@ export default function MedAdministrationFormCard({ medication, administrations,
                 {col.associatedAdministrations?.map(admin => {
                   const adminTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
 
-                  // Status Colors
                   let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
                   if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
                   if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
@@ -92,8 +90,9 @@ export default function MedAdministrationFormCard({ medication, administrations,
                     <div key={admin.id} className={`relative w-fit text-center p-1.5 rounded border text-xs ${statusStyle} group`}>
                       <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
                       <div className="text-[10px] opacity-80">{admin.status}</div>
-
-                      {/* Delete Overlay Button */}
+                      {admin.visibleInPresim && <div className="absolute -top-1.5 -left-1.5 size-4 rounded-full bg-white border flex justify-center items-center">
+                        <Check size={12} />
+                      </div>}
                       <button
                         onClick={() => onDeleteAdministration(admin.id!)}
                         className="absolute -top-1.5 -right-1.5 bg-white border border-slate-200 rounded-full p-0.5 text-slate-400 hover:text-red-600 hover:border-red-200 shadow-sm  transition-all"

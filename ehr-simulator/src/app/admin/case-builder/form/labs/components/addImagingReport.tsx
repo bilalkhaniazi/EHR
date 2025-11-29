@@ -1,19 +1,21 @@
 'use client'
 
-import { ImagingData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
+import { ImagingData, LabCellValue } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea";
+import { X } from "lucide-react";
 import { useState } from "react"
 
 
 interface AddImagingProps {
   imagingType: string
-  handleAddImagingReport: (report: ImagingData) => void;
+  handleAddImagingReport: (report: LabCellValue) => void;
   initialData?: ImagingData;
+  visibleInPresim: boolean
 }
 
 interface Finding {
@@ -21,7 +23,7 @@ interface Finding {
   description: string;
 }
 
-const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: AddImagingProps) => {
+const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData, visibleInPresim }: AddImagingProps) => {
   const isEditMode = !!initialData;
   const [technique, setTechnique] = useState(initialData?.technique || '')
   const [findings, setFindings] = useState<Finding[]>(initialData?.findings || [])
@@ -33,11 +35,14 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
   const [impression, setImpression] = useState<string>('')
 
   const newEntry = {
-    displayName: imagingType,
-    technique: technique,
-    findings: findings,
-    impressions: impressions,
-    isCritical: isCritical
+    visibleInPresim,
+    value: {
+      displayName: imagingType,
+      technique: technique,
+      findings: findings,
+      impressions: impressions,
+      isCritical: isCritical
+    }
   }
 
   const isSubmittable =
@@ -83,10 +88,10 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
   return (
     <DialogContent className="flex flex-col sm:max-w-150 lg:max-w-none w-250 h-full max-h-9/10 overflow-hidden">
       <h1 className="text-3xl tracking-tight font-semibold pb-2">
-        {isEditMode ? "Edit Imaging" : "Imaging"}
+        {isEditMode ? "Edit Imaging Report" : "Imaging Report"}
       </h1>
-      <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16">
-        {isEditMode ? 'Update Imaging' : 'Add Imaging'}
+      <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16 bg-blue-600 hover:bg-blue-700">
+        {isEditMode ? 'Update Imaging Report' : 'Add New Imaging Report'}
       </Button>
       <div className="flex-1 flex flex-col w-full overflow-y-auto space-y-4 p-4 border rounded-lg">
         <div>
@@ -106,12 +111,29 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
           </div>
           <Button onClick={handleAddFinding}>Add Finding</Button>
 
-          <div>
+          <div className="flex flex-col gap-4 justify-start pb-2">
             {findings.map((finding, index) =>
-              <div key={index} className="flex gap-3 text-sm">
-                <p className="font-medium text-nowrap">{finding.region}: </p>
-                <p>{finding.description}</p>
-                <Button onClick={() => handleRemoveFinding(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
+              <div
+                key={index}
+                className="group relative bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md flex flex-col md:grid md:grid-cols-20 overflow-hidden"
+              >
+                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-sky-200`} />
+
+                <div className="md:col-span-3 p-2 pl-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200">
+                  <h4 className="font-medium text-xs text-slate-900 leading-tight">{finding.region}</h4>
+                </div>
+                <div className="md:col-span-16 p-2 flex items-center md:border-r bg-slate-50/30 border-slate-200">
+                  <h4 className="font-medium text-xs text-slate-900 leading-tight">{finding.description}</h4>
+                </div>
+                <div className="col-span-1 flex justify-center items-center">
+                  <button
+                    onClick={() => handleRemoveFinding(index)}
+                    className=" p-1 hover:bg-red-100 rounded text-slate-400 hover:text-red-600"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
               </div>
             )}
           </div>
@@ -124,11 +146,20 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
           <Button onClick={handleAddImpression}>
             <p>Add Impression</p>
           </Button>
-          <div>
+          <div className="flex flex-col justify-start gap-4">
             {impressions.map((item, index) =>
-              <div key={index} className="flex gap-3 text-sm">
-                <p>{item}</p>
-                <Button onClick={() => handleRemoveImpression(index)} variant="outline" className="rounded-full size-4 p-3">X</Button>
+              <div
+                key={index}
+                className="relative bg-slate-50/30 border border-slate-200 rounded-lg shadow-sm hover:shadow-md flex justify-between p-2 overflow-hidden"
+              >
+                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-purple-200`} />
+                <p className="font-medium text-xs text-slate-900 leading-tight px-4">{item}</p>
+                <button
+                  onClick={() => handleRemoveImpression(index)}
+                  className=" p-1 hover:bg-red-100 rounded text-slate-400 hover:text-red-600"
+                >
+                  <X size={16} />
+                </button>
               </div>
             )}
           </div>

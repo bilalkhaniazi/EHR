@@ -4,6 +4,11 @@ export interface chartingOptions {
   label: string;
 };
 
+export interface FlexSheetFormCellValue {
+  value: string
+  visibleInPresim: boolean
+}
+
 export interface FlexSheetData {
   id: string;
   field: string;
@@ -16,7 +21,7 @@ export interface FlexSheetData {
   hideableId?: string,
   assessmentSubsets?: { subsetId: string, label: string }[];
   toolName?: string;
-  [key: string]: string | string[] | number | boolean | undefined | { subsetId: string, label: string }[] | { low: number, high: number } | { assessment: string, description: string }[];
+  [key: string]: string | string[] | number | boolean | undefined | { subsetId: string, label: string }[] | { low: number, high: number } | { assessment: string, description: string }[] | FlexSheetFormCellValue;
 };
 
 // an array of all numeric time offsets is needed because tanstack table needs to iterate through them to display each time column

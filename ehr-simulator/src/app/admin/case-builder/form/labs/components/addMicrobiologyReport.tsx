@@ -1,6 +1,6 @@
 "use client"
 
-import { MicrobiologyReportData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
+import { LabCellValue, MicrobiologyReportData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import FormTooltip from "@/components/form-tooltip";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,29 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
-// export interface MicrobiologyReport {
-//   // timeOffset: number;
-//   sampleType: string;
-//   location?: string;
-//   cultureResults: string;
-//   appearance: string;
-//   microscopy: string;
-//   sensitivity: string;
-//   comments: string;
-//   isCritical: boolean | 'indeterminate';
-//   reporter: string;
-// }
 
 interface AddMicrobiologyReportProps {
-  handleAddMicrobiologyReport: (report: MicrobiologyReportData) => void;
+  handleAddMicrobiologyReport: (report: LabCellValue) => void;
   initialData?: MicrobiologyReportData;
+  visibleInPresim: boolean;
+  field: string;
 }
 
 
-const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: AddMicrobiologyReportProps) => {
+const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData, visibleInPresim, field }: AddMicrobiologyReportProps) => {
   const isEditMode = !!initialData;
 
-  const [sampleType, setSampleType] = useState(initialData?.sampleType || '')
+  const [sampleType, setSampleType] = useState(field)
   const [appearance, setAppearance] = useState(initialData?.appearance || '')
   const [microscopy, setMicroscopy] = useState(initialData?.microscopy || '')
   const [cultureResults, setCultureResults] = useState(initialData?.cultureResults || '')
@@ -51,17 +41,21 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
     !!comments &&
     !!reporter
 
-  const report: MicrobiologyReportData = {
-    sampleType: sampleType,
-    location: location,
-    cultureResults: cultureResults,
-    appearance: appearance,
-    microscopy: microscopy,
-    sensitivity: sensitivity,
-    comments: comments,
-    isCritical: isCritical,
-    reporter: reporter
+  const report: LabCellValue = {
+    visibleInPresim: visibleInPresim,
+    value: {
+      sampleType: sampleType,
+      location: location,
+      cultureResults: cultureResults,
+      appearance: appearance,
+      microscopy: microscopy,
+      sensitivity: sensitivity,
+      comments: comments,
+      isCritical: isCritical,
+      reporter: reporter
+    } as MicrobiologyReportData
   }
+
   const handleSubmit = () => {
     handleAddMicrobiologyReport(report)
   }
@@ -71,9 +65,9 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
 
       <div className="space-y-3">
         <h1 className="text-3xl tracking-tight font-semibold">
-          {isEditMode ? "Edit Report" : "Microbiology Report"}
+          {isEditMode ? "Edit Report" : "Microbiology Report"}{field}123
         </h1>
-        <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16">
+        <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16 bg-blue-600 hover:bg-blue-700">
           {isEditMode ? 'Update Report' : 'Add Report'}
         </Button>
 
@@ -83,12 +77,12 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData }: Add
               <Label htmlFor="sampleType">Sample Type</Label>
               <select onChange={(e) => setSampleType(e.target.value)} value={sampleType} id="sampleType" className="border border-gray-200 h-9 rounded-md w-full px-2 mt-1 shadow-xs text-sm">
                 <option value="" disabled hidden>Select type</option>
-                <option value='Blood'>Blood</option>
-                <option value='Sputum'>Sputum</option>
-                <option value='Urine'>Urine</option>
-                <option value='Stool'>Stool</option>
-                <option value='CSF'>CSF</option>
-                <option value='Wound'>Wound</option>
+                <option value='Blood Culture'>Blood</option>
+                <option value='Sputum Culture'>Sputum</option>
+                <option value='Urine Culture'>Urine</option>
+                <option value='Stool Culture'>Stool</option>
+                <option value='CSF Culture'>CSF</option>
+                <option value='Wound Culture'>Wound</option>
               </select>
             </div>
             <div className="flex-1">

@@ -177,7 +177,6 @@ export function LabPage() {
         cell: ({ row, column, getValue }) => {
           const rowType = row.original.rowType;
 
-          // --- RESULT CELLS ---
           if (rowType === "results") {
             const initialValue = (getValue() as string) || '';
             const abnormalRange = row.original?.normalRange
