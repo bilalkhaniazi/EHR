@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance } from "./components/marData";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
@@ -12,8 +12,8 @@ import { Filter, PillBottle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Toggle } from '@/components/ui/toggle';
+import { useSymbologyScanner } from '@use-symbology-scanner/react';
 
-// --- Types (Previously in Slice) ---
 
 export interface NewAdministrationData {
   [medOrderId: string]: MedAdministrationInstance;
@@ -34,6 +34,16 @@ export default function Mar() {
   const [medFilters, setMedFilters] = useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
+  const ref = useRef(null)
+
+  const handleSymbol = (symbol: string, matchedSymbologies: string[]) => {
+    const symbologies = matchedSymbologies.join(', ')
+    console.log(`Scanned ${symbol}\n${symbologies}`)
+
+    handleMedChange({ id: symbol, checked: true })
+  }
+
+  useSymbologyScanner(handleSymbol)
 
   const handleMedChange = (payload: { id: string, checked: boolean }) => {
     const { id, checked } = payload;
@@ -46,7 +56,8 @@ export default function Mar() {
           status: "Given",
           administratorId: "currentUser",
           adminTimeMinuteOffset: 0,
-          administeredDose: 0
+          administeredDose: 0,
+          visibleInPresim: false // doesn't matter - this entry will not affect case template
         }
       }));
     } else {
@@ -160,7 +171,7 @@ export default function Mar() {
 
   return (
     <div className="flex flex-col p-2 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
-      <div className='flex gap-2'>
+      <div ref={ref} className='flex gap-2'>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-sm">
@@ -229,7 +240,7 @@ export default function Mar() {
 
           if (!associatedMedication) {
             console.warn(`Med ${order.medicationId} not found for order ${order.id}`)
-            return null
+            // return null
           }
 
           return (
