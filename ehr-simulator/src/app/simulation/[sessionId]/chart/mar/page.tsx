@@ -46,7 +46,8 @@ export default function Mar() {
           status: "Given",
           administratorId: "currentUser",
           adminTimeMinuteOffset: 0,
-          administeredDose: 0
+          administeredDose: 0,
+          visibleInPresim: false // doesn't matter - this entry will not affect case template
         }
       }));
     } else {

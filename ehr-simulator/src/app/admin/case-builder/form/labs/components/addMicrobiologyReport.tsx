@@ -65,7 +65,7 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData, visib
 
       <div className="space-y-3">
         <h1 className="text-3xl tracking-tight font-semibold">
-          {isEditMode ? "Edit Report" : "Microbiology Report"}{field}123
+          {isEditMode ? "Edit Report" : "Microbiology Report"}
         </h1>
         <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16 bg-blue-600 hover:bg-blue-700">
           {isEditMode ? 'Update Report' : 'Add Report'}

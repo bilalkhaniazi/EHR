@@ -188,54 +188,55 @@ export default function MedicationAdministrationsForm() {
             </CardHeader>
             <CardContent className="p-6 pt-0 flex flex-col gap-4">
 
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-500 uppercase">Select Order</Label>
-                <Combobox
-                  value={selectedOrder?.id || ''}
-                  onValueChange={(id) => {
-                    const order = medicationOrders.find(o => o.id === id);
-                    setSelectedOrder(order);
-                    if (order) setDose(order.dose);
-                  }}
-                  data={comboboxData}
-                  displayText="Search medication orders..."
-                />
-              </div>
+
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-7 bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="flex items-center gap-2 text-slate-700">
-                      <Clock className="w-4 h-4" /> Time Offset
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="past-mode" className={`text-xs text-slate-500`}>
-                        {isInPast ? "Given before sim start" : "Due"}
-                      </Label>
-                      <Switch checked={isInPast} onCheckedChange={setIsInPast} id="past-mode" />
-
-                    </div>
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-slate-500 uppercase">Select Order</Label>
+                    <Combobox
+                      value={selectedOrder?.id || ''}
+                      onValueChange={(id) => {
+                        const order = medicationOrders.find(o => o.id === id);
+                        setSelectedOrder(order);
+                        if (order) setDose(order.dose);
+                      }}
+                      data={comboboxData}
+                      displayText="Search medication orders..."
+                    />
                   </div>
-
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <div className="relative">
-                        <Input value={days} onChange={(e) => handleTimeChange(e, setDays)} className="bg-white text-center text-lg font-medium h-12 pr-11" />
-                        <span className="absolute right-3 top-4 text-center text-[10px] text-slate-400 uppercase tracking-wider">Days</span>
+                  <div className="p-4 rounded-lg border border-slate-200 bg-slate-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="flex items-center gap-2 text-slate-700">
+                        <Clock className="w-4 h-4" /> Time Offset
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="past-mode" className={`text-xs text-slate-500`}>
+                          {isInPast ? "Given before sim start" : "Due"}
+                        </Label>
+                        <Switch checked={isInPast} onCheckedChange={setIsInPast} id="past-mode" />
                       </div>
                     </div>
-                    <div className="flex items-center text-slate-500 font-light text-2xl">:</div>
-                    <div className="flex-1">
-                      <div className="relative">
-                        <Input value={hours} onChange={(e) => handleTimeChange(e, setHours)} className="bg-white text-center text-lg font-medium h-12 pr-12" />
-                        <span className="absolute right-3 top-4 text-center text-[10px] text-slate-400 uppercase tracking-wider">Hours</span>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <div className="relative">
+                          <Input value={days} onChange={(e) => handleTimeChange(e, setDays)} className="bg-white text-center text-lg font-medium h-12 pr-11" />
+                          <span className="absolute right-3 top-4 text-center text-[10px] text-slate-400 uppercase tracking-wider">Days</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center text-slate-500 font-light text-2xl">:</div>
-                    <div className="flex-1">
-                      <div className="relative">
-                        <Input value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className="bg-white text-center text-lg font-medium h-12 pr-10" />
-                        <span className="absolute right-3 top-4  text-center text-[10px] text-slate-400 uppercase tracking-wider">Mins</span>
+                      <div className="flex items-center text-slate-500 font-light text-2xl">:</div>
+                      <div className="flex-1">
+                        <div className="relative">
+                          <Input value={hours} onChange={(e) => handleTimeChange(e, setHours)} className="bg-white text-center text-lg font-medium h-12 pr-12" />
+                          <span className="absolute right-3 top-4 text-center text-[10px] text-slate-400 uppercase tracking-wider">Hours</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-slate-500 font-light text-2xl">:</div>
+                      <div className="flex-1">
+                        <div className="relative">
+                          <Input value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className="bg-white text-center text-lg font-medium h-12 pr-10" />
+                          <span className="absolute right-3 top-4  text-center text-[10px] text-slate-400 uppercase tracking-wider">Mins</span>
+                        </div>
                       </div>
                     </div>
                   </div>
