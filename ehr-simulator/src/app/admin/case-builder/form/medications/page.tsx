@@ -49,7 +49,6 @@ export default function MedicationOrderForm() {
       }
     }
   }
-  console.log(orders)
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
     setOrders(prev => prev.filter((_, i) => i !== index))
@@ -81,7 +80,7 @@ export default function MedicationOrderForm() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
-    console.log(payload);
+    console.log(JSON.stringify(payload));
     router.push('/admin/case-builder/form/medication-administrations')
   }
 

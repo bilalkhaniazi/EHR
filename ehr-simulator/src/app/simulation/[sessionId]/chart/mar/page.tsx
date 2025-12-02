@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance } from "./components/marData";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
@@ -34,13 +34,13 @@ export default function Mar() {
   const [medFilters, setMedFilters] = useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
-  const ref = useRef(null)
 
   const handleSymbol = (symbol: string, matchedSymbologies: string[]) => {
     const symbologies = matchedSymbologies.join(', ')
     console.log(`Scanned ${symbol}\n${symbologies}`)
 
     handleMedChange({ id: symbol, checked: true })
+    // check med vs order id
   }
 
   useSymbologyScanner(handleSymbol)
@@ -171,10 +171,10 @@ export default function Mar() {
 
   return (
     <div className="flex flex-col p-2 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
-      <div ref={ref} className='flex gap-2'>
+      <div className='flex gap-2'>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-sm">
+            <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
               Route
               <Filter className="ml-1 h-2 w-0" />
             </Button>
@@ -214,7 +214,7 @@ export default function Mar() {
           aria-label="Toggle bookmark"
           size="sm"
           variant="outline"
-          className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-22 bg-white h-8 mb-2 text-xs"
+          className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-fit shrink-0 bg-white h-8 mb-2 text-xs "
         >
           <PillBottle />
           PRNs

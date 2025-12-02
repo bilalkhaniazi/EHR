@@ -148,7 +148,7 @@ export default function MedicationAdministrationsForm() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
-    console.log(payload);
+    console.log(JSON.stringify(payload));
     router.push('/admin/case-builder/form/review')
   }
 

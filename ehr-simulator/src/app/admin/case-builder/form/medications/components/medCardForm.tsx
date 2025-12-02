@@ -66,7 +66,7 @@ const MedCardForm = ({
               onCheckedChange={(checked) => onOrderChange(index, 'visibleInPresim', !!checked)}
               className="bg-white"
             />
-            <Label>Included in Pre-Sim?</Label>
+            <Label htmlFor="presim">Included in Pre-Sim?</Label>
           </div>
 
           <div>
