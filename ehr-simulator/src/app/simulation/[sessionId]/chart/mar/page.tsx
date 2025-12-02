@@ -46,7 +46,8 @@ export default function Mar() {
           status: "Given",
           administratorId: "currentUser",
           adminTimeMinuteOffset: 0,
-          administeredDose: 0
+          administeredDose: 0,
+          visibleInPresim: true
         }
       }));
     } else {
