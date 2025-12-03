@@ -74,7 +74,8 @@ const NotePage = () => {
       author: "Current User, RN BSN",
       specialty: "Nursing",
       timeOffset: now,
-      noteBody: sbar
+      noteBody: sbar,
+      visibleInPresim: true
     }
 
     const previousNotes = [...notesData];
