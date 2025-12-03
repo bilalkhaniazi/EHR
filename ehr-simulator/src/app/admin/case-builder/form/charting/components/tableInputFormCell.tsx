@@ -9,14 +9,7 @@ import {
   Table
 } from "@tanstack/react-table";
 
-export function getCellIcon(status: boolean, value: string) {
-  if (value && status) {
-    return (<div className="size-1.5 rounded-full ml-2 bg-lime-600"></div>)
-  } else if (value && !status) {
-    return (<div className="size-1.5 rounded-full ml-2 bg-yellow-600"></div>)
-  }
-}
-
+import { getCellColor } from "../../labs/components/labTableInputCell";
 
 interface CellProps {
   getValue: () => string | number | boolean | string[] | { subsetId: string; label: string; }[] | { low: number; high: number; } | { assessment: string; description: string; }[] | FlexSheetFormCellValue | undefined;
@@ -26,7 +19,7 @@ interface CellProps {
   visibleInPresim: boolean
 }
 export const TableInputFormCell = ({ getValue, row, column, table, visibleInPresim }: CellProps) => {
-  const initialData = (getValue() as FlexSheetFormCellValue) || "";
+  const initialData = (getValue() as FlexSheetFormCellValue) || { value: "", visibleInPresim: false };
   const cellValue = initialData.value
   const [value, setValue] = useState(cellValue);
   const newData = {
@@ -53,8 +46,7 @@ export const TableInputFormCell = ({ getValue, row, column, table, visibleInPres
   };
 
   return (
-    <div className={`flex h-6 items-center w-full hover:bg-gray-50 `}>
-      {getCellIcon(initialData.visibleInPresim, value)}
+    <div className={`flex h-6 items-center w-full hover:bg-gray-50 ${getCellColor(initialData.visibleInPresim, value)}`}>
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -87,10 +79,7 @@ export const TableAssessmentSelectFormCell = ({ getValue, row, column, table, vi
   };
 
   return (
-    <div className="h-6 flex items-center">
-      {getCellIcon(initialData.visibleInPresim, selectedValue)}
-
-
+    <div className={`h-6 flex items-center ${getCellColor(initialData.visibleInPresim, selectedValue)}`}>
       <AssessmentSelect
         options={chartingOptions}
         value={selectedValue}

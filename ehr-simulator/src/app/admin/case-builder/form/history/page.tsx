@@ -1,12 +1,12 @@
 "use client"
 import { useState } from "react";
 import {
-  Syringe,
   Home,
   AlertTriangle,
   FileClock,
   BriefcaseMedical,
-  LucideIcon
+  LucideIcon,
+  Slice
 } from "lucide-react";
 import MultiTextInput from "../../components/multiTextInput";
 import { MultiSelect } from "../../components/multiSelect";
@@ -106,7 +106,7 @@ const HistoryForm = () => {
                   />
                 </FormSection>
 
-                <FormSection icon={Syringe} title="Surgical History">
+                <FormSection icon={Slice} title="Surgical History">
                   <MultiTextInput
                     labelText="Procedures"
                     name="surgicalHistory"

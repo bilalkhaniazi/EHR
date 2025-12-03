@@ -75,7 +75,7 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
             <p>
               {timeOffset === 0
                 ? "This column will appear at the exact moment the simulation begins (T-0)."
-                : <span>Results will appear as if collected <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of the scenario.</span>
+                : <span>Results will appear as if collected <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of the simulation.</span>
               }
             </p>
           </div>

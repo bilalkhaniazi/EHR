@@ -1120,11 +1120,11 @@ export function ChartingForm() {
                 <div className="flex justify-center items-center">
                   <div className="grid grid-cols-2 gap-x-2">
                     <p className="text-gray-800 font-light">Days: </p>
-                    <p className="mb-1">{days}</p>
+                    <p className="mb-1">{-1 * days}</p>
                     <p className="text-gray-800 font-light">Hours: </p>
-                    <p className="mb-1">{hours}</p>
+                    <p className="mb-1">{-1 * hours}</p>
                     <p className="text-gray-800 font-light">Minutes: </p>
-                    <p className="mb-1">{minutes}</p>
+                    <p className="mb-1">{-1 * minutes}</p>
                   </div>
                 </div>
               )
@@ -1222,11 +1222,11 @@ export function ChartingForm() {
           </div>
           <div className="space-y-1.5">
             <p className="w-fit items-center justify-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
-              <div className="size-1.5 rounded full bg-yellow-600"></div>
+              <span className="size-1.5 rounded full bg-yellow-600"></span>
               Not included in Pre-Sim
             </p>
             <p className="w-fit items-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
-              <div className="size-1.5 rounded full bg-lime-600"></div>
+              <span className="size-1.5 rounded full bg-lime-600"></span>
               Included in Pre-Sim
             </p>
           </div>

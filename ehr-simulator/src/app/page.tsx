@@ -9,10 +9,11 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <h1>Hello, world!</h1>
-      <pre>{JSON.stringify(users, null, 2)}</pre>
-      <Link href="/simulation/123/chart/overview" passHref>
-        <Button>To EHR</Button>
+      <Link href="/simulation/123/chart/overview" passHref className="p-4">
+        <Button>EHR Simulation Demo</Button>
+      </Link>
+      <Link href="/admin" passHref>
+        <Button>Admin Portal</Button>
       </Link>
     </div>
   );

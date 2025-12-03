@@ -46,7 +46,7 @@ const MedCardForm = ({
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
-    <div className="border bg-blue-50 rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative">
+    <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative shadow">
       <button onClick={() => handleMedicationRemoval(index)} className="absolute top-2 right-2">
         <X size={18} />
       </button>
@@ -59,7 +59,7 @@ const MedCardForm = ({
             </div>
 
           </div>
-          <div className="flex items-center space-x-2 border bg-white rounded-md w-fit p-2">
+          <div className="flex items-center space-x-2 border rounded-md w-fit p-2 bg-blue-50/50">
             <Checkbox
               id='presim'
               checked={orderData.visibleInPresim || false}
