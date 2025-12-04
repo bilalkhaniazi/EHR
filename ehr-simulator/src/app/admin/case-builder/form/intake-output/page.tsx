@@ -20,9 +20,6 @@ import {
 } from "@/components/ui/chart";
 import SubmitButton from "../../components/submitButton";
 
-const SIM_START_DATE = new Date('2024-03-15');
-const SIM_START_TIME = 1500;
-
 const chartConfig = {
   intake: { label: "Intake", color: "hsl(var(--chart-6))" },
   output: { label: "Output", color: "hsl(var(--chart-4))" },
@@ -62,37 +59,15 @@ const generateNiceTicks = (max: number, count: number = 6) => {
   return ticks;
 };
 
-function getTimeBlocks() {
+function getBlocks() {
   const blocks = [];
-  const now = new Date(SIM_START_DATE);
-  const currentHour = Math.floor(SIM_START_TIME / 100);
 
-  now.setHours(currentHour, 0, 0, 0);
+  for (let i = 1; i < 5; i++) {
 
-  const isFirstBlock = currentHour < 12;
-  const blockStart = new Date(now);
-
-  if (isFirstBlock) {
-    blockStart.setDate(blockStart.getDate() - 1);
-    blockStart.setHours(12, 0, 0, 0);
-  } else {
-    blockStart.setHours(0, 0, 0, 0);
-  }
-
-  for (let i = 0; i < 4; i++) {
-    const start = new Date(blockStart);
-    const startTime = start.getHours() === 0 ? "00:00" : "12:00";
-    const endTime = start.getHours() === 0 ? "11:59" : "23:59";
-
-    blocks.unshift({
+    blocks.push({
       id: i,
-      date: start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      startTime,
-      endTime,
-      label: `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+      label: `Block ${i}`
     });
-
-    blockStart.setHours(blockStart.getHours() - 12);
   }
 
   return blocks;
@@ -109,7 +84,7 @@ export default function IntakeOutputForm() {
     console.log(payload);
     router.push("/admin/case-builder/form/medications");
   }
-  const blocks = useMemo(() => getTimeBlocks(), []);
+  const blocks = useMemo(() => getBlocks(), []);
 
   const [intakeOutput, setIntakeOutput] = useState(
     blocks.map(block => ({ blockId: block.id, intake: 0, output: 0 }))
@@ -147,7 +122,7 @@ export default function IntakeOutputForm() {
     }
   };
 
-  const baseTickStyle = { fontSize: 14, fontFamily: 'var(--font-sans)' };
+  const tickLabelStyles = { fontSize: 14, fontFamily: 'var(--font-sans)' }
 
   return (
 
@@ -179,14 +154,13 @@ export default function IntakeOutputForm() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0 px-4">
-
                 <div className="w-full overflow-x-auto pb-2">
                   <div className="flex gap-2 h-[350px] min-w-[600px] md:min-w-0 md:w-full">
                     {blocks.map((block, index) => {
                       const data = intakeOutput.find(item => item.blockId === block.id) || { intake: 0, output: 0 };
 
                       const chartData = [{
-                        timeBlock: `${block.date}\n${block.startTime}-${block.endTime}`,
+                        label: block.label,
                         intake: data.intake,
                         output: data.output,
                       }];
@@ -195,31 +169,29 @@ export default function IntakeOutputForm() {
                         <Popover key={block.id}>
                           <PopoverTrigger asChild>
                             <div
-                              className={`flex-1 min-w-0 h-full hover:bg-slate-50 rounded-md transition-colors p-1 [&_.recharts-surface]:cursor-pointer`}>
-                              <ChartContainer config={chartConfig} className="h-full w-full">
+                              className={`flex-1 flex-col flex min-w-0 h-full hover:bg-slate-50 rounded-md transition-colors p-1 [&_.recharts-surface]:cursor-pointer text-slate-500`}>
+                              <ChartContainer config={chartConfig} className="h-full w-full flex flex-col items-center">
                                 <BarChart
                                   data={chartData}
-                                  margin={{ top: 20, right: 0, left: 0, bottom: 40 }}
+                                  margin={{ top: 20, right: 0, left: block.id === 1 ? 0 : -yAxisWidth, bottom: 20 }}
+
                                 >
                                   <CartesianGrid vertical={false} horizontal={true} />
                                   <XAxis
-                                    dataKey="timeBlock"
+                                    dataKey="label"
+                                    tick={tickLabelStyles}
                                     tickLine={false}
                                     tickMargin={10}
                                     axisLine={false}
-                                    tick={baseTickStyle}
                                   />
                                   <YAxis
+                                    tick={tickLabelStyles}
+                                    ticks={niceTicks}
+                                    tickFormatter={index === 0 ? (value) => `${value}` : () => ''}
                                     tickLine={false}
                                     axisLine={false}
                                     width={yAxisWidth}
                                     domain={[0, roundedMax]}
-                                    ticks={niceTicks}
-                                    tick={index === 0
-                                      ? baseTickStyle
-                                      : { ...baseTickStyle, opacity: 0 }
-                                    }
-                                    tickFormatter={index === 0 ? (value) => `${value}` : () => ''}
                                   />
                                   <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                                   <Bar
@@ -236,13 +208,18 @@ export default function IntakeOutputForm() {
                                   />
                                 </BarChart>
                               </ChartContainer>
+
+                              {/* First and last block label */}
+                              <span className={"h-4 text-xs text-slate-500 w-full text-center"} style={block.id === 1 ? { paddingLeft: yAxisWidth } : undefined}>
+                                {block.id === 1 && "Earliest"}
+                                {block.id === 4 && "Most Recent"}
+                              </span>
                             </div>
+
                           </PopoverTrigger>
                           <PopoverContent className="w-80" side="top" align="center">
                             <div className="space-y-4">
-                              <h4 className="font-medium text-sm">
-                                {block.date} {block.startTime}-{block.endTime}
-                              </h4>
+
                               <div className="space-y-2">
                                 <Label htmlFor={`intake-${block.id}`}>Intake (mL)</Label>
                                 <div className="relative">
