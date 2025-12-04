@@ -2,7 +2,7 @@
 
 import type { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData"
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, Column } from "@tanstack/react-table";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
@@ -16,6 +16,7 @@ import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { LabTableImagingReport, LabTableInputCell, LabTableMicrobioReport } from "./components/labTableInputCell";
 import { Switch } from "@/components/ui/switch";
+import { useFormContext } from "@/context/FormContext";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -965,6 +966,7 @@ export function LabForm() {
 
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [comboboxValue, setComboboxValue] = useState<string>("");
+  const { onDataChange } = useFormContext()
   const router = useRouter()
 
   // Get all hideable options
@@ -1005,20 +1007,10 @@ export function LabForm() {
     )
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
+  const handleSubmit = () => {
+    onDataChange('labs', labTableData)
     router.push('/admin/case-builder/form/charting')
   }
-
-  useEffect(() => {
-    console.log(labTableData)
-  }, [labTableData])
-
-
 
   const columns = useMemo(
     () => [
@@ -1185,10 +1177,9 @@ export function LabForm() {
           <p className="text-xs text-slate-500 mt-1">Step 5 of 6: Enter laboratory and imaging results</p>
         </div>
 
-        <form onSubmit={handleSubmit} >
-          <input name='labData' type='hidden' value={JSON.stringify(labTableData)} />
-          <SubmitButton buttonText="Continue" />
-        </form>
+        <div>
+          <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
+        </div>
       </header>
 
       <main className="flex-1 flex flex-col min-h-0 px-6 pt-4 overflow-auto">

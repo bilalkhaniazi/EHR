@@ -5,7 +5,7 @@ import { CompleteFormType, FormBlob } from '@/utils/form';
 
 interface FormContextType {
   data: FormBlob;
-  onDataChange: (key: string, data: CompleteFormType) => void;
+  onDataChange: (key: keyof FormBlob, data: CompleteFormType) => void;
 }
 const defaultFormData = {
   demographics: {
@@ -55,7 +55,7 @@ const MyContext = createContext<FormContextType>({
 
 export function FormContextProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<FormBlob>(defaultFormData);
-  const onDataChange = (key: string, data: CompleteFormType) => (
+  const onDataChange = (key: keyof FormBlob, data: CompleteFormType) => (
     setData(prev => (
       {
         ...prev,

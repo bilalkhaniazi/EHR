@@ -26,8 +26,10 @@ import {
   type SoapNoteData,
 } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import NoteFormDisplay from "./noteFormDisplay";
+import { useFormContext } from "@/context/FormContext";
 
 export default function NotesForm() {
+  const { onDataChange } = useFormContext()
   const router = useRouter();
   const [notes, setNotes] = useState<NoteData[]>([]);
 
@@ -106,6 +108,7 @@ export default function NotesForm() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const payload = Object.fromEntries(formData);
+    onDataChange('notes', notes)
     console.log(payload);
     router.push('/admin/case-builder/form/orders');
   }
