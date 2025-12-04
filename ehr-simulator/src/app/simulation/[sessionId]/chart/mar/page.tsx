@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance } from "./components/marData";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Toggle } from '@/components/ui/toggle';
 import { useSymbologyScanner } from '@use-symbology-scanner/react';
+import { Input } from '@/components/ui/input';
 
 
 export interface NewAdministrationData {
@@ -28,27 +29,63 @@ export interface MedCardColumns {
 
 const routes = ["PO", "IV", "SC", "IM", "Topical", "Inhalation", "SL"]
 export default function Mar() {
-  const [selectedMeds, setSelectedMeds] = useState<string[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
   const [realWorldNow, setRealWorldNow] = useState(new Date());
   const [medFilters, setMedFilters] = useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
+  const [scannedMed, setScannedMed] = useState('')
+  const [multiOrderPopoverIsOpen, setMultiOrderPopoverIsOpen] = useState<boolean>(false)
+  const ref = useRef(null)
 
-  const handleSymbol = (symbol: string, matchedSymbologies: string[]) => {
-    const symbologies = matchedSymbologies.join(', ')
-    console.log(`Scanned ${symbol}\n${symbologies}`)
+  // const handleSymbol = (symbol: string, matchedSymbologies: string[]) => {
+  //   const symbologies = matchedSymbologies.join(', ')
+  //   console.log(`Scanned ${symbol}\n${symbologies}`)
+  //   setScannedMed(symbol)
 
-    handleMedChange({ id: symbol, checked: true })
-    // check med vs order id
+  //   handleMedChange({ id: symbol, checked: true })
+  //   // check med vs order id
+  // }
+
+  const handleMedScan = (symbol: string) => {
+    setScannedMed(symbol)
+    const associatedOrders = medicationOrders
+      .filter(order => order.medicationId === symbol)
+      .map(order => order.id)
+      .filter(id => !selectedOrders.includes(id))
+
+    if (associatedOrders.length === 0) {
+      console.warn(`Order already scanned or no associated orders found with ${symbol}`)
+      return
+    }
+    if (associatedOrders.length > 1) {
+      console.warn("more than one order shares this med")
+
+    }
+    console.log(associatedOrders)
+    setSelectedOrders(prev => {
+      if (prev.includes(symbol)) {
+        return prev
+      }
+      return [...prev, ...associatedOrders]
+    })
   }
 
-  useSymbologyScanner(handleSymbol)
+  useSymbologyScanner(
+    handleMedScan,
+    {
+      target: ref,
+      scannerOptions: { prefix: '~', suffix: '', maxDelay: 20 },
+      symbologies: ["Data Matrix"]
+    },
+  )
 
   const handleMedChange = (payload: { id: string, checked: boolean }) => {
     const { id, checked } = payload;
     if (checked) {
-      setSelectedMeds(prev => [...prev, id]);
+      setSelectedOrders(prev => [...prev, id]);
+
       setNewAdministrations(prev => ({
         ...prev,
         [id]: {
@@ -60,8 +97,9 @@ export default function Mar() {
           visibleInPresim: false // doesn't matter - this entry will not affect case template
         }
       }));
+      console.log(selectedOrders)
     } else {
-      setSelectedMeds(prev => prev.filter(medId => medId !== id));
+      setSelectedOrders(prev => prev.filter(medId => medId !== id));
 
       setNewAdministrations(prev => {
         const copy = { ...prev };
@@ -97,7 +135,7 @@ export default function Mar() {
   };
 
   const handleClearAll = () => {
-    setSelectedMeds([]);
+    setSelectedOrders([]);
     setNewAdministrations({});
     setMedFilters([])
   };
@@ -172,6 +210,7 @@ export default function Mar() {
   return (
     <div className="flex flex-col p-2 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
       <div className='flex gap-2'>
+        <Input ref={ref} value={scannedMed} />
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
@@ -220,7 +259,7 @@ export default function Mar() {
           PRNs
         </Toggle>
         <MedAdministrationPanel
-          selectedMedIds={selectedMeds}
+          selectedMedIds={selectedOrders}
           newAdministrations={newAdministrations}
           onUpdateAdministration={handleUpdateAdministration}
           onClearAll={handleClearAll}
@@ -230,17 +269,20 @@ export default function Mar() {
           sessionStartTime={sessionStartDateNumber}
           realWorldTime={realWorldNow}
         />
-      </div>
 
+      </div>
+      <div className='text-[10px] flex flex-wrap'>
+        {selectedOrders.map((med, index) => <span className='p-1' key={index}>{med}</span>)}
+      </div>
       <div className="flex w-full h-full flex-col flex-1 gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
         {filteredMedOrders.map((order) => {
-          const isSelected = selectedMeds.includes(order.id);
+          const isSelected = selectedOrders.includes(order.id);
           const associatedMedication = medsById[order.medicationId]
           const orderSpecifcAdministrations = groupedAdministrationsByOrder[order.id] || [];
 
           if (!associatedMedication) {
             console.warn(`Med ${order.medicationId} not found for order ${order.id}`)
-            // return null
+            return null
           }
 
           return (

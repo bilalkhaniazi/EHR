@@ -74,7 +74,7 @@ const MedAdminCard = ({
 
   return (
     <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0">
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-4">
         <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
           <div className="space-y-1">
             {renderMedTitleRow(medication, order)}
@@ -83,16 +83,11 @@ const MedAdminCard = ({
             </div>
           </div>
 
-          <div>
-            {order.instructions &&
-              <div className="">
-                <h2 className="font-light">Administration Instructions:</h2>
-                <p className="pl-2 text-xs font-light text-gray-700">
-                  {order.instructions}
-                </p>
-              </div>
-            }
-          </div>
+          {order.instructions && (
+            <div className="text-sm font-light bg-white text-slate-800 p-2 rounded border border-slate-200 mb-3">
+              <span className="font-medium">Administration Instructions:</span> {order.instructions}
+            </div>
+          )}
 
           {(isSlidingScaleInsulinMed) && (
             <div className="overflow-hidden rounded-lg border w-fit">

@@ -16,7 +16,7 @@ import { type AllMedicationTypes, type MedAdministrationInstance, type Medicatio
 import MedAdminCard from "./medAdminCard";
 import { differenceInMinutes } from "date-fns";
 import { toast } from "sonner";
-import type { NewAdministrationData } from "../page"; // Ensure this imports the interface from Mar.tsx
+import type { NewAdministrationData } from "../page";
 import { Badge } from "@/components/ui/badge"
 
 interface MedAdministrationProps {
@@ -100,7 +100,7 @@ const MedAdministrationPanel = ({
             disabled={!hasSelections}
           >
             <PencilLine className="mr-2 h-4 w-4" />
-            <span>Document</span>
+            <span>Document {selectedMedIds.length > 0 ? `${selectedMedOrders.length} meds` : ''}</span>
           </Button>
         </DialogTrigger>
       </div>
@@ -121,10 +121,9 @@ const MedAdministrationPanel = ({
             >Scan patient
             </Button>
           </div>
-
         </div>
         <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300 shadow-inner">
-          <div className="grid gap-4 w-full p-2 ">
+          <div className="grid gap-4 w-full p-2 py-4 ">
             {selectedMedOrders.map(order => {
               const currentAdminData = newAdministrations[order.id] || { status: "Given", administeredDose: 0 };
 

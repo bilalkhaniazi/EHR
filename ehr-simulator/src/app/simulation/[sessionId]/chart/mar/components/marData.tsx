@@ -113,7 +113,7 @@ export const allMedications: AllMedicationTypes[] = [
     orderableUnit: "Tablet",
     administrationFrequencies: ["QD", "BID"],
     // Properties specific to OralMedication:
-    form: "tablet",         // dup of orderableUnit
+    form: "tablet",
     canBeCrushedOrSplit: false,
     takeWithFood: true,
   },
@@ -725,19 +725,7 @@ export const medicationOrders: MedicationOrder[] = [
     orderingProvider: "Dr. Rahul Gupta",
     visibleInPresim: true
   },
-  {
-    id: "orderAcetaminophenOral325",
-    medicationId: "medAcetaminophenOral325",
-    dose: 325,
-    unitsOrdered: 1,
-    frequency: "Q6hr",
-    priority: "PRN",
-    status: "active",
-    indication: "Pain",
-    instructions: "For pain of 4/10 or greater. Max dose of 8 tablets per 24 hours.",
-    orderingProvider: "Dr. Rahul Gupta",
-    visibleInPresim: true
-  },
+
   {
     id: "orderAmoxIv",
     medicationId: "medAmoxIv",
@@ -834,12 +822,25 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderAcetaminophenOral650",
     medicationId: "medAcetaminophenOral650",
     dose: 650,
-    unitsOrdered: 1,
+    unitsOrdered: 2,
     frequency: "Q6hr",
     priority: "PRN",
     status: "active",
     indication: "Pain",
     instructions: "For pain of 4/10 or greater. Max dose of 4 tablets per 24 hours.",
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
+  },
+  {
+    id: "orderAcetaminophenOral325",
+    medicationId: "medAcetaminophenOral650",
+    dose: 325,
+    unitsOrdered: 1,
+    frequency: "Q6hr",
+    priority: "PRN",
+    status: "active",
+    indication: "Pain",
+    instructions: "For pain of 4/10 or greater. Max dose of 4g per 24 hours.",
     orderingProvider: "Dr. Rahul Gupta",
     visibleInPresim: true
   },
