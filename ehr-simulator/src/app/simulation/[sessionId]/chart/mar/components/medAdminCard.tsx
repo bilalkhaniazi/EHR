@@ -14,7 +14,9 @@ interface MedAdminCardProps {
   onStatusChange: (status: string) => void;
   currentStatus: string
   onDoseChange: (administeredDose: number) => void;
-  currentDose: number
+  currentDose: number;
+  onCommentChange: (comment: string) => void;
+  currentComment: string;
 }
 
 // helper function to get the last few times the med was given
@@ -43,11 +45,16 @@ const MedAdminCard = ({
   currentStatus,
   onDoseChange,
   currentDose,
+  onCommentChange,
+  currentComment,
   realWorldNow
 }: MedAdminCardProps) => {
 
   const handleStatusChange = (newStatus: string) => {
     onStatusChange(newStatus)
+  }
+  const handleCommentChange = (comment: string) => {
+    onCommentChange(comment)
   }
   const handleDoseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -180,7 +187,7 @@ const MedAdminCard = ({
           </div>
           <div className="w-full space-y-1">
             <Label>Comments</Label>
-            <Input className="text-sm w-full" />
+            <Input className="text-sm w-full" onChange={(e) => handleCommentChange(e.target.value)} value={currentComment} />
           </div>
         </div>
       </div>

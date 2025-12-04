@@ -146,6 +146,10 @@ const MedAdministrationPanel = ({
                     onUpdateAdministration(order.id, "administeredDose", value);
                   }}
                   currentDose={currentAdminData.administeredDose}
+                  onCommentChange={(value) => {
+                    onUpdateAdministration(order.id, 'notes', value)
+                  }}
+                  currentComment={currentAdminData.notes || ''}
                 />
               )
             })}

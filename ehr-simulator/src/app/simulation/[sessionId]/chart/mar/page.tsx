@@ -36,8 +36,8 @@ export default function Mar() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
   const [scannedMed, setScannedMed] = useState('')
-  const [multiOrderPopoverIsOpen, setMultiOrderPopoverIsOpen] = useState<boolean>(false)
-  const ref = useRef(null)
+  // const [multiOrderPopoverIsOpen, setMultiOrderPopoverIsOpen] = useState<boolean>(false)
+  // const ref = useRef(null)
 
   // const handleSymbol = (symbol: string, matchedSymbologies: string[]) => {
   //   const symbologies = matchedSymbologies.join(', ')
@@ -70,12 +70,24 @@ export default function Mar() {
       }
       return [...prev, ...associatedOrders]
     })
+    setNewAdministrations(prev => ({
+      ...prev,
+      [associatedOrders[0]]: {
+        medicationOrderId: associatedOrders[0],
+        status: "Given",
+        administratorId: "currentUser",
+        adminTimeMinuteOffset: 0,
+        administeredDose: 0,
+        visibleInPresim: false, // doesn't matter - this entry will not affect case template
+        notes: '',
+      }
+    }));
   }
 
   useSymbologyScanner(
     handleMedScan,
     {
-      target: ref,
+      // target: ref,
       scannerOptions: { prefix: '~', suffix: '', maxDelay: 20 },
       symbologies: ["Data Matrix"]
     },
@@ -210,7 +222,7 @@ export default function Mar() {
   return (
     <div className="flex flex-col p-2 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
       <div className='flex gap-2'>
-        <Input ref={ref} value={scannedMed} />
+        <Input value={scannedMed} />
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
