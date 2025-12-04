@@ -32,6 +32,7 @@ import {
 import type { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page"
 import MedAdministrationFormCard from "./components/medAdministrationFormCard"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useFormContext } from "@/context/FormContext"
 
 
 function getComboboxData(orders: MedicationOrder[]) {
@@ -73,8 +74,6 @@ const createColumns = () => {
 
 
 export default function MedicationAdministrationsForm() {
-  const router = useRouter()
-
   const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>([])
   const [selectedOrder, setSelectedOrder] = useState<MedicationOrder>()
   const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([])
@@ -90,6 +89,8 @@ export default function MedicationAdministrationsForm() {
   const [minutes, setMinutes] = useState<number | ''>(0);
 
   const [startTime] = useState(new Date())
+  const { onDataChange } = useFormContext()
+  const router = useRouter()
 
   const comboboxData = getComboboxData(medicationOrders)
   const linkedMed = selectedOrder ? allMedications.find(med => med.id === selectedOrder.medicationId) : undefined
@@ -144,11 +145,9 @@ export default function MedicationAdministrationsForm() {
     });
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
+  const handleSubmit = () => {
+    onDataChange('medAdministrationInstances', medAdministrations)
+    console.log(medAdministrations)
     router.push('/admin/case-builder/form/review')
   }
 
@@ -170,10 +169,9 @@ export default function MedicationAdministrationsForm() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">Step 9 of 9: Document past administrations and add Due times</p>
         </div>
-        <form onSubmit={handleSubmit}>
-          <input name='medAdministrationData' type='hidden' value={JSON.stringify(medAdministrations)} />
-          <SubmitButton buttonText="Save and Continue" />
-        </form>
+        <div>
+          <SubmitButton onClick={handleSubmit} buttonText="Save and Continue" />
+        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">

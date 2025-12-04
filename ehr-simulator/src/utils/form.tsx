@@ -1,6 +1,7 @@
+import { NewOrderData } from "@/app/admin/case-builder/form/medications/page";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
-import { MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
 
@@ -45,11 +46,11 @@ export interface FormBlob {
   labs: LabTableData[];
   charting: FlexSheetData[];
   intakeOutput: { blockId: number, intake: number, output: number }[];
-  medOrders: MedicationOrder[];
+  medOrders: NewOrderData[];
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | FormHistoryData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | MedicationOrder[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | FormHistoryData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | MedAdministrationInstance[] | NewOrderData[]
 
 export const nursingAlerts = [
   "Seizure Risk",

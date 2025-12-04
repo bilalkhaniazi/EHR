@@ -11,6 +11,7 @@ import Combobox from "@/components/ui/combobox"
 import MedCardForm from "./components/medCardForm"
 import SubmitButton from "../../components/submitButton"
 import { useRouter } from "next/navigation"
+import { useFormContext } from "@/context/FormContext"
 
 function getComboboxData(medications: AllMedicationTypes[]) {
   return medications.map(med => {
@@ -26,14 +27,15 @@ function getComboboxData(medications: AllMedicationTypes[]) {
   })
 }
 
-type NewOrderData = Partial<MedicationOrder> & { medicationId: string };
+export type NewOrderData = Partial<MedicationOrder>;
 
 export default function MedicationOrderForm() {
   const router = useRouter()
 
   const [selectedMed, setSelectedMed] = useState('')
   const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([])
-  const [orders, setOrders] = useState<NewOrderData[]>([])
+  const [medOrders, setOrders] = useState<NewOrderData[]>([])
+  const { onDataChange } = useFormContext()
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
@@ -49,7 +51,7 @@ export default function MedicationOrderForm() {
       }
     }
   }
-  console.log(orders)
+  console.log(medOrders)
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
     setOrders(prev => prev.filter((_, i) => i !== index))
@@ -77,11 +79,9 @@ export default function MedicationOrderForm() {
     return getComboboxData(allMedications);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
+  const handleSubmit = () => {
+    onDataChange('medOrders', medOrders)
+    console.log(medOrders)
     router.push('/admin/case-builder/form/medication-administrations')
   }
 
@@ -97,10 +97,9 @@ export default function MedicationOrderForm() {
           <p className="text-xs text-slate-500 mt-1">Step 8 of 9: Create Medication Orders</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <input name='medOrderData' type='hidden' value={JSON.stringify(orders)} />
-          <SubmitButton buttonText="Save and Continue" />
-        </form>
+        <div>
+          <SubmitButton onClick={handleSubmit} buttonText="Save and Continue" />
+        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 md:px-8 lg:px-12">
@@ -141,7 +140,7 @@ export default function MedicationOrderForm() {
                       medication={med}
                       handleMedicationRemoval={handleRemoveMedication}
                       index={index}
-                      orderData={orders[index]}
+                      orderData={medOrders[index]}
                       onOrderChange={handleOrderChange}
                     />
                   </div>

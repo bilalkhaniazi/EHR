@@ -1,7 +1,7 @@
 'use client'
 
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, Column } from "@tanstack/react-table";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableFooter } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
@@ -15,6 +15,7 @@ import { Clipboard } from "lucide-react";
 import { TableAssessmentSelectFormCell, TableInputFormCell } from "./components/tableInputFormCell";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useFormContext } from "@/context/FormContext";
 
 
 const chartingDataTemplate: FlexSheetData[] = [
@@ -1023,7 +1024,7 @@ export function ChartingForm() {
   const [chartingData, setChartingData] = useState<FlexSheetData[]>(chartingDataTemplate)
   const [timePoints, setTimePoints] = useState<number[]>([180, 60, 30])
   const [visibleInPresim, setVisibleInPresim] = useState(true)
-
+  const { onDataChange } = useFormContext()
   const router = useRouter()
 
   const handleAddColumn = (offset: number) => {
@@ -1035,20 +1036,11 @@ export function ChartingForm() {
     )
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
+  const handleSubmit = () => {
+    onDataChange('charting', chartingData)
+    console.log(chartingData)
     router.push('/admin/case-builder/form/intake-output')
   }
-
-  useEffect(() => {
-    console.log(chartingData)
-  }, [chartingData])
-
-
 
   const columns = useMemo(
     () => [
@@ -1183,7 +1175,6 @@ export function ChartingForm() {
                 [columnId]: value,
               };
 
-              // 2. Force TypeScript to accept it matches your Interface
               return updatedRow as FlexSheetData;
             }
             return row;
@@ -1208,10 +1199,9 @@ export function ChartingForm() {
           <p className="text-xs text-slate-500 mt-1">Step 5 of 9: Enter laboratory and imaging results</p>
         </div>
 
-        <form onSubmit={handleSubmit} >
-          <input name='labData' type='hidden' value={JSON.stringify(chartingData)} />
-          <SubmitButton buttonText="Continue" />
-        </form>
+        <div>
+          <SubmitButton onClick={handleSubmit} buttonText="Continue" />
+        </div>
       </header>
       <div className="flex gap-12 items-end px-8 py-2">
         <AddLabColumn handleColumnAdd={handleAddColumn} />
