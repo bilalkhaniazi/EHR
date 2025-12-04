@@ -55,14 +55,9 @@ const defaultRoutes = [
 
 export function AppSidebar() {
 
-  const { role, loading } = useUser();
-  // TODO: FIX ME
-  const isAdmin = true;
-  //const isAdmin = role === "admin";
-
+  const { loading } = useUser();
   const pathname = usePathname();
   const isCurrentPath = (url: string) => pathname === url;
-
 
   if (loading) return null;
 
