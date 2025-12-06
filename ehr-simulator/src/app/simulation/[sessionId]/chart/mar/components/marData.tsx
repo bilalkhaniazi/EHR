@@ -88,8 +88,6 @@ export interface MedicationOrder {
 
 export type AdministrationStatus = 'Given' | 'Held' | 'Missed' | 'Refused' | 'Due'
 
-// an instance where a patient is given a medication (or refuses it)
-// is associated with a specific med order
 export interface MedAdministrationInstance {
   id?: string;
   medicationOrderId: string;    // link to specific med order
@@ -101,7 +99,6 @@ export interface MedAdministrationInstance {
   visibleInPresim: boolean;
 }
 
-// List of all medications that could be used in a medicationOrder. 
 export const allMedications: AllMedicationTypes[] = [
   {
     id: "medMetoprololOral25",

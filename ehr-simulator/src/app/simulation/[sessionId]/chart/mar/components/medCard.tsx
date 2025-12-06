@@ -100,14 +100,14 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
                   // Status Colors
                   let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
                   if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
-                  if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
-                  if (admin.status === "Refused") statusStyle = "bg-red-100 text-red-700 border-red-200";
+                  else if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
+                  else if (admin.status === "Due") statusStyle = 'bg-blue-100 text-blue-700 border-blue-200'
+                  else if (admin.status === "Missed") statusStyle = "bg-red-100 text-red-700 border-red-200";
 
                   return (
                     <div key={`${admin.id}-${index}`} className={`w-fit text-center p-1 rounded border text-xs ${statusStyle}`}>
                       <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
                       <div className="text-xs">{admin.status}</div>
-
                     </div>
                   )
                 })}

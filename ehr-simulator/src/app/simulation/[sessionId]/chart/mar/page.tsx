@@ -1,9 +1,9 @@
 'use client'
 
-import { format } from 'date-fns'
+import { differenceInMinutes, format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { AllMedicationTypes, MedAdministrationInstance } from "./components/marData";
+import { useEffect, useMemo, useState } from "react";
+import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./components/marData";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Toggle } from '@/components/ui/toggle';
 import { useSymbologyScanner } from '@use-symbology-scanner/react';
-import { Input } from '@/components/ui/input';
+import { MultiMedPopover } from './components/multiMedPopover';
 
 
 export interface NewAdministrationData {
@@ -27,53 +27,64 @@ export interface MedCardColumns {
   associatedAdministrations?: MedAdministrationInstance[];
 }
 
+const patientMRN = 'pt12345678'
+
 const routes = ["PO", "IV", "SC", "IM", "Topical", "Inhalation", "SL"]
 export default function Mar() {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [administrations, setAdministrations] = useState<MedAdministrationInstance[]>(medAdministrations)
   const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
   const [realWorldNow, setRealWorldNow] = useState(new Date());
   const [medFilters, setMedFilters] = useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
-  const [scannedMed, setScannedMed] = useState('')
-  // const [multiOrderPopoverIsOpen, setMultiOrderPopoverIsOpen] = useState<boolean>(false)
-  // const ref = useRef(null)
+  const [isScanned, setIsScanned] = useState(false);
+  const [scannedSymbol, setScannedSymbol] = useState('')
+  const [isMultiOrderPopoverOpen, setIsMultiOrderPopoverOpen] = useState<boolean>(false)
+  const [associatedOrders, setAssociatedOrders] = useState<MedicationOrder[]>([])
+  const [isWrongPtScan, setIsWrongPtScan] = useState<boolean>(false)
+  const [isMedAdminPanelOpen, setIsMedAdminPanelOpen] = useState(false);
 
-  // const handleSymbol = (symbol: string, matchedSymbologies: string[]) => {
-  //   const symbologies = matchedSymbologies.join(', ')
-  //   console.log(`Scanned ${symbol}\n${symbologies}`)
-  //   setScannedMed(symbol)
+  const handleScan = (symbol: string) => {
+    setScannedSymbol(symbol)
+    // handle patient wristband scans
+    if (symbol.slice(0, 2) === 'pt') {
+      if (symbol === patientMRN) {
+        setIsScanned(true)
+        return
+      } else {
+        setIsWrongPtScan(true)
+      }
+    }
 
-  //   handleMedChange({ id: symbol, checked: true })
-  //   // check med vs order id
-  // }
-
-  const handleMedScan = (symbol: string) => {
-    setScannedMed(symbol)
-    const associatedOrders = medicationOrders
-      .filter(order => order.medicationId === symbol)
+    const newAssociatedOrders = medicationOrders.filter(order => order.medicationId === symbol)
+    const associatedOrderIds = newAssociatedOrders
       .map(order => order.id)
       .filter(id => !selectedOrders.includes(id))
 
-    if (associatedOrders.length === 0) {
+    if (associatedOrderIds.length === 0) {
       console.warn(`Order already scanned or no associated orders found with ${symbol}`)
       return
     }
-    if (associatedOrders.length > 1) {
-      console.warn("more than one order shares this med")
 
+    if (newAssociatedOrders.length > 1) {
+      console.warn("more than one order shares this med")
+      setAssociatedOrders(newAssociatedOrders)
+      setIsMultiOrderPopoverOpen(true)
+      return
     }
-    console.log(associatedOrders)
+
+    if (!isPopoverOpen) {
+      setIsMedAdminPanelOpen(true)
+    }
     setSelectedOrders(prev => {
-      if (prev.includes(symbol)) {
-        return prev
-      }
-      return [...prev, ...associatedOrders]
+      return [...prev, associatedOrderIds[0]]
     })
+
     setNewAdministrations(prev => ({
       ...prev,
-      [associatedOrders[0]]: {
-        medicationOrderId: associatedOrders[0],
+      [associatedOrderIds[0]]: {
+        medicationOrderId: associatedOrderIds[0],
         status: "Given",
         administratorId: "currentUser",
         adminTimeMinuteOffset: 0,
@@ -84,10 +95,24 @@ export default function Mar() {
     }));
   }
 
-  useSymbologyScanner(
-    handleMedScan,
+  const handleMultiOrderPopoverChoice = (orderId: string) => {
+    setSelectedOrders(prev => [...prev, orderId])
+    setIsMultiOrderPopoverOpen(false)
+    if (!isMedAdminPanelOpen) {
+      setIsMedAdminPanelOpen(true)
+    }
+    setAssociatedOrders([])
+  }
+
+  const handleMultiOrderPopoverClose = () => {
+    setIsMultiOrderPopoverOpen(false)
+    setAssociatedOrders([])
+
+  }
+
+
+  useSymbologyScanner(handleScan,
     {
-      // target: ref,
       scannerOptions: { prefix: '~', suffix: '', maxDelay: 20 },
       symbologies: ["Data Matrix"]
     },
@@ -151,6 +176,7 @@ export default function Mar() {
     setNewAdministrations({});
     setMedFilters([])
   };
+
   const handleClearFilters = () => {
     setMedFilters([]);
     setIsPRN(false);
@@ -158,15 +184,36 @@ export default function Mar() {
   };
 
 
+  const handleAdministerMeds = (medAdmins: MedAdministrationInstance[]) => {
+    const newAdminTimes = new Map(medAdmins.map(admin => [admin.medicationOrderId, admin.adminTimeMinuteOffset]))
+
+    setAdministrations(prev => {
+      const filteredAdministrations = prev.filter(existingAdmin => {
+        if (existingAdmin.status !== 'Due') {
+          return true
+        }
+        const newAdminTime = newAdminTimes.get(existingAdmin.medicationOrderId)
+        if (newAdminTime === undefined) {
+          return true
+        }
+        const minuteDifference = Math.abs(differenceInMinutes(newAdminTime, existingAdmin.adminTimeMinuteOffset))
+        return minuteDifference > 60
+      })
+      return [...filteredAdministrations, ...medAdmins]
+    })
+    handleClearAll()
+  }
+
+
   const groupedAdministrationsByOrder = useMemo(() => {
-    return medAdministrations.reduce((acc, admin) => {
+    return administrations.reduce((acc, admin) => {
       if (!acc[admin.medicationOrderId]) {
         acc[admin.medicationOrderId] = [];
       }
       acc[admin.medicationOrderId].push(admin)
       return acc
     }, {} as { [orderId: string]: MedAdministrationInstance[] })
-  }, []);
+  }, [administrations]);
 
   const medsById = useMemo(() => {
     return allMedications.reduce((acc, med) => {
@@ -220,9 +267,18 @@ export default function Mar() {
   }
 
   return (
-    <div className="flex flex-col p-2 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
-      <div className='flex gap-2'>
-        <Input value={scannedMed} />
+    <div className="flex flex-col p-2 pt-0 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
+      <div className='flex gap-2 py-2'>
+        {associatedOrders.length > 0 &&
+          <MultiMedPopover
+            isOpen={isMultiOrderPopoverOpen}
+            associatedOrders={associatedOrders}
+            handleClose={handleMultiOrderPopoverClose}
+            handleSelection={handleMultiOrderPopoverChoice}
+            medication={medsById[associatedOrders[0].medicationId] || undefined}
+          />
+        }
+        <p className='fixed top-4 left-4 bg-white p-4'>{scannedSymbol}</p>
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
@@ -265,7 +321,7 @@ export default function Mar() {
           aria-label="Toggle bookmark"
           size="sm"
           variant="outline"
-          className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-fit shrink-0 bg-white h-8 mb-2 text-xs "
+          className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-fit shrink-0 bg-white h-8 text-xs "
         >
           <PillBottle />
           PRNs
@@ -280,6 +336,11 @@ export default function Mar() {
           administrationsLookup={groupedAdministrationsByOrder}
           sessionStartTime={sessionStartDateNumber}
           realWorldTime={realWorldNow}
+          isScanned={isScanned}
+          onPtScan={setIsScanned}
+          onAdministerMeds={handleAdministerMeds}
+          isOpen={isMedAdminPanelOpen}
+          handlePopoverClose={setIsMedAdminPanelOpen}
         />
 
       </div>

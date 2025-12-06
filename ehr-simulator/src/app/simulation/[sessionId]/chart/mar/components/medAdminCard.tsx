@@ -63,25 +63,25 @@ const MedAdminCard = ({
     }
   }
 
-  type MedAdminStatus = MedAdministrationInstance["status"];
-  const getStatusColor = (status: MedAdminStatus) => {
-    const colorMap = {
-      Given: "bg-lime-200 text-lime-800",
-      Missed: "bg-red-200 text-red-800",
-      Held: "bg-yellow-200 text-yellow-800",
-      Due: "bg-blue-200 text-blue-800",
-      Refused: "bg-gray-300 text-gray-800",
-    };
-    return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
-  };
+  // type MedAdminStatus = MedAdministrationInstance["status"];
+  // const getStatusColor = (status: MedAdminStatus) => {
+  //   const colorMap = {
+  //     Given: "bg-lime-200 text-lime-800",
+  //     Missed: "bg-red-200 text-red-800",
+  //     Held: "bg-yellow-200 text-yellow-800",
+  //     Due: "bg-blue-200 text-blue-800",
+  //     Refused: "bg-gray-300 text-gray-800",
+  //   };
+  //   return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
+  // };
 
   const threePrevAdministrations = getPreviousAdministrations(administrations, 3);
 
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
-    <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 shadow">
+      <div className="grid grid-cols-2 gap-6">
         <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
           <div className="space-y-1">
             {renderMedTitleRow(medication, order)}
@@ -124,19 +124,26 @@ const MedAdminCard = ({
           <div>
             <h2 className="font-light pb-1">Previous Administrations:</h2>
             <div className="flex gap-4 pl-2">
-              {threePrevAdministrations.map((administration, index) => {
+              {threePrevAdministrations.map((admin, index) => {
                 // if no administrations recorded for this medication
-                if (!administration.medicationOrderId) {
+                if (!admin.medicationOrderId) {
                   return (
-                    <p key={index} className="text-sm p-2 bg-gray-100 rounded-lg">Never</p>
+                    <p key={index} className="px-2 py-1 bg-gray-100 rounded-lg border text-gray-700 text-xs">Never</p>
                   )
                 }
-                const adminDateTime = new Date(sessionStartTime + administration.adminTimeMinuteOffset * 60 * 1000);
-                const displayTime = format(adminDateTime, 'HHmm')
+                const adminTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
+
+                // Status Colors
+                let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
+                if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
+                // if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
+                // if (admin.status === "Refused") statusStyle = "bg-red-100 text-red-700 border-red-200";
+
                 return (
-                  <div key={`${index}-${administration.medicationOrderId}`} className={`grid justify-center place-items-center rounded-md p-1 ${getStatusColor(administration.status)}`}>
-                    <p className="text-xs tracking-tight text-gray-700">{displayTime}</p>
-                    <p className="text-xs font-light text-gray-700">{administration.status}</p>
+                  <div key={`${admin.id}-${index}`} className={`w-fit text-center p-1 rounded border text-xs ${statusStyle}`}>
+                    <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
+                    <div className="text-xs">{admin.status}</div>
+
                   </div>
                 )
               })}

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 
 import { Button } from "@/components/ui/button"
-import { PencilLine } from "lucide-react"
+import { PencilLine, UserCheck, UserMinus } from "lucide-react"
 import { useState } from "react"
 import { type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
 import MedAdminCard from "./medAdminCard";
@@ -26,10 +26,31 @@ interface MedAdministrationProps {
   medicationLookup: { [key: string]: AllMedicationTypes };
   sessionStartTime: number;
   realWorldTime: Date;
-
+  isScanned: boolean;
+  onPtScan: (scan: boolean) => void;
   newAdministrations: NewAdministrationData;
   onUpdateAdministration: (orderId: string, field: keyof MedAdministrationInstance, value: string | number) => void;
+  onAdministerMeds: (meds: MedAdministrationInstance[]) => void;
   onClearAll: () => void;
+  handlePopoverClose: (x: boolean) => void;
+  isOpen: boolean;
+}
+
+export function isScannedBadge(isScanned: boolean) {
+  if (isScanned) {
+    return (
+      <Badge className="text-lime-700 h-6 bg-white border-lime-700 rounded-xl gap-2 text-sm font-medium">
+        <UserCheck className="!size-4" />
+        Patient Scanned
+      </Badge>
+    )
+  }
+  return (
+    <Badge className="text-red-700 h-6 border-red-700 bg-white rounded-xl gap-2 text-sm font-medium">
+      <UserMinus className="!size-4" />
+      Patient Not Scanned
+    </Badge>
+  )
 }
 
 
@@ -42,10 +63,12 @@ const MedAdministrationPanel = ({
   realWorldTime,
   newAdministrations,
   onUpdateAdministration,
-  onClearAll
+  isScanned,
+  onPtScan,
+  onAdministerMeds: handleAdministerMeds,
+  isOpen,
+  handlePopoverClose,
 }: MedAdministrationProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isScanned, setIsScanned] = useState(false);
   const [isLoading] = useState(false)
 
   const hasSelections = selectedMedIds.length > 0;
@@ -56,6 +79,9 @@ const MedAdministrationPanel = ({
     }
   })
 
+  const handleFakeScan = (scan: boolean) => {
+    onPtScan(scan)
+  }
 
   const handleSubmit = async () => {
     const payload = Object.keys(newAdministrations).map(orderId => {
@@ -72,12 +98,9 @@ const MedAdministrationPanel = ({
     });
 
     try {
-      // await submitNewAdministrations({ administrations: payload }).unwrap();
+      handleAdministerMeds(payload)
       console.log(payload)
-      onClearAll();
-      setIsOpen(false);
-      setIsScanned(false);
-
+      handlePopoverClose(false);
       toast.success("Medications successfully documented");
 
     } catch (err) {
@@ -89,41 +112,38 @@ const MedAdministrationPanel = ({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={setIsOpen}
+      onOpenChange={handlePopoverClose}
     >
       <DialogTitle className="sr-only">Medication Administration</DialogTitle>
-      <div className="flex w-full justify-end px-4">
+      <div className="flex w-full justify-end items-center h-full px-4 gap-12">
+        {isScannedBadge(isScanned)}
+
         <DialogTrigger asChild>
           <Button
-            onClick={() => setIsOpen(true)}
+            onClick={() => handlePopoverClose(true)}
             className="w-fit h-8 bg-lime-500 text-white hover:bg-lime-600 shadow"
             disabled={!hasSelections}
           >
             <PencilLine className="mr-2 h-4 w-4" />
-            <span>Document {selectedMedIds.length > 0 ? `${selectedMedOrders.length} meds` : ''}</span>
+            <span>Document {selectedMedIds.length > 0 ? `${selectedMedOrders.length} med${selectedMedIds.length > 1 ? 's' : ''}` : ''}</span>
           </Button>
         </DialogTrigger>
       </div>
 
-      <DialogContent className="flex flex-col md:max-w-4xl xl:max-w-6xl h-[96vh] bg-gray-200">
+      <DialogContent className="flex flex-col sm:max-w-3xl md:max-w-3xl xl:max-w-4xl h-[95vh] bg-gray-200">
         <div className="flex gap-16 justify-between items-center">
           <h1 className="text-2xl font-medium">Medication Administration Panel</h1>
           <div className="flex pr-8 gap-4 items-center">
-            {isScanned ? (
-              <Badge className="text-lime-800 bg-lime-200/50 py-1 px-2 rounded-xl">Patient Scanned</Badge>
-            ) : (
-              <Badge className="text-red-800 bg-red-200/50 py-1 px-2 rounded-xl">Patient Not Scanned</Badge>
-            )}
+            {isScannedBadge(isScanned)}
             <Button
-              className="w-fit h-6 bg-lime-500 text-white hover:bg-lime-600 shadow"
-              onClick={() => setIsScanned(true)}
-              disabled={isScanned}
-            >Scan patient
-            </Button>
+              className="w-fit size-6 bg-gray-300"
+              onClick={() => handleFakeScan(!isScanned)}
+            // disabled={isScanned}
+            />
           </div>
         </div>
-        <div className="grid place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300 shadow-inner">
-          <div className="grid gap-4 w-full p-2 py-4 ">
+        <div className=" place-items-start flex-grow overflow-auto bg-gray-100 rounded-lg border border-gray-300 shadow-inner">
+          <div className="grid gap-6 w-full p-6 ">
             {selectedMedOrders.map(order => {
               const currentAdminData = newAdministrations[order.id] || { status: "Given", administeredDose: 0 };
 
