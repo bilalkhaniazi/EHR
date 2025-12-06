@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import type { MedCardColumns } from "../page.jsx";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData.jsx"
 import { Checkbox } from "@/components/ui/checkbox";
-import { renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
+import { findLastAdminTime, renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -33,24 +33,6 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
     }
   })
 
-  // most recent time of any administration instance where patient actually consumed the med (given, patient administered)
-  const findLastAdminTime = () => {
-    if (!administrations || administrations.length === 0) {
-      return "Never";
-    }
-    const filteredAdmins = administrations.filter((admin: MedAdministrationInstance) => admin.status === "Given")
-    if (filteredAdmins.length !== 0) {
-      const lastAdmin = filteredAdmins.reduce((latest, current) => {
-        return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest;
-      })
-      const lastAdminTime = new Date(sessionStartTime + lastAdmin.adminTimeMinuteOffset * 60 * 1000);
-
-      return format(lastAdminTime, 'HHmm')
-    }
-    return "Never"
-  }
-
-
   return (
     <div className="relative bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex shrink-0 flex-col md:flex-row">
       <Checkbox
@@ -76,13 +58,9 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
           )}
 
         </div>
-        <div className="flex w-full justify-end gap-2 pr-4">
-          <p className="text-sm">Last Administered:</p>
-          <p className="text-sm font-light">{findLastAdminTime()}</p>
-        </div>
+        {findLastAdminTime(administrations, sessionStartTime)}
       </div>
 
-      {/* Right Grid Panel */}
       <div className="flex-1 grid grid-cols-6 divide-x divide-slate-100 overflow-x-auto">
         {processedColumns.map((col, colIndex) => {
           const isCurrentHour = colIndex === 3;

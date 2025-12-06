@@ -2,7 +2,7 @@
 
 import { differenceInMinutes, format } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./components/marData";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Toggle } from '@/components/ui/toggle';
 import { useSymbologyScanner } from '@use-symbology-scanner/react';
 import { MultiMedPopover } from './components/multiMedPopover';
+import { toast } from 'sonner';
 
 
 export interface NewAdministrationData {
@@ -44,6 +45,7 @@ export default function Mar() {
   const [associatedOrders, setAssociatedOrders] = useState<MedicationOrder[]>([])
   const [isWrongPtScan, setIsWrongPtScan] = useState<boolean>(false)
   const [isMedAdminPanelOpen, setIsMedAdminPanelOpen] = useState(false);
+  const sessionStartDateNumber = useRef(new Date().getTime())
 
   const handleScan = (symbol: string) => {
     setScannedSymbol(symbol)
@@ -53,7 +55,10 @@ export default function Mar() {
         setIsScanned(true)
         return
       } else {
-        setIsWrongPtScan(true)
+        if (!isWrongPtScan) {
+          setIsWrongPtScan(true)
+
+        }
       }
     }
 
@@ -63,7 +68,7 @@ export default function Mar() {
       .filter(id => !selectedOrders.includes(id))
 
     if (associatedOrderIds.length === 0) {
-      console.warn(`Order already scanned or no associated orders found with ${symbol}`)
+      toast.info(`Order already scanned or no associated orders found with ${symbol}`)
       return
     }
 
@@ -110,6 +115,18 @@ export default function Mar() {
 
   }
 
+  const handleRemoveOrder = (orderId: string) => {
+    setSelectedOrders(prev => {
+      const newOrders = prev.filter(order => order !== orderId)
+      return newOrders
+    })
+    setNewAdministrations(prev => {
+      const copy = { ...prev };
+      delete copy[orderId];
+      return copy;
+    })
+  }
+
 
   useSymbologyScanner(handleScan,
     {
@@ -118,7 +135,7 @@ export default function Mar() {
     },
   )
 
-  const handleMedChange = (payload: { id: string, checked: boolean }) => {
+  const handleMedCheckboxChange = (payload: { id: string, checked: boolean }) => {
     const { id, checked } = payload;
     if (checked) {
       setSelectedOrders(prev => [...prev, id]);
@@ -240,7 +257,6 @@ export default function Mar() {
   }, []);
 
 
-  const sessionStartDateNumber = new Date(realWorldNow).getTime();
 
   const columnAnchorTime = new Date(
     realWorldNow.getFullYear(),
@@ -334,19 +350,20 @@ export default function Mar() {
           allOrders={medicationOrders}
           medicationLookup={medsById}
           administrationsLookup={groupedAdministrationsByOrder}
-          sessionStartTime={sessionStartDateNumber}
+          sessionStartTime={sessionStartDateNumber.current}
           realWorldTime={realWorldNow}
           isScanned={isScanned}
           onPtScan={setIsScanned}
           onAdministerMeds={handleAdministerMeds}
           isOpen={isMedAdminPanelOpen}
           handlePopoverClose={setIsMedAdminPanelOpen}
+          onOrderRemove={handleRemoveOrder}
         />
 
       </div>
-      <div className='text-[10px] flex flex-wrap'>
+      {/* <div className='text-[10px] flex flex-wrap'>
         {selectedOrders.map((med, index) => <span className='p-1' key={index}>{med}</span>)}
-      </div>
+      </div> */}
       <div className="flex w-full h-full flex-col flex-1 gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
         {filteredMedOrders.map((order) => {
           const isSelected = selectedOrders.includes(order.id);
@@ -365,8 +382,8 @@ export default function Mar() {
               administrations={orderSpecifcAdministrations}
               order={order}
               columns={displayColumns}
-              sessionStartTime={sessionStartDateNumber}
-              onSelectionChange={handleMedChange}
+              sessionStartTime={sessionStartDateNumber.current}
+              onSelectionChange={handleMedCheckboxChange}
               isSelected={isSelected}
             />
           )
