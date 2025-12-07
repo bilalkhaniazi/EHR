@@ -1,11 +1,9 @@
 import {
   AlertCircle,
   CheckCircle2,
-  Pill,
-  Clock,
   FileText
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -16,6 +14,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { AllMedicationTypes, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
 
 interface MultiMedPopoverProps {
   isOpen: boolean;
@@ -35,8 +34,8 @@ export function MultiMedPopover({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] h-200 sm:max-w-lg md:max-w-2xl p-0 gap-0 overflow-hidden bg-gray-50">
-        <DialogHeader className="px-4 py-3 gap-0 bg-gray-50 border-b border-gray-100">
+      <DialogContent className="flex flex-col max-h-[80vh] h-200 sm:max-w-lg md:max-w-2xl p-0 gap-0  bg-gray-50 ">
+        <DialogHeader className="px-4 py-3 gap-0 bg-gray-100 border-b rounded-t-lg border-gray-200 shadow-[0_4px_6px_0px_rgba(0,0,0,0.1)]">
           <div className="flex items-center gap-3 text-amber-600">
             <div className="p-1.5 bg-amber-100 rounded-full">
               <AlertCircle size={18} />
@@ -50,43 +49,31 @@ export function MultiMedPopover({
         </DialogHeader>
 
         {/* Order Selection List */}
-        <div className="p-6 grid bg-white gap-3 overflow-y-auto">
+        <div className="flex-1 p-6 flex flex-col justify-start bg-white gap-6 overflow-y-auto shadow-inner">
           {associatedOrders.map((order) => (
             <button
               key={order.id}
               onClick={() => handleSelection(order.id)}
-              className="group relative flex flex-col items-start w-full p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-500 hover:ring-1 hover:ring-blue-500 hover:shadow-md transition-all text-left"
+              className="group relative flex flex-col items-start w-full h-fit px-4 pt-2 pb-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-500 hover:ring-1 hover:ring-blue-500 hover:shadow-md transition-all text-left"
             >
               <div className="flex justify-between w-full items-start mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-                    <Pill size={16} />
-                  </span>
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 leading-none">
-                      {order.dose}
-                      {/* Assuming 'unit' might be on the order or linked med, defaulting context here */}
-                    </h4>
-                    <span className="text-xs font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded mt-1 inline-block">
-                      {medication.route} route here
-                    </span>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    {renderMedTitleRow(medication, order)}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs ml-2 text-slate-600">
+                    {renderMedCardDetails(medication, order)}
                   </div>
                 </div>
-
                 <div className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
                   <CheckCircle2 size={24} />
                 </div>
               </div>
 
-              {/* Detail Rows */}
-              <div className="w-full space-y-1.5 border-t border-slate-50 pt-2 mt-1">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Clock size={14} className="text-slate-400" />
-                  <span>{order.frequency}</span>
-                </div>
+              <div className="w-full space-y-1.5 pt-2 mt-1">
                 {order.instructions && (
-                  <div className="flex items-start gap-2 text-xs text-slate-500 bg-slate-50 p-2 rounded w-full">
-                    <FileText size={14} className="text-slate-400 mt-0.5 shrink-0" />
+                  <div className="flex items-start gap-2 text-xs text-gray-600 bg-slate-50 p-2 rounded w-full">
+                    <FileText size={14} className="text-gray-400 mt-0.5 shrink-0" />
                     <span className="line-clamp-2">{order.instructions}</span>
                   </div>
                 )}
@@ -96,14 +83,14 @@ export function MultiMedPopover({
         </div>
 
         {/* Footer */}
-        <DialogFooter className="p-4 bg-gray-50 border-t border-slate-100 sm:justify-between items-center">
-          <p className="text-xs text-slate-400 pl-2 hidden sm:block">
+        <DialogFooter className="p-4 bg-gray-100 border-t border-gray-200 sm:justify-between items-center rounded-b-lg">
+          <p className="text-xs text-gray-500 pl-2 hidden sm:block">
             Esc to cancel
           </p>
           <DialogClose asChild>
-            <Button variant="ghost" className="text-slate-500 hover:text-slate-800">
+            {/* <Button variant="" className="">
               Cancel Administration
-            </Button>
+            </Button> */}
           </DialogClose>
         </DialogFooter>
 

@@ -15,6 +15,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { useSymbologyScanner } from '@use-symbology-scanner/react';
 import { MultiMedPopover } from './components/multiMedPopover';
 import { toast } from 'sonner';
+import WrongPatientAlert from './components/wrongPatientAlert';
 
 
 export interface NewAdministrationData {
@@ -40,7 +41,7 @@ export default function Mar() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
   const [isScanned, setIsScanned] = useState(false);
-  const [scannedSymbol, setScannedSymbol] = useState('')
+  // const [scannedSymbol, setScannedSymbol] = useState('')
   const [isMultiOrderPopoverOpen, setIsMultiOrderPopoverOpen] = useState<boolean>(false)
   const [associatedOrders, setAssociatedOrders] = useState<MedicationOrder[]>([])
   const [isWrongPtScan, setIsWrongPtScan] = useState<boolean>(false)
@@ -48,7 +49,7 @@ export default function Mar() {
   const sessionStartDateNumber = useRef(new Date().getTime())
 
   const handleScan = (symbol: string) => {
-    setScannedSymbol(symbol)
+    // setScannedSymbol(symbol)
     // handle patient wristband scans
     if (symbol.slice(0, 2) === 'pt') {
       if (symbol === patientMRN) {
@@ -57,11 +58,12 @@ export default function Mar() {
       } else {
         if (!isWrongPtScan) {
           setIsWrongPtScan(true)
-
+          return
         }
       }
     }
 
+    // find all orders that use this medication
     const newAssociatedOrders = medicationOrders.filter(order => order.medicationId === symbol)
     const associatedOrderIds = newAssociatedOrders
       .map(order => order.id)
@@ -102,6 +104,19 @@ export default function Mar() {
 
   const handleMultiOrderPopoverChoice = (orderId: string) => {
     setSelectedOrders(prev => [...prev, orderId])
+    setNewAdministrations(prev => ({
+      ...prev,
+      [orderId]: {
+        medicationOrderId: orderId,
+        status: "Given",
+        administratorId: "currentUser",
+        adminTimeMinuteOffset: 0,
+        administeredDose: 0,
+        visibleInPresim: false, // doesn't matter - this entry will not affect case template
+        notes: '',
+      }
+    }))
+
     setIsMultiOrderPopoverOpen(false)
     if (!isMedAdminPanelOpen) {
       setIsMedAdminPanelOpen(true)
@@ -294,7 +309,11 @@ export default function Mar() {
             medication={medsById[associatedOrders[0].medicationId] || undefined}
           />
         }
-        <p className='fixed top-4 left-4 bg-white p-4'>{scannedSymbol}</p>
+        <WrongPatientAlert
+          scanStatus={isWrongPtScan}
+          onWrongScanChange={setIsWrongPtScan}
+        />
+        {/* <p className='fixed top-4 left-4 bg-white p-4'>{scannedSymbol}</p> */}
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">

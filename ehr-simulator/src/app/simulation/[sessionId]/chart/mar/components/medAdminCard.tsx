@@ -62,7 +62,9 @@ const MedAdminCard = ({
   }
   const handleDoseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    if (value === '' || /^[0-9]*$/.test(value)) {
+    const regex = /^[0-9]*\.?[0-9]*$/;
+
+    if (value === '' || regex.test(value)) {
       onDoseChange(Number(e.target.value))
     }
   }
@@ -81,8 +83,8 @@ const MedAdminCard = ({
       <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
         <div className="space-y-1">
           {renderMedTitleRow(medication, order)}
-          <div className="text-xs tracking-tight pb-2 text-gray-500">
-            {renderMedCardDetails(medication, order)}
+          <div className="text-xs ml-2 tracking-tight pb-2 text-gray-500">
+            {renderMedCardDetails(medication, order)}sadf
           </div>
         </div>
 
@@ -170,7 +172,11 @@ const MedAdminCard = ({
         <div className="w-full space-y-1">
           <Label>Dose</Label>
           <div className="flex items-end">
-            <Input onChange={(e) => handleDoseChange(e)} value={currentDose} className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200" />
+            <Input
+              onChange={(e) => handleDoseChange(e)}
+              value={currentDose}
+              className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
+            />
             <div className="h-9 bg-gray-50 border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
               <p className="text-sm">{medication.strengthUnit}</p>
             </div>

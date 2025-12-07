@@ -1,12 +1,36 @@
-import { Settings, Stethoscope } from "lucide-react"
-import type { ReactNode } from "react"
+'use client'
+
+import { Expand, Minimize, Stethoscope } from "lucide-react"
+import { useEffect, useState, type ReactNode } from "react"
 import Link from 'next/link'
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   tabs?: ReactNode;
 }
 
 const Header = ({ tabs }: HeaderProps) => {
+  const [isFullscreen, setIsFullScreen] = useState(false)
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullScreen(Boolean(document.fullscreenElement))
+    }
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+
+  }, [])
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
   return (
     <header className="border-b h-(--header-height)">
       <div className="flex h-(--header-height) justify-between items-center pl-12 gap-2">
@@ -20,11 +44,20 @@ const Header = ({ tabs }: HeaderProps) => {
           </Link>
         </div>
         {tabs}
-
         <div className="pr-8">
-          <Link href="#">
-            <Settings color="#ffffff" />
-          </Link>
+          <Button
+            onClick={toggleFullScreen}
+            variant='secondary'
+            className="p-0 size-6 hover:text-blue-600 hover:ring-2"
+          >
+            {!isFullscreen ? (
+              <Expand className="!size-4" />
+            ) : (
+              <Minimize className="!size-4" />
+            )
+            }
+
+          </Button>
         </div>
       </div>
     </header>

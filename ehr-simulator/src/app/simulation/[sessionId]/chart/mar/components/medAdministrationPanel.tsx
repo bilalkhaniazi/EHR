@@ -129,13 +129,13 @@ const MedAdministrationPanel = ({
         <DialogTrigger asChild>
           <Button
             onClick={() => handlePopoverClose(true)}
-            className="h-9 bg-blue-500 hover:bg-blue-600 text-white shadow-sm gap-2 px-4"
+            className="h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm gap-2 px-4"
             disabled={!hasSelections}
           >
             <PencilLine className="w-4 h-4" />
             <span className="">Document</span>
             {selectedMedIds.length > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-blue-400 text-white border-none px-1.5 h-5 min-w-5">
+              <Badge variant="secondary" className="ml-1 bg-blue-400/80 text-white border-none px-1.5 h-5 min-w-5">
                 {selectedMedIds.length}
               </Badge>
             )}
@@ -162,9 +162,9 @@ const MedAdministrationPanel = ({
                 variant="secondary"
                 size="sm"
                 onClick={() => handleFakeScan(!isScanned)}
-                className="text-xs border border-blue-600 hover:bg-blue-50"
+                className="text-xs border size-6 border-blue-600 hover:bg-blue-100"
               >
-                <ScanBarcode size={16} className="text-blue-600" />
+                <ScanBarcode className="text-blue-600" />
               </Button>
             </div>
           </div>
@@ -218,10 +218,9 @@ const MedAdministrationPanel = ({
           </div>
         </div>
 
-        {/* --- FOOTER --- */}
         <DialogFooter className=" w-full px-6 py-4 bg-gray-100 border-t border-gray-200  flex-shrink-0 sm:justify-between gap-4 shadow-[0_-2px_15px_-6px_rgba(0,0,0,0.1)]">
           <a
-            href="https://online.lexi.com/lco/action/ivcompatibility/trissels"
+            href="https://online-lexi-com.ezproxy.gvsu.edu/lco/action/ivcompatibility/trissels"
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-2 text-xs font-medium bg-white text-gray-700 hover:text-blue-600 transition-colors hover:bg-bue-50 px-3 py-2 rounded-md border border-gray-300 hover:border-blue-600"
