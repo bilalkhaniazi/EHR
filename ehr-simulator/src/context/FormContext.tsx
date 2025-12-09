@@ -25,6 +25,7 @@ const defaultFormData = {
     heightInches: '',
     insurance: '',
     language: '',
+    needsInterpreter: false,
     lastName: '',
     precautions: '',
     relationshipStatus: '',

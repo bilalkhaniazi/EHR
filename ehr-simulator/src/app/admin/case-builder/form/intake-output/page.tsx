@@ -19,6 +19,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import SubmitButton from "../../components/submitButton";
+import { useFormContext } from "@/context/FormContext";
+import { IntakeOutputFormData } from "@/utils/form";
 
 const chartConfig = {
   intake: { label: "Intake", color: "hsl(var(--chart-6))" },
@@ -74,19 +76,9 @@ function getBlocks() {
 }
 
 export default function IntakeOutputForm() {
-
-  const router = useRouter();
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
-    router.push("/admin/case-builder/form/medications");
-  }
   const blocks = useMemo(() => getBlocks(), []);
 
-  const [intakeOutput, setIntakeOutput] = useState(
+  const [intakeOutput, setIntakeOutput] = useState<IntakeOutputFormData[]>(
     blocks.map(block => ({ blockId: block.id, intake: 0, output: 0 }))
   );
 
@@ -124,6 +116,14 @@ export default function IntakeOutputForm() {
 
   const tickLabelStyles = { fontSize: 14, fontFamily: 'var(--font-sans)' }
 
+  const router = useRouter();
+  const { onDataChange } = useFormContext();
+
+  const handleSubmit = () => {
+    onDataChange("intakeOutput", intakeOutput)
+    router.push("/admin/case-builder/form/medications");
+  }
+
   return (
 
     <div className="flex flex-col min-h-screen w-full bg-slate-50/50">
@@ -141,7 +141,7 @@ export default function IntakeOutputForm() {
       <div className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12 w-full">
         <form id="demo-form" onSubmit={handleSubmit} className="w-full max-w-7xl mx-auto space-y-6 pb-20">
           <div className="fixed top-6 right-8 z-10">
-            <SubmitButton buttonText="Save & Continue" />
+            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
           <div className="flex flex-col lg:max-w-3xl 2xl:max-w-4xl w-full">
             <input name='intake-output' type='hidden' value={JSON.stringify(intakeOutput)} />

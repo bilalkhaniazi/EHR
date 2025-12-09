@@ -29,8 +29,7 @@ import NoteFormDisplay from "./noteFormDisplay";
 import { useFormContext } from "@/context/FormContext";
 
 export default function NotesForm() {
-  const { onDataChange } = useFormContext()
-  const router = useRouter();
+
   const [notes, setNotes] = useState<NoteData[]>([]);
 
   const [category, setCategory] = useState<string>("");
@@ -73,7 +72,6 @@ export default function NotesForm() {
     setCanAddNote(!!(hasMetadata && hasContent));
   }, [specialty, author, isSoap, soapContent, plainNote]);
 
-
   const createNote = () => {
     const timeOffset = ((Number(days) || 0) * 1440) + ((Number(hours) || 0) * 60) + (Number(minutes) || 0);
 
@@ -104,13 +102,12 @@ export default function NotesForm() {
     clearForm();
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    onDataChange('notes', notes)
-    console.log(payload);
-    router.push('/admin/case-builder/form/orders');
+  const { onDataChange } = useFormContext()
+  const router = useRouter();
+
+  const handleSubmit = () => {
+    onDataChange("notes", notes);
+    router.push("/admin/case-builder/form/history");
   }
 
   return (
@@ -129,7 +126,7 @@ export default function NotesForm() {
         <form id="notes-form" onSubmit={handleSubmit} className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <input type="hidden" name="notes" value={JSON.stringify(notes)} />
           <div className="fixed top-6 right-8 z-10">
-            <SubmitButton buttonText="Save & Continue" />
+            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
 
           <div className="lg:col-span-7 space-y-6">

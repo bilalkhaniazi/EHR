@@ -4,7 +4,7 @@ import { MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[se
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
 
-interface DemographicFormData {
+export interface DemographicFormData {
   DOBDay: string;
   DOBMonth: string;
   admissionDateOffest: string;
@@ -21,13 +21,14 @@ interface DemographicFormData {
   heightInches: string;
   insurance: string;
   language: string;
+  needsInterpreter: boolean;
   lastName: string;
   precautions: string;
   relationshipStatus: string;
   religion: string;
   summary: string;
 }
-interface FormHistoryData {
+export interface HistoryFormData {
   medicalHistory: string[]
   surgicalHistory: string[]
   allergies: string[]
@@ -37,19 +38,25 @@ interface FormHistoryData {
   familyHistory: { relation: string, condition: string }[]
 }
 
+export interface IntakeOutputFormData {
+  blockId: number,
+  intake: number,
+  output: number
+}
+
 export interface FormBlob {
   demographics: DemographicFormData;
-  history: FormHistoryData;
+  history: HistoryFormData;
   notes: NoteData[];
   orders: OrderType[];
   labs: LabTableData[];
   charting: FlexSheetData[];
-  intakeOutput: { blockId: number, intake: number, output: number }[];
+  intakeOutput: IntakeOutputFormData[];
   medOrders: MedicationOrder[];
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | FormHistoryData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | MedicationOrder[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | IntakeOutputFormData[] | MedicationOrder[] | MedAdministrationInstance[]
 
 export const nursingAlerts = [
   "Seizure Risk",

@@ -14,6 +14,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
+import { useFormContext } from "@/context/FormContext";
+import { nursingAlerts } from "@/utils/form";
+import { HistoryFormData } from "@/utils/form";
 
 const FormSection = ({
   icon: Icon,
@@ -46,30 +49,25 @@ const HistoryForm = () => {
   const [socialHistory, setSocialHistory] = useState<string[]>([]);
   const [livingSituation, setLivingSituation] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
+  const [alerts, setAlerts] = useState<string[]>([]);
 
   const router = useRouter()
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.dir(payload)
-    router.push("/admin/case-builder/form/notes")
+  const { onDataChange } = useFormContext()
+
+  const historyData: HistoryFormData = {
+    medicalHistory: medicalHistory,
+    surgicalHistory: surgicalHistory,
+    familyHistory: familyHistory,
+    socialHistory: socialHistory,
+    livingSituation: livingSituation,
+    allergies: allergies,
+    alerts: alerts,
   }
 
-  const nursingAlerts = [
-    "Seizure Risk", "Aspiration Risk", "Bleeding Precautions", "NPO Status",
-    "Suicide / Self-Harm Risk", "Violence / Aggression Risk", "Elopement Risk",
-    "Restraint Order Active", "Continuous Observation", "Hearing Impaired",
-    "Vision Impaired", "High Risk for Falls", "Orthostatic Hypotension Risk",
-    "Confused / Impulsive Behavior", "Delirium Risk",
-    "Head Injury Precautions", "Increased Intracranial Pressure (ICP) Precautions",
-    "Central Line / PICC in Place", "Tracheostomy / Airway Precautions",
-    "Chest Tube Precautions", "ICD Precautions",
-    "Anticoagulant Therapy - Bleeding Precautions", "Pressure Injury Risk (Braden <18)",
-    "Immunocompromised Precautions", "Chemotherapy Precautions",
-    "Court-Ordered Observation / Police Hold",
-  ];
-
+  const handleSubmit = () => {
+    onDataChange("history", historyData)
+    router.push("/admin/case-builder/form/history");
+  }
 
   return (
     <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
@@ -87,7 +85,7 @@ const HistoryForm = () => {
       <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
         <form id="history-form" onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-6 pb-20">
           <div className="fixed top-6 right-8 z-10">
-            <SubmitButton buttonText="Save & Continue" />
+            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
           <div className="grid grid-cols-1 gap-6">
             <Card className="border-slate-200 shadow-sm h-fit">
@@ -167,8 +165,9 @@ const HistoryForm = () => {
                   <MultiSelect
                     labelText=""
                     placeholder="Select safety alerts..."
-                    name="alerts"
                     options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))}
+                    selectedValues={alerts}
+                    setSelectedValues={setAlerts}
                   />
                 </CardContent>
               </Card>
