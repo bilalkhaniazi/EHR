@@ -29,7 +29,7 @@ import SubmitButton from "../../components/submitButton"
 import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData"
-
+import { useFormContext } from "@/context/FormContext"
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
 
@@ -55,6 +55,7 @@ const getCategoryColor = (cat: string | undefined) => {
 
 export default function OrdersForm() {
   const router = useRouter();
+  const { onDataChange } = useFormContext();
 
   const [orders, setOrders] = useState<OrderType[]>([]);
 
@@ -97,11 +98,8 @@ export default function OrdersForm() {
     setOrders(orders.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
+  const handleSubmit = () => {
+    onDataChange('orders', orders)
     router.push('/admin/case-builder/form/labs')
   }
 
@@ -118,11 +116,9 @@ export default function OrdersForm() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
-        <form id="orders-form" onSubmit={handleSubmit} className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <input type="hidden" name="orders" value={JSON.stringify(orders)} />
+        <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="fixed top-6 right-8 z-10">
-            <SubmitButton buttonText="Save & Continue" />
-
+            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
 
           <div className="lg:col-span-5 space-y-6">
@@ -334,7 +330,7 @@ export default function OrdersForm() {
               })}
             </div>
           </div>
-        </form>
+        </div>
       </main>
     </div>
   )

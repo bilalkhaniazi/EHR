@@ -139,13 +139,11 @@ export default function IntakeOutputForm() {
       </header>
 
       <div className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12 w-full">
-        <form id="demo-form" onSubmit={handleSubmit} className="w-full max-w-7xl mx-auto space-y-6 pb-20">
+        <div className="w-full max-w-7xl mx-auto space-y-6 pb-20">
           <div className="fixed top-6 right-8 z-10">
             <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
           <div className="flex flex-col lg:max-w-3xl 2xl:max-w-4xl w-full">
-            <input name='intake-output' type='hidden' value={JSON.stringify(intakeOutput)} />
-
             <Card className="border-slate-200 shadow-sm w-full">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -275,7 +273,7 @@ export default function IntakeOutputForm() {
             </Card>
             <p className="text-sm text-slate-500 mt-2 text-center">Click on a bar to enter or edit fluid amounts.</p>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -123,8 +123,7 @@ export default function NotesForm() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
-        <form id="notes-form" onSubmit={handleSubmit} className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <input type="hidden" name="notes" value={JSON.stringify(notes)} />
+        <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="fixed top-6 right-8 z-10">
             <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
@@ -307,7 +306,7 @@ export default function NotesForm() {
               ))}
             </div>
           </div>
-        </form>
+        </div>
       </main>
     </div>
   );

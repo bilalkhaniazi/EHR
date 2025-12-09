@@ -83,7 +83,7 @@ const HistoryForm = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
-        <form id="history-form" onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-6 pb-20">
+        <div className="max-w-6xl mx-auto space-y-6 pb-20">
           <div className="fixed top-6 right-8 z-10">
             <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
@@ -187,7 +187,7 @@ const HistoryForm = () => {
             </CardContent>
           </Card>
 
-        </form>
+        </div>
       </div>
     </div>
   )
