@@ -57,7 +57,7 @@ export interface FormBlob {
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | NewOrderData[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | IntakeOutputFormData[] | NewOrderData[] | MedAdministrationInstance[]
 
 export const nursingAlerts = [
   "Seizure Risk",
