@@ -18,7 +18,6 @@ import {
   ScanBarcode,
   ExternalLink,
   Pill,
-  AlertCircle
 } from "lucide-react"
 import { useState } from "react"
 import { type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
@@ -171,7 +170,7 @@ const MedAdministrationPanel = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {!isScanned && (
+          {/* {!isScanned && (
             <div className="mb-6 bg-red-50 border border-red-100 rounded-lg p-2 flex items-start gap-3">
               <AlertCircle className="text-red-600 w-5 h-5 mt-0.5 flex-shrink-0 animate-pulse" />
               <div>
@@ -182,7 +181,7 @@ const MedAdministrationPanel = ({
                 </p>
               </div>
             </div>
-          )}
+          )} */}
 
           <div className="grid gap-6 pb-10">
             {selectedMedOrders.map(order => {

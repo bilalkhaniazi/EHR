@@ -84,7 +84,7 @@ const MedAdminCard = ({
         <div className="space-y-1">
           {renderMedTitleRow(medication, order)}
           <div className="text-xs ml-2 tracking-tight pb-2 text-gray-500">
-            {renderMedCardDetails(medication, order)}sadf
+            {renderMedCardDetails(medication, order)}
           </div>
         </div>
 

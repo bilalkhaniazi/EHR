@@ -8,7 +8,7 @@ import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
-import { Filter, PillBottle } from 'lucide-react';
+import { ClipboardClock, Filter, PillBottle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Toggle } from '@/components/ui/toggle';
@@ -31,15 +31,15 @@ export interface MedCardColumns {
 
 const patientMRN = 'pt12345678'
 
-const routes = ["PO", "IV", "SC", "IM", "Topical", "Inhalation", "SL"]
+const filterOptions = ["Scheduled", "Continuous", "PRN"]
 export default function Mar() {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [administrations, setAdministrations] = useState<MedAdministrationInstance[]>(medAdministrations)
   const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
   const [realWorldNow, setRealWorldNow] = useState(new Date());
-  const [medFilters, setMedFilters] = useState<string[]>([]);
+  const [orderFilter, setOrderFilter] = useState<string>('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [isPRN, setIsPRN] = useState<boolean | undefined>(false)
+  const [isDue, setIsDue] = useState<boolean | undefined>(false)
   const [isScanned, setIsScanned] = useState(false);
   // const [scannedSymbol, setScannedSymbol] = useState('')
   const [isMultiOrderPopoverOpen, setIsMultiOrderPopoverOpen] = useState<boolean>(false)
@@ -62,7 +62,6 @@ export default function Mar() {
         }
       }
     }
-
     // find all orders that use this medication
     const newAssociatedOrders = medicationOrders.filter(order => order.medicationId === symbol)
     const associatedOrderIds = newAssociatedOrders
@@ -178,12 +177,12 @@ export default function Mar() {
     }
   };
 
-  const handleFilterChange = (route: string, checked: boolean | "indeterminate") => {
-    setMedFilters(prev => {
+  const handleFilterChange = (option: string, checked: boolean | "indeterminate") => {
+    setOrderFilter(() => {
       if (checked === true) {
-        return [...prev, route];
+        return option;
       } else {
-        return prev.filter(s => s !== route);
+        return ''
       }
     });
   };
@@ -206,12 +205,12 @@ export default function Mar() {
   const handleClearAll = () => {
     setSelectedOrders([]);
     setNewAdministrations({});
-    setMedFilters([])
+    setOrderFilter('')
   };
 
   const handleClearFilters = () => {
-    setMedFilters([]);
-    setIsPRN(false);
+    setOrderFilter('');
+    setIsDue(false);
     setIsPopoverOpen(false)
   };
 
@@ -255,14 +254,30 @@ export default function Mar() {
   }, []);
 
   const filteredMedOrders = useMemo(() => {
-    return medicationOrders.filter(order => {
-      const med = medsById[order.medicationId];
-      const matchesRoute = medFilters.length === 0 || medFilters.includes(med.route);
-      const matchesPRN = !isPRN || order.priority === "PRN";
+    if (!orderFilter && !isDue) return medicationOrders;
 
-      return matchesRoute && matchesPRN;
+    return medicationOrders.filter((order) => {
+      if (isDue) {
+        const orderAdmins = groupedAdministrationsByOrder[order.id];
+        if (!orderAdmins?.some((admin) => admin.status === 'Due')) {
+          return false;
+        }
+      }
+
+      if (!orderFilter) return true;
+
+      switch (orderFilter) {
+        case "PRN":
+          return order.priority === "PRN";
+        case "Continuous":
+          return order.frequency === "Continuous";
+        case "Scheduled":
+          return order.priority !== "PRN" && order.frequency !== "Continuous";
+        default:
+          return true;
+      }
     });
-  }, [medFilters, medsById, isPRN]);
+  }, [orderFilter, isDue, groupedAdministrationsByOrder]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -296,7 +311,8 @@ export default function Mar() {
       colHeader: colHeader
     })
   }
-
+  console.log(medicationOrders.length)
+  console.log(filteredMedOrders.length)
   return (
     <div className="flex flex-col p-2 pt-0 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
       <div className='flex gap-2 py-2'>
@@ -317,27 +333,27 @@ export default function Mar() {
         <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
-              Route
-              <Filter className="ml-1 h-2 w-0" />
+              <Filter className={`${orderFilter ? 'fill-blue-300 stroke-blue-500' : ''}`} />
+              Filter
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-fit p-4 border rounded-lg shadow">
             <div className="grid gap-4">
               <div className="flex flex-col gap-2">
-                {routes.map(route => (
-                  <div key={route} className="flex items-center space-x-2">
+                {filterOptions.map(option => (
+                  <div key={option} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`filter-${route}`}
-                      checked={medFilters.includes(route)}
-                      onCheckedChange={(checked) => handleFilterChange(route, checked)}
+                      id={`filter-${option}`}
+                      checked={orderFilter.includes(option)}
+                      onCheckedChange={(checked) => handleFilterChange(option, checked)}
                     />
-                    <Label htmlFor={`filter-${route}`} className="font-normal">
-                      {route}
+                    <Label htmlFor={`filter-${option}`} className="font-normal">
+                      {option}
                     </Label>
                   </div>
                 ))}
               </div>
-              {routes.length > 0 && (
+              {filterOptions.length > 0 && (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -351,15 +367,15 @@ export default function Mar() {
           </PopoverContent>
         </Popover>
         <Toggle
-          pressed={isPRN}
-          onPressedChange={setIsPRN}
+          pressed={isDue}
+          onPressedChange={setIsDue}
           aria-label="Toggle bookmark"
           size="sm"
           variant="outline"
           className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-fit shrink-0 bg-white h-8 text-xs "
         >
-          <PillBottle />
-          PRNs
+          <ClipboardClock />
+          Due
         </Toggle>
         <MedAdministrationPanel
           selectedMedIds={selectedOrders}
@@ -380,10 +396,15 @@ export default function Mar() {
         />
 
       </div>
-      {/* <div className='text-[10px] flex flex-wrap'>
-        {selectedOrders.map((med, index) => <span className='p-1' key={index}>{med}</span>)}
-      </div> */}
+
       <div className="flex w-full h-full flex-col flex-1 gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
+        {filteredMedOrders.length === 0 && (
+          <div className="h-52 border-2 mt-8 mx-4 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 bg-gray-50/50">
+            <PillBottle className="w-10 h-10 mb-3 opacity-20" />
+            <p className="font-medium">No orders match the selected filters.</p>
+            <p className="text-sm">Clear filters to view all orders.</p>
+          </div>
+        )}
         {filteredMedOrders.map((order) => {
           const isSelected = selectedOrders.includes(order.id);
           const associatedMedication = medsById[order.medicationId]

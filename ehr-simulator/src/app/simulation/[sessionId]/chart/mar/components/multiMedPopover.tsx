@@ -72,7 +72,7 @@ export function MultiMedPopover({
 
               <div className="w-full space-y-1.5 pt-2 mt-1">
                 {order.instructions && (
-                  <div className="flex items-start gap-2 text-xs text-gray-600 bg-slate-50 p-2 rounded w-full">
+                  <div className="flex items-start gap-2 text-xs text-gray-600 bg-slate-50 p-2 rounded w-full border">
                     <FileText size={14} className="text-gray-400 mt-0.5 shrink-0" />
                     <span className="line-clamp-2">{order.instructions}</span>
                   </div>
