@@ -71,7 +71,7 @@ export const nursingAlerts = [
   "Continuous Observation",
   "Hearing Impaired",
   "Vision Impaired",
-  "High Risk for Falls",
+  "High Risk for Falls - Morse score > 45",
   "Orthostatic Hypotension Risk",
   "Confused / Impulsive Behavior",
   "Delirium / Cognitive Impairment Risk",
@@ -184,3 +184,88 @@ export const insuranceOptions = [
   "Medicaid",
   "Private"
 ]
+
+export const defaultNursingOrders: OrderType[] = [
+  {
+    category: 'Laboratory',
+    title: "Basic Metabolic Panel (BMP)",
+    status: "Active",
+    details: "Collect Basic Metabolic Panel (BMP).",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Laboratory',
+    title: "Complete Blood Count (CBC)",
+    status: "Active",
+    details: "Collect Complete Blood Count (CBC).",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    important: false,
+    category: 'Respiratory',
+    title: "Oxygen Therapy",
+    details: "Administer oxygen via nasal cannula at 2 L/min. Titrate to maintain SpO₂ ≥ 92%.",
+    status: "Active",
+    orderingProvider: "Dr. Azzedine Habz",
+    visibleInPresim: true
+  },
+  {
+    important: false,
+    category: 'Respiratory',
+    title: "Incentive Spirometry",
+    details: "Instruct patient to use incentive spirometer 10 times per hour while awake. Document effort and results",
+    status: "Active",
+    orderingProvider: "Dr. Azzedine Habz",
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Vital Signs Monitoring (q4h)",
+    status: "Active",
+    details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Blood Glucose Monitoring (ACHS)",
+    status: "Active",
+    details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Activity: As Tolerated",
+    status: "Active",
+    details: "Encourage patient activity as tolerated. Assist with ambulation as needed.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: false,
+    visibleInPresim: true
+
+  },
+  {
+    important: false,
+    category: 'Nursing',
+    title: "Fall Risk Precautions",
+    status: "Active",
+    details: "Implement standard fall risk protocol. Ensure bed in low position and call light within reach.",
+    orderingProvider: "Dr. John Smith, MD",
+    visibleInPresim: true
+  },
+  {
+    important: false,
+    category: 'Nursing',
+    title: "General Diet",
+    status: "Active",
+    details: "No Restrictions",
+    orderingProvider: "Dr. John Smith, MD",
+    visibleInPresim: true
+  },
+];

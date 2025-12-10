@@ -94,7 +94,7 @@ type PredefinedDataByTime = {
 };
 
 export const predefinedVitalsData2: PredefinedDataByTime = {
-  10000: {
+  150: {
     "hrInput": "88",
     "hrSourceSelect": "Radial",
     "bpInput": "124/72",

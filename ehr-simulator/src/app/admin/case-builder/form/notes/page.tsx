@@ -107,7 +107,7 @@ export default function NotesForm() {
 
   const handleSubmit = () => {
     onDataChange("notes", notes);
-    router.push("/admin/case-builder/form/history");
+    router.push("/admin/case-builder/form/orders");
   }
 
   return (

@@ -150,7 +150,9 @@ export default function DemographicsForm() {
                         required name="DOBDay"
                         onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["DOBDay"]: value }) }}
                       >
-                        <SelectTrigger className="w-[80px] bg-white"><SelectValue placeholder="Day" /></SelectTrigger>
+                        <SelectTrigger className="w-[80px] bg-white"><SelectValue placeholder="Day" />
+                          <ChevronDown />
+                        </SelectTrigger>
                         <SelectContent>
                           {days.map((d, i) => <SelectItem key={i} value={d.toString()}>{d}</SelectItem>)}
                         </SelectContent>

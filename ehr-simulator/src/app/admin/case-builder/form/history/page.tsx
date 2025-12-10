@@ -66,7 +66,7 @@ const HistoryForm = () => {
 
   const handleSubmit = () => {
     onDataChange("history", historyData)
-    router.push("/admin/case-builder/form/history");
+    router.push("/admin/case-builder/form/notes");
   }
 
   return (
@@ -88,8 +88,8 @@ const HistoryForm = () => {
             <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
           <div className="grid grid-cols-1 gap-6">
-            <Card className="border-slate-200 shadow-sm h-fit">
-              <CardHeader className="pb-4">
+            <Card className="border-slate-200 shadow-sm h-fit pt-4">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Clinical Profile</CardTitle>
                 <CardDescription>Past medical and surgical events</CardDescription>
               </CardHeader>
@@ -127,8 +127,8 @@ const HistoryForm = () => {
             </Card>
 
             <div className="space-y-6">
-              <Card className="border-slate-200 shadow-sm">
-                <CardHeader className="pb-4">
+              <Card className="border-slate-200 shadow-sm pt-4">
+                <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Social & Environmental</CardTitle>
                   <CardDescription>Living situation and habits</CardDescription>
                 </CardHeader>
@@ -140,14 +140,14 @@ const HistoryForm = () => {
                         name="socialHistory"
                         value={socialHistory}
                         onChange={setSocialHistory}
-                        placeholder="e.g. 1ppd smoker, socially drinks..."
+                        placeholder="e.g. Tobacco Use, Polysubstance Use, High Risk Occupation..."
                       />
                       <MultiTextInput
                         labelText="Living Situation"
                         name="livingSituation"
                         value={livingSituation}
                         onChange={setLivingSituation}
-                        placeholder="e.g. Lives alone in single-story home..."
+                        placeholder="e.g. Lives alone, Group Home..."
                       />
                     </div>
                   </FormSection>
@@ -155,11 +155,13 @@ const HistoryForm = () => {
               </Card>
 
               <Card className="border-amber-100 bg-amber-50/30 shadow-sm">
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-">
                   <CardTitle className="text-lg flex items-center gap-2 text-amber-900">
                     <AlertTriangle className="text-amber-600" />
                     Safety Alerts
                   </CardTitle>
+                  <CardDescription className="text-amber-800">Warnings displayed on EHR Overview page</CardDescription>
+
                 </CardHeader>
                 <CardContent>
                   <MultiSelect

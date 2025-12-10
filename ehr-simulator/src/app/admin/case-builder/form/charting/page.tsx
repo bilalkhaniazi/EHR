@@ -1200,7 +1200,7 @@ export function ChartingForm() {
         </div>
 
         <div>
-          <SubmitButton onClick={handleSubmit} buttonText="Continue" />
+          <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
         </div>
       </header>
       <div className="flex gap-12 items-end px-8 py-2">

@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData"
 import { useFormContext } from "@/context/FormContext"
+import { defaultNursingOrders } from "@/utils/form"
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
 
@@ -57,7 +58,7 @@ export default function OrdersForm() {
   const router = useRouter();
   const { onDataChange } = useFormContext();
 
-  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [orders, setOrders] = useState<OrderType[]>(defaultNursingOrders);
 
   const [category, setCategory] = useState<string>("");
   const [title, setTitle] = useState("");
@@ -262,14 +263,14 @@ export default function OrdersForm() {
                       {getCategoryIcon(cat)} {cat} Orders
                     </div>
 
-                    <div className="grid gap-3">
+                    <div className="grid gap-">
                       {catOrders.map((order, idx) => {
                         const globalIdx = orders.indexOf(order);
 
                         return (
                           <div
                             key={idx}
-                            className="group relative bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col md:grid md:grid-cols-13 overflow-hidden"
+                            className="group relative bg-white first:border-t border-b border-x border-slate-200 first:rounded-t-lg last:rounded-b-lg transition-all flex flex-col md:grid md:grid-cols-13 overflow-hidden"
                           >
                             <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${getCategoryColor(order.category)}`} />
 
@@ -292,13 +293,13 @@ export default function OrdersForm() {
 
                             </div>
 
-                            <div className="md:col-span-6 p-2 flex items-center md:border-r bg-slate-50/30">
+                            <div className="md:col-span-7 p-2 flex items-center md:border-r bg-slate-50/30">
                               <p className="text-xs tracking-tight text-slate-600  whitespace-pre-wrap">
                                 {order.details || <span className="text-slate-400 italic">No additional details.</span>}
                               </p>
                             </div>
 
-                            <div className="md:col-span-2 p-2 flex items-center md:border-r">
+                            <div className="md:col-span-1 p-2 flex items-center md:border-r">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-slate-700">{order.status}</span>
                                 <span className={`w-2 h-2 rounded-full ring-2 ring-white shadow-sm ${order.status === 'Active' ? 'bg-green-500' : 'bg-amber-400'}`} />

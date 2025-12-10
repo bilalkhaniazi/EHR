@@ -20,9 +20,7 @@ import { Card } from "@/components/ui/card"
 import type { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
 import { useMemo, useState } from "react"
 import StyledTitle from "./styledTitle"
-import { getMinutes } from "date-fns" // Ensure this is imported
-// You likely need to import these from your data file
-import { predefinedVitalsData2, generateInitialChartingData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
+import { generateInitialChartingData, getAllTimeOffsets } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
 import { formatTimeFromOffset } from "../../charting/page"
 
 export type vitalsOverviewTable = {
@@ -40,24 +38,24 @@ const vitalSignIds = [
   "weightKgInput",
 ];
 
-// --- Helper Functions (Moved from Redux slice/api file) ---
+function mostRecentVitals(
+  data: FlexSheetData[],
+  timeOffsets: number[],
+  limit: number = 3
+) {
 
-export const getAllTimeOffsets = (simulationNow: number) => {
-  // Assuming simulationNow is a timestamp
-  const dateObj = new Date(simulationNow);
-  const minutesPastTheHour = getMinutes(dateObj);
+  const activeOffsets = timeOffsets.filter(offset => {
+    return data.some(row => {
+      const value = row[offset];
+      return value !== undefined && value !== null && value !== "";
+    });
+  });
 
-  const dynamicTimeOffsets = Array.from({ length: 4 }, (_, index) => {
-    const temp = minutesPastTheHour - (60 * index)
-    return temp
-  })
+  activeOffsets.sort((a, b) => a - b);
 
-  const predefinedTimeOffsets = Object.keys(predefinedVitalsData2 || {}).map(Number)
+  return activeOffsets.slice(0, limit);
+}
 
-  const allTimeOffsets = [...new Set([...dynamicTimeOffsets, ...predefinedTimeOffsets])];
-
-  return allTimeOffsets.sort((a, b) => b - a)
-};
 
 
 export function VitalsOverview() {
@@ -65,21 +63,18 @@ export function VitalsOverview() {
 
   const { allTimeOffsets, fullChartingData } = useMemo(() => {
     if (!sessionStartTime) return { allTimeOffsets: [], fullChartingData: [] };
-
     const offsets = getAllTimeOffsets(sessionStartTime);
     const data = generateInitialChartingData(offsets);
-
     return { allTimeOffsets: offsets, fullChartingData: data };
   }, [sessionStartTime]);
-
-  const displayTimeOffsets = useMemo(() => {
-    return allTimeOffsets.slice(-3);
-  }, [allTimeOffsets]);
 
   const filteredData = useMemo(() => {
     return fullChartingData.filter(row => vitalSignIds.includes(row.id));
   }, [fullChartingData]);
 
+  const displayTimeOffsets = useMemo(() => {
+    return mostRecentVitals(filteredData, allTimeOffsets)
+  }, [allTimeOffsets, filteredData]);
 
   const columns: ColumnDef<FlexSheetData>[] = useMemo(() => [
     {
@@ -95,8 +90,6 @@ export function VitalsOverview() {
         accessorKey: String(timeKey) as keyof FlexSheetData,
         header: () => {
           const result = formatTimeFromOffset(timeKey, sessionStartTime)
-          // Since formatTimeFromOffset can return an error object, 
-          // we should handle that or default to empty strings to satisfy TS
           if (result.error) {
             return <span>Error</span>;
           }
@@ -113,12 +106,12 @@ export function VitalsOverview() {
           );
         },
         cell: (info: CellContext<FlexSheetData, unknown>) => {
-          const value = info.getValue();
+          const value = info.getValue() as string;
           return (
             <div className="h-full">
               <p className="text-xs w-full min-w-12 text-right pr-2">
                 {/* Render value if exists, otherwise placeholder */}
-                {value ? String(value) : "~"}
+                {value ? value : ""}
               </p>
             </div>
           )
