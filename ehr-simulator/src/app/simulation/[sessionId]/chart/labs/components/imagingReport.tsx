@@ -7,9 +7,17 @@ import { Badge } from "@/components/ui/badge";
 interface ImagingReportProps {
   cellName: string;
   imagingReportContents: ImagingData;
+  displayTime: string;
+  displayDate: string;
 }
 
-const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) => {
+const ImagingReport = ({
+  imagingReportContents,
+  cellName,
+  displayDate,
+  displayTime
+
+}: ImagingReportProps) => {
 
   const isCritical = imagingReportContents.isCritical === true;
 
@@ -23,7 +31,7 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl m:max-w-3/4 xl:max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white rounded">
+      <DialogContent className="max-w-3xl md:max-w-3/4 xl:max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white rounded">
         <DialogHeader className="px-6 py-4 border-b bg-slate-50 flex flex-row items-start justify-between">
           <div>
             <div className="flex items-center gap-4 mb-1">
@@ -86,7 +94,7 @@ const ImagingReport = ({ imagingReportContents, cellName }: ImagingReportProps) 
 
             <div className="pt-4 mt-4 border-t border-slate-100">
               <p className="text-xs text-slate-400 font-mono">
-                Electronically Signed by: RADIOLOGY DEPARTMENT at {new Date().toLocaleTimeString()}
+                Electronically Signed by: RADIOLOGY DEPARTMENT at {displayDate} {displayTime}
               </p>
             </div>
           </div>

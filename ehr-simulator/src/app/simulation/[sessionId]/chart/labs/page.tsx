@@ -205,6 +205,8 @@ export function LabPage() {
                 key={`${row.id}-${column.id}-${row.original.field}`}
                 cellName={row.original.field}
                 imagingReportContents={imagingReport}
+                displayTime={displayTime || ''}
+                displayDate={displayDate || ''}
               />
             )
           }
@@ -220,6 +222,9 @@ export function LabPage() {
                 key={`${row.id}-${column.id}-${row.original.field}`}
                 report={pathologyReport}
                 cellLabel={row.original.field}
+                displayTime={displayTime || ''}
+                displayDate={displayDate || ''}
+
               />
             )
           }

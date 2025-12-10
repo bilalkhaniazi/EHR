@@ -19,24 +19,31 @@ import type { MicrobiologyReportData } from "./labsData";
 interface PathologyReportProps {
   cellLabel: string;
   report: MicrobiologyReportData;
+  displayTime: string;
+  displayDate: string;
 }
 
 
-export default function MicrobiologyReport({ report, cellLabel }: PathologyReportProps) {
+export default function MicrobiologyReport({
+  report,
+  cellLabel,
+  displayTime,
+  displayDate
+}: PathologyReportProps) {
 
   const isCritical = report.isCritical === true;
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="w-full text-left text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center justify-center gap-2">
+        <button className="w-full text-left text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center justify-center gap-2 px-1">
           <FileText size={14} />
           {cellLabel}
           {isCritical && <TriangleAlert size={14} className="text-red-600" />}
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl m:max-w-3/4 xl:max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white rounded">
+      <DialogContent className="max-w-3xl md:max-w-3/4 xl:max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white rounded">
         <DialogHeader className="px-6 py-4 border-b bg-slate-50/50">
           <div className="flex items-start justify-between pr-8">
             <div>
@@ -55,7 +62,7 @@ export default function MicrobiologyReport({ report, cellLabel }: PathologyRepor
         </DialogHeader>
 
         <ScrollArea className="flex-1 overflow-auto">
-          <div className="px-8 py-4 space-y-10">
+          <div className="px-8 py-4 space-y-6">
             {isCritical && (
               <div className="bg-red-50 border border-red-100 rounded-md p-3 flex items-start gap-3">
                 <OctagonAlert className="text-red-600 mt-0.5" size={18} />
@@ -86,11 +93,10 @@ export default function MicrobiologyReport({ report, cellLabel }: PathologyRepor
             <section>
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 border-b pb-1 flex items-center gap-2">
                 <TestTube2 className="text-slate-900" size={16} />
-
                 Culture Results
               </h3>
               <div className="pl-2 pt-1">
-                <p className="text-md text-slate-900">{report.cultureResults}</p>
+                <p className="text-sm text-slate-900">{report.cultureResults}</p>
               </div>
             </section>
 
@@ -109,7 +115,7 @@ export default function MicrobiologyReport({ report, cellLabel }: PathologyRepor
               </div>
             </section>
 
-            <section className="bg-yellow-50/50 border border-yellow-100 rounded-md p-4">
+            <section className="bg-yellow-50/50 border border-yellow-200 rounded-md p-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-yellow-700 mb-1">Lab Comments</h3>
               <p className="text-sm text-slate-700 italic">
                 &quot;{report.comments}&quot;
@@ -119,7 +125,7 @@ export default function MicrobiologyReport({ report, cellLabel }: PathologyRepor
             <div className="pt-4 mt-4 border-t border-slate-100">
               <p className="text-xs text-slate-400 font-mono flex gap-2">
                 <span>Reported by: AC, Microbiology Lab – KCON Sim Center</span>
-                <span>{new Date().toLocaleTimeString()}</span>
+                <span className="font-medium">{displayDate}/{new Date().getFullYear()} {displayTime}</span>
               </p>
             </div>
 

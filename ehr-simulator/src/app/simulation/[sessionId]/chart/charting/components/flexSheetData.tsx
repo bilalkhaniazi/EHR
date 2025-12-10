@@ -94,7 +94,7 @@ type PredefinedDataByTime = {
 };
 
 export const predefinedVitalsData2: PredefinedDataByTime = {
-  150: {
+  120: {
     "hrInput": "88",
     "hrSourceSelect": "Radial",
     "bpInput": "124/72",
@@ -118,6 +118,14 @@ export const predefinedVitalsData2: PredefinedDataByTime = {
     "lungSoundsInput": "Clear",
     "heartSoundsInput": "S1, S2. No mumur noted",
     "extremitiesInput": "+2 pitting edema in BLE"
+  },
+  5: { // Data from 90 minutes ago
+    "hrInput": "121",
+    "hrSourceSelect": "Monitor",
+    "bpInput": "92/58",
+    "bpSourceSelect": "Left upper arm",
+    "rrInput": "28",
+    "spo2Input": "91",
   }
 };
 

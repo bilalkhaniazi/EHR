@@ -17,8 +17,8 @@ import FlexSheetSidebar from "./components/flexSheetSidebar";
 import {
   type FlexSheetData,
   assessmentTools,
+  generateInitialChartingData,
   getAllTimeOffsets,
-  tempFlexSheetData
 } from "./components/flexSheetData";
 import { ImagingData, LabCellValue } from "../labs/components/labsData";
 import { TableAssessmentSelectCell, TableInputCell } from "./components/tableInputCell";
@@ -88,9 +88,9 @@ export function calculateColTotal(toolName: string, grouped: FlexSheetData[], ti
 
 
 export function FlexSheet() {
-  const [data, setData] = useState<FlexSheetData[]>(tempFlexSheetData);
   const [sessionStartTime] = useState(new Date().getTime());
   const [timeOffsets, setTimeOffsets] = useState(getAllTimeOffsets(sessionStartTime));
+  const [data, setData] = useState<FlexSheetData[]>(generateInitialChartingData(timeOffsets));
   const [fieldSelections, setFieldSelections] = useState<Record<string, string[]>>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

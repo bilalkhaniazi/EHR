@@ -5,7 +5,7 @@ import StyledTitle from "./styledTitle"
 // import CardSkeleton from "./cardSkeleton"
 import { formatTimeFromOffset } from "@/app/simulation/[sessionId]/chart/charting/page"
 import { getResultStatus } from "@/app/simulation/[sessionId]/chart/labs/page"
-import { ShieldAlert } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 import { useState } from "react"
 import { generateAllInitialLabTimes, generateInitialLabData, labTemplate } from "../../labs/components/labsData"
 
@@ -46,11 +46,9 @@ export function SelectedLabs() {
   //   )
   // }
 
-
   const filteredData = initialLabTableData.filter(row => {
     return selectedLabs.includes(row.field)
   })
-
 
   const selectedLabData = filteredData.map(row => {
     const selectedLab = {
@@ -74,13 +72,11 @@ export function SelectedLabs() {
         break
       }
     }
-
     if (selectedLab.value) {
       return selectedLab
     }
     return undefined
   }).filter(Boolean)
-
 
   return (
     <Card className="relative col-span-1 p-0 gap-3 pt-2 h-fit overflow-hidden">
@@ -101,20 +97,19 @@ export function SelectedLabs() {
 
           return (
             <div key={labData.field} className="grid grid-cols-2 rounded-md">
-              <div className="p-1 rounded-t-lg col-span-2 border bg-sky-200 border-sky-200 flex justify-center items-center gap-3">
+              <div className="p-1 rounded-t-lg col-span-2 border bg-sky-200 border-sky-200 flex justify-center items-center gap-4">
                 <h2 className="text-xs text-neutral-800 overflow-hidden">{displayDate}</h2>
                 <h1 className="text-xs text-neutral-800 font-medium overflow-hidden">{displayTime}</h1>
               </div>
               <p className="p-1 text-xs rounded-bl-lg border-l border-r border-b border-sky-200 overflow-hidden">{labData.field}</p>
               <div className="flex justify-center p-1 text-center text-xs rounded-br-lg border-r border-b border-sky-200">
-                {isCritical && <ShieldAlert color="#e7000b" size={18} />}
+                {isCritical && <AlertTriangle color="#e7000b" size={18} />}
                 <p className={`w-full ${(isAbnormal || isCritical) && "text-red-600 font-medium"}`}>{labData.value}</p>
               </div>
             </div>
           )
         })}
       </CardContent>
-
       <div className="absolute bottom-0 bg-sky-200 w-full h-3"></div>
     </Card>
   )
