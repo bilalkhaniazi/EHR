@@ -13,7 +13,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Toggle } from '@/components/ui/toggle';
 
-// --- Types (Previously in Slice) ---
 
 export interface NewAdministrationData {
   [medOrderId: string]: MedAdministrationInstance;

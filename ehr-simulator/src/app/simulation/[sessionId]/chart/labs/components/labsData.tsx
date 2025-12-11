@@ -24,10 +24,7 @@ export interface MicrobiologyReportData {
   isCritical: boolean | 'indeterminate';
 }
 
-export interface LabCellValue {
-  value: string | ImagingData | MicrobiologyReportData;
-  visibleInPresim: boolean;
-}
+export type LabCellValue = string | ImagingData | MicrobiologyReportData;
 
 // dataset to be used by tanstack table
 export interface LabTableData {

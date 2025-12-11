@@ -9,13 +9,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import { useState } from "react"
+import { toast } from "sonner";
 
 
 interface AddImagingProps {
   imagingType: string
   handleAddImagingReport: (report: LabCellValue) => void;
   initialData?: ImagingData;
-  visibleInPresim: boolean
 }
 
 interface Finding {
@@ -23,7 +23,7 @@ interface Finding {
   description: string;
 }
 
-const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData, visibleInPresim }: AddImagingProps) => {
+const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: AddImagingProps) => {
   const isEditMode = !!initialData;
   const [technique, setTechnique] = useState(initialData?.technique || '')
   const [findings, setFindings] = useState<Finding[]>(initialData?.findings || [])
@@ -35,14 +35,11 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData, vi
   const [impression, setImpression] = useState<string>('')
 
   const newEntry = {
-    visibleInPresim,
-    value: {
-      displayName: imagingType,
-      technique: technique,
-      findings: findings,
-      impressions: impressions,
-      isCritical: isCritical
-    }
+    displayName: imagingType,
+    technique: technique,
+    findings: findings,
+    impressions: impressions,
+    isCritical: isCritical
   }
 
   const isSubmittable =
@@ -53,7 +50,7 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData, vi
 
   const handleAddFinding = () => {
     if (!description || !region) {
-      alert("Enter a region and finding")
+      toast.warning("Enter a region and finding")
       return
     }
     const finding: Finding = { region: region, description: description }
@@ -78,7 +75,6 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData, vi
   const handleRemoveImpression = (index: number) => {
     setImpressions(prev => prev.filter((_, i) => i !== index))
   }
-
 
   const handleSubmit = () => {
     handleAddImagingReport(newEntry)

@@ -13,12 +13,11 @@ import { useState } from "react";
 interface AddMicrobiologyReportProps {
   handleAddMicrobiologyReport: (report: LabCellValue) => void;
   initialData?: MicrobiologyReportData;
-  visibleInPresim: boolean;
   field: string;
 }
 
 
-const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData, visibleInPresim, field }: AddMicrobiologyReportProps) => {
+const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData, field }: AddMicrobiologyReportProps) => {
   const isEditMode = !!initialData;
 
   const [sampleType, setSampleType] = useState(field)
@@ -42,19 +41,16 @@ const AddMicrobiologyReport = ({ handleAddMicrobiologyReport, initialData, visib
     !!reporter
 
   const report: LabCellValue = {
-    visibleInPresim: visibleInPresim,
-    value: {
-      sampleType: sampleType,
-      location: location,
-      cultureResults: cultureResults,
-      appearance: appearance,
-      microscopy: microscopy,
-      sensitivity: sensitivity,
-      comments: comments,
-      isCritical: isCritical,
-      reporter: reporter
-    } as MicrobiologyReportData
-  }
+    sampleType: sampleType,
+    location: location,
+    cultureResults: cultureResults,
+    appearance: appearance,
+    microscopy: microscopy,
+    sensitivity: sensitivity,
+    comments: comments,
+    isCritical: isCritical,
+    reporter: reporter
+  } as MicrobiologyReportData
 
   const handleSubmit = () => {
     handleAddMicrobiologyReport(report)

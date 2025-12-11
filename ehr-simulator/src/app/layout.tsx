@@ -6,6 +6,7 @@ import "./globals.css";
 
 // Font
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"]
@@ -27,6 +28,7 @@ export default function RootLayout({
         <UserProvider>
           {/* <SidebarProvider> */}
           {/* <AppSidebar /> */}
+          <Toaster position="top-right" />
           <main className="w-full">
             {children}
           </main>

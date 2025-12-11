@@ -137,11 +137,12 @@ export default function MedicationAdministrationsForm() {
 
   const handleDeleteAdministration = (adminId: string) => {
     setMedAdministrations(prev => {
-      const updatedAdmins = prev.filter(admin => admin.id !== adminId);
-      const ordersWithAdmins = new Set(updatedAdmins.map(a => a.medicationOrderId));
+      const updatedAdministrations = prev.filter(admin => admin.id !== adminId);
+      const ordersWithAdmins = new Set(updatedAdministrations.map(a => a.medicationOrderId));
+      // remove entire order if no associated administrations remain
       setSelectedOrders(currentOrders => currentOrders.filter(order => ordersWithAdmins.has(order.id)));
 
-      return updatedAdmins;
+      return updatedAdministrations;
     });
   }
 
@@ -195,7 +196,7 @@ export default function MedicationAdministrationsForm() {
                     <Combobox
                       value={selectedOrder?.id || ''}
                       onValueChange={(id) => {
-                        const order = medicationOrders.find(o => o.id === id);
+                        const order = medicationOrders.find(order => order.id === id);
                         setSelectedOrder(order);
                         if (order) setDose(order.dose);
                       }}

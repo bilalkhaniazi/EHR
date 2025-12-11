@@ -8,15 +8,16 @@ import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 
-import { TestTube2 } from "lucide-react";
-import { AddLabColumn } from "./components/addLabCol";
+import { TestTube2, X } from "lucide-react";
+import { AddTableColumn } from "./components/addTimeCol";
 import { Label } from "@/components/ui/label";
 import Combobox from "@/components/ui/combobox";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { LabTableImagingReport, LabTableInputCell, LabTableMicrobioReport } from "./components/labTableInputCell";
-import { Switch } from "@/components/ui/switch";
 import { useFormContext } from "@/context/FormContext";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 // Define the structure for initial lab results when adding a new column
 export interface NewLabResult {
@@ -42,7 +43,6 @@ export const labData: LabTableData[] = [
     rowType: "results",
     normalRange: { low: 3.5, high: 5.0 },
     criticalRange: { low: 3.0, high: 6.0 },
-
   },
   {
     field: "Chlorine",
@@ -106,20 +106,6 @@ export const labData: LabTableData[] = [
 
   },
   {
-    field: "WBC",
-    unit: "(10³/µL)",
-    rowType: "results",
-    normalRange: { low: 4.5, high: 11.0 },
-
-  },
-  {
-    field: "Platelets",
-    unit: "(10³/µL)",
-    rowType: "results",
-    normalRange: { low: 150, high: 450 },
-
-  },
-  {
     field: "Hemoglobin",
     unit: "(g/dL)",
     rowType: "results",
@@ -152,6 +138,50 @@ export const labData: LabTableData[] = [
     unit: "(g/dL)",
     rowType: "results",
     normalRange: { low: 32, high: 36 },
+
+  },
+  {
+    field: "WBC",
+    unit: "(10³/µL)",
+    rowType: "results",
+    normalRange: { low: 4.5, high: 11.0 },
+
+  },
+  {
+    field: 'Neutrophils',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 55, high: 70 }
+  },
+  {
+    field: 'Lymphocytes',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 20, high: 40 }
+  },
+  {
+    field: 'Monocytes',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 2, high: 8 }
+  },
+  {
+    field: 'Eosinophils',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 1, high: 4 }
+  },
+  {
+    field: 'Basophils',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 0.5, high: 1 }
+  },
+  {
+    field: "Platelets",
+    unit: "(10³/µL)",
+    rowType: "results",
+    normalRange: { low: 150, high: 450 },
 
   },
   {
@@ -961,12 +991,12 @@ function getPinnedStyles(column: Column<LabTableData>): React.CSSProperties {
 export function LabForm() {
   const [labTableData, setLabTableData] = useState<LabTableData[]>(labData);
   const [timePoints, setTimePoints] = useState([0]);
-  const [visibleInPresim, setVisibleInPresim] = useState<boolean>(false);
-
+  const [timePointsInPresim, setTimePointsInPresim] = useState<Set<number>>(new Set());
+  // const [visibleInPresim, setVisibleInPresim] = useState<boolean>(false);
 
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [comboboxValue, setComboboxValue] = useState<string>("");
-  const { onDataChange } = useFormContext()
+  const { onDataChange, } = useFormContext()
   const router = useRouter()
 
   // Get all hideable options
@@ -999,7 +1029,7 @@ export function LabForm() {
 
   const handleAddColumn = (offset: number) => {
     if (timePoints.includes(offset)) {
-
+      toast.warning("Time column already added")
       return
     }
     setTimePoints(prev =>
@@ -1012,6 +1042,35 @@ export function LabForm() {
     router.push('/admin/case-builder/form/charting')
   }
 
+  const removeTimePoint = (timeToRemove: number) => {
+    // update timePoint, TimePointInPresim, LabData
+    setTimePoints(prev => {
+      return prev.filter(timePoint => timePoint !== timeToRemove);
+    })
+    setTimePointsInPresim(prev => {
+      const newTimePoints = new Set(prev);
+      newTimePoints.delete(timeToRemove)
+      return newTimePoints
+    })
+    setLabTableData(prev => {
+      return prev.map(row => {
+        delete row[timeToRemove]
+        return row
+      })
+    })
+  }
+
+  const togglePresimInclusion = (timePoint: number, checked: boolean | 'indeterminate') => {
+    setTimePointsInPresim(prev => {
+      if (!checked) {
+        const timePoints = new Set(prev)
+        timePoints.delete(timePoint)
+        return timePoints
+      }
+      return new Set([...prev, timePoint])
+    })
+  }
+
   const columns = useMemo(
     () => [
       // first column has unique formatting
@@ -1019,7 +1078,7 @@ export function LabForm() {
         id: 'pinned',
         minSize: 200,
         maxSize: 400,
-        header: () => <h1 className="h-20 bg-gray-50"></h1>,
+        header: () => <p></p>,
         cell: info => {
           const rowType = info.row.original.rowType;
           const field = info.row.original.field
@@ -1036,10 +1095,10 @@ export function LabForm() {
               const unit = info.row.original?.unit || ''
               return (
                 <Tooltip>
-                  <TooltipTrigger className="w-full font-normal text-xs text-neutral-700 shadow-none rounded-none">
+                  <TooltipTrigger className="w-full font-normal text-xs text-gray-700 shadow-none rounded-none">
                     <div className="flex justify-end w-full ">
-                      <p className="text-right font-normal px-2 text-xs text-neutral-700 text-wrap">{field}</p>
-                      {unit && <p className="text-right font-normal pr-2 text-xs tracking-tight text-neutral-400">{unit}</p>}
+                      <p className="text-right font-normal px-2 text-xs text-gray-700 text-wrap">{field}</p>
+                      {unit && <p className="text-right font-normal pr-2 text-xs tracking-tight text-gray-400">{unit}</p>}
                     </div>
                   </TooltipTrigger>
                   <TooltipPortal>
@@ -1062,7 +1121,7 @@ export function LabForm() {
               );
             }
             return (
-              <p className="w-full text-right font-normal px-2 text-xs text-neutral-700 text-wrap">
+              <p className="w-full text-right font-normal px-2 text-xs text-gray-700 text-wrap">
                 {field}
               </p>
             );
@@ -1080,22 +1139,35 @@ export function LabForm() {
             id: String(timePoint),
             header: () => {
               return (
-                <div className="flex justify-center items-center">
-                  <div className="grid grid-cols-2 gap-x-2">
+                <div className="relative flex gap-1 justify-center items-center border-r">
+                  <div className="grid grid-cols-[80px_20px] gap-x-2 p-1">
                     <p className="text-gray-800 font-light">Days: </p>
                     <p className="mb-1 ml-1">{days * -1}</p>
                     <p className="text-gray-800 font-light">Hours: </p>
                     <p className="mb-1 ml-1">{hours * -1}</p>
                     <p className="text-gray-800 font-light">Minutes: </p>
                     <p className="mb-1 ml-1">{minutes * -1}</p>
+                    <p className="text-gray-800 font-light">In Pre-Sim?</p>
+                    <Checkbox
+                      checked={timePointsInPresim.has(timePoint)}
+                      onCheckedChange={(check) => togglePresimInclusion(timePoint, check)}
+                      className="bg-white mt-1 border-gray-300"
+                      id="presim "
+                    />
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => removeTimePoint(timePoint)}
+                    className="p-1 mt-1 self-start hover:bg-red-100 rounded text-slate-400 hover:text-red-600"
+                    title="Remove Column"
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
               )
             },
             cell: ({ row, column, getValue, table }) => {
               const rowType = row.original.rowType
-              const x = row.original.field
-              console.log(x)
               switch (rowType) {
                 case 'results':
                   return (
@@ -1104,7 +1176,7 @@ export function LabForm() {
                       getValue={getValue}
                       column={column}
                       table={table}
-                      visibleInPresim={visibleInPresim}
+                      visibleInPresim={timePointsInPresim.has(timePoint)}
                     />
                   );
                 case 'imaging':
@@ -1114,7 +1186,7 @@ export function LabForm() {
                       row={row}
                       table={table}
                       getValue={getValue}
-                      visibleInPresim={visibleInPresim}
+                      visibleInPresim={timePointsInPresim.has(timePoint)}
                     />
                   )
                 case 'microbiology':
@@ -1124,7 +1196,7 @@ export function LabForm() {
                       row={row}
                       table={table}
                       getValue={getValue}
-                      visibleInPresim={visibleInPresim}
+                      visibleInPresim={timePointsInPresim.has(timePoint)}
                     />
                   )
               }
@@ -1133,7 +1205,7 @@ export function LabForm() {
       }
       )
     ],
-    [timePoints, visibleInPresim]
+    [timePoints, timePointsInPresim]
   );
 
   const ptTable = useReactTable({
@@ -1163,11 +1235,10 @@ export function LabForm() {
       },
     },
     getCoreRowModel: getCoreRowModel(),
-
   });
-  console.log(labTableData)
+  console.log(labTableData.slice(0, 10))
   return (
-    <div className="flex flex-col w-[calc(100vw-16rem)] h-[calc(100vh)] bg-white overflow-hidden shadow-sm border border-slate-200">
+    <div className="flex flex-col w-full h-[calc(100vh)] bg-white overflow-hidden shadow-sm border border-slate-200">
       <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10">
         <div className="">
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -1184,16 +1255,12 @@ export function LabForm() {
 
       <main className="flex-1 flex flex-col min-h-0 px-6 pt-4 overflow-auto">
         <div className="w-full flex justify-start gap-12 mb-3 px-4 items-end">
-          <AddLabColumn handleColumnAdd={handleAddColumn} />
+          <AddTableColumn handleColumnAdd={handleAddColumn} />
           <div>
             <Label>Imaging Options</Label>
             <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
           </div>
           <div className="flex items-end gap-2">
-            <div className="flex items-center space-x-2 border rounded-md p-2 bg-white w-fit h-fit">
-              <Switch id="presim" checked={visibleInPresim} onCheckedChange={setVisibleInPresim} />
-              <Label htmlFor="presim" className="text-sm font-normal cursor-pointer">{visibleInPresim ? 'Included in Pre-Sim' : 'Excluded from Pre-Sim'}</Label>
-            </div>
             <div className="space-y-1.5">
               <p className="w-fit items-center  px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
                 Not included in Pre-Sim
@@ -1206,16 +1273,16 @@ export function LabForm() {
 
 
         </div>
-        <div className="flex-1 w-full border border-gray-200 rounded-t-lg overflow-auto bg-white shadow-sm relative">
+        <div className="flex-1 w-full border border-gray-300 rounded-t-lg overflow-auto bg-white shadow-sm relative">
           <Table className="w-full overflow-x-auto">
-            <TableHeader className=" bg-gray-50 sticky top-0 z-20">
+            <TableHeader className=" bg-gray-50 sticky top-0 z-5">
               {ptTable.getHeaderGroups().map(headerGroup => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
                     <TableHead
                       style={getPinnedStyles(header.column)}
                       key={header.id}
-                      className="border-b-2 border-gray-200 p-0 bg-gray-50"
+                      className="border-b-2 border-gray-300 p-0 bg-gray-50"
                     >
                       {header.isPlaceholder
                         ? null
@@ -1237,7 +1304,7 @@ export function LabForm() {
                       <TableCell
                         style={getPinnedStyles(cell.column)}
                         key={`${cell.id}-${row.original.field}`}
-                        className={`!p-0 m-0 h-6 border-separate border-gray-200 border-b min-w-40 ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
+                        className={`p-0 m-0 h-6 border-separate border-gray-300 border-b min-w-40 ${rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"}`}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>

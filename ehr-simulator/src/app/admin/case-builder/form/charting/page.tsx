@@ -7,7 +7,7 @@ import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import { TooltipPortal } from "@radix-ui/react-tooltip";
 // import { Skeleton } from "@/components/ui/skeleton";
-import { AddLabColumn } from "../labs/components/addLabCol";
+import { AddTableColumn } from "../labs/components/addTimeCol";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
@@ -1204,7 +1204,7 @@ export function ChartingForm() {
         </div>
       </header>
       <div className="flex gap-12 items-end px-8 py-2">
-        <AddLabColumn handleColumnAdd={handleAddColumn} />
+        <AddTableColumn handleColumnAdd={handleAddColumn} />
         <div className="flex items-end gap-2">
           <div className="flex items-center space-x-2 border rounded-md p-2 bg-white w-fit h-fit">
             <Switch id="presim" checked={visibleInPresim} onCheckedChange={setVisibleInPresim} />
