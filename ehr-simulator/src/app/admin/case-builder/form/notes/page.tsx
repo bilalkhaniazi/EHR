@@ -29,8 +29,8 @@ import NoteFormDisplay from "./noteFormDisplay";
 import { useFormContext } from "@/context/FormContext";
 
 export default function NotesForm() {
-
-  const [notes, setNotes] = useState<NoteData[]>([]);
+  const { onDataChange, noteData } = useFormContext()
+  const [notes, setNotes] = useState<NoteData[]>(noteData);
 
   const [category, setCategory] = useState<string>("");
   const [specialty, setSpecialty] = useState<string>("");
@@ -74,7 +74,6 @@ export default function NotesForm() {
 
   const createNote = () => {
     const timeOffset = ((Number(days) || 0) * 1440) + ((Number(hours) || 0) * 60) + (Number(minutes) || 0);
-
     let newNote: NoteData;
 
     if (isSoap) {
@@ -97,12 +96,10 @@ export default function NotesForm() {
         visibleInPresim: visibleInPresim
       };
     }
-
     setNotes(prev => [newNote, ...prev]);
     clearForm();
   };
 
-  const { onDataChange } = useFormContext()
   const router = useRouter();
 
   const handleSubmit = () => {

@@ -45,7 +45,7 @@ export const getAllTimeOffsets = (simulationNow: number) => {
 export const generateInitialChartingData = (allTimeOffsets: number[]): FlexSheetData[] => {
   const generatedData: FlexSheetData[] = []
 
-  vitalsTemplate.forEach(templateRow => {
+  flexSheetTemplate.forEach(templateRow => {
     const newRow: FlexSheetData = {
       id: templateRow.id,
       field: templateRow.field,
@@ -129,8 +129,7 @@ export const predefinedVitalsData2: PredefinedDataByTime = {
   }
 };
 
-export const vitalsTemplate: FlexSheetData[] = [
-
+export const flexSheetTemplate: FlexSheetData[] = [
   {
     id: "vitalSignsTitle",
     field: "Vital Signs",

@@ -74,7 +74,9 @@ const createColumns = () => {
 
 
 export default function MedicationAdministrationsForm() {
-  const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>([])
+  const { onDataChange, medAdministrationData } = useFormContext()
+
+  const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>(medAdministrationData)
   const [selectedOrder, setSelectedOrder] = useState<MedicationOrder>()
   const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([])
 
@@ -89,7 +91,6 @@ export default function MedicationAdministrationsForm() {
   const [minutes, setMinutes] = useState<number | ''>(0);
 
   const [startTime] = useState(new Date())
-  const { onDataChange } = useFormContext()
   const router = useRouter()
 
   const comboboxData = getComboboxData(medicationOrders)

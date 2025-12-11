@@ -30,7 +30,6 @@ import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData"
 import { useFormContext } from "@/context/FormContext"
-import { defaultNursingOrders } from "@/utils/form"
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
 
@@ -56,9 +55,9 @@ const getCategoryColor = (cat: string | undefined) => {
 
 export default function OrdersForm() {
   const router = useRouter();
-  const { onDataChange } = useFormContext();
+  const { onDataChange, orderData } = useFormContext();
 
-  const [orders, setOrders] = useState<OrderType[]>(defaultNursingOrders);
+  const [orders, setOrders] = useState<OrderType[]>(orderData);
 
   const [category, setCategory] = useState<string>("");
   const [title, setTitle] = useState("");

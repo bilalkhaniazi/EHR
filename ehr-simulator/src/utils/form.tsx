@@ -185,7 +185,14 @@ export const insuranceOptions = [
   "Private"
 ]
 
-export const defaultNursingOrders: OrderType[] = [
+export const defaultIoData = [
+  { blockId: 1, intake: 0, output: 0 },
+  { blockId: 2, intake: 0, output: 0 },
+  { blockId: 3, intake: 0, output: 0 },
+  { blockId: 4, intake: 0, output: 0 }
+]
+
+export const defaultOrders: OrderType[] = [
   {
     category: 'Laboratory',
     title: "Basic Metabolic Panel (BMP)",

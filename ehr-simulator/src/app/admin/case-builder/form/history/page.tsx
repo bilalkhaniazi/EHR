@@ -43,18 +43,18 @@ const FormSection = ({
 );
 
 const HistoryForm = () => {
-  const [medicalHistory, setMedicalHistory] = useState<string[]>([]);
-  const [surgicalHistory, setSurgicalHistory] = useState<string[]>([]);
-  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryData[]>([]);
-  const [socialHistory, setSocialHistory] = useState<string[]>([]);
-  const [livingSituation, setLivingSituation] = useState<string[]>([]);
-  const [allergies, setAllergies] = useState<string[]>([]);
-  const [alerts, setAlerts] = useState<string[]>([]);
+  const { onDataChange, historyData } = useFormContext()
+  const [medicalHistory, setMedicalHistory] = useState<string[]>(historyData.medicalHistory);
+  const [surgicalHistory, setSurgicalHistory] = useState<string[]>(historyData.surgicalHistory);
+  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryData[]>(historyData.familyHistory);
+  const [socialHistory, setSocialHistory] = useState<string[]>(historyData.socialHistory);
+  const [livingSituation, setLivingSituation] = useState<string[]>(historyData.livingSituation);
+  const [allergies, setAllergies] = useState<string[]>(historyData.allergies);
+  const [alerts, setAlerts] = useState<string[]>(historyData.alerts);
 
   const router = useRouter()
-  const { onDataChange } = useFormContext()
 
-  const historyData: HistoryFormData = {
+  const newHistoryData: HistoryFormData = {
     medicalHistory: medicalHistory,
     surgicalHistory: surgicalHistory,
     familyHistory: familyHistory,
@@ -65,7 +65,7 @@ const HistoryForm = () => {
   }
 
   const handleSubmit = () => {
-    onDataChange("history", historyData)
+    onDataChange("history", newHistoryData)
     router.push("/admin/case-builder/form/notes");
   }
 

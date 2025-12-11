@@ -31,11 +31,10 @@ export type NewOrderData = Partial<MedicationOrder>;
 
 export default function MedicationOrderForm() {
   const router = useRouter()
-
+  const { onDataChange, medOrderData } = useFormContext()
   const [selectedMed, setSelectedMed] = useState('')
   const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([])
-  const [medOrders, setOrders] = useState<NewOrderData[]>([])
-  const { onDataChange } = useFormContext()
+  const [medOrders, setOrders] = useState<NewOrderData[]>(medOrderData)
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
@@ -51,7 +50,7 @@ export default function MedicationOrderForm() {
       }
     }
   }
-  console.log(medOrders)
+
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
     setOrders(prev => prev.filter((_, i) => i !== index))

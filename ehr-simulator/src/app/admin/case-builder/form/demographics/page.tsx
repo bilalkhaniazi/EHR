@@ -22,36 +22,8 @@ import { useState } from "react";
 import { useFormContext } from "@/context/FormContext";
 
 export default function DemographicsForm() {
-
-  const { onDataChange } = useFormContext();
-
-  const defaultDemographicData = {
-    DOBDay: '',
-    DOBMonth: '',
-    admissionDateOffest: '',
-    admissionTime: '',
-    admittingDiagnosis: '',
-    age: '',
-    attendingProviderName: '',
-    attendingProviderTitle: '',
-    codeStatus: '',
-    dosingWeight: '',
-    employment: '',
-    firstName: '',
-    heightFeet: '',
-    heightInches: '',
-    insurance: '',
-    language: '',
-    needsInterpreter: false,
-    lastName: '',
-    precautions: '',
-    relationshipStatus: '',
-    religion: '',
-    summary: '',
-  }
-
-  const [demographicsData, setDemographicsData] = useState<DemographicFormData>(defaultDemographicData);
-
+  const { onDataChange, demographicData: initialData } = useFormContext();
+  const [demographicsData, setDemographicsData] = useState<DemographicFormData>(initialData);
   const router = useRouter();
 
   const handleSubmit = () => {
@@ -95,6 +67,7 @@ export default function DemographicsForm() {
             </CardHeader>
             <CardContent>
               <Textarea
+                value={demographicsData.summary}
                 onChange={(e) => { setDemographicsData({ ...demographicsData, ["summary"]: e.target.value }) }}
                 required
                 name="summary"
@@ -119,15 +92,24 @@ export default function DemographicsForm() {
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
                     <Input
-                      required id="firstName" name="firstName" placeholder="Jane"
+                      required
+                      id="firstName"
+                      name="firstName"
+                      placeholder="Jane"
                       onChange={(e) => { setDemographicsData({ ...demographicsData, ["firstName"]: e.target.value }) }}
+                      value={demographicsData.firstName}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
                     <Input
-                      required id="lastName" name="lastName" placeholder="Doe"
-                      onChange={(e) => { setDemographicsData({ ...demographicsData, ["lastName"]: e.target.value }) }} />
+                      required
+                      id="lastName"
+                      name="lastName"
+                      placeholder="Doe"
+                      onChange={(e) => { setDemographicsData({ ...demographicsData, ["lastName"]: e.target.value }) }}
+                      value={demographicsData.lastName}
+                    />
                   </div>
                 </div>
 
@@ -136,8 +118,11 @@ export default function DemographicsForm() {
                     <Label>Date of Birth</Label>
                     <div className="flex gap-2">
                       <Select
-                        required name="DOBMonth"
-                        onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["DOBMonth"]: value }) }}>
+                        required
+                        name="DOBMonth"
+                        onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["DOBMonth"]: value }) }}
+                        value={demographicsData.DOBMonth}
+                      >
                         <SelectTrigger className="w-full bg-white">
                           <SelectValue placeholder="Month" />
                           <ChevronDown />
@@ -147,8 +132,10 @@ export default function DemographicsForm() {
                         </SelectContent>
                       </Select>
                       <Select
-                        required name="DOBDay"
+                        required
+                        name="DOBDay"
                         onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["DOBDay"]: value }) }}
+                        value={demographicsData.DOBDay}
                       >
                         <SelectTrigger className="w-[80px] bg-white"><SelectValue placeholder="Day" />
                           <ChevronDown />
@@ -164,7 +151,15 @@ export default function DemographicsForm() {
                     <div className="relative">
                       <Input
                         onChange={(e) => { setDemographicsData({ ...demographicsData, ["age"]: e.target.value }) }}
-                        required id="age" name="age" type="number" min={limits.minAge} max={limits.maxAge} className="pr-12" />
+                        required
+                        id="age"
+                        name="age"
+                        type="number"
+                        min={limits.minAge}
+                        max={limits.maxAge}
+                        className="pr-12"
+                        value={demographicsData.age}
+                      />
                       <span className="absolute right-3 top-2.5 text-xs text-slate-400">y.o.</span>
                     </div>
                   </div>
@@ -173,8 +168,10 @@ export default function DemographicsForm() {
                 <div className="space-y-2">
                   <Label htmlFor="codeStatus">Code Status</Label>
                   <Select
-                    required name="codeStatus"
+                    required
+                    name="codeStatus"
                     onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["codeStatus"]: value }) }}
+                    value={demographicsData.codeStatus}
                   >
                     <SelectTrigger className="bg-white w-fit">
                       <SelectValue placeholder="Select..." />
@@ -205,15 +202,27 @@ export default function DemographicsForm() {
                       <div className="flex gap-2">
                         <div className="relative flex-1">
                           <Input
-                            required name="heightFeet" type="number" min={limits.minFeet} max={limits.maxFeet} className="pr-8"
+                            required
+                            name="heightFeet"
+                            type="number"
+                            min={limits.minFeet}
+                            max={limits.maxFeet}
+                            className="pr-8"
                             onChange={(e) => { setDemographicsData({ ...demographicsData, ["heightFeet"]: e.target.value }) }}
+                            value={demographicsData.heightFeet}
                           />
                           <span className="absolute right-3 top-2.5 text-xs text-slate-400">ft</span>
                         </div>
                         <div className="relative flex-1">
                           <Input
-                            required name="heightInches" type="number" min={limits.minInches} max={limits.maxInches} className="pr-8"
+                            required
+                            name="heightInches"
+                            type="number"
+                            min={limits.minInches}
+                            max={limits.maxInches}
+                            className="pr-8"
                             onChange={(e) => { setDemographicsData({ ...demographicsData, ["heightInches"]: e.target.value }) }}
+                            value={demographicsData.heightInches}
                           />
                           <span className="absolute right-3 top-2.5 text-xs text-slate-400">in</span>
                         </div>
@@ -223,8 +232,15 @@ export default function DemographicsForm() {
                       <Label htmlFor="dosingWeight">Dosing Weight</Label>
                       <div className="relative">
                         <Input
-                          required id="dosingWeight" name="dosingWeight" type="number" min={limits.minKilograms} max={limits.maxKilograms} className="pr-8"
+                          required
+                          id="dosingWeight"
+                          name="dosingWeight"
+                          type="number"
+                          min={limits.minKilograms}
+                          max={limits.maxKilograms}
+                          className="pr-8"
                           onChange={(e) => { setDemographicsData({ ...demographicsData, ["dosingWeight"]: e.target.value }) }}
+                          value={demographicsData.dosingWeight}
                         />
                         <span className="absolute right-3 top-2.5 text-xs text-slate-400">kg</span>
                       </div>
@@ -234,8 +250,10 @@ export default function DemographicsForm() {
                   <div className="space-y-2">
                     <Label htmlFor="precautions">Isolation Precautions</Label>
                     <Select
-                      required name="precautions"
+                      required
+                      name="precautions"
                       onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["precautions"]: value }) }}
+                      value={demographicsData.precautions}
                     >
                       <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Select..." />
@@ -261,15 +279,21 @@ export default function DemographicsForm() {
                     <div className="space-y-2">
                       <Label htmlFor="language">Language</Label>
                       <Input
-                        required id="language" name="language" placeholder="e.g. English"
+                        required
+                        id="language"
+                        name="language"
+                        placeholder="e.g. English"
                         onChange={(e) => { setDemographicsData({ ...demographicsData, ["language"]: e.target.value }) }}
+                        value={demographicsData.language}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="insurance">Insurance</Label>
                       <Select
-                        required name="insurance"
+                        required
+                        name="insurance"
                         onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["insurance"]: value }) }}
+                        value={demographicsData.insurance}
                       >
                         <SelectTrigger className="bg-white">
                           <SelectValue placeholder="Select..." />
@@ -280,21 +304,26 @@ export default function DemographicsForm() {
                         </SelectContent>
                       </Select>
                     </div>
-
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="employment">Employment</Label>
                       <Input
-                        required id="employment" name="employment" placeholder="Occupation"
+                        required
+                        id="employment"
+                        name="employment"
+                        placeholder="Occupation"
                         onChange={(e) => { setDemographicsData({ ...demographicsData, ["employment"]: e.target.value }) }}
+                        value={demographicsData.employment}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="relationshipStatus">Relationship</Label>
                       <Select
-                        required name="relationshipStatus"
+                        required
+                        name="relationshipStatus"
                         onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["relationshipStatus"]: value }) }}
+                        value={demographicsData.relationshipStatus}
                       >
                         <SelectTrigger className="bg-white">
                           <SelectValue placeholder="Select..." />
@@ -311,15 +340,21 @@ export default function DemographicsForm() {
                     <div className="space-y-2">
                       <Label htmlFor="religion">Religion</Label>
                       <Input
-                        required id="religion" name="religion" placeholder="Optional"
+                        required
+                        id="religion"
+                        name="religion"
+                        placeholder=""
                         onChange={(e) => { setDemographicsData({ ...demographicsData, ["religion"]: e.target.value }) }}
+                        value={demographicsData.religion}
                       />
                     </div>
                     <div className="flex items-center space-x-2 pt-8">
                       <Checkbox
-                        id="needsInterpreter" name="needsInterpreter"
+                        id="needsInterpreter"
+                        name="needsInterpreter"
                         defaultChecked={false}
                         onCheckedChange={(value) => { setDemographicsData({ ...demographicsData, ["needsInterpreter"]: typeof value === 'boolean' ? value : false }) }}
+                        checked={demographicsData.needsInterpreter}
                       />
                       <Label htmlFor="needsInterpreter" className="font-normal text-slate-600">Needs Interpreter</Label>
                     </div>
@@ -341,8 +376,12 @@ export default function DemographicsForm() {
               <div className="space-y-2">
                 <Label htmlFor="admittingDiagnosis">Admitting Diagnosis</Label>
                 <Input
-                  required id="admittingDiagnosis" name="admittingDiagnosis" placeholder="e.g. Acute Appendicitis"
+                  required
+                  id="admittingDiagnosis"
+                  name="admittingDiagnosis"
+                  placeholder="e.g. Acute Appendicitis"
                   onChange={(e) => { setDemographicsData({ ...demographicsData, ["admittingDiagnosis"]: e.target.value }) }}
+                  value={demographicsData.admittingDiagnosis}
                 />
               </div>
 
@@ -350,8 +389,10 @@ export default function DemographicsForm() {
                 <Label>Attending Provider</Label>
                 <div className="flex gap-2">
                   <Select
-                    required name="attendingProviderTitle"
+                    required
+                    name="attendingProviderTitle"
                     onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["attendingProviderTitle"]: value }) }}
+                    value={demographicsData.attendingProviderTitle}
                   >
                     <SelectTrigger className="bg-white w-fit">
                       <SelectValue placeholder="Title" />
@@ -366,8 +407,12 @@ export default function DemographicsForm() {
                     </SelectContent>
                   </Select>
                   <Input
-                    required name="attendingProviderName" placeholder="First & Last Name" className="flex-1"
+                    required
+                    name="attendingProviderName"
+                    placeholder="First & Last Name"
+                    className="flex-1"
                     onChange={(e) => { setDemographicsData({ ...demographicsData, ["attendingProviderName"]: e.target.value }) }}
+                    value={demographicsData.attendingProviderName}
                   />
                 </div>
               </div>
@@ -379,8 +424,13 @@ export default function DemographicsForm() {
                 </Label>
                 <div className="relative max-w-[180px]">
                   <Input
-                    required min={0} name="admissionDateOffest" type="number" className="pr-12"
+                    required
+                    min={0}
+                    name="admissionDateOffest"
+                    type="number"
+                    className="pr-12"
                     onChange={(e) => { setDemographicsData({ ...demographicsData, ["admissionDateOffest"]: e.target.value }) }}
+                    value={demographicsData.admissionDateOffest}
                   />
                   <span className="absolute right-3 top-2.5 text-xs text-slate-400">days</span>
                 </div>
@@ -391,8 +441,13 @@ export default function DemographicsForm() {
                 <div className="relative max-w-[180px]">
                   <Clock className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                   <Input
-                    required name="admissionTime" id="admissionTime" type="time" defaultValue="00:00" className="pl-10"
+                    required
+                    name="admissionTime"
+                    id="admissionTime"
+                    type="time"
+                    className="pl-10"
                     onChange={(e) => { setDemographicsData({ ...demographicsData, ["admissionTime"]: e.target.value }) }}
+                    value={demographicsData.admissionTime}
                   />
                 </div>
               </div>

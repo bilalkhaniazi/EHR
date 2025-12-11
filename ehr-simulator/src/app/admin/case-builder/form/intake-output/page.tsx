@@ -61,6 +61,13 @@ const generateNiceTicks = (max: number, count: number = 6) => {
   return ticks;
 };
 
+const initialIoData = [
+  { blockId: 1, intake: 0, output: 0 },
+  { blockId: 2, intake: 0, output: 0 },
+  { blockId: 3, intake: 0, output: 0 },
+  { blockId: 4, intake: 0, output: 0 }
+]
+
 function getBlocks() {
   const blocks = [];
 
@@ -76,11 +83,11 @@ function getBlocks() {
 }
 
 export default function IntakeOutputForm() {
+  const { onDataChange, ioData } = useFormContext();
+
   const blocks = useMemo(() => getBlocks(), []);
 
-  const [intakeOutput, setIntakeOutput] = useState<IntakeOutputFormData[]>(
-    blocks.map(block => ({ blockId: block.id, intake: 0, output: 0 }))
-  );
+  const [intakeOutput, setIntakeOutput] = useState<IntakeOutputFormData[]>(ioData);
 
   const roundedMax = useMemo(() => {
     const max = Math.max(
@@ -117,7 +124,6 @@ export default function IntakeOutputForm() {
   const tickLabelStyles = { fontSize: 14, fontFamily: 'var(--font-sans)' }
 
   const router = useRouter();
-  const { onDataChange } = useFormContext();
 
   const handleSubmit = () => {
     onDataChange("intakeOutput", intakeOutput)
