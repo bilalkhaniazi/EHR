@@ -1,5 +1,5 @@
 import AssessmentSelect from "@/app/simulation/[sessionId]/chart/charting/components/assessmentSelector";
-import { chartingOptions, FlexSheetData, FlexSheetFormCellValue } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
+import { chartingOptions, FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { getAlertFlag } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetHelpers";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -12,30 +12,26 @@ import {
 import { getCellColor } from "../../labs/components/labTableInputCell";
 
 interface CellProps {
-  getValue: () => string | number | boolean | string[] | { subsetId: string; label: string; }[] | { low: number; high: number; } | { assessment: string; description: string; }[] | FlexSheetFormCellValue | undefined;
+  getValue: () => string | number | boolean | string[] | { subsetId: string; label: string; }[] | { low: number; high: number; } | { assessment: string; description: string; }[] | undefined;
   row: Row<FlexSheetData>;
   column: Column<FlexSheetData, unknown>;
   table: Table<FlexSheetData>;
   visibleInPresim: boolean
 }
 export const TableInputFormCell = ({ getValue, row, column, table, visibleInPresim }: CellProps) => {
-  const initialData = (getValue() as FlexSheetFormCellValue) || { value: "", visibleInPresim: false };
-  const cellValue = initialData.value
-  const [value, setValue] = useState(cellValue);
-  const newData = {
-    value,
-    visibleInPresim
-  }
+  const initialValue = (getValue() as string) ?? "";
+  const [value, setValue] = useState(initialValue);
+
 
   useEffect(() => {
-    setValue(cellValue);
-  }, [cellValue]);
+    setValue(initialValue);
+  }, [initialValue]);
 
   const alertFlag = getAlertFlag(row.original, value, row.original.componentType);
 
   const onBlur = () => {
-    if (value != cellValue) {
-      table.options.meta?.updateData(row.index, column.id, newData);
+    if (value != initialValue) {
+      table.options.meta?.updateData(row.index, column.id, value);
     }
   };
 
@@ -46,7 +42,7 @@ export const TableInputFormCell = ({ getValue, row, column, table, visibleInPres
   };
 
   return (
-    <div className={`flex h-6 items-center w-full hover:bg-gray-50 ${getCellColor(initialData.visibleInPresim, value)}`}>
+    <div className={`flex h-6 items-center w-full hover:bg-gray-50 ${getCellColor(visibleInPresim, value)}`}>
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -59,27 +55,22 @@ export const TableInputFormCell = ({ getValue, row, column, table, visibleInPres
 };
 
 export const TableAssessmentSelectFormCell = ({ getValue, row, column, table, visibleInPresim }: CellProps) => {
-  const initialData = (getValue() as FlexSheetFormCellValue) || { value: '', visibleInPresim: false };
-  const cellValue = initialData.value
-  const [selectedValue, setSelectedValue] = useState(cellValue);
+  const initialData = (getValue() as string) ?? "";
+  const [selectedValue, setSelectedValue] = useState(initialData);
   const chartingOptions = (row.original.chartingOptions || []) as chartingOptions[];
 
 
   useEffect(() => {
-    setSelectedValue(cellValue);
-  }, [cellValue]);
+    setSelectedValue(initialData);
+  }, [initialData]);
 
   const handleComponentChange = (newValue: string) => {
     setSelectedValue(newValue);
-    const newData = {
-      value: newValue,
-      visibleInPresim
-    }
-    table.options.meta?.updateData(row.index, column.id, newData);
+    table.options.meta?.updateData(row.index, column.id, newValue);
   };
 
   return (
-    <div className={`h-6 flex items-center ${getCellColor(initialData.visibleInPresim, selectedValue)}`}>
+    <div className={`h-6 flex items-center ${getCellColor(visibleInPresim, selectedValue)}`}>
       <AssessmentSelect
         options={chartingOptions}
         value={selectedValue}

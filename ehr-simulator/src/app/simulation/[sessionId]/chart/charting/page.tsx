@@ -22,6 +22,7 @@ import {
 } from "./components/flexSheetData";
 import { ImagingData, LabCellValue } from "../labs/components/labsData";
 import { TableAssessmentSelectCell, TableInputCell } from "./components/tableInputCell";
+import { ChartingToolTip } from "./components/ChartingToolTip";
 
 const columnHelper = createColumnHelper<FlexSheetData>();
 
@@ -223,22 +224,7 @@ export function FlexSheet() {
           const wdlDescription = info.row.original?.wdlDescription;
           if (wdlDescription && wdlDescription.length > 0) {
             return (
-              <Tooltip>
-                <TooltipTrigger className="px-2 font-medium text-xs text-lime-900 text-left">
-                  {info.row.original.field}
-                </TooltipTrigger>
-                <TooltipContent className="bg-white shadow shadow-black/30 rounded-xl ml-4 p-4 z-51 max-w-sm">
-                  <h1 className="text-sm font-bold">WDL Criteria</h1>
-                  <div className="space-y-2">
-                    {wdlDescription.map((row, index) => (
-                      <div key={index}>
-                        <p className="pl-2 text-xs font-semibold text-gray-800 text-wrap">{row.assessment}:</p>
-                        <p className="pl-4 text-xs text-gray-600 italic text-wrap">{row.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+              <ChartingToolTip field={info.row.original.field} descriptions={wdlDescription} />
             );
           }
           return <p className="min-w-24 h-full text-xs text-left py-0 pl-2 px-2 font-medium text-lime-900">{info.row.original.field}</p>;

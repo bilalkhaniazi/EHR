@@ -4,6 +4,7 @@ import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components
 import { MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
+import { Column } from "@tanstack/react-table";
 
 export interface DemographicFormData {
   DOBDay: string;
@@ -29,6 +30,7 @@ export interface DemographicFormData {
   religion: string;
   summary: string;
 }
+
 export interface HistoryFormData {
   medicalHistory: string[]
   surgicalHistory: string[]
@@ -37,6 +39,19 @@ export interface HistoryFormData {
   livingSituation: string[]
   alerts: string[]
   familyHistory: { relation: string, condition: string }[]
+}
+
+export interface TableFormData<T> {
+  data: T[];
+  timePoints: number[];
+  timePointsInPreSim: Set<number>;
+  visibleItems?: Set<string>;
+}
+
+export interface ChartingFormData {
+  data: FlexSheetData[];
+  timePoints: number[];
+  timePointsInPresim: Set<number>
 }
 
 export interface IntakeOutputFormData {
@@ -50,14 +65,44 @@ export interface FormBlob {
   history: HistoryFormData;
   notes: NoteData[];
   orders: OrderType[];
-  labs: LabTableData[];
-  charting: FlexSheetData[];
+  labs: TableFormData<LabTableData>;
+  charting: TableFormData<FlexSheetData>;
   intakeOutput: IntakeOutputFormData[];
   medOrders: NewOrderData[];
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | IntakeOutputFormData[] | NewOrderData[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | NewOrderData[] | MedAdministrationInstance[]
+
+export function getPinnedStyles<T>(column: Column<T>): React.CSSProperties {
+  const styles: React.CSSProperties = {
+    width: `${column.getSize()}px`,
+    minWidth: `${column.getSize()}px`,
+    maxWidth: `${column.getSize()}px`,
+  };
+  if (!column.getIsPinned()) {
+    return {};
+  }
+  const side = column.getIsPinned();
+  return {
+    ...styles,
+    position: 'sticky',
+    [side as string]: `${column.getStart(side)}px`,
+    zIndex: side === 'left' ? 2 : 1,
+  };
+}
+
+export const formatTimeOffset = (minuteOffset: number) => {
+  const minutesInDay = 1440;
+  const minutesInHour = 60;
+
+  const days = Math.floor(minuteOffset / minutesInDay);
+  const remainingMinutesAfterDays = minuteOffset % minutesInDay;
+  const hours = Math.floor(remainingMinutesAfterDays / minutesInHour);
+  const minutes = remainingMinutesAfterDays % minutesInHour;
+
+  return { days, hours, minutes };
+}
 
 export const nursingAlerts = [
   "Seizure Risk",
