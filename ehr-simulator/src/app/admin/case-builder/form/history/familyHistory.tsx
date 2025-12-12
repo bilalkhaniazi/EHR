@@ -93,22 +93,24 @@ export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableBody>
-              {value.map((item, index) => (
-                <TableRow key={index} className="hover:bg-slate-50">
-                  <TableCell className="font-medium w-1/3 py-2">{item.relation}</TableCell>
-                  <TableCell className="py-2 text-slate-600">{item.condition}</TableCell>
-                  <TableCell className="text-right py-2 w-12">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-slate-400 hover:text-red-600"
-                      onClick={() => deleteEntry(index)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {value.map((item, index) => ({ item, index }))
+                .sort((a, b) => a.item.relation.localeCompare(b.item.relation))
+                .map(({ item, index }) => (
+                  <TableRow key={index} className="hover:bg-slate-50">
+                    <TableCell className="font-medium w-1/3 py-2">{item.relation}</TableCell>
+                    <TableCell className="py-2 text-slate-600">{item.condition}</TableCell>
+                    <TableCell className="text-right py-2 w-12">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-slate-400 hover:text-red-600"
+                        onClick={() => deleteEntry(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>
