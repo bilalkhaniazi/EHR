@@ -7,7 +7,7 @@ import { DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { useState } from "react"
 import { toast } from "sonner";
 
@@ -50,7 +50,7 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
 
   const handleAddFinding = () => {
     if (!description || !region) {
-      toast.warning("Enter a region and finding")
+      toast.warning("Enter a body region and description")
       return
     }
     const finding: Finding = { region: region, description: description }
@@ -82,21 +82,24 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
 
 
   return (
-    <DialogContent className="flex flex-col sm:max-w-150 lg:max-w-none w-250 h-full max-h-9/10 overflow-hidden">
-      <h1 className="text-3xl tracking-tight font-semibold pb-2">
-        {isEditMode ? "Edit Imaging Report" : "Imaging Report"}
-      </h1>
+    <DialogContent className="flex flex-col sm:max-w-150 lg:max-w-none w-250 h-full max-h-9/10 overflow-hidden p-0 m-0">
+      <div className="flex gap-4 p-4 bg-slate-100 items-center border-b border-slate-200 h-20">
+        <FileText size={28} />
+        <h1 className="text-3xl tracking-tight font-semibold">
+          {isEditMode ? "Edit Imaging Report" : "Imaging Report"}
+        </h1>
+      </div>
       <Button disabled={!isSubmittable} onClick={handleSubmit} type='button' className="absolute top-6 right-16 bg-blue-600 hover:bg-blue-700">
         {isEditMode ? 'Update Imaging Report' : 'Add New Imaging Report'}
       </Button>
-      <div className="flex-1 flex flex-col w-full overflow-y-auto space-y-4 p-4 border rounded-lg">
+      <div className="flex-1 flex flex-col w-full overflow-y-auto gap-6 px-10 py-6 ">
         <div>
-          <Label className="mb-1" htmlFor="technique">Technique</Label>
+          <Label className="mb-1 text-lg" htmlFor="technique">Technique</Label>
           <Textarea id='technique' value={technique} onChange={(e) => setTechnique(e.target.value)} />
         </div>
 
-        <fieldset className="border px-4 py-2 rounded w-full space-y-4">
-          <legend>Findings</legend>
+        <div className="py-2 rounded w-full space-y-4">
+          <h1 className="text-lg font-medium border-b">Findings</h1>
           <div>
             <Label>Body Region</Label>
             <Input onChange={(e) => setRegion(e.target.value)} value={region} className="w-60 mt-1" />
@@ -105,15 +108,21 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
             <Label>Description</Label>
             <Input onChange={(e) => setDescription(e.target.value)} value={description} className="mt-1" />
           </div>
-          <Button onClick={handleAddFinding}>Add Finding</Button>
+          <Button
+            onClick={handleAddFinding}
+            className="bg-blue-600 hover:bg-blue-700 shadow"
+            disabled={!region || !description}
+          >
+            Add Finding
+          </Button>
 
           <div className="flex flex-col gap-4 justify-start pb-2">
             {findings.map((finding, index) =>
               <div
                 key={index}
-                className="group relative bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md flex flex-col md:grid md:grid-cols-20 overflow-hidden"
+                className="group relative bg-white border border-slate-200 rounded-md shadow-sm hover:shadow-md flex flex-col md:grid md:grid-cols-20 overflow-hidden"
               >
-                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-sky-200`} />
+                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-slate-200`} />
 
                 <div className="md:col-span-3 p-2 pl-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-200">
                   <h4 className="font-medium text-xs text-slate-900 leading-tight">{finding.region}</h4>
@@ -133,14 +142,16 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
               </div>
             )}
           </div>
-        </fieldset >
+        </div >
 
-        <fieldset className="border px-4 py-2 rounded w-full space-y-4">
-          <legend>Impressions</legend>
+        <div className="w-full space-y-4">
+          <h1 className="text-lg font-medium border-b">Impressions</h1>
           <Label className="mb-1" htmlFor="impressions">Description</Label>
           <Textarea value={impression} onChange={(e) => setImpression(e.target.value)} id="impressons" />
-          <Button onClick={handleAddImpression}>
-            <p>Add Impression</p>
+          <Button onClick={handleAddImpression}
+            className="bg-blue-600 hover:bg-blue-700 shadow"
+          >
+            Add Impression
           </Button>
           <div className="flex flex-col justify-start gap-4">
             {impressions.map((item, index) =>
@@ -148,7 +159,7 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
                 key={index}
                 className="relative bg-slate-50/30 border border-slate-200 rounded-lg shadow-sm hover:shadow-md flex justify-between p-2 overflow-hidden"
               >
-                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-purple-200`} />
+                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-slate-200`} />
                 <p className="font-medium text-xs text-slate-900 leading-tight px-4">{item}</p>
                 <button
                   onClick={() => handleRemoveImpression(index)}
@@ -159,7 +170,7 @@ const AddImagingReport = ({ imagingType, handleAddImagingReport, initialData }: 
               </div>
             )}
           </div>
-        </fieldset>
+        </div>
         <div className="flex items-center gap-4 ml-2">
           <p>Mark as critical or abnormal finding?</p>
           <Checkbox checked={isCritical} onCheckedChange={setIsCritical} className="border-gray-300" />

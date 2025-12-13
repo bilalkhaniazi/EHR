@@ -17,7 +17,7 @@ import { useFormContext } from "@/context/FormContext";
 import { useTimePoints } from "../../components/useFormTableOffsets";
 import { TableFormShell } from "../../components/tableFormShell";
 import { TableFormHeader } from "../../components/tableFormHeader";
-import { FormTable } from "../../components/FormTable";
+import { FormTable } from "../../components/formTable";
 
 const columnHelper = createColumnHelper<LabTableData>();
 
@@ -124,7 +124,7 @@ export function LabForm() {
               );
             }
             return (
-              <p className="w-full text-right font-normal px-2 text-xs text-gray-700 text-wrap">
+              <p className="w-full text-right font-normal !py-0 px-2 text-xs text-gray-700 text-wrap">
                 {field}
               </p>
             );

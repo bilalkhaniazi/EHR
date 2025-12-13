@@ -52,7 +52,7 @@ function getComboboxData(orders: MedicationOrder[]) {
   })
 }
 
-const createColumns = () => {
+export const createColumns = () => {
   const columnAnchorTime = new Date()
   columnAnchorTime.setMinutes(0, 0, 0)
   const columnCount = 6
@@ -178,7 +178,6 @@ export default function MedicationAdministrationsForm() {
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="max-w-6xl mx-auto space-y-8 pb-20">
-
           <Card className="border-slate-200 shadow-sm overflow-hidden py-0">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pt-4 !pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -187,9 +186,6 @@ export default function MedicationAdministrationsForm() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0 flex flex-col gap-4">
-
-
-
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-7 space-y-4">
                   <div className="space-y-2">

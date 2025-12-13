@@ -33,8 +33,8 @@ export default function MedicationOrderForm() {
   const router = useRouter()
   const { onDataChange, medOrderData } = useFormContext()
   const [selectedMed, setSelectedMed] = useState('')
-  const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([])
-  const [medOrders, setOrders] = useState<NewOrderData[]>(medOrderData)
+  const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>(medOrderData.selectedMeds)
+  const [medOrders, setOrders] = useState<NewOrderData[]>(medOrderData.data)
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
@@ -79,11 +79,14 @@ export default function MedicationOrderForm() {
   }, []);
 
   const handleSubmit = () => {
-    onDataChange('medOrders', medOrders)
-    console.log(medOrders)
-    router.push('/admin/case-builder/form/medication-administrations')
+    onDataChange('medOrders', {
+      data: medOrders,
+      selectedMeds: selectedMeds
+    });
+    console.log(medOrders);
+    router.push('/admin/case-builder/form/medication-administrations');
   }
-
+  console.log(medOrders)
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
 

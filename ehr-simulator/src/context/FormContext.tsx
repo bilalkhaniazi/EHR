@@ -1,12 +1,11 @@
 'use client';
 
 import { createContext, useContext, useState } from 'react';
-import { CompleteFormType, defaultIoData, defaultOrders, DemographicFormData, FormBlob, HistoryFormData, IntakeOutputFormData, TableFormData } from '@/utils/form';
+import { CompleteFormType, defaultIoData, defaultOrders, DemographicFormData, FormBlob, HistoryFormData, IntakeOutputFormData, MedOrderFormData, TableFormData } from '@/utils/form';
 import { NoteData } from '@/app/simulation/[sessionId]/chart/notes/components/notesData';
 import { OrderType } from '@/app/simulation/[sessionId]/chart/orders/components/orderData';
 import { LabTableData, labTemplate } from '@/app/simulation/[sessionId]/chart/labs/components/labsData';
 import { FlexSheetData, flexSheetTemplate } from '@/app/simulation/[sessionId]/chart/charting/components/flexSheetData';
-import { NewOrderData } from '@/app/admin/case-builder/form/medications/page';
 import { MedAdministrationInstance } from '@/app/simulation/[sessionId]/chart/mar/components/marData';
 
 interface FormContextType {
@@ -17,7 +16,7 @@ interface FormContextType {
   labData: TableFormData<LabTableData>;
   chartingData: TableFormData<FlexSheetData>;
   ioData: IntakeOutputFormData[];
-  medOrderData: NewOrderData[];
+  medOrderData: MedOrderFormData;
   medAdministrationData: MedAdministrationInstance[]
   onDataChange: (key: keyof FormBlob, data: CompleteFormType) => void;
 }
@@ -64,7 +63,7 @@ const MyContext = createContext<FormContextType>({
   labData: { data: [], timePoints: [0], timePointsInPreSim: new Set(), visibleItems: new Set() },
   chartingData: { data: [], timePoints: [0], timePointsInPreSim: new Set(), visibleItems: new Set() },
   ioData: [],
-  medOrderData: [],
+  medOrderData: { data: [], selectedMeds: [] },
   medAdministrationData: []
 });
 
@@ -86,7 +85,7 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
     visibleItems: new Set()
   });
   const [ioData, setIoData] = useState<IntakeOutputFormData[]>(defaultIoData);
-  const [medOrderData, setMedOrderData] = useState<NewOrderData[]>([]);
+  const [medOrderData, setMedOrderData] = useState<MedOrderFormData>({ data: [], selectedMeds: [] });
   const [medAdministrationData, setMedAdministrationData] = useState<MedAdministrationInstance[]>([])
 
   const onDataChange = (key: keyof FormBlob, value: CompleteFormType) => {
@@ -113,7 +112,7 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
         setIoData(value as IntakeOutputFormData[]);
         break;
       case 'medOrders':
-        setMedOrderData(value as NewOrderData[]);
+        setMedOrderData(value as MedOrderFormData);
         break;
       case 'medAdministrationInstances':
         setMedAdministrationData(value as MedAdministrationInstance[]);

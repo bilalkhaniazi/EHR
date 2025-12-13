@@ -5,7 +5,6 @@ import { Table as TableInstance } from "@tanstack/react-table"
 
 interface FormTableProps<TData> {
   table: TableInstance<TData>;
-  // Function to determine custom cell class names based on row data
   getCellClassName?: (row: TData) => string;
 }
 
@@ -36,14 +35,14 @@ export function FormTable<TData>({ table, getCellClassName }: FormTableProps<TDa
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map(row => (
-          <TableRow key={row.id} className="h-6">
+          <TableRow key={row.id} className="h-6 !p-0">
             {row.getVisibleCells().map(cell => {
               // const componentType = row.original.componentType
               return (
                 <TableCell
                   style={getPinnedStyles(cell.column)}
                   key={`${cell.id}`}
-                  className={`p-0 m-0 h-6 border-separate border-gray-200 border-b  ${getCellClassName ? getCellClassName(row.original) : "bg-white border-r last:border-r-0"}`}
+                  className={`!p-0 m-0 h-6 border-separate border-gray-200 border-b  ${getCellClassName ? getCellClassName(row.original) : "bg-white border-r last:border-r-0"}`}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

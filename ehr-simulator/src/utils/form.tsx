@@ -1,7 +1,7 @@
 import { NewOrderData } from "@/app/admin/case-builder/form/medications/page";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
-import { MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { AllMedicationTypes, MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
 import { Column } from "@tanstack/react-table";
@@ -60,6 +60,11 @@ export interface IntakeOutputFormData {
   output: number
 }
 
+export interface MedOrderFormData {
+  data: NewOrderData[];
+  selectedMeds: AllMedicationTypes[];
+}
+
 export interface FormBlob {
   demographics: DemographicFormData;
   history: HistoryFormData;
@@ -72,7 +77,7 @@ export interface FormBlob {
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | NewOrderData[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | MedOrderFormData | MedAdministrationInstance[]
 
 export function getPinnedStyles<T>(column: Column<T>): React.CSSProperties {
   const styles: React.CSSProperties = {
@@ -279,6 +284,15 @@ export const defaultOrders: OrderType[] = [
     title: "Vital Signs Monitoring (q4h)",
     status: "Active",
     details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Insert and Maintain IV)",
+    status: "Active",
+    details: "",
     orderingProvider: "Dr. John Smith, MD",
     important: true,
     visibleInPresim: true

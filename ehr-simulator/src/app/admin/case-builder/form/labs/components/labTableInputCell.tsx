@@ -94,7 +94,7 @@ export function LabTableMicrobioReport({ column, row, table, getValue, visibleIn
       <DialogTitle />
       <DialogTrigger asChild className="hover:bg-gray-50">
         {hasExistingReport ? (
-          <button type='button' className={`w-full h-7 ttext-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${visibleInPresim ? 'bg-lime-100' : 'bg-yellow-100'}`}>
+          <button type='button' className={`w-full h-6 text-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${visibleInPresim ? 'bg-lime-100' : 'bg-yellow-100'}`}>
             <FileText size={14} />
             {reportValue.sampleType}
             {reportValue.isCritical && <AlertTriangle size={14} className="text-red-600" />}
@@ -132,16 +132,16 @@ export function LabTableImagingReport({ getValue, row, table, column, visibleInP
 
   return (
     <Dialog open={isImageReportOpen} onOpenChange={setIsImageReportOpen}>
-      <DialogTitle />
+      <DialogTitle className="p-0 m-0" />
       <DialogTrigger asChild className="hover:bg-gray-50">
         {hasExistingReport ? (
-          <button type='button' className={`w-full h-7 text-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${visibleInPresim ? 'bg-lime-100' : 'bg-yellow-100'}`}>
+          <button type='button' className={`w-full h-6 text-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${visibleInPresim ? 'bg-lime-100' : 'bg-yellow-100'}`}>
             <FileText size={14} />
             {reportValue.displayName}
             {reportValue.isCritical && <AlertTriangle size={14} className="text-red-600" />}
           </button>
         ) : (
-          <button type='button' className="w-full h-7"></button>
+          <button type='button' className="w-full h-6"></button>
         )}
       </DialogTrigger>
       <AddImagingReport
