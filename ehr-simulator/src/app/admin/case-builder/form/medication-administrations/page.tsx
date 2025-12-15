@@ -150,6 +150,7 @@ export default function MedicationAdministrationsForm() {
   const handleSubmit = () => {
     onDataChange('medAdministrationInstances', medAdministrations)
     console.log(medAdministrations)
+
     router.push('/admin/case-builder/form/review')
   }
 
