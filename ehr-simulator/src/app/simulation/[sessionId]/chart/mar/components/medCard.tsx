@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { addMinutes, format, isWithinInterval } from "date-fns";
 import type { MedCardColumns } from "../page.jsx";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData.jsx"
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,12 +9,12 @@ interface MedCardProps {
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
   columns: MedCardColumns[];
-  sessionStartTime: number;
+  sessionStart: Date;
   isSelected: boolean;
   onSelectionChange: (payload: { id: string, checked: boolean }) => void;
 }
 
-const MedCard = ({ medication, administrations, order, columns, sessionStartTime, onSelectionChange, isSelected }: MedCardProps) => {
+const MedCard = ({ medication, administrations, order, columns, sessionStart, onSelectionChange, isSelected }: MedCardProps) => {
 
   const handleCheckboxChange = (checked: boolean) => {
     onSelectionChange({ id: order.id, checked });
@@ -23,8 +23,13 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
   // using columns passed from main mar component, add relevant administration data (given, held, refused...)
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
-      const adminAbsoluteTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
-      return adminAbsoluteTime >= col.startTime && adminAbsoluteTime <= col.endTime;
+      const adminTime = addMinutes(sessionStart || 0, admin.adminTimeMinuteOffset);
+
+      // 2. Check if that time falls inside this column
+      return isWithinInterval(adminTime, {
+        start: col.startTime,
+        end: col.endTime
+      });
     })
 
     return {
@@ -58,7 +63,7 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
           )}
 
         </div>
-        {findLastAdminTime(administrations, sessionStartTime)}
+        {findLastAdminTime(administrations, sessionStart)}
       </div>
 
       <div className="flex-1 grid grid-cols-6 divide-x divide-slate-100 overflow-x-auto">
@@ -73,7 +78,7 @@ const MedCard = ({ medication, administrations, order, columns, sessionStartTime
 
               <div className="flex-1 p-2 space-y-2 flex flex-col items-center justify-center min-h-[80px]">
                 {col.associatedAdministrations?.map((admin, index) => {
-                  const adminTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
+                  const adminTime = addMinutes(sessionStart, admin.adminTimeMinuteOffset);
 
                   // Status Colors
                   let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";

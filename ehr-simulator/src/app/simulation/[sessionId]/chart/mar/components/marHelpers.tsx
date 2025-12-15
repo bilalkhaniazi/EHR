@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { addMinutes, format } from "date-fns";
 import type { AllMedicationTypes, InsulinMedication, MedAdministrationInstance, MedicationOrder } from "./marData";
 import { Separator } from "@/components/ui/separator";
 
@@ -173,7 +173,7 @@ export const renderMedCardDetails = (medication: AllMedicationTypes, order: Medi
   }
 }
 
-export function findLastAdminTime(administrations: MedAdministrationInstance[], sessionStartTime: number) {
+export function findLastAdminTime(administrations: MedAdministrationInstance[], sessionStartTime: Date) {
   if (!administrations || administrations.length === 0) {
     return (
       <div className="flex w-full justify-end gap-2 pr-4">
@@ -188,7 +188,7 @@ export function findLastAdminTime(administrations: MedAdministrationInstance[], 
     const lastAdmin = filteredAdmins.reduce((latest, current) => {
       return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest;
     })
-    const lastAdminDate = new Date(sessionStartTime + lastAdmin.adminTimeMinuteOffset * 60 * 1000);
+    const lastAdminDate = addMinutes(sessionStartTime, lastAdmin.adminTimeMinuteOffset);
     const lastAdminTime = format(lastAdminDate, 'HHmm')
     const lastAdminDay = format(lastAdminDate, 'LL/dd')
     return (

@@ -76,7 +76,7 @@ export interface MedicationOrder {
   medicationId: string;
   unitsOrdered: number;
   frequency: string;
-  priority: "STAT" | "NOW" | "Routine" | 'PRN';
+  priority: "STAT" | "NOW" | "Routine" | 'PRN' | '';
   instructions?: string;
   indication: string;
   status: "active" | "completed" | "Held" | "cancelled";
@@ -1112,6 +1112,24 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -140,
     status: 'Refused',
     notes: "-121 metoprolol dose.",
+    administeredDose: 100,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderVancomycinIv",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -360,
+    status: 'Refused',
+    notes: "-121 metoprolol dose.",
+    administeredDose: 100,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderOndansetronIv4",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -60,
+    status: 'Refused',
+    notes: "-121 zofran dose.",
     administeredDose: 100,
     visibleInPresim: true
   },

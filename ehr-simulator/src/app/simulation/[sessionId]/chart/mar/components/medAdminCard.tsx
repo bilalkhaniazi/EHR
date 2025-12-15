@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { addMinutes, format } from "date-fns";
 import { medActionSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData"
 import MedAdminCardSelector from "./medAdminCardSelector";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,8 @@ interface MedAdminCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
-  sessionStartTime: number;
-  realWorldNow: Date;
+  sessionStart: Date;
+  elapsedMinutes: number;
   onStatusChange: (status: string) => void;
   currentStatus: string
   onDoseChange: (administeredDose: number) => void;
@@ -36,30 +36,29 @@ const getPreviousAdministrations = (administrations: MedAdministrationInstance[]
   return filteredAdmins.slice(-prevAdmins)
 }
 
-
-
-
 const MedAdminCard = ({
   medication,
   administrations,
   order,
-  sessionStartTime,
+  sessionStart,
+  elapsedMinutes,
   onStatusChange,
   currentStatus,
   onDoseChange,
   currentDose,
   onCommentChange,
   currentComment,
-  realWorldNow,
   onOrderRemove,
 }: MedAdminCardProps) => {
 
   const handleStatusChange = (newStatus: string) => {
     onStatusChange(newStatus)
   }
+
   const handleCommentChange = (comment: string) => {
     onCommentChange(comment)
   }
+
   const handleDoseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -73,9 +72,7 @@ const MedAdminCard = ({
     onOrderRemove(id)
   }
 
-
   const threePrevAdministrations = getPreviousAdministrations(administrations, 3);
-
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
@@ -129,7 +126,7 @@ const MedAdminCard = ({
                   <p key={index} className="px-2 py-1 bg-gray-100 rounded-lg border border-gray-300 text-gray-700 text-xs">Never</p>
                 )
               }
-              const adminTime = new Date(sessionStartTime + admin.adminTimeMinuteOffset * 60 * 1000);
+              const adminTime = addMinutes(sessionStart, admin.adminTimeMinuteOffset);
 
               // Status Colors
               let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
@@ -193,13 +190,13 @@ const MedAdminCard = ({
         <div className="w-full space-y-1">
           <Label>Date</Label>
           <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-            {format(sessionStartTime, 'P')}
+            {format(sessionStart, 'P')}
           </p>
         </div>
         <div className="w-full space-y-1">
           <Label>Time</Label>
           <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-            {format(realWorldNow, 'HHmm')}
+            {format(addMinutes(sessionStart, elapsedMinutes), 'HHmm')}
           </p>
         </div>
         <div className="w-full space-y-1">

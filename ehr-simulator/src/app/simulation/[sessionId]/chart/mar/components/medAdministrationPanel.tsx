@@ -22,7 +22,6 @@ import {
 import { useState } from "react"
 import { type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
 import MedAdminCard from "./medAdminCard";
-import { differenceInMinutes } from "date-fns";
 import { toast } from "sonner";
 import type { NewAdministrationData } from "../page";
 import { Badge } from "@/components/ui/badge"
@@ -32,8 +31,7 @@ interface MedAdministrationProps {
   allOrders: MedicationOrder[];
   administrationsLookup: { [key: string]: MedAdministrationInstance[] };
   medicationLookup: { [key: string]: AllMedicationTypes };
-  sessionStartTime: number;
-  realWorldTime: Date;
+  sessionStart: Date;
   isScanned: boolean;
   onPtScan: (scan: boolean) => void;
   newAdministrations: NewAdministrationData;
@@ -43,6 +41,7 @@ interface MedAdministrationProps {
   handlePopoverClose: (x: boolean) => void;
   isOpen: boolean;
   onOrderRemove: (id: string) => void;
+  elapsedMinutes: number;
 }
 
 // Helper for status badge
@@ -69,8 +68,8 @@ const MedAdministrationPanel = ({
   allOrders,
   medicationLookup,
   administrationsLookup,
-  sessionStartTime,
-  realWorldTime,
+  sessionStart,
+  elapsedMinutes,
   newAdministrations,
   onUpdateAdministration,
   isScanned,
@@ -97,13 +96,12 @@ const MedAdministrationPanel = ({
   const handleSubmit = async () => {
     const payload = Object.keys(newAdministrations).map(orderId => {
       const currentAdmin = newAdministrations[orderId];
-      const offset = differenceInMinutes(realWorldTime, sessionStartTime);
 
       return {
         ...currentAdmin,
         medicationOrderId: orderId,
         administratorId: "StudentID",
-        adminTimeMinuteOffset: offset,
+        adminTimeMinuteOffset: elapsedMinutes,
         status: currentAdmin.status     // status always initialized as 'given' by default 
       };
     });
@@ -193,11 +191,10 @@ const MedAdministrationPanel = ({
                   order={order}
                   medication={medicationLookup[order.medicationId]}
                   administrations={administrationsLookup[order.id]}
-                  sessionStartTime={sessionStartTime}
-                  realWorldNow={realWorldTime}
+                  sessionStart={sessionStart}
+                  elapsedMinutes={elapsedMinutes}
                   onOrderRemove={onOrderRemove}
 
-                  // State Updates
                   onStatusChange={(value) => {
                     onUpdateAdministration(order.id, "status", value);
                   }}

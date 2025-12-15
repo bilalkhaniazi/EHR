@@ -1,8 +1,8 @@
 'use client'
 
-import { differenceInMinutes, format } from 'date-fns'
+import { addMinutes, differenceInMinutes } from 'date-fns'
 import MedCard from "@/app/simulation/[sessionId]/chart/mar/components/medCard";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./components/marData";
 import MedAdministrationPanel from "./components/medAdministrationPanel";
 import { medicationOrders, allMedications, medAdministrations } from './components/marData';
@@ -16,6 +16,7 @@ import { useSymbologyScanner } from '@use-symbology-scanner/react';
 import { MultiMedPopover } from './components/multiMedPopover';
 import { toast } from 'sonner';
 import WrongPatientAlert from './components/wrongPatientAlert';
+import { createColumns } from '@/app/admin/case-builder/form/medication-administrations/page';
 
 
 export interface NewAdministrationData {
@@ -36,7 +37,6 @@ export default function Mar() {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [administrations, setAdministrations] = useState<MedAdministrationInstance[]>(medAdministrations)
   const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
-  const [realWorldNow, setRealWorldNow] = useState(new Date());
   const [orderFilter, setOrderFilter] = useState<string>('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isDue, setIsDue] = useState<boolean | undefined>(false)
@@ -46,7 +46,8 @@ export default function Mar() {
   const [associatedOrders, setAssociatedOrders] = useState<MedicationOrder[]>([])
   const [isWrongPtScan, setIsWrongPtScan] = useState<boolean>(false)
   const [isMedAdminPanelOpen, setIsMedAdminPanelOpen] = useState(false);
-  const sessionStartDateNumber = useRef(new Date().getTime())
+  const [anchorDate] = useState<Date>(new Date());
+  const [elapsedMinutes, setElapsedMinutes] = useState(0);
 
   const handleScan = (symbol: string) => {
     // setScannedSymbol(symbol)
@@ -279,38 +280,22 @@ export default function Mar() {
     });
   }, [orderFilter, isDue, groupedAdministrationsByOrder]);
 
+
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setRealWorldNow(new Date());
-    }, 60 * 1000)
-    return () => clearInterval(intervalId);
-  }, []);
+    // Update the elsapseMinutes every minute
+    const interval = setInterval(() => {
+      const now = new Date();
+      setElapsedMinutes(differenceInMinutes(now, anchorDate));
+    }, 60000); // Update every minute
 
+    return () => clearInterval(interval);
+  }, [anchorDate]);
 
+  const currentSimTime = anchorDate
+    ? addMinutes(anchorDate, elapsedMinutes)
+    : new Date();
 
-  const columnAnchorTime = new Date(
-    realWorldNow.getFullYear(),
-    realWorldNow.getMonth(),
-    realWorldNow.getDate(),
-    realWorldNow.getHours(),
-    0, 0, 0
-  )
-
-  const columnCount = 6
-  const displayColumns = [] as MedCardColumns[]
-
-  // Create 6 columns: 2 future hours, current hour, 3 past hours
-  for (let i = 0; i < columnCount; i++) {
-    const colStartTime = new Date(columnAnchorTime.getTime() - ((i - 2) * 60 * 60 * 1000));
-    const colEndTime = new Date(colStartTime.getTime() + (60 * 60 * 1000) - 1);
-    const colHeader = format(colStartTime, 'HH00');
-
-    displayColumns.unshift({
-      startTime: colStartTime,
-      endTime: colEndTime,
-      colHeader: colHeader
-    })
-  }
+  const displayColumns = createColumns(currentSimTime)
   console.log(medicationOrders.length)
   console.log(filteredMedOrders.length)
   return (
@@ -385,14 +370,14 @@ export default function Mar() {
           allOrders={medicationOrders}
           medicationLookup={medsById}
           administrationsLookup={groupedAdministrationsByOrder}
-          sessionStartTime={sessionStartDateNumber.current}
-          realWorldTime={realWorldNow}
+          sessionStart={anchorDate}
           isScanned={isScanned}
           onPtScan={setIsScanned}
           onAdministerMeds={handleAdministerMeds}
           isOpen={isMedAdminPanelOpen}
           handlePopoverClose={setIsMedAdminPanelOpen}
           onOrderRemove={handleRemoveOrder}
+          elapsedMinutes={elapsedMinutes}
         />
 
       </div>
@@ -422,7 +407,7 @@ export default function Mar() {
               administrations={orderSpecifcAdministrations}
               order={order}
               columns={displayColumns}
-              sessionStartTime={sessionStartDateNumber.current}
+              sessionStart={anchorDate}
               onSelectionChange={handleMedCheckboxChange}
               isSelected={isSelected}
             />

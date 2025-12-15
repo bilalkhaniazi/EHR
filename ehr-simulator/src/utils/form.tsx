@@ -1,7 +1,6 @@
-import { NewOrderData } from "@/app/admin/case-builder/form/medications/page";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
-import { AllMedicationTypes, MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
 import { Column } from "@tanstack/react-table";
@@ -61,7 +60,7 @@ export interface IntakeOutputFormData {
 }
 
 export interface MedOrderFormData {
-  data: NewOrderData[];
+  data: MedicationOrder[];
   selectedMeds: AllMedicationTypes[];
 }
 
@@ -73,7 +72,7 @@ export interface FormBlob {
   labs: TableFormData<LabTableData>;
   charting: TableFormData<FlexSheetData>;
   intakeOutput: IntakeOutputFormData[];
-  medOrders: NewOrderData[];
+  medOrders: MedicationOrder[];
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
