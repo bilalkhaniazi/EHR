@@ -73,7 +73,7 @@ export function AddTableColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
           <div className={`rounded-md p-2.5 text-xs flex items-start gap-2 border  border-blue-200 text-blue-700`}>
             <Info className="size-4 shrink-0" />
             <p>
-              <span>Results will appear as if collected <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of the simulation.</span>
+              <span>Data will appear as if entered <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of simulation.</span>
             </p>
           </div>
           <Button

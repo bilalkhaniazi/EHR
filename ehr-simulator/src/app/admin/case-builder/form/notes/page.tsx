@@ -27,6 +27,7 @@ import {
 } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import NoteFormDisplay from "./noteFormDisplay";
 import { useFormContext } from "@/context/FormContext";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function NotesForm() {
   const { onDataChange, noteData } = useFormContext()
@@ -36,7 +37,7 @@ export default function NotesForm() {
   const [specialty, setSpecialty] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [isSoap, setIsSoap] = useState<boolean>(true);
-  const [visibleInPresim, setVisibleInPresim] = useState<boolean>(true)
+  const [excludeFromPresim, setExcludeFromPresim] = useState<boolean>(false)
 
   const [plainNote, setPlainNote] = useState<string>("");
   const [soapContent, setSoapContent] = useState<SoapNoteData>({
@@ -53,6 +54,9 @@ export default function NotesForm() {
 
   const [canAddNote, setCanAddNote] = useState(false);
 
+  const handleCheckedChange = (value: boolean) => {
+    setExcludeFromPresim(value)
+  }
   const clearForm = () => {
     setCategory("");
     setPlainNote("");
@@ -84,7 +88,7 @@ export default function NotesForm() {
         specialty,
         timeOffset,
         noteBody: soapContent,
-        visibleInPresim: visibleInPresim
+        excludedFromPresim: excludeFromPresim
       };
     } else {
       newNote = {
@@ -93,7 +97,7 @@ export default function NotesForm() {
         specialty,
         timeOffset,
         noteBody: plainNote,
-        visibleInPresim: visibleInPresim
+        excludedFromPresim: excludeFromPresim
       };
     }
     setNotes(prev => [newNote, ...prev]);
@@ -115,11 +119,11 @@ export default function NotesForm() {
             <FilePlus className="text-slate-400" />
             Clinical Documentation
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 3 of 9: Add historical and simulation notes</p>
+          <p className="text-xs text-slate-500 mt-1">Step 3 of 9: Add all relevant notes</p>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
+      <div className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="fixed top-6 right-8 z-10">
             <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
@@ -130,13 +134,6 @@ export default function NotesForm() {
               <CardHeader className="bg-slate-100/70 border-b border-slate-200 pt-4 !pb-2 rounded-t-xl">
                 <CardTitle className="text-lg flex items-center justify-between">
                   <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> New Entry</span>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="presim" className={``}>
-                      {visibleInPresim ? "Note included in Pre-Sim" : "Note excluded from Pre-Sim"}
-                    </Label>
-                    <Switch checked={visibleInPresim} onCheckedChange={setVisibleInPresim} id="presim" />
-
-                  </div>
                   <div className="flex items-center gap-2 text-sm font-normal">
                     <Switch id="soap-mode" checked={isSoap} onCheckedChange={setIsSoap} className="border border-slate-300" />
                     <Label htmlFor="soap-mode">SOAP Format</Label>
@@ -210,6 +207,10 @@ export default function NotesForm() {
                       </div>
                     </div>
                   </div>
+                  <div className="flex w-full gap-2">
+                    <Checkbox checked={excludeFromPresim} onCheckedChange={handleCheckedChange} />
+                    <Label>Exclude from Pre-Sim</Label>
+                  </div>
                 </div>
 
                 <Separator />
@@ -251,7 +252,7 @@ export default function NotesForm() {
                   </div>
                 ) : (
                   <div className="space-y-2 animate-in fade-in duration-300">
-                    <Label>Note Body</Label>
+                    <Label className="text-xs uppercase text-slate-500 font-semibold">Note Body</Label>
                     <Textarea
                       className="bg-white min-h-[200px] font-mono text-sm leading-relaxed"
                       placeholder="Enter note text..."
@@ -304,7 +305,7 @@ export default function NotesForm() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

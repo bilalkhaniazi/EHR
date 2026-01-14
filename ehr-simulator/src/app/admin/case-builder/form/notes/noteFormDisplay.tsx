@@ -47,13 +47,14 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
             <h4 className="text-sm font-semibold text-slate-800">{note.title}</h4>
             <p className="text-xs text-slate-500">{note.specialty} • {note.author}</p>
           </div>
-          {note.visibleInPresim ? (
-            <Badge className="bg-lime-600/10 text-lime-600 border-lime-600/60 shadow-none rounded-full ml-8">
-              Included in Pre-Sim
+          {note.excludedFromPresim ? (
+            <Badge className="bg-amber-600/10 text-amber-600 border-amber-600/60 shadow-none rounded-full ml-8">
+              Excluded from Pre-Sim
+
             </Badge>
           ) : (
-            <Badge className="bg-amber-600/10 text-amber-600 border-amber-600/60 shadow-none rounded-full ml-8">
-              Hidden from Pre-Sim
+            <Badge className="bg-lime-600/10 text-lime-600 border-lime-600/60 shadow-none rounded-full ml-8">
+              Included in Pre-Sim
             </Badge>
           )
           }

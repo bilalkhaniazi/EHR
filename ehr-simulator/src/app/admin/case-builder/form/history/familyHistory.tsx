@@ -51,7 +51,7 @@ export function FamilyHistory(
   return (
     <div className="space-y-3">
       <div className="flex flex-col sm:flex-row gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-200">
-        <div className="space-y-1.5 flex-1 w-full">
+        <div className="space-y-1 flex-1 w-full">
           <label className="text-xs font-medium text-slate-500">Relation</label>
           <Select value={relation} onValueChange={setRelation}>
             <SelectTrigger ref={selectTriggerRef} className="bg-white h-9">
@@ -66,7 +66,7 @@ export function FamilyHistory(
           </Select>
         </div>
 
-        <div className="space-y-1.5 flex-[2] w-full">
+        <div className="space-y-1 flex-[2] w-full">
           <label className="text-xs font-medium text-slate-500">Condition / Disease</label>
           <Input
             value={condition}

@@ -289,7 +289,7 @@ export const defaultOrders: OrderType[] = [
   },
   {
     category: 'Nursing',
-    title: "Insert and Maintain IV)",
+    title: "Insert and Maintain IV",
     status: "Active",
     details: "",
     orderingProvider: "Dr. John Smith, MD",

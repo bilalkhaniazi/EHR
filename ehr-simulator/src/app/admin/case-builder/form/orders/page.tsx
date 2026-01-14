@@ -111,7 +111,7 @@ export default function OrdersForm() {
             <ClipboardList className="text-slate-400" />
             Order Entry
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 4 of 9: Create provider orders</p>
+          <p className="text-xs text-slate-500 mt-1">Step 4 of 9: Create provider and nursing orders</p>
         </div>
       </header>
 
