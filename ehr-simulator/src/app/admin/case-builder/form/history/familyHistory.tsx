@@ -12,7 +12,6 @@ export interface FamilyHistoryData {
 }
 
 interface FamilyHistoryProps {
-  name?: string;
   value: FamilyHistoryData[];
   onChange: (entries: FamilyHistoryData[]) => void;
 }
@@ -23,7 +22,9 @@ const relations: string[] = [
   'Maternal Grandmother', 'Maternal Grandfather', 'Maternal Aunt', 'Maternal Uncle', 'Maternal Cousin',
 ];
 
-export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
+export function FamilyHistory(
+  { value, onChange }: FamilyHistoryProps
+) {
   const [relation, setRelation] = useState('');
   const [condition, setCondition] = useState('');
 
@@ -49,8 +50,6 @@ export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
 
   return (
     <div className="space-y-3">
-      {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
-
       <div className="flex flex-col sm:flex-row gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-200">
         <div className="space-y-1.5 flex-1 w-full">
           <label className="text-xs font-medium text-slate-500">Relation</label>
