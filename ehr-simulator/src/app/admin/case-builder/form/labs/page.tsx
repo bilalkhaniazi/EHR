@@ -17,7 +17,7 @@ import { useFormContext } from "@/context/FormContext";
 import { useTimePoints } from "../../components/useFormTableOffsets";
 import { TableFormShell } from "../../components/tableFormShell";
 import { TableFormHeader } from "../../components/tableFormHeader";
-import { FormTable } from "../../components/formTable";
+import { FormTable } from "../../components/FormTable";
 
 const columnHelper = createColumnHelper<LabTableData>();
 
