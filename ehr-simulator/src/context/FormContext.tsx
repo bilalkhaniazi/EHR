@@ -56,7 +56,7 @@ const defaultHistoryData = {
   alerts: [],
   familyHistory: []
 }
-const MyContext = createContext<FormContextType>({
+const FormContext = createContext<FormContextType>({
   onDataChange: () => { },
   demographicData: defaultDemographicData,
   historyData: defaultHistoryData,
@@ -113,7 +113,7 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
   }
 
   return (
-    <MyContext.Provider value={{
+    <FormContext.Provider value={{
       demographicData,
       historyData,
       noteData,
@@ -126,10 +126,10 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
       onDataChange
     }}>
       {children}
-    </MyContext.Provider>
+    </FormContext.Provider>
   );
 }
 
 export function useFormContext() {
-  return useContext(MyContext);
+  return useContext(FormContext);
 }
