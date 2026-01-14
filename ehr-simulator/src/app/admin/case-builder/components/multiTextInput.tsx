@@ -86,7 +86,7 @@ function MultiTextInput({
           variant={!currentInput.trim() ? "outline" : "secondary"}
           size="sm"
           disabled={!currentInput.trim()}
-          className="h-9 px-3 not-disabled:bg-blue-600 disabled:text-slate-700 hover:bg-slate-200 border border-slate-200 text-white shrink-0"
+          className="h-9 px-3 cursor-pointer hover:bg-blue-700 not-disabled:bg-blue-600 disabled:text-slate-700 border-slate-200 text-white shrink-0"
         >
           <Plus className="h-4 w-4" />
         </Button>
