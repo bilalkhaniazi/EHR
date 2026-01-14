@@ -13,7 +13,7 @@ import { useTimePoints } from "../../components/useFormTableOffsets";
 import { TableFormHeader } from "../../components/tableFormHeader";
 import { TableFormShell } from "../../components/tableFormShell";
 import { ChartingToolTip } from "@/app/simulation/[sessionId]/chart/charting/components/ChartingToolTip";
-import { FormTable } from "../../components/formTable";
+import { FormTable } from "../../components/FormTable";
 
 const columnHelper = createColumnHelper<FlexSheetData>();
 

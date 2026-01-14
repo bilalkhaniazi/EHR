@@ -33,7 +33,7 @@ export default function MedicationOrderForm() {
   const { onDataChange, medOrderData } = useFormContext()
   const [selectedMed, setSelectedMed] = useState('')
   const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>(medOrderData.selectedMeds)
-  const [medOrders, setOrders] = useState<MedicationOrder[]>(medOrderData.data)
+  const [medOrders, setOrders] = useState<MedicationOrder[]>(medOrderData.createdOrders)
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
@@ -93,7 +93,7 @@ export default function MedicationOrderForm() {
 
   const handleSubmit = () => {
     onDataChange('medOrders', {
-      data: medOrders,
+      createdOrders: medOrders,
       selectedMeds: selectedMeds
     });
     console.log(medOrders);

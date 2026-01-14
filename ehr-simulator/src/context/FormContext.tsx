@@ -63,7 +63,7 @@ const MyContext = createContext<FormContextType>({
   labData: { data: [], timePoints: [0], timePointsInPreSim: new Set(), visibleItems: new Set() },
   chartingData: { data: [], timePoints: [0], timePointsInPreSim: new Set(), visibleItems: new Set() },
   ioData: [],
-  medOrderData: { data: [], selectedMeds: [] },
+  medOrderData: { createdOrders: [], selectedMeds: [] },
   medAdministrationData: []
 });
 
@@ -85,7 +85,7 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
     visibleItems: new Set()
   });
   const [ioData, setIoData] = useState<IntakeOutputFormData[]>(defaultIoData);
-  const [medOrderData, setMedOrderData] = useState<MedOrderFormData>({ data: [], selectedMeds: [] });
+  const [medOrderData, setMedOrderData] = useState<MedOrderFormData>({ createdOrders: [], selectedMeds: [] });
   const [medAdministrationData, setMedAdministrationData] = useState<MedAdministrationInstance[]>([])
 
   const onDataChange = (key: keyof FormBlob, value: CompleteFormType) => {

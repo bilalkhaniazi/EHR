@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
+// import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import Combobox from "@/components/ui/combobox"
@@ -74,13 +74,15 @@ export const createColumns = (currentTime: Date, offset = 2) => {
 export default function MedicationAdministrationsForm() {
   const { onDataChange, medAdministrationData, medOrderData } = useFormContext()
 
-  const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>(medAdministrationData)
+  const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>(medAdministrationData.filter(admin => {
+    return medOrderData.createdOrders.find(med => med.id === admin.medicationOrderId) !== undefined;
+  }))
   const [selectedOrder, setSelectedOrder] = useState<MedicationOrder>()
-  const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([])
+  const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>(medOrderData.createdOrders)
 
   const [administratorId, setAdministratorId] = useState('')
-  const [status, setStatus] = useState<AdministrationStatus>('Given')
-  const [isInPast, setIsInPast] = useState<boolean>(false)
+  const [status, setStatus] = useState<AdministrationStatus>('Due')
+  const isInPast = status === 'Due' ? false : true
   const [dose, setDose] = useState(0)
   const [visibleInPresim, setVisibleInPresim] = useState<boolean>(true)
 
@@ -95,10 +97,10 @@ export default function MedicationAdministrationsForm() {
 
   const router = useRouter()
 
-  const comboboxData = getComboboxData(medOrderData.data)
+  const comboboxData = getComboboxData(medOrderData.createdOrders)
   const linkedMed = selectedOrder ? allMedications.find(med => med.id === selectedOrder.medicationId) : undefined
   const handleComboboxSelection = (id: string) => {
-    const order = medOrderData.data.find(order => order.id === id);
+    const order = medOrderData.createdOrders.find(order => order.id === id);
     if (order) {
       setSelectedOrder(order);
       setDose(order.dose);
@@ -180,7 +182,7 @@ export default function MedicationAdministrationsForm() {
             <Syringe className="text-slate-400" />
             Medication History
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 9 of 9: Document past administrations and add Due times</p>
+          <p className="text-xs text-slate-500 mt-1">Step 9 of 9: Document past administrations and Due times</p>
         </div>
         <div>
           <SubmitButton onClick={handleSubmit} buttonText="Save and Continue" />
@@ -215,9 +217,9 @@ export default function MedicationAdministrationsForm() {
                       </Label>
                       <div className="flex items-center gap-2">
                         <Label htmlFor="past-mode" className={`text-xs text-slate-500`}>
-                          {isInPast ? "Given before sim start" : "Due"}
+                          {/* {isInPast ? "In the past" : "In the future"} */}
                         </Label>
-                        <Switch checked={isInPast} onCheckedChange={setIsInPast} id="past-mode" />
+                        {/* <Switch checked={isInPast} onCheckedChange={setIsInPast} id="past-mode" /> */}
                       </div>
                     </div>
                     <div className="flex gap-2">

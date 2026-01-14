@@ -60,7 +60,7 @@ export interface IntakeOutputFormData {
 }
 
 export interface MedOrderFormData {
-  data: MedicationOrder[];
+  createdOrders: MedicationOrder[];
   selectedMeds: AllMedicationTypes[];
 }
 
