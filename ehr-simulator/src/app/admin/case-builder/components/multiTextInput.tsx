@@ -93,7 +93,7 @@ function MultiTextInput({
       </div>
 
       {/* Badge Display Area */}
-      {value.length > 0 && (
+      {value.length > 0 ? (
         <div className="flex flex-wrap gap-2 mt-3">
           {value.map((item: string, index: number) => (
             <Badge
@@ -112,7 +112,9 @@ function MultiTextInput({
             </Badge>
           ))}
         </div>
-      )}
+      ) :
+        <p className="text-xs text-slate-400 italic pt-2 pl-1">{`No ${labelText.toLowerCase()} recorded.`}</p>
+      }
     </div>
   );
 }
