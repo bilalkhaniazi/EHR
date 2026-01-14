@@ -97,7 +97,6 @@ const HistoryForm = () => {
                 <FormSection icon={BriefcaseMedical} title="Medical History">
                   <MultiTextInput
                     labelText="Diagnoses"
-                    name="medicalHistory"
                     value={medicalHistory}
                     onChange={setMedicalHistory}
                     placeholder="e.g. HTN, GERD..."
@@ -107,7 +106,6 @@ const HistoryForm = () => {
                 <FormSection icon={Slice} title="Surgical History">
                   <MultiTextInput
                     labelText="Procedures"
-                    name="surgicalHistory"
                     value={surgicalHistory}
                     onChange={setSurgicalHistory}
                     placeholder="e.g. TAVR (2010)..."
@@ -117,7 +115,6 @@ const HistoryForm = () => {
                 <FormSection icon={AlertTriangle} title="Allergies">
                   <MultiTextInput
                     labelText="Allergens"
-                    name="allergies"
                     value={allergies}
                     onChange={setAllergies}
                     placeholder="e.g. Penicillin..."
@@ -137,14 +134,12 @@ const HistoryForm = () => {
                     <div className="space-y-4">
                       <MultiTextInput
                         labelText="Social Habits"
-                        name="socialHistory"
                         value={socialHistory}
                         onChange={setSocialHistory}
                         placeholder="e.g. Tobacco Use, Polysubstance Use, High Risk Occupation..."
                       />
                       <MultiTextInput
                         labelText="Living Situation"
-                        name="livingSituation"
                         value={livingSituation}
                         onChange={setLivingSituation}
                         placeholder="e.g. Lives alone, Group Home..."
@@ -182,7 +177,6 @@ const HistoryForm = () => {
             </CardHeader>
             <CardContent>
               <FamilyHistory
-                name="familyHistory"
                 value={familyHistory}
                 onChange={setFamilyHistory}
               />
