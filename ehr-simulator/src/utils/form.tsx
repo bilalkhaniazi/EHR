@@ -1,9 +1,9 @@
-import { NewOrderData } from "@/app/admin/case-builder/form/medications/page";
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
-import { MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
+import { Column } from "@tanstack/react-table";
 
 export interface DemographicFormData {
   DOBDay: string;
@@ -29,6 +29,7 @@ export interface DemographicFormData {
   religion: string;
   summary: string;
 }
+
 export interface HistoryFormData {
   medicalHistory: string[]
   surgicalHistory: string[]
@@ -39,10 +40,28 @@ export interface HistoryFormData {
   familyHistory: { relation: string, condition: string }[]
 }
 
+export interface TableFormData<T> {
+  data: T[];
+  timePoints: number[];
+  timePointsInPreSim: Set<number>;
+  visibleItems?: Set<string>;
+}
+
+export interface ChartingFormData {
+  data: FlexSheetData[];
+  timePoints: number[];
+  timePointsInPresim: Set<number>
+}
+
 export interface IntakeOutputFormData {
   blockId: number,
   intake: number,
   output: number
+}
+
+export interface MedOrderFormData {
+  data: MedicationOrder[];
+  selectedMeds: AllMedicationTypes[];
 }
 
 export interface FormBlob {
@@ -50,14 +69,44 @@ export interface FormBlob {
   history: HistoryFormData;
   notes: NoteData[];
   orders: OrderType[];
-  labs: LabTableData[];
-  charting: FlexSheetData[];
+  labs: TableFormData<LabTableData>;
+  charting: TableFormData<FlexSheetData>;
   intakeOutput: IntakeOutputFormData[];
-  medOrders: NewOrderData[];
+  medOrders: MedicationOrder[];
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | IntakeOutputFormData[] | NewOrderData[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | MedOrderFormData | MedAdministrationInstance[]
+
+export function getPinnedStyles<T>(column: Column<T>): React.CSSProperties {
+  const styles: React.CSSProperties = {
+    width: `${column.getSize()}px`,
+    minWidth: `${column.getSize()}px`,
+    maxWidth: `${column.getSize()}px`,
+  };
+  if (!column.getIsPinned()) {
+    return {};
+  }
+  const side = column.getIsPinned();
+  return {
+    ...styles,
+    position: 'sticky',
+    [side as string]: `${column.getStart(side)}px`,
+    zIndex: side === 'left' ? 2 : 1,
+  };
+}
+
+export const formatTimeOffset = (minuteOffset: number) => {
+  const minutesInDay = 1440;
+  const minutesInHour = 60;
+
+  const days = Math.floor(minuteOffset / minutesInDay);
+  const remainingMinutesAfterDays = minuteOffset % minutesInDay;
+  const hours = Math.floor(remainingMinutesAfterDays / minutesInHour);
+  const minutes = remainingMinutesAfterDays % minutesInHour;
+
+  return { days, hours, minutes };
+}
 
 export const nursingAlerts = [
   "Seizure Risk",
@@ -234,6 +283,15 @@ export const defaultOrders: OrderType[] = [
     title: "Vital Signs Monitoring (q4h)",
     status: "Active",
     details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Insert and Maintain IV)",
+    status: "Active",
+    details: "",
     orderingProvider: "Dr. John Smith, MD",
     important: true,
     visibleInPresim: true

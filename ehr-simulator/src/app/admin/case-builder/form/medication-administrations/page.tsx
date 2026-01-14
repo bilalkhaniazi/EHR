@@ -9,7 +9,7 @@ import {
   Syringe,
   ChevronDown,
 } from "lucide-react"
-import { format } from "date-fns"
+import { addHours, addMinutes, format, startOfHour } from "date-fns"
 import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,7 +24,6 @@ import SubmitButton from "../../components/submitButton"
 
 import {
   MedicationOrder,
-  medicationOrders,
   allMedications,
   MedAdministrationInstance,
   AdministrationStatus,
@@ -52,21 +51,20 @@ function getComboboxData(orders: MedicationOrder[]) {
   })
 }
 
-const createColumns = () => {
-  const columnAnchorTime = new Date()
-  columnAnchorTime.setMinutes(0, 0, 0)
+export const createColumns = (currentTime: Date, offset = 2) => {
+  const columnAnchor = startOfHour(currentTime)
   const columnCount = 6
   const displayColumns = [] as MedCardColumns[]
 
   for (let i = 0; i < columnCount; i++) {
-    const colStartTime = new Date(columnAnchorTime.getTime() - ((i - 2) * 60 * 60 * 1000));
-    const colEndTime = new Date(colStartTime.getTime() + (60 * 60 * 1000) - 1);
-    const colHeader = format(colStartTime, 'HH00');
+    // two columns in the future, one at current hours, three in the past
+    const colStart = addHours(columnAnchor, offset + i * -1);
+    const colEnd = addMinutes(addHours(colStart, 1), -1);
 
     displayColumns.unshift({
-      startTime: colStartTime,
-      endTime: colEndTime,
-      colHeader: colHeader
+      startTime: colStart,
+      endTime: colEnd,
+      colHeader: format(colStart, 'HHmm')
     })
   }
   return displayColumns
@@ -74,7 +72,7 @@ const createColumns = () => {
 
 
 export default function MedicationAdministrationsForm() {
-  const { onDataChange, medAdministrationData } = useFormContext()
+  const { onDataChange, medAdministrationData, medOrderData } = useFormContext()
 
   const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>(medAdministrationData)
   const [selectedOrder, setSelectedOrder] = useState<MedicationOrder>()
@@ -91,11 +89,23 @@ export default function MedicationAdministrationsForm() {
   const [minutes, setMinutes] = useState<number | ''>(0);
 
   const [startTime] = useState(new Date())
+  const [anchorDate] = useState<Date>(new Date());
+  const [elapsedMinutes] = useState(0);
+
+
   const router = useRouter()
 
-  const comboboxData = getComboboxData(medicationOrders)
+  const comboboxData = getComboboxData(medOrderData.data)
   const linkedMed = selectedOrder ? allMedications.find(med => med.id === selectedOrder.medicationId) : undefined
+  const handleComboboxSelection = (id: string) => {
+    const order = medOrderData.data.find(order => order.id === id);
+    if (order) {
+      setSelectedOrder(order);
+      setDose(order.dose);
+    }
 
+
+  }
   const handleAddMedAdministration = () => {
     if (!selectedOrder) return;
 
@@ -150,6 +160,7 @@ export default function MedicationAdministrationsForm() {
   const handleSubmit = () => {
     onDataChange('medAdministrationInstances', medAdministrations)
     console.log(medAdministrations)
+
     router.push('/admin/case-builder/form/review')
   }
 
@@ -158,8 +169,8 @@ export default function MedicationAdministrationsForm() {
       setDose(Number(val))
     }
   }
-
-  const displayColumns = createColumns()
+  const currentSimTime = addMinutes(anchorDate, elapsedMinutes);
+  const displayColumns = createColumns(currentSimTime);
 
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
@@ -178,7 +189,6 @@ export default function MedicationAdministrationsForm() {
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="max-w-6xl mx-auto space-y-8 pb-20">
-
           <Card className="border-slate-200 shadow-sm overflow-hidden py-0">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pt-4 !pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -187,20 +197,13 @@ export default function MedicationAdministrationsForm() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 pt-0 flex flex-col gap-4">
-
-
-
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-7 space-y-4">
                   <div className="space-y-2">
                     <Label className="text-xs font-bold text-slate-500 uppercase">Select Order</Label>
                     <Combobox
                       value={selectedOrder?.id || ''}
-                      onValueChange={(id) => {
-                        const order = medicationOrders.find(order => order.id === id);
-                        setSelectedOrder(order);
-                        if (order) setDose(order.dose);
-                      }}
+                      onValueChange={(id) => handleComboboxSelection(id)}
                       data={comboboxData}
                       displayText="Search medication orders..."
                     />

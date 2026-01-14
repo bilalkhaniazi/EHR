@@ -27,36 +27,49 @@ function getComboboxData(medications: AllMedicationTypes[]) {
   })
 }
 
-export type NewOrderData = Partial<MedicationOrder>;
 
 export default function MedicationOrderForm() {
   const router = useRouter()
   const { onDataChange, medOrderData } = useFormContext()
   const [selectedMed, setSelectedMed] = useState('')
-  const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>([])
-  const [medOrders, setOrders] = useState<NewOrderData[]>(medOrderData)
+  const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>(medOrderData.selectedMeds)
+  const [medOrders, setOrders] = useState<MedicationOrder[]>(medOrderData.data)
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
     if (newMedId) {
       const newMedObject = allMedications.find(med => med.id === newMedId)
       if (newMedObject) {
-        const isAlreadyAdded = selectedMeds.some(med => med.id === newMedId)
-        if (!isAlreadyAdded) {
-          setSelectedMeds(prev => [newMedObject, ...prev])
-          setOrders(prev => [{ medicationId: newMedObject.id }, ...prev])
-        }
+        setSelectedMeds(prev => [newMedObject, ...prev])
+        setOrders(prev => {
+          const newOrder = {
+            id: crypto.randomUUID(),
+            medicationId: newMedObject.id,
+            unitsOrdered: 0,
+            frequency: '',
+            priority: '',
+            indication: '',
+            orderingProvider: '',
+            dose: 0,
+            visibleInPresim: true,
+            status: "active"
+
+          } as MedicationOrder
+          return [newOrder, ...prev,]
+        })
+
         setSelectedMed('')
       }
     }
   }
+
 
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
     setOrders(prev => prev.filter((_, i) => i !== index))
   }
 
-  const handleOrderChange = (index: number, field: keyof NewOrderData, value: string | boolean) => {
+  const handleOrderChange = (index: number, field: keyof MedicationOrder, value: string | boolean) => {
     setOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
@@ -79,11 +92,14 @@ export default function MedicationOrderForm() {
   }, []);
 
   const handleSubmit = () => {
-    onDataChange('medOrders', medOrders)
-    console.log(medOrders)
-    router.push('/admin/case-builder/form/medication-administrations')
+    onDataChange('medOrders', {
+      data: medOrders,
+      selectedMeds: selectedMeds
+    });
+    console.log(medOrders);
+    router.push('/admin/case-builder/form/medication-administrations');
   }
-
+  console.log(medOrders)
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
 

@@ -76,7 +76,7 @@ export interface MedicationOrder {
   medicationId: string;
   unitsOrdered: number;
   frequency: string;
-  priority: "STAT" | "NOW" | "Routine" | 'PRN';
+  priority: "STAT" | "NOW" | "Routine" | 'PRN' | '';
   instructions?: string;
   indication: string;
   status: "active" | "completed" | "Held" | "cancelled";
@@ -88,8 +88,6 @@ export interface MedicationOrder {
 
 export type AdministrationStatus = 'Given' | 'Held' | 'Missed' | 'Refused' | 'Due'
 
-// an instance where a patient is given a medication (or refuses it)
-// is associated with a specific med order
 export interface MedAdministrationInstance {
   id?: string;
   medicationOrderId: string;    // link to specific med order
@@ -101,7 +99,6 @@ export interface MedAdministrationInstance {
   visibleInPresim: boolean;
 }
 
-// List of all medications that could be used in a medicationOrder. 
 export const allMedications: AllMedicationTypes[] = [
   {
     id: "medMetoprololOral25",
@@ -113,7 +110,7 @@ export const allMedications: AllMedicationTypes[] = [
     orderableUnit: "Tablet",
     administrationFrequencies: ["QD", "BID"],
     // Properties specific to OralMedication:
-    form: "tablet",         // dup of orderableUnit
+    form: "tablet",
     canBeCrushedOrSplit: false,
     takeWithFood: true,
   },
@@ -196,7 +193,7 @@ export const allMedications: AllMedicationTypes[] = [
     orderableUnit: "Bag",
     administrationFrequencies: ["Q12H", "Q24H"],
     infusionRateUnit: 'mL/hr',
-    diluent: "dextrose 5% in water",
+    diluent: "sodium chloride 0.9%",
     totalVolume: 250,
     infusionDurationHours: 2,
     isContinuous: false,
@@ -257,18 +254,18 @@ export const allMedications: AllMedicationTypes[] = [
       { bgRange: ">400", units: "18" },
     ],
   },
-  {
-    id: "medHydrocortisoneCream",
-    genericName: "hydrocortisone",
-    brandName: "Cortaid",
-    route: "Topical",
-    strength: 1,
-    strengthUnit: "%",
-    orderableUnit: "Gram",
-    administrationFrequencies: ["PRN"],
-    applicationArea: "Affected skin area",
-    form: "cream",
-  },
+  // {
+  //   id: "medHydrocortisoneCream",
+  //   genericName: "hydrocortisone",
+  //   brandName: "Cortaid",
+  //   route: "Topical",
+  //   strength: 1,
+  //   strengthUnit: "%",
+  //   orderableUnit: "Gram",
+  //   administrationFrequencies: ["PRN"],
+  //   applicationArea: "Affected skin area",
+  //   form: "cream",
+  // },
   {
     id: "medFurosemideOral20",
     genericName: "furosemide",
@@ -336,20 +333,20 @@ export const allMedications: AllMedicationTypes[] = [
     requiresSpacer: false,
     inhalationsPerDose: 2,
   },
-  {
-    id: "medNitroPatchTd",
-    genericName: "nitroglycerin",
-    brandName: "Minitran",
-    route: "Topical",
-    strength: 0.4,
-    strengthUnit: "mg/hr",
-    orderableUnit: "Patch",
-    administrationFrequencies: ["Daily"],
-    applicationArea: "Chest wall or upper arm",
-    form: "patch",
-    patchApplicationFrequency: "daily",
-    patchChangeInstructions: "Replace every 24 hours; remove old patch before applying new one",
-  },
+  // {
+  //   id: "medNitroPatchTd",
+  //   genericName: "nitroglycerin",
+  //   brandName: "Minitran",
+  //   route: "Topical",
+  //   strength: 0.4,
+  //   strengthUnit: "mg/hr",
+  //   orderableUnit: "Patch",
+  //   administrationFrequencies: ["Daily"],
+  //   applicationArea: "Chest wall or upper arm",
+  //   form: "patch",
+  //   patchApplicationFrequency: "daily",
+  //   patchChangeInstructions: "Replace every 24 hours; remove old patch before applying new one",
+  // },
   {
     id: "medOndansetronIv4",
     genericName: "ondansetron",
@@ -359,10 +356,6 @@ export const allMedications: AllMedicationTypes[] = [
     strengthUnit: "mg",
     orderableUnit: "Vial",
     administrationFrequencies: ["Q8H", "PRN"],
-    infusionRateUnit: "mg/hr",
-    diluent: "NS 0.9%",
-    totalVolume: 50,
-    infusionDurationHours: 0.5,
     isContinuous: false,
   },
   {
@@ -386,7 +379,7 @@ export const allMedications: AllMedicationTypes[] = [
     brandName: "EpiPen",
     route: "IM",
     strength: 1,
-    strengthUnit: "mg/0.3mL",
+    strengthUnit: "mg",
     orderableUnit: "Auto-Injector",
     administrationFrequencies: ["PRN"],
     recommendedInjectionSites: ["Anterolateral thigh"],
@@ -642,6 +635,30 @@ export const allMedications: AllMedicationTypes[] = [
 
 export const medicationOrders: MedicationOrder[] = [
   {
+    id: 'orderOndansetronIv4',
+    medicationId: 'medOndansetronIv4',
+    unitsOrdered: 1000000,
+    dose: 4,
+    frequency: "Q6hr",
+    priority: "PRN",
+    indication: 'Nausea',
+    status: 'active',
+    orderingProvider: 'Dr. Samuel Wanjouri',
+    visibleInPresim: true
+  },
+  {
+    id: 'orderOndansetronIv2',
+    medicationId: 'medOndansetronIv4',
+    unitsOrdered: 1000000,
+    dose: 2,
+    frequency: "Q6hr",
+    priority: "PRN",
+    indication: 'Nausea',
+    status: 'active',
+    orderingProvider: 'Dr. Samuel Wanjouri',
+    visibleInPresim: true
+  },
+  {
     id: 'orderCefazolin1000',
     medicationId: 'medCefazolin1000',
     unitsOrdered: 1,
@@ -660,7 +677,7 @@ export const medicationOrders: MedicationOrder[] = [
     dose: 1000,
     frequency: 'Continuous',
     priority: "Routine",
-    indication: '??',
+    indication: '',
     status: "active",
     orderingProvider: "Dr. Nigel Amos",
     visibleInPresim: true
@@ -725,19 +742,7 @@ export const medicationOrders: MedicationOrder[] = [
     orderingProvider: "Dr. Rahul Gupta",
     visibleInPresim: true
   },
-  {
-    id: "orderAcetaminophenOral325",
-    medicationId: "medAcetaminophenOral325",
-    dose: 325,
-    unitsOrdered: 1,
-    frequency: "Q6hr",
-    priority: "PRN",
-    status: "active",
-    indication: "Pain",
-    instructions: "For pain of 4/10 or greater. Max dose of 8 tablets per 24 hours.",
-    orderingProvider: "Dr. Rahul Gupta",
-    visibleInPresim: true
-  },
+
   {
     id: "orderAmoxIv",
     medicationId: "medAmoxIv",
@@ -834,12 +839,25 @@ export const medicationOrders: MedicationOrder[] = [
     id: "orderAcetaminophenOral650",
     medicationId: "medAcetaminophenOral650",
     dose: 650,
-    unitsOrdered: 1,
+    unitsOrdered: 2,
     frequency: "Q6hr",
     priority: "PRN",
     status: "active",
     indication: "Pain",
     instructions: "For pain of 4/10 or greater. Max dose of 4 tablets per 24 hours.",
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
+  },
+  {
+    id: "orderAcetaminophenOral325",
+    medicationId: "medAcetaminophenOral650",
+    dose: 325,
+    unitsOrdered: 1,
+    frequency: "Q6hr",
+    priority: "PRN",
+    status: "active",
+    indication: "Pain",
+    instructions: "For pain of 4/10 or greater. Max dose of 4g per 24 hours.",
     orderingProvider: "Dr. Rahul Gupta",
     visibleInPresim: true
   },
@@ -880,19 +898,19 @@ export const medicationOrders: MedicationOrder[] = [
     orderingProvider: "Dr. Rahul Gupta",
     visibleInPresim: true
   },
-  {
-    id: "orderHydrocortisoneCream",
-    medicationId: "medHydrocortisoneCream",
-    unitsOrdered: 1, // Represents "one application"
-    dose: 1,
-    frequency: "Q4hr",
-    priority: "PRN",
-    status: "active",
-    indication: "Itching",
-    instructions: "Apply thin layer to affected area as needed for rash or itching.",
-    orderingProvider: "Dr. Rahul Gupta",
-    visibleInPresim: true
-  },
+  // {
+  //   id: "orderHydrocortisoneCream",
+  //   medicationId: "medHydrocortisoneCream",
+  //   unitsOrdered: 1, // Represents "one application"
+  //   dose: 1,
+  //   frequency: "Q4hr",
+  //   priority: "PRN",
+  //   status: "active",
+  //   indication: "Itching",
+  //   instructions: "Apply thin layer to affected area as needed for rash or itching.",
+  //   orderingProvider: "Dr. Rahul Gupta",
+  //   visibleInPresim: true
+  // },
   {
     id: "orderFurosemideOral20",
     medicationId: "medFurosemideOral20",
@@ -915,7 +933,7 @@ export const medicationOrders: MedicationOrder[] = [
     priority: "Routine",
     infusionRate: 100, // 50mL over 0.5hr = 100mL/hr
     status: "active",
-    indication: "GERD / Stress Ulcer Prophylaxis",
+    indication: "GERD",
     orderingProvider: "Dr. Rahul Gupta",
     visibleInPresim: true
   },
@@ -1094,6 +1112,24 @@ export const medAdministrations: MedAdministrationInstance[] = [
     adminTimeMinuteOffset: -140,
     status: 'Refused',
     notes: "-121 metoprolol dose.",
+    administeredDose: 100,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderVancomycinIv",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -360,
+    status: 'Refused',
+    notes: "-121 metoprolol dose.",
+    administeredDose: 100,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderOndansetronIv4",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -60,
+    status: 'Refused',
+    notes: "-121 zofran dose.",
     administeredDose: 100,
     visibleInPresim: true
   },

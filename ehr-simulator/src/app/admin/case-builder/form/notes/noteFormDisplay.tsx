@@ -99,7 +99,7 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
       <div className="w-full h-4 ">
 
         <CollapsibleTrigger asChild className="p-0 m-0">
-          <button className="focus-visible:ring-none focus:ring-none  h-full bg-slate-100 w-full">
+          <button className="focus-visible:ring-none focus:ring-none  h-full bg-slate-100 w-full cursor-pointer">
             {/* <ChevronDown style={{ transform: isOpen ? `rotate(180deg)` : "none" }} /> */}
           </button>
 

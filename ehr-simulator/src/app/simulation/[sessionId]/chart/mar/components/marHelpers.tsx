@@ -1,4 +1,5 @@
-import type { AllMedicationTypes, InsulinMedication, MedicationOrder } from "./marData";
+import { addMinutes, format } from "date-fns";
+import type { AllMedicationTypes, InsulinMedication, MedAdministrationInstance, MedicationOrder } from "./marData";
 import { Separator } from "@/components/ui/separator";
 
 export const pluralize = (unitsOrdered: number, unitName: string) => {
@@ -170,4 +171,41 @@ export const renderMedCardDetails = (medication: AllMedicationTypes, order: Medi
     }
     default:
   }
+}
+
+export function findLastAdminTime(administrations: MedAdministrationInstance[], sessionStartTime: Date) {
+  if (!administrations || administrations.length === 0) {
+    return (
+      <div className="flex w-full justify-end gap-2 pr-4">
+        <p className="text-sm">Last Administered:</p>
+        <p className="text-sm font-light">Never</p>
+      </div>
+    )
+  }
+  const filteredAdmins = administrations.filter((admin: MedAdministrationInstance) => admin.status === "Given")
+
+  if (filteredAdmins.length !== 0) {
+    const lastAdmin = filteredAdmins.reduce((latest, current) => {
+      return current.adminTimeMinuteOffset > latest.adminTimeMinuteOffset ? current : latest;
+    })
+    const lastAdminDate = addMinutes(sessionStartTime, lastAdmin.adminTimeMinuteOffset);
+    const lastAdminTime = format(lastAdminDate, 'HHmm')
+    const lastAdminDay = format(lastAdminDate, 'LL/dd')
+    return (
+      <div className="flex w-full justify-end items-end gap-2 pr-4">
+        <p className="text-sm">Last Administered:</p>
+        <div className="grid place-items-center">
+          <p className="text-xs font-medium underline">{lastAdminDay}</p>
+          <p className="text-sm font-light">{lastAdminTime}</p>
+        </div>
+      </div>
+
+    )
+  }
+  return (
+    <div className="flex w-full justify-end gap-2 pr-4">
+      <p className="text-sm">Last Administered:</p>
+      <p className="text-sm font-light">Never</p>
+    </div>
+  )
 }

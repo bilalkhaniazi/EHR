@@ -25,7 +25,7 @@ export default function ChartTabs() {
       name: "Avatar",
       value: "Avatar",
       icon: <User />,
-      path: `/simulation/${sessionId}/chart/overview`, 
+      path: `/simulation/${sessionId}/chart/overview`,
     },
     {
       name: "Orders",
@@ -54,27 +54,27 @@ export default function ChartTabs() {
     },
   ];
   return (
-      <Tabs defaultValue={tabs[0].value} className="w-fit pl-10 mt-auto ">
-        <TabsList className="w-full h-8 p-0 bg-lime-600 justify-start rounded-none">
-          {[
-            ...tabs.map((tab) => (
-              <Link
-                key={tab.value}
-                href={tab.path}
-                className="rounded-none h-full flex items-center "
+    <Tabs defaultValue={tabs[0].value} className="w-fit pl-10 mt-auto ">
+      <TabsList className="w-full h-8 p-0 bg-transparent justify-start rounded-none">
+        {[
+          ...tabs.map((tab) => (
+            <Link
+              key={tab.value}
+              href={tab.path}
+              className="rounded-none h-full flex items-center "
+            >
+              <TabsTrigger
+                value={tab.value}
+                className="rounded-none bg-gray-200 p-3 data-[state=active]:h-10 data-[state=active]:px-4  data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300 data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-md flex items-center"
               >
-                <TabsTrigger
-                  value={tab.value}
-                  className="rounded-none bg-gray-200 p-3 data-[state=active]:h-10 data-[state=active]:px-4  data-[state=active]:shadow-black/20 ring-none outline-none border border-gray-300 border-b-gray-00 data-[state=active]:bg-gray-100 -mb-[2px] rounded-t-lg flex items-center" // Added flex for alignment
-                >
-                  {tab.icon}
-                  <p className="text-md font-normal tracking-tight">{tab.name}</p>
-                </TabsTrigger>
-              </Link>
-            )), 
-            <MultiPtSelector key="multiPatientSelector" />
-          ]}
-        </TabsList>
-      </Tabs>
+                {tab.icon}
+                <p className="text-md font-normal tracking-tight">{tab.name}</p>
+              </TabsTrigger>
+            </Link>
+          )),
+          <MultiPtSelector key="multiPatientSelector" />
+        ]}
+      </TabsList>
+    </Tabs>
   );
 }

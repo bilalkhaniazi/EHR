@@ -63,7 +63,6 @@ const generateNiceTicks = (max: number, count: number = 6) => {
 
 function getBlocks() {
   const blocks = [];
-
   for (let i = 1; i < 5; i++) {
 
     blocks.push({
@@ -71,7 +70,6 @@ function getBlocks() {
       label: `Block ${i}`
     });
   }
-
   return blocks;
 }
 
