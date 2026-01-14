@@ -61,13 +61,6 @@ const generateNiceTicks = (max: number, count: number = 6) => {
   return ticks;
 };
 
-const initialIoData = [
-  { blockId: 1, intake: 0, output: 0 },
-  { blockId: 2, intake: 0, output: 0 },
-  { blockId: 3, intake: 0, output: 0 },
-  { blockId: 4, intake: 0, output: 0 }
-]
-
 function getBlocks() {
   const blocks = [];
 
