@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, User, ArrowRight, FileInput } from "lucide-react";
 import SubmitButton from "../../components/submitButton";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Review() {
+  const router = useRouter()
   return (
 
     <div className="flex flex-col min-h-screen w-full bg-slate-50/50">
@@ -21,7 +23,7 @@ export default function Review() {
 
       <div className="flex-1 p-6 md:px-12 lg:px-24">
         <div className="fixed top-6 right-8 z-10">
-          <SubmitButton buttonText="Save & Return to Dashboard" />
+          <SubmitButton onClick={() => { router.push('admin/case-builder/form/review/') }} buttonText="Save & Return to Dashboard" />
         </div>
 
         <div className="grid grid-cols-1 gap-6">
@@ -32,7 +34,7 @@ export default function Review() {
                 <User className="w-5 h-5 text-blue-600" />
                 Pre-Sim Review
               </CardTitle>
-              <CardDescription>Review case from students' pre-sim view.</CardDescription>
+              <CardDescription>Review case from students&apos; pre-sim view.</CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer">To Pre-Sim EHR <ArrowRight /></Button>
@@ -45,7 +47,7 @@ export default function Review() {
                 <User className="w-5 h-5 text-blue-600" />
                 Full Sim Review
               </CardTitle>
-              <CardDescription>Review case from students' full sim view.</CardDescription>
+              <CardDescription>Review case from students&apos; full sim view.</CardDescription>
             </CardHeader>
             <CardContent>
               <Button className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer">To Full Sim EHR <ArrowRight /></Button>

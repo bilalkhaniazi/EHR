@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface AddTimeColumnButtonProps {
-  handleColumnAdd: (timeString: number) => void;
+  handleColumnAdd: (time: number) => void;
 }
 
-export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
-  const [days, setDays] = useState<number | ''>(0);
-  const [hours, setHours] = useState<number | ''>(0);
-  const [minutes, setMinutes] = useState<number | ''>(0);
+export function AddTableColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
+  const [days, setDays] = useState<number | ''>('');
+  const [hours, setHours] = useState<number | ''>('');
+  const [minutes, setMinutes] = useState<number | ''>('');
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const timeOffset = ((days || 0) * 24 * 60) + ((hours || 0) * 60) + (minutes || 0)
@@ -39,7 +39,7 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
     handleColumnAdd(offset);
     setDays('');
     setHours('');
-    setMinutes('')
+    setMinutes('');
   }
 
   return (
@@ -70,13 +70,10 @@ export function AddLabColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
               <Input id='minutes' value={minutes} onChange={(e) => handleTimeChange(e, setMinutes)} className=" p-0.5 text-center" />
             </div>
           </div>
-          <div className={`rounded-md p-2.5 text-xs flex items-start gap-2 border ${timeOffset > 0 ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-slate-50 border-slate-100 text-slate-500'}`}>
-            <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <div className={`rounded-md p-2.5 text-xs flex items-start gap-2 border  border-blue-200 text-blue-700`}>
+            <Info className="size-4 shrink-0" />
             <p>
-              {timeOffset === 0
-                ? "This column will appear at the exact moment the simulation begins (T-0)."
-                : <span>Results will appear as if collected <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of the simulation.</span>
-              }
+              <span>Data will appear as if entered <strong>{days || 0}d {hours || 0}h {minutes || 0}m</strong> prior to the start of simulation.</span>
             </p>
           </div>
           <Button

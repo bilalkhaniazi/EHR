@@ -24,10 +24,7 @@ export interface MicrobiologyReportData {
   isCritical: boolean | 'indeterminate';
 }
 
-export interface LabCellValue {
-  value: string | ImagingData | MicrobiologyReportData;
-  visibleInPresim: boolean;
-}
+export type LabCellValue = string | ImagingData | MicrobiologyReportData;
 
 // dataset to be used by tanstack table
 export interface LabTableData {
@@ -57,14 +54,14 @@ export interface LabTimePoint {
   dateKey: number;
   labs: Lab[]
 }
-export interface LabDataTemplate {
-  field: string,
-  unit?: string,
-  rowType: "divider" | "results" | "imaging" | "microbiology",
-  normalRange?: { low: number, high: number }
-  criticalRange?: { low: number, high: number }
-  hideable?: boolean
-}
+// export interface LabDataTemplate {
+//   field: string,
+//   unit?: string,
+//   rowType: "divider" | "results" | "imaging" | "microbiology",
+//   normalRange?: { low: number, high: number }
+//   criticalRange?: { low: number, high: number }
+//   hideable?: boolean
+// }
 
 
 
@@ -87,7 +84,7 @@ export const generateAllInitialLabTimes = (referenceDate: number) => {
 
 export const generateInitialLabData = (
   allTimesColumns: LabTimePoint[],
-  labTemplate: LabDataTemplate[]
+  labTemplate: LabTableData[]
 ) => {
   const generatedData: LabTableData[] = [];
 
@@ -247,7 +244,7 @@ export const predefinedLabData: PredefinedLabEntry[] = [
   },
 ];
 
-export const labTemplate: LabDataTemplate[] = [
+export const labTemplate: LabTableData[] = [
   {
     field: "Metabolic",
     unit: "",
@@ -257,56 +254,63 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Sodium",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: 135, high: 145 }
+    normalRange: { low: 135, high: 145 },
   },
   {
     field: "Potassium",
     unit: "(mEq/L)",
     rowType: "results",
     normalRange: { low: 3.5, high: 5.0 },
-    criticalRange: { low: 3.0, high: 6.0 }
+    criticalRange: { low: 3.0, high: 6.0 },
   },
   {
     field: "Chlorine",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: 95, high: 105 }
+    normalRange: { low: 95, high: 105 },
+
   },
   {
     field: "BUN",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: 7, high: 20 }
+    normalRange: { low: 7, high: 20 },
+
   },
   {
     field: "Creatinine",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: 0.6, high: 1.2 }
+    normalRange: { low: 0.6, high: 1.2 },
+
   },
   {
     field: "Glucose",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: 70, high: 100 }
+    normalRange: { low: 70, high: 100 },
+
   },
   {
     field: "CO2",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: 23, high: 30 }
+    normalRange: { low: 23, high: 30 },
+
   },
   {
     field: "Calcium",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: 8.5, high: 10.5 }
+    normalRange: { low: 8.5, high: 10.5 },
+
   },
   {
     field: "Lactate",
     unit: "(mmol/L)",
     rowType: "results",
-    normalRange: { low: 0.5, high: 1.0 }
+    normalRange: { low: 0.5, high: 1.0 },
+
   },
   {
     field: "Hematology",
@@ -317,49 +321,87 @@ export const labTemplate: LabDataTemplate[] = [
     field: "RBC",
     unit: "(10⁶/µL)",
     rowType: "results",
-    normalRange: { low: 4.0, high: 6.0 }
-  },
-  {
-    field: "WBC",
-    unit: "(10³/µL)",
-    rowType: "results",
-    normalRange: { low: 4.5, high: 11.0 }
-  },
-  {
-    field: "Platelets",
-    unit: "(10³/µL)",
-    rowType: "results",
-    normalRange: { low: 150, high: 450 }
+    normalRange: { low: 4.0, high: 6.0 },
+
   },
   {
     field: "Hemoglobin",
     unit: "(g/dL)",
     rowType: "results",
-    normalRange: { low: 12.0, high: 17.5 }
+    normalRange: { low: 12.0, high: 17.5 },
+
   },
   {
     field: "Hematocrit",
     unit: "(%)",
     rowType: "results",
-    normalRange: { low: 36, high: 54 }
+    normalRange: { low: 36, high: 54 },
+
   },
   {
     field: "MCV",
     unit: "(fL)",
     rowType: "results",
-    normalRange: { low: 80, high: 100 }
+    normalRange: { low: 80, high: 100 },
+
   },
   {
     field: "MCH",
     unit: "(pg)", // Picograms
     rowType: "results",
-    normalRange: { low: 27, high: 33 }
+    normalRange: { low: 27, high: 33 },
+
   },
   {
     field: "MCHC",
     unit: "(g/dL)",
     rowType: "results",
-    normalRange: { low: 32, high: 36 }
+    normalRange: { low: 32, high: 36 },
+
+  },
+  {
+    field: "WBC",
+    unit: "(10³/µL)",
+    rowType: "results",
+    normalRange: { low: 4.5, high: 11.0 },
+
+  },
+  {
+    field: 'Neutrophils',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 55, high: 70 }
+  },
+  {
+    field: 'Lymphocytes',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 20, high: 40 }
+  },
+  {
+    field: 'Monocytes',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 2, high: 8 }
+  },
+  {
+    field: 'Eosinophils',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 1, high: 4 }
+  },
+  {
+    field: 'Basophils',
+    unit: '%',
+    rowType: 'results',
+    normalRange: { low: 0.5, high: 1 }
+  },
+  {
+    field: "Platelets",
+    unit: "(10³/µL)",
+    rowType: "results",
+    normalRange: { low: 150, high: 450 },
+
   },
   {
     field: "Cardiac",
@@ -370,19 +412,22 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Troponin",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: 0, high: 0.04 }
+    normalRange: { low: 0, high: 0.04 },
+
   },
   {
     field: "CKMB",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: 0, high: 3 }
+    normalRange: { low: 0, high: 3 },
+
   },
   {
     field: "Myoglobin",
     unit: "(ng/mL)",
     rowType: "results",
-    normalRange: { low: 0, high: 85 }
+    normalRange: { low: 0, high: 85 },
+
   },
   {
     field: "Hepatology",
@@ -393,31 +438,36 @@ export const labTemplate: LabDataTemplate[] = [
     field: "AST",
     unit: "(IU/L)",
     rowType: "results",
-    normalRange: { low: 10, high: 40 }
+    normalRange: { low: 10, high: 40 },
+
   },
   {
     field: "ALT",
     unit: "(IU/L)",
     rowType: "results",
-    normalRange: { low: 7, high: 56 }
+    normalRange: { low: 7, high: 56 },
+
   },
   {
     field: "ALP",
     unit: "(IU/L)",
     rowType: "results",
-    normalRange: { low: 40, high: 120 }
+    normalRange: { low: 40, high: 120 },
+
   },
   {
     field: "Total Bilirubin",
     unit: "(mg/dL)",
     rowType: "results",
-    normalRange: { low: 0.1, high: 1.2 }
+    normalRange: { low: 0.1, high: 1.2 },
+
   },
   {
     field: "Albumin",
     unit: "(g/dL)",
     rowType: "results",
-    normalRange: { low: 3.5, high: 5.0 }
+    normalRange: { low: 3.5, high: 5.0 },
+
   },
   {
     field: "Ammonia",
@@ -434,25 +484,29 @@ export const labTemplate: LabDataTemplate[] = [
     field: "pH",
     unit: "", // pH is unitless
     rowType: "results",
-    normalRange: { low: 7.35, high: 7.45 }
+    normalRange: { low: 7.35, high: 7.45 },
+
   },
   {
     field: "pCO2",
     unit: "(mmHg)",
     rowType: "results",
-    normalRange: { low: 40, high: 50 }
+    normalRange: { low: 40, high: 50 },
+
   },
   {
     field: "pO2",
     unit: "(mmHg)",
     rowType: "results",
-    normalRange: { low: 30, high: 40 }
+    normalRange: { low: 30, high: 40 },
+
   },
   {
     field: "HCO3",
     unit: "(mEq/L)",
     rowType: "results",
-    normalRange: { low: 22, high: 29 }
+    normalRange: { low: 22, high: 29 },
+
   },
   {
     field: "Urinalysis",
@@ -463,43 +517,52 @@ export const labTemplate: LabDataTemplate[] = [
     field: "Specific Gravity",
     unit: "", // Unitless
     rowType: "results",
-    normalRange: { low: 1.005, high: 1.030 }
+    normalRange: { low: 1.005, high: 1.030 },
+
   },
   {
     field: "Urine pH",
     unit: "", // Unitless
     rowType: "results",
-    normalRange: { low: 4.5, high: 8.0 }
+    normalRange: { low: 4.5, high: 8.0 },
+
   },
   {
     field: "Protein",
     unit: "",
     rowType: "results",
+
   },
   {
     field: "Urine Glucose",
     unit: "", // Often reported as negative/positive
     rowType: "results",
+
   },
   {
     field: "Ketones",
     unit: "", // Often reported as negative/positive
     rowType: "results",
+
+
   },
   {
     field: "Leukocyte Esterase",
     unit: "", // Often reported as negative/positive
     rowType: "results",
+
   },
   {
     field: "Nitrites",
     unit: "", // Often reported as negative/positive
     rowType: "results",
+
   },
   {
     field: "Blood",
     unit: "", // Often reported as negative/positive
     rowType: "results",
+
   },
   {
     field: "Coagulation",
@@ -510,47 +573,43 @@ export const labTemplate: LabDataTemplate[] = [
     field: "PT",
     unit: "(sec)",
     rowType: "results",
-    normalRange: { low: 11.0, high: 13.5 }
+    normalRange: { low: 11.0, high: 13.5 },
+
   },
   {
     field: "PTT",
     unit: "(sec)",
     rowType: "results",
-    normalRange: { low: 25, high: 35 }
+    normalRange: { low: 25, high: 35 },
+
   },
   {
     field: "INR",
     unit: "", // Unitless
     rowType: "results",
     normalRange: { low: 0.8, high: 1.1 },
-    hideable: true
   },
   {
     field: "Inflammatory Markers",
     unit: "",
     rowType: "divider",
-    hideable: true
-
   },
   {
     field: "CRP",
     unit: "(mg/L)",
     rowType: "results",
     normalRange: { low: 0, high: 10 },
-    hideable: true
   },
   {
     field: "ESR",
     unit: "(mm/hr)",
     rowType: "results",
     normalRange: { low: 0, high: 20 },
-    hideable: true
   },
   {
     field: "Thyroid Function",
     unit: "",
     rowType: "divider",
-    hideable: true
 
   },
   {
@@ -558,34 +617,29 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mIU/L)",
     rowType: "results",
     normalRange: { low: 0.4, high: 4.0 },
-    hideable: true
   },
   {
     field: "Free T3",
     unit: "(pg/mL)",
     rowType: "results",
     normalRange: { low: 2.3, high: 4.2 },
-    hideable: true
   },
   {
     field: "Free T4",
     unit: "(ng/dL)",
     rowType: "results",
     normalRange: { low: 0.8, high: 1.8 },
-    hideable: true
   },
   {
     field: "Lipid Panel",
     unit: "",
     rowType: "divider",
-    hideable: true
   },
   {
     field: "Total Cholesterol",
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 125, high: 200 },
-    hideable: true
 
   },
   {
@@ -593,14 +647,12 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 40, high: 60 },
-    hideable: true
   },
   {
     field: "LDL Cholesterol",
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 0, high: 100 },
-    hideable: true
 
   },
   {
@@ -608,13 +660,11 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 0, high: 150 },
-    hideable: true
   },
   {
     field: "Additional Electrolytes",
     unit: "",
     rowType: "divider",
-    hideable: true
 
   },
   {
@@ -622,7 +672,6 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mEq/L)",
     rowType: "results",
     normalRange: { low: 1.5, high: 2.5 },
-    hideable: true
 
   },
   {
@@ -630,13 +679,11 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 2.5, high: 4.5 },
-    hideable: true
   },
   {
     field: "Pancreatic Enzymes",
     unit: "",
     rowType: "divider",
-    hideable: true
 
   },
   {
@@ -644,14 +691,12 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "(U/L)",
     rowType: "results",
     normalRange: { low: 25, high: 125 },
-    hideable: true
   },
   {
     field: "Lipase",
     unit: "(U/L)",
     rowType: "results",
     normalRange: { low: 0, high: 160 },
-    hideable: true
   },
   {
     field: "Imaging",
@@ -663,16 +708,432 @@ export const labTemplate: LabDataTemplate[] = [
     unit: "",
     rowType: "imaging",
     hideable: true
-
+  },
+  {
+    field: "CT Head w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Head w/ Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Neck w/ Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Orbits w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Sinuses w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Chest w/ Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Chest w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Abdomen/Pelvis w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT Abdomen/Pelvis w/ Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT C-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT T-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT L-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT L. Foot",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT R. Ankle",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT L. Ankle",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT R. Knee",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "CT L. Knee",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI Brain w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI Brain w/ and w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI C-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI T-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI L-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI R. Shoulder",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI L. Shoulder",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI R. Knee",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI L. Knee",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "MRI Abdomen w/ and w/o Contrast",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Renal",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US RUQ (Gallbladder/Liver)",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Appendix",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Pelvic",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Scrotal",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Thyroid",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Carotid Doppler",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Venous Doppler Bil. U/E",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Venous Doppler Bil. L/E ",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Echocardiogram (TTE)",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "US Echocardiogram (TEE)",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR Chest",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR Abdomen",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR C-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR T-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L-Spine",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Shoulder",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Shoulder",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Clavicle",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Clavicle",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Humerus",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Humerus",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Elbow",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Elbow",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Forearm",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Forearm",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Wrist",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Wrist",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Hand",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Hand",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR Pelvis",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Hip",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Hip",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Femur",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Femur",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Knee",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Knee",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Tib/Fib",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Tib/Fib",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Ankle",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Ankle",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR R. Foot",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
+  },
+  {
+    field: "XR L. Foot",
+    unit: "",
+    rowType: "imaging",
+    hideable: true
   },
   {
     field: "Microbiology",
     unit: "",
     rowType: "divider",
-    hideable: true
-
   },
-
   {
     field: "Wound Culture",
     unit: "",
@@ -711,3 +1172,4 @@ export const labTemplate: LabDataTemplate[] = [
     hideable: true
   },
 ];
+

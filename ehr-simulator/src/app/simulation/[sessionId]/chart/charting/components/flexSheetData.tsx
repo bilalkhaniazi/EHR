@@ -4,10 +4,6 @@ export interface chartingOptions {
   label: string;
 };
 
-export interface FlexSheetFormCellValue {
-  value: string
-  visibleInPresim: boolean
-}
 
 export interface FlexSheetData {
   id: string;
@@ -21,7 +17,7 @@ export interface FlexSheetData {
   hideableId?: string,
   assessmentSubsets?: { subsetId: string, label: string }[];
   toolName?: string;
-  [key: string]: string | string[] | number | boolean | undefined | { subsetId: string, label: string }[] | { low: number, high: number } | { assessment: string, description: string }[] | FlexSheetFormCellValue;
+  [key: string]: string | string[] | number | boolean | undefined | { subsetId: string, label: string }[] | { low: number, high: number } | { assessment: string, description: string }[];
 };
 
 // an array of all numeric time offsets is needed because tanstack table needs to iterate through them to display each time column
@@ -45,7 +41,7 @@ export const getAllTimeOffsets = (simulationNow: number) => {
 export const generateInitialChartingData = (allTimeOffsets: number[]): FlexSheetData[] => {
   const generatedData: FlexSheetData[] = []
 
-  vitalsTemplate.forEach(templateRow => {
+  flexSheetTemplate.forEach(templateRow => {
     const newRow: FlexSheetData = {
       id: templateRow.id,
       field: templateRow.field,
@@ -94,7 +90,7 @@ type PredefinedDataByTime = {
 };
 
 export const predefinedVitalsData2: PredefinedDataByTime = {
-  10000: {
+  120: {
     "hrInput": "88",
     "hrSourceSelect": "Radial",
     "bpInput": "124/72",
@@ -118,11 +114,18 @@ export const predefinedVitalsData2: PredefinedDataByTime = {
     "lungSoundsInput": "Clear",
     "heartSoundsInput": "S1, S2. No mumur noted",
     "extremitiesInput": "+2 pitting edema in BLE"
+  },
+  5: { // Data from 90 minutes ago
+    "hrInput": "121",
+    "hrSourceSelect": "Monitor",
+    "bpInput": "92/58",
+    "bpSourceSelect": "Left upper arm",
+    "rrInput": "28",
+    "spo2Input": "91",
   }
 };
 
-export const vitalsTemplate: FlexSheetData[] = [
-
+export const flexSheetTemplate: FlexSheetData[] = [
   {
     id: "vitalSignsTitle",
     field: "Vital Signs",

@@ -8,7 +8,6 @@ interface MultiTextInputProps {
   value?: string[];
   onChange: (value: string[]) => void;
   placeholder?: string;
-  name?: string;
   labelText: string;
   required?: boolean;
   titleCase?: boolean;
@@ -18,7 +17,6 @@ function MultiTextInput({
   value = [],
   onChange,
   placeholder = "Add item...",
-  name,
   labelText,
   required = false,
   titleCase = false
@@ -65,8 +63,6 @@ function MultiTextInput({
 
   return (
     <div className="w-full">
-      {/* Hidden input holds JSON of inputs for form submission */}
-      {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
 
       {/* Header Label */}
       <label className="text-xs font-medium text-slate-500 mb-1.5 block">
@@ -76,7 +72,7 @@ function MultiTextInput({
       {/* Input Group */}
       <div className="flex gap-2">
         <Input
-          className={`bg-white h-9 ${isMissing ? 'border-red-300 focus-visible:ring-red-200' : ''}`}
+          className={`bg-white h-9 flex-1 max-w-xs ${isMissing ? 'border-red-300 focus-visible:ring-red-200' : ''}`}
           type="text"
           value={currentInput}
           onChange={(e) => setCurrentInput(e.target.value)}
@@ -87,17 +83,17 @@ function MultiTextInput({
         <Button
           type="button"
           onClick={(e) => { e.preventDefault(); addInput() }}
-          variant="secondary"
+          variant={!currentInput.trim() ? "outline" : "secondary"}
           size="sm"
           disabled={!currentInput.trim()}
-          className="h-9 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 shrink-0"
+          className="h-9 px-3 cursor-pointer hover:bg-blue-700 not-disabled:bg-blue-600 disabled:text-slate-700 border-slate-200 text-white shrink-0"
         >
           <Plus className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Badge Display Area */}
-      {value.length > 0 && (
+      {value.length > 0 ? (
         <div className="flex flex-wrap gap-2 mt-3">
           {value.map((item: string, index: number) => (
             <Badge
@@ -116,7 +112,9 @@ function MultiTextInput({
             </Badge>
           ))}
         </div>
-      )}
+      ) :
+        <p className="text-xs text-slate-400 italic pt-2 pl-1">{`No ${labelText.toLowerCase()} recorded.`}</p>
+      }
     </div>
   );
 }

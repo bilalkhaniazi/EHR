@@ -48,11 +48,11 @@ const RecurringOrders = () => {
             <p className="text-sm font-medium leading-none">Nursing</p>
             {/* Mark nursing orders as routine to display here */}
             {nursingOrders.map(order => {
-              const isRecurring = order?.recurring
-              if (isRecurring && isRecurring === true) {
+              const isImportant = order.important
+              if (isImportant && isImportant === true) {
                 return (
                   <div key={order.title} className="flex pl-2 gap-3 items-center">
-                    <p className="text-xs text-neutral-500 tracking-tight">{order.displayName}</p>
+                    <p className="text-xs text-neutral-500 tracking-tight">{order.title}</p>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -71,11 +71,11 @@ const RecurringOrders = () => {
             <p className="text-sm font-medium leading-none">Labs</p>
             {/* Mark nursing orders as routine to display here */}
             {laboratoryOrders.map(order => {
-              const isRecurring = order?.recurring
-              if (isRecurring && isRecurring === true) {
+              const isImportant = order.important
+              if (isImportant && isImportant === true) {
                 return (
                   <div key={order.title} className="flex pl-2 gap-3 items-center">
-                    <p className="text-xs text-neutral-500 tracking-tight">{order.displayName}</p>
+                    <p className="text-xs text-neutral-500 tracking-tight">{order.title}</p>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>

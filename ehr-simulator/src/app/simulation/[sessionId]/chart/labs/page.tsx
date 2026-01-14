@@ -1,13 +1,10 @@
 'use client'
 
 import { useState, useEffect, useMemo } from "react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  createColumnHelper,
-  type Column
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type Column } from "@tanstack/react-table";
+import { Tooltip, TooltipTrigger, TooltipContent, } from "@/components/ui/tooltip";
+import { TriangleAlert } from "lucide-react";
+import { formatTimeFromOffset } from "../charting/page";
 import {
   Table,
   TableHeader,
@@ -17,17 +14,9 @@ import {
   TableCell,
   TableFooter
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
-import { TriangleAlert } from "lucide-react";
-import { formatTimeFromOffset } from "../charting/page";
 
 import ImagingReport from "./components/imagingReport";
 import PathologyReport from "./components/microbiologyReport";
-
 import {
   type ImagingData,
   type LabTableData,
@@ -36,11 +25,6 @@ import {
   generateInitialLabData,
   labTemplate
 } from "./components/labsData"
-
-export interface NewLabResult {
-  labName: string;
-  value: string;
-}
 
 export const getResultStatus = (initialValue: string, normalRange: { low: number, high: number } | undefined, criticalRange: { low: number, high: number } | undefined) => {
   const numericValue = parseFloat(initialValue)
@@ -71,9 +55,8 @@ function getPinnedStyles(column: Column<LabTableData>): React.CSSProperties {
   };
 }
 
-
 export function LabPage() {
-  const [simStartTime] = useState(new Date().getTime()); // Initialize locally
+  const [simStartTime] = useState(new Date().getTime());
   const [labTableData, setLabTableData] = useState<LabTableData[]>([]);
   const [timePoints, setTimePoints] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -205,6 +188,8 @@ export function LabPage() {
                 key={`${row.id}-${column.id}-${row.original.field}`}
                 cellName={row.original.field}
                 imagingReportContents={imagingReport}
+                displayTime={displayTime || ''}
+                displayDate={displayDate || ''}
               />
             )
           }
@@ -220,6 +205,9 @@ export function LabPage() {
                 key={`${row.id}-${column.id}-${row.original.field}`}
                 report={pathologyReport}
                 cellLabel={row.original.field}
+                displayTime={displayTime || ''}
+                displayDate={displayDate || ''}
+
               />
             )
           }

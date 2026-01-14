@@ -75,7 +75,7 @@ const NotePage = () => {
       specialty: "Nursing",
       timeOffset: now,
       noteBody: sbar,
-      visibleInPresim: true
+      excludedFromPresim: true
     }
 
     const previousNotes = [...notesData];

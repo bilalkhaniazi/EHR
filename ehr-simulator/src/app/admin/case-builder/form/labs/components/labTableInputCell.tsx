@@ -18,16 +18,16 @@ interface CellProps {
 
 export function getCellColor(status: boolean, value: string) {
   if (value && status) {
-    return 'bg-lime-50'
+    return 'bg-lime-100'
   } else if (value && !status) {
-    return 'bg-yellow-50'
+    return 'bg-yellow-100'
   }
   return ''
 }
 
 export const LabTableInputCell = ({ getValue, row, column, table, visibleInPresim }: CellProps) => {
   const initialValue = (getValue() as LabCellValue) || "";
-  const initialSafeValue = typeof initialValue.value === 'string' ? initialValue.value : '';
+  const initialSafeValue = typeof initialValue === 'string' ? initialValue : '';
 
   const [value, setValue] = useState(initialSafeValue)
 
@@ -37,12 +37,9 @@ export const LabTableInputCell = ({ getValue, row, column, table, visibleInPresi
   const resultStatus = getResultStatus(value, abnormalRange, criticalRange);
   const isCritical = resultStatus === "critical"
   const isAbnormal = resultStatus === "abnormal"
-  const LabCellValue = {
-    value,
-    visibleInPresim
-  };
+
   const onBlur = () => {
-    table.options.meta?.updateData(row.index, column.id, LabCellValue)
+    table.options.meta?.updateData(row.index, column.id, value)
   }
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -60,7 +57,7 @@ export const LabTableInputCell = ({ getValue, row, column, table, visibleInPresi
   return (
     <div
       key={`${row.id}-${column.id}-${row.original.field}`}
-      className={`flex h-6 items-center w-full hover:bg-gray-50 ${getCellColor(initialValue.visibleInPresim, value)}`}
+      className={`flex h-6 items-center w-full hover:bg-gray-50 ${getCellColor(visibleInPresim, value)}`}
     >
       <Input
         value={value}
@@ -79,7 +76,7 @@ export const LabTableInputCell = ({ getValue, row, column, table, visibleInPresi
 
 export function LabTableMicrobioReport({ column, row, table, getValue, visibleInPresim }: CellProps) {
   const initialData = getValue() as LabCellValue || { value: '', visibleInPresim: false }
-  const reportValue = initialData.value
+  const reportValue = initialData
 
   const isMicrobioData = (val: unknown): val is MicrobiologyReportData => {
     return typeof val === 'object' && val !== null && 'cultureResults' in val;
@@ -97,7 +94,7 @@ export function LabTableMicrobioReport({ column, row, table, getValue, visibleIn
       <DialogTitle />
       <DialogTrigger asChild className="hover:bg-gray-50">
         {hasExistingReport ? (
-          <button type='button' className={`w-full h-7 ttext-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${initialData.visibleInPresim ? 'bg-lime-50' : 'bg-yellow-50'}`}>
+          <button type='button' className={`w-full h-6 text-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${visibleInPresim ? 'bg-lime-100' : 'bg-yellow-100'}`}>
             <FileText size={14} />
             {reportValue.sampleType}
             {reportValue.isCritical && <AlertTriangle size={14} className="text-red-600" />}
@@ -109,7 +106,6 @@ export function LabTableMicrobioReport({ column, row, table, getValue, visibleIn
       <AddMicrobiologyReport
         handleAddMicrobiologyReport={handleAddorEditReport}
         initialData={hasExistingReport ? reportValue : undefined}
-        visibleInPresim={visibleInPresim}
         field={row.original.field}
       />
     </Dialog>
@@ -119,7 +115,7 @@ export function LabTableMicrobioReport({ column, row, table, getValue, visibleIn
 
 export function LabTableImagingReport({ getValue, row, table, column, visibleInPresim }: CellProps) {
   const initialData = (getValue() as LabCellValue) || { value: '', visibleInPresim: false }
-  const reportValue = initialData.value
+  const reportValue = initialData
 
   const isImagingData = (val: unknown): val is ImagingData => {
     return typeof val === 'object' && val !== null && 'technique' in val;
@@ -136,23 +132,22 @@ export function LabTableImagingReport({ getValue, row, table, column, visibleInP
 
   return (
     <Dialog open={isImageReportOpen} onOpenChange={setIsImageReportOpen}>
-      <DialogTitle />
+      <DialogTitle className="p-0 m-0" />
       <DialogTrigger asChild className="hover:bg-gray-50">
         {hasExistingReport ? (
-          <button type='button' className={`w-full h-7 ttext-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${initialData.visibleInPresim ? 'bg-lime-50' : 'bg-yellow-50'}`}>
+          <button type='button' className={`w-full h-6 text-center text-xs hover:underline hover:text-blue-600 font-medium truncate transition-colors flex items-center gap-2 justify-center ${visibleInPresim ? 'bg-lime-100' : 'bg-yellow-100'}`}>
             <FileText size={14} />
             {reportValue.displayName}
             {reportValue.isCritical && <AlertTriangle size={14} className="text-red-600" />}
           </button>
         ) : (
-          <button type='button' className="w-full h-7"></button>
+          <button type='button' className="w-full h-6"></button>
         )}
       </DialogTrigger>
       <AddImagingReport
         imagingType={row.original.field}
         initialData={hasExistingReport ? reportValue : undefined}
         handleAddImagingReport={handleAddorEditImageReport}
-        visibleInPresim={visibleInPresim}
       />
     </Dialog>
   )

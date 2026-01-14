@@ -12,27 +12,27 @@ interface Option {
 }
 
 interface MultiSelectProps {
-  name: string;
   options?: Option[];
   labelText: string;
   placeholder?: string;
   searchPlaceholder?: string;
   emptyMessage?: string;
-  defaultValues?: string[];
+  selectedValues: string[];
+  setSelectedValues: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export function MultiSelect({
-  name,
   options = [],
   placeholder = "Select items...",
   searchPlaceholder = "Search...",
   emptyMessage = "No items found.",
-  defaultValues = [],
-  labelText
+  labelText,
+  selectedValues,
+  setSelectedValues
 }: MultiSelectProps) {
+
   const [open, setOpen] = useState<boolean>(false);
   // Internal state manages the selection (Uncontrolled pattern)
-  const [selectedValues, setSelectedValues] = useState<string[]>(defaultValues);
 
   const handleSelect = (currentValue: string): void => {
     if (!selectedValues.includes(currentValue)) {
@@ -54,9 +54,6 @@ export function MultiSelect({
 
   return (
     <div className="w-full">
-      {/* Hidden input is crucial for FormData collection */}
-      {name && <input type="hidden" name={name} value={JSON.stringify(selectedValues)} />}
-
       <label className="text-xs font-medium text-slate-500 mb-1.5 block uppercase tracking-wide">
         {labelText}
       </label>

@@ -14,7 +14,6 @@ interface MedCardProps {
 }
 
 export default function MedAdministrationFormCard({ medication, administrations, order, columns, sessionStartTime, onDeleteAdministration }: MedCardProps) {
-
   // Calculate columns logic
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {

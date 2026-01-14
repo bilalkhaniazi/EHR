@@ -29,7 +29,7 @@ import SubmitButton from "../../components/submitButton"
 import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData"
-
+import { useFormContext } from "@/context/FormContext"
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
 
@@ -55,8 +55,9 @@ const getCategoryColor = (cat: string | undefined) => {
 
 export default function OrdersForm() {
   const router = useRouter();
+  const { onDataChange, orderData } = useFormContext();
 
-  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [orders, setOrders] = useState<OrderType[]>(orderData);
 
   const [category, setCategory] = useState<string>("");
   const [title, setTitle] = useState("");
@@ -97,11 +98,8 @@ export default function OrdersForm() {
     setOrders(orders.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.log(payload);
+  const handleSubmit = () => {
+    onDataChange('orders', orders)
     router.push('/admin/case-builder/form/labs')
   }
 
@@ -113,16 +111,14 @@ export default function OrdersForm() {
             <ClipboardList className="text-slate-400" />
             Order Entry
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 4 of 9: Create provider orders</p>
+          <p className="text-xs text-slate-500 mt-1">Step 4 of 9: Create provider and nursing orders</p>
         </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
-        <form id="orders-form" onSubmit={handleSubmit} className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <input type="hidden" name="orders" value={JSON.stringify(orders)} />
+        <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="fixed top-6 right-8 z-10">
-            <SubmitButton buttonText="Save & Continue" />
-
+            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
 
           <div className="lg:col-span-5 space-y-6">
@@ -266,14 +262,14 @@ export default function OrdersForm() {
                       {getCategoryIcon(cat)} {cat} Orders
                     </div>
 
-                    <div className="grid gap-3">
+                    <div className="grid gap-">
                       {catOrders.map((order, idx) => {
                         const globalIdx = orders.indexOf(order);
 
                         return (
                           <div
                             key={idx}
-                            className="group relative bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all flex flex-col md:grid md:grid-cols-13 overflow-hidden"
+                            className="group relative bg-white first:border-t border-b border-x border-slate-200 first:rounded-t-lg last:rounded-b-lg transition-all flex flex-col md:grid md:grid-cols-13 overflow-hidden"
                           >
                             <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${getCategoryColor(order.category)}`} />
 
@@ -296,13 +292,13 @@ export default function OrdersForm() {
 
                             </div>
 
-                            <div className="md:col-span-6 p-2 flex items-center md:border-r bg-slate-50/30">
+                            <div className="md:col-span-7 p-2 flex items-center md:border-r bg-slate-50/30">
                               <p className="text-xs tracking-tight text-slate-600  whitespace-pre-wrap">
                                 {order.details || <span className="text-slate-400 italic">No additional details.</span>}
                               </p>
                             </div>
 
-                            <div className="md:col-span-2 p-2 flex items-center md:border-r">
+                            <div className="md:col-span-1 p-2 flex items-center md:border-r">
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-slate-700">{order.status}</span>
                                 <span className={`w-2 h-2 rounded-full ring-2 ring-white shadow-sm ${order.status === 'Active' ? 'bg-green-500' : 'bg-amber-400'}`} />
@@ -334,7 +330,7 @@ export default function OrdersForm() {
               })}
             </div>
           </div>
-        </form>
+        </div>
       </main>
     </div>
   )

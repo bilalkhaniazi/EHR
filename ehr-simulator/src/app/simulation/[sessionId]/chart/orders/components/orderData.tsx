@@ -123,7 +123,6 @@ export const medHeaderNames: MedOrderData = {
 export const respiratoryOrders: OrderType[] = [
   {
     important: false,
-
     category: 'Respiratory',
     title: "Oxygen Therapy",
     details: "Administer oxygen via nasal cannula at 2 L/min. Titrate to maintain SpO₂ ≥ 92%.",
@@ -133,7 +132,6 @@ export const respiratoryOrders: OrderType[] = [
   },
   {
     important: false,
-
     category: 'Respiratory',
     title: "Incentive Spirometry",
     details: "Instruct patient to use incentive spirometer 10 times per hour while awake. Document effort and results",

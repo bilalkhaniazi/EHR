@@ -14,6 +14,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
+import { useFormContext } from "@/context/FormContext";
+import { nursingAlerts } from "@/utils/form";
+import { HistoryFormData } from "@/utils/form";
 
 const FormSection = ({
   icon: Icon,
@@ -40,36 +43,31 @@ const FormSection = ({
 );
 
 const HistoryForm = () => {
-  const [medicalHistory, setMedicalHistory] = useState<string[]>([]);
-  const [surgicalHistory, setSurgicalHistory] = useState<string[]>([]);
-  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryData[]>([]);
-  const [socialHistory, setSocialHistory] = useState<string[]>([]);
-  const [livingSituation, setLivingSituation] = useState<string[]>([]);
-  const [allergies, setAllergies] = useState<string[]>([]);
+  const { onDataChange, historyData } = useFormContext()
+  const [medicalHistory, setMedicalHistory] = useState<string[]>(historyData.medicalHistory);
+  const [surgicalHistory, setSurgicalHistory] = useState<string[]>(historyData.surgicalHistory);
+  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryData[]>(historyData.familyHistory);
+  const [socialHistory, setSocialHistory] = useState<string[]>(historyData.socialHistory);
+  const [livingSituation, setLivingSituation] = useState<string[]>(historyData.livingSituation);
+  const [allergies, setAllergies] = useState<string[]>(historyData.allergies);
+  const [alerts, setAlerts] = useState<string[]>(historyData.alerts);
 
   const router = useRouter()
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = Object.fromEntries(formData);
-    console.dir(payload)
-    router.push("/admin/case-builder/form/notes")
+
+  const newHistoryData: HistoryFormData = {
+    medicalHistory: medicalHistory,
+    surgicalHistory: surgicalHistory,
+    familyHistory: familyHistory,
+    socialHistory: socialHistory,
+    livingSituation: livingSituation,
+    allergies: allergies,
+    alerts: alerts,
   }
 
-  const nursingAlerts = [
-    "Seizure Risk", "Aspiration Risk", "Bleeding Precautions", "NPO Status",
-    "Suicide / Self-Harm Risk", "Violence / Aggression Risk", "Elopement Risk",
-    "Restraint Order Active", "Continuous Observation", "Hearing Impaired",
-    "Vision Impaired", "High Risk for Falls", "Orthostatic Hypotension Risk",
-    "Confused / Impulsive Behavior", "Delirium Risk",
-    "Head Injury Precautions", "Increased Intracranial Pressure (ICP) Precautions",
-    "Central Line / PICC in Place", "Tracheostomy / Airway Precautions",
-    "Chest Tube Precautions", "ICD Precautions",
-    "Anticoagulant Therapy - Bleeding Precautions", "Pressure Injury Risk (Braden <18)",
-    "Immunocompromised Precautions", "Chemotherapy Precautions",
-    "Court-Ordered Observation / Police Hold",
-  ];
-
+  const handleSubmit = () => {
+    onDataChange("history", newHistoryData)
+    router.push("/admin/case-builder/form/notes");
+  }
 
   return (
     <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
@@ -85,13 +83,13 @@ const HistoryForm = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
-        <form id="history-form" onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-6 pb-20">
+        <div className="max-w-6xl mx-auto space-y-6 pb-20">
           <div className="fixed top-6 right-8 z-10">
-            <SubmitButton buttonText="Save & Continue" />
+            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
           </div>
           <div className="grid grid-cols-1 gap-6">
-            <Card className="border-slate-200 shadow-sm h-fit">
-              <CardHeader className="pb-4">
+            <Card className="border-slate-200 shadow-sm h-fit pt-4">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Clinical Profile</CardTitle>
                 <CardDescription>Past medical and surgical events</CardDescription>
               </CardHeader>
@@ -99,7 +97,6 @@ const HistoryForm = () => {
                 <FormSection icon={BriefcaseMedical} title="Medical History">
                   <MultiTextInput
                     labelText="Diagnoses"
-                    name="medicalHistory"
                     value={medicalHistory}
                     onChange={setMedicalHistory}
                     placeholder="e.g. HTN, GERD..."
@@ -109,7 +106,6 @@ const HistoryForm = () => {
                 <FormSection icon={Slice} title="Surgical History">
                   <MultiTextInput
                     labelText="Procedures"
-                    name="surgicalHistory"
                     value={surgicalHistory}
                     onChange={setSurgicalHistory}
                     placeholder="e.g. TAVR (2010)..."
@@ -119,7 +115,6 @@ const HistoryForm = () => {
                 <FormSection icon={AlertTriangle} title="Allergies">
                   <MultiTextInput
                     labelText="Allergens"
-                    name="allergies"
                     value={allergies}
                     onChange={setAllergies}
                     placeholder="e.g. Penicillin..."
@@ -129,8 +124,8 @@ const HistoryForm = () => {
             </Card>
 
             <div className="space-y-6">
-              <Card className="border-slate-200 shadow-sm">
-                <CardHeader className="pb-4">
+              <Card className="border-slate-200 shadow-sm pt-4">
+                <CardHeader className="pb-2">
                   <CardTitle className="text-lg">Social & Environmental</CardTitle>
                   <CardDescription>Living situation and habits</CardDescription>
                 </CardHeader>
@@ -139,17 +134,15 @@ const HistoryForm = () => {
                     <div className="space-y-4">
                       <MultiTextInput
                         labelText="Social Habits"
-                        name="socialHistory"
                         value={socialHistory}
                         onChange={setSocialHistory}
-                        placeholder="e.g. 1ppd smoker, socially drinks..."
+                        placeholder="e.g. Tobacco Use, Polysubstance Use, High Risk Occupation..."
                       />
                       <MultiTextInput
                         labelText="Living Situation"
-                        name="livingSituation"
                         value={livingSituation}
                         onChange={setLivingSituation}
-                        placeholder="e.g. Lives alone in single-story home..."
+                        placeholder="e.g. Lives alone, Group Home..."
                       />
                     </div>
                   </FormSection>
@@ -157,18 +150,21 @@ const HistoryForm = () => {
               </Card>
 
               <Card className="border-amber-100 bg-amber-50/30 shadow-sm">
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-">
                   <CardTitle className="text-lg flex items-center gap-2 text-amber-900">
                     <AlertTriangle className="text-amber-600" />
                     Safety Alerts
                   </CardTitle>
+                  <CardDescription className="text-amber-800">Warnings displayed on EHR Overview page</CardDescription>
+
                 </CardHeader>
                 <CardContent>
                   <MultiSelect
                     labelText=""
                     placeholder="Select safety alerts..."
-                    name="alerts"
                     options={nursingAlerts.map((alert) => ({ value: alert, label: alert }))}
+                    selectedValues={alerts}
+                    setSelectedValues={setAlerts}
                   />
                 </CardContent>
               </Card>
@@ -181,14 +177,13 @@ const HistoryForm = () => {
             </CardHeader>
             <CardContent>
               <FamilyHistory
-                name="familyHistory"
                 value={familyHistory}
                 onChange={setFamilyHistory}
               />
             </CardContent>
           </Card>
 
-        </form>
+        </div>
       </div>
     </div>
   )

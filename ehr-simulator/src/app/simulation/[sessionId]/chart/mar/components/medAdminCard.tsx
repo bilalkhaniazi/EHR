@@ -1,20 +1,25 @@
-import { format } from "date-fns";
+import { addMinutes, format } from "date-fns";
 import { medActionSelections, type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData"
 import MedAdminCardSelector from "./medAdminCardSelector";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { renderMedTitleRow, renderMedCardDetails, isSlidingScaleInsulin } from "./marHelpers";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface MedAdminCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
-  sessionStartTime: number;
-  realWorldNow: Date;
+  sessionStart: Date;
+  elapsedMinutes: number;
   onStatusChange: (status: string) => void;
   currentStatus: string
   onDoseChange: (administeredDose: number) => void;
-  currentDose: number
+  currentDose: number;
+  onCommentChange: (comment: string) => void;
+  currentComment: string;
+  onOrderRemove: (id: string) => void;
 }
 
 // helper function to get the last few times the med was given
@@ -31,162 +36,172 @@ const getPreviousAdministrations = (administrations: MedAdministrationInstance[]
   return filteredAdmins.slice(-prevAdmins)
 }
 
-
-
-
 const MedAdminCard = ({
   medication,
   administrations,
   order,
-  sessionStartTime,
+  sessionStart,
+  elapsedMinutes,
   onStatusChange,
   currentStatus,
   onDoseChange,
   currentDose,
-  realWorldNow
+  onCommentChange,
+  currentComment,
+  onOrderRemove,
 }: MedAdminCardProps) => {
 
   const handleStatusChange = (newStatus: string) => {
     onStatusChange(newStatus)
   }
+
+  const handleCommentChange = (comment: string) => {
+    onCommentChange(comment)
+  }
+
   const handleDoseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    if (value === '' || /^[0-9]*$/.test(value)) {
+    const regex = /^[0-9]*\.?[0-9]*$/;
+
+    if (value === '' || regex.test(value)) {
       onDoseChange(Number(e.target.value))
     }
   }
 
-  type MedAdminStatus = MedAdministrationInstance["status"];
-  const getStatusColor = (status: MedAdminStatus) => {
-    const colorMap = {
-      Given: "bg-lime-200 text-lime-800",
-      Missed: "bg-red-200 text-red-800",
-      Held: "bg-yellow-200 text-yellow-800",
-      Due: "bg-blue-200 text-blue-800",
-      Refused: "bg-gray-300 text-gray-800",
-    };
-    return colorMap[status as MedAdminStatus] || "bg-gray-200 text-gray-800";
-  };
+  const handleOrderRemove = (id: string) => {
+    onOrderRemove(id)
+  }
 
   const threePrevAdministrations = getPreviousAdministrations(administrations, 3);
-
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
-    <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0">
-      <div className="grid grid-cols-2">
-        <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
-          <div className="space-y-1">
-            {renderMedTitleRow(medication, order)}
-            <div className="text-xs tracking-tight pb-2 text-gray-500">
-              {renderMedCardDetails(medication, order)}
-            </div>
+    <div className="relative grid grid-cols-2 gap-6 border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 shadow">
+      <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
+        <div className="space-y-1">
+          {renderMedTitleRow(medication, order)}
+          <div className="text-xs ml-2 tracking-tight pb-2 text-gray-500">
+            {renderMedCardDetails(medication, order)}
           </div>
+        </div>
 
-          <div>
-            {order.instructions &&
-              <div className="">
-                <h2 className="font-light">Administration Instructions:</h2>
-                <p className="pl-2 text-xs font-light text-gray-700">
-                  {order.instructions}
-                </p>
-              </div>
-            }
+        {order.instructions && (
+          <div className="text-sm font-light bg-white text-slate-800 p-2 rounded border border-slate-200 mb-3">
+            <span className="font-medium">Administration Instructions:</span> {order.instructions}
           </div>
+        )}
 
-          {(isSlidingScaleInsulinMed) && (
-            <div className="overflow-hidden rounded-lg border w-fit">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-2 py-1 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      BG Range (mg/dL)
-                    </th>
-                    <th scope="col" className="px-2 py-1 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Correction Units
-                    </th>
+        {(isSlidingScaleInsulinMed) && (
+          <div className="overflow-hidden rounded-lg border w-fit">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-2 py-1 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    BG Range (mg/dL)
+                  </th>
+                  <th scope="col" className="px-2 py-1 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Correction Units
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {medication.bgDosing.map((dose, index) => (
+                  <tr key={index} className={index % 2 === 0 ? '' : 'bg-gray-50'}>
+                    <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.bgRange}</td>
+                    <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.units}</td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {medication.bgDosing.map((dose, index) => (
-                    <tr key={index} className={index % 2 === 0 ? '' : 'bg-gray-50'}>
-                      <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.bgRange}</td>
-                      <td className="whitespace-nowrap px-2 py-1 text-xs text-gray-800 font-mono">{dose.units}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-          <div>
-            <h2 className="font-light pb-1">Previous Administrations:</h2>
-            <div className="flex gap-4 pl-2">
-              {threePrevAdministrations.map((administration, index) => {
-                // if no administrations recorded for this medication
-                if (!administration.medicationOrderId) {
-                  return (
-                    <p key={index} className="text-sm p-2 bg-gray-100 rounded-lg">Never</p>
-                  )
-                }
-                const adminDateTime = new Date(sessionStartTime + administration.adminTimeMinuteOffset * 60 * 1000);
-                const displayTime = format(adminDateTime, 'HHmm')
+        <div>
+          <h2 className="font-light pb-1">Previous Administrations:</h2>
+          <div className="flex gap-4 pl-2">
+            {threePrevAdministrations.map((admin, index) => {
+              // if no administrations recorded for this medication
+              if (!admin.medicationOrderId) {
                 return (
-                  <div key={`${index}-${administration.medicationOrderId}`} className={`grid justify-center place-items-center rounded-md p-1 ${getStatusColor(administration.status)}`}>
-                    <p className="text-xs tracking-tight text-gray-700">{displayTime}</p>
-                    <p className="text-xs font-light text-gray-700">{administration.status}</p>
-                  </div>
+                  <p key={index} className="px-2 py-1 bg-gray-100 rounded-lg border border-gray-300 text-gray-700 text-xs">Never</p>
                 )
-              })}
+              }
+              const adminTime = addMinutes(sessionStart, admin.adminTimeMinuteOffset);
+
+              // Status Colors
+              let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
+              if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
+              // if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
+              // if (admin.status === "Refused") statusStyle = "bg-red-100 text-red-700 border-red-200";
+
+              return (
+                <div key={`${admin.id}-${index}`} className={`w-fit text-center p-1 rounded border text-xs ${statusStyle}`}>
+                  <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
+                  <div className="text-xs">{admin.status}</div>
+
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      <Button
+        variant="ghost" size="icon" className="absolute top-1 right-2 h-6 w-6 text-gray-400 hover:text-red-600"
+        onClick={() => handleOrderRemove(order.id)}
+      >
+        <X size={14} />
+      </Button>
+
+      <div className="grid grid-cols-3 py-4 px-2 gap-y-4">
+        <MedAdminCardSelector
+          options={medActionSelections}
+          value={currentStatus}
+          onValueChange={handleStatusChange}
+          label="Action"
+        />
+        <div className="w-full space-y-1">
+          <Label>Route</Label>
+          <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
+            {medication.route}
+          </p>
+        </div>
+        <div className="w-full space-y-1">
+          <Label>Dose</Label>
+          <div className="flex items-end">
+            <Input
+              onChange={(e) => handleDoseChange(e)}
+              value={currentDose}
+              className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
+            />
+            <div className="h-9 bg-gray-50 border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
+              <p className="text-sm">{medication.strengthUnit}</p>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 py-4 px-2 gap-y-2">
-          <MedAdminCardSelector
-            options={medActionSelections}
-            value={currentStatus}
-            onValueChange={handleStatusChange}
-            label="Action"
-          />
+        {medication.route === "IV" && order.infusionRate &&
           <div className="w-full space-y-1">
-            <Label>Route</Label>
+            <Label>Rate</Label>
             <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-              {medication.route}
+              {`${order.infusionRate}${medication.infusionRateUnit}`}
             </p>
           </div>
-          <div className="w-full space-y-1">
-            <Label>Dose</Label>
-            <div className="flex items-end">
-              <Input onChange={(e) => handleDoseChange(e)} value={currentDose} className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200" />
-              <div className="h-9 bg-gray-50 border border-l-0 rounded-r-xl border-gray-200 p-2 shadow-xs">
-                <p className="text-sm">{medication.strengthUnit}</p>
-              </div>
-            </div>
-          </div>
-          {medication.route === "IV" && order.infusionRate &&
-            <div className="w-full space-y-1">
-              <Label>Rate</Label>
-              <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-                {`${order.infusionRate}${medication.infusionRateUnit}`}
-              </p>
-            </div>
-          }
-          <div className="w-full space-y-1">
-            <Label>Date</Label>
-            <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-              {format(sessionStartTime, 'P')}
-            </p>
-          </div>
-          <div className="w-full space-y-1">
-            <Label>Time</Label>
-            <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
-              {format(realWorldNow, 'HHmm')}
-            </p>
-          </div>
-          <div className="w-full space-y-1">
-            <Label>Comments</Label>
-            <Input className="text-sm w-full" />
-          </div>
+        }
+        <div className="w-full space-y-1">
+          <Label>Date</Label>
+          <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
+            {format(sessionStart, 'P')}
+          </p>
+        </div>
+        <div className="w-full space-y-1">
+          <Label>Time</Label>
+          <p className="text-sm w-fit border px-3 py-2 rounded-lg shadow-xs">
+            {format(addMinutes(sessionStart, elapsedMinutes), 'HHmm')}
+          </p>
+        </div>
+        <div className="w-full space-y-1">
+          <Label>Comments</Label>
+          <Input className="text-sm w-full" onChange={(e) => handleCommentChange(e.target.value)} value={currentComment} />
         </div>
       </div>
     </div>

@@ -12,7 +12,6 @@ export interface FamilyHistoryData {
 }
 
 interface FamilyHistoryProps {
-  name?: string;
   value: FamilyHistoryData[];
   onChange: (entries: FamilyHistoryData[]) => void;
 }
@@ -23,7 +22,9 @@ const relations: string[] = [
   'Maternal Grandmother', 'Maternal Grandfather', 'Maternal Aunt', 'Maternal Uncle', 'Maternal Cousin',
 ];
 
-export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
+export function FamilyHistory(
+  { value, onChange }: FamilyHistoryProps
+) {
   const [relation, setRelation] = useState('');
   const [condition, setCondition] = useState('');
 
@@ -49,10 +50,8 @@ export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
 
   return (
     <div className="space-y-3">
-      {name && <input type="hidden" name={name} value={JSON.stringify(value)} />}
-
       <div className="flex flex-col sm:flex-row gap-3 items-end bg-slate-50 p-3 rounded-lg border border-slate-200">
-        <div className="space-y-1.5 flex-1 w-full">
+        <div className="space-y-1 flex-1 w-full">
           <label className="text-xs font-medium text-slate-500">Relation</label>
           <Select value={relation} onValueChange={setRelation}>
             <SelectTrigger ref={selectTriggerRef} className="bg-white h-9">
@@ -67,7 +66,7 @@ export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
           </Select>
         </div>
 
-        <div className="space-y-1.5 flex-[2] w-full">
+        <div className="space-y-1 flex-[2] w-full">
           <label className="text-xs font-medium text-slate-500">Condition / Disease</label>
           <Input
             value={condition}
@@ -93,22 +92,24 @@ export function FamilyHistory({ name, value, onChange }: FamilyHistoryProps) {
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableBody>
-              {value.map((item, index) => (
-                <TableRow key={index} className="hover:bg-slate-50">
-                  <TableCell className="font-medium w-1/3 py-2">{item.relation}</TableCell>
-                  <TableCell className="py-2 text-slate-600">{item.condition}</TableCell>
-                  <TableCell className="text-right py-2 w-12">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-slate-400 hover:text-red-600"
-                      onClick={() => deleteEntry(index)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {value.map((item, index) => ({ item, index }))
+                .sort((a, b) => a.item.relation.localeCompare(b.item.relation))
+                .map(({ item, index }) => (
+                  <TableRow key={index} className="hover:bg-slate-50">
+                    <TableCell className="font-medium w-1/3 py-2">{item.relation}</TableCell>
+                    <TableCell className="py-2 text-slate-600">{item.condition}</TableCell>
+                    <TableCell className="text-right py-2 w-12">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-slate-400 hover:text-red-600"
+                        onClick={() => deleteEntry(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

@@ -1,10 +1,11 @@
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
-import { MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
+import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
+import { Column } from "@tanstack/react-table";
 
-interface DemographicFormData {
+export interface DemographicFormData {
   DOBDay: string;
   DOBMonth: string;
   admissionDateOffest: string;
@@ -21,13 +22,15 @@ interface DemographicFormData {
   heightInches: string;
   insurance: string;
   language: string;
+  needsInterpreter: boolean;
   lastName: string;
   precautions: string;
   relationshipStatus: string;
   religion: string;
   summary: string;
 }
-interface FormHistoryData {
+
+export interface HistoryFormData {
   medicalHistory: string[]
   surgicalHistory: string[]
   allergies: string[]
@@ -37,19 +40,73 @@ interface FormHistoryData {
   familyHistory: { relation: string, condition: string }[]
 }
 
+export interface TableFormData<T> {
+  data: T[];
+  timePoints: number[];
+  timePointsInPreSim: Set<number>;
+  visibleItems?: Set<string>;
+}
+
+export interface ChartingFormData {
+  data: FlexSheetData[];
+  timePoints: number[];
+  timePointsInPresim: Set<number>
+}
+
+export interface IntakeOutputFormData {
+  blockId: number,
+  intake: number,
+  output: number
+}
+
+export interface MedOrderFormData {
+  createdOrders: MedicationOrder[];
+  selectedMeds: AllMedicationTypes[];
+}
+
 export interface FormBlob {
   demographics: DemographicFormData;
-  history: FormHistoryData;
+  history: HistoryFormData;
   notes: NoteData[];
   orders: OrderType[];
-  labs: LabTableData[];
-  charting: FlexSheetData[];
-  intakeOutput: { blockId: number, intake: number, output: number }[];
+  labs: TableFormData<LabTableData>;
+  charting: TableFormData<FlexSheetData>;
+  intakeOutput: IntakeOutputFormData[];
   medOrders: MedicationOrder[];
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | FormHistoryData | NoteData[] | OrderType[] | LabTableData[] | FlexSheetData[] | MedicationOrder[] | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | MedOrderFormData | MedAdministrationInstance[]
+
+export function getPinnedStyles<T>(column: Column<T>): React.CSSProperties {
+  const styles: React.CSSProperties = {
+    width: `${column.getSize()}px`,
+    minWidth: `${column.getSize()}px`,
+    maxWidth: `${column.getSize()}px`,
+  };
+  if (!column.getIsPinned()) {
+    return {};
+  }
+  const side = column.getIsPinned();
+  return {
+    ...styles,
+    position: 'sticky',
+    [side as string]: `${column.getStart(side)}px`,
+    zIndex: side === 'left' ? 2 : 1,
+  };
+}
+
+export const formatTimeOffset = (minuteOffset: number) => {
+  const minutesInDay = 1440;
+  const minutesInHour = 60;
+
+  const days = Math.floor(minuteOffset / minutesInDay);
+  const remainingMinutesAfterDays = minuteOffset % minutesInDay;
+  const hours = Math.floor(remainingMinutesAfterDays / minutesInHour);
+  const minutes = remainingMinutesAfterDays % minutesInHour;
+
+  return { days, hours, minutes };
+}
 
 export const nursingAlerts = [
   "Seizure Risk",
@@ -63,7 +120,7 @@ export const nursingAlerts = [
   "Continuous Observation",
   "Hearing Impaired",
   "Vision Impaired",
-  "High Risk for Falls",
+  "High Risk for Falls - Morse score > 45",
   "Orthostatic Hypotension Risk",
   "Confused / Impulsive Behavior",
   "Delirium / Cognitive Impairment Risk",
@@ -176,3 +233,104 @@ export const insuranceOptions = [
   "Medicaid",
   "Private"
 ]
+
+export const defaultIoData = [
+  { blockId: 1, intake: 0, output: 0 },
+  { blockId: 2, intake: 0, output: 0 },
+  { blockId: 3, intake: 0, output: 0 },
+  { blockId: 4, intake: 0, output: 0 }
+]
+
+export const defaultOrders: OrderType[] = [
+  {
+    category: 'Laboratory',
+    title: "Basic Metabolic Panel (BMP)",
+    status: "Active",
+    details: "Collect Basic Metabolic Panel (BMP).",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Laboratory',
+    title: "Complete Blood Count (CBC)",
+    status: "Active",
+    details: "Collect Complete Blood Count (CBC).",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    important: false,
+    category: 'Respiratory',
+    title: "Oxygen Therapy",
+    details: "Administer oxygen via nasal cannula at 2 L/min. Titrate to maintain SpO₂ ≥ 92%.",
+    status: "Active",
+    orderingProvider: "Dr. Azzedine Habz",
+    visibleInPresim: true
+  },
+  {
+    important: false,
+    category: 'Respiratory',
+    title: "Incentive Spirometry",
+    details: "Instruct patient to use incentive spirometer 10 times per hour while awake. Document effort and results",
+    status: "Active",
+    orderingProvider: "Dr. Azzedine Habz",
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Vital Signs Monitoring (q4h)",
+    status: "Active",
+    details: "Monitor BP, HR, RR, Temp, SpO₂ every 4 hours. Notify provider for Temp > 38.0°C (100.4°F), Systolic BP > 160 mmHg or < 100 mmHg, HR > 110 bpm or < 50 bpm.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Insert and Maintain IV",
+    status: "Active",
+    details: "",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Blood Glucose Monitoring (ACHS)",
+    status: "Active",
+    details: "Monitor blood glucose before meals and at bedtime (ACHS). Notify provider for blood glucose < 70 mg/dL or > 300 mg/dL.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: true,
+    visibleInPresim: true
+  },
+  {
+    category: 'Nursing',
+    title: "Activity: As Tolerated",
+    status: "Active",
+    details: "Encourage patient activity as tolerated. Assist with ambulation as needed.",
+    orderingProvider: "Dr. John Smith, MD",
+    important: false,
+    visibleInPresim: true
+
+  },
+  {
+    important: false,
+    category: 'Nursing',
+    title: "Fall Risk Precautions",
+    status: "Active",
+    details: "Implement standard fall risk protocol. Ensure bed in low position and call light within reach.",
+    orderingProvider: "Dr. John Smith, MD",
+    visibleInPresim: true
+  },
+  {
+    important: false,
+    category: 'Nursing',
+    title: "General Diet",
+    status: "Active",
+    details: "No Restrictions",
+    orderingProvider: "Dr. John Smith, MD",
+    visibleInPresim: true
+  },
+];
