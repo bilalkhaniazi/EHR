@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Home,
   AlertTriangle,
@@ -8,9 +8,19 @@ import {
   LucideIcon,
   Slice
 } from "lucide-react";
-import MultiTextInput from "../../components/multiTextInput";
+import MultiTextInput, { MultiTextInputHandle } from "../../components/multiTextInput";
 import { MultiSelect } from "../../components/multiSelect";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
@@ -43,7 +53,9 @@ const FormSection = ({
 );
 
 const HistoryForm = () => {
-  const { onDataChange, historyData } = useFormContext()
+  const router = useRouter();
+
+  const { onDataChange, historyData } = useFormContext();
   const [medicalHistory, setMedicalHistory] = useState<string[]>(historyData.medicalHistory);
   const [surgicalHistory, setSurgicalHistory] = useState<string[]>(historyData.surgicalHistory);
   const [familyHistory, setFamilyHistory] = useState<FamilyHistoryData[]>(historyData.familyHistory);
@@ -52,7 +64,15 @@ const HistoryForm = () => {
   const [allergies, setAllergies] = useState<string[]>(historyData.allergies);
   const [alerts, setAlerts] = useState<string[]>(historyData.alerts);
 
-  const router = useRouter()
+  // For checking if leftover text in MultiTextInput fields 
+  const diagnosesInputRef = useRef<MultiTextInputHandle>(null);
+  const proceduresInputRef = useRef<MultiTextInputHandle>(null);
+  const allergensInputRef = useRef<MultiTextInputHandle>(null);
+  const socialHabitsInputRef = useRef<MultiTextInputHandle>(null);
+  const livingSituationInputRef = useRef<MultiTextInputHandle>(null);
+  const inputRefs = [diagnosesInputRef, proceduresInputRef, allergensInputRef, socialHabitsInputRef, livingSituationInputRef];
+
+  const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
 
   const newHistoryData: HistoryFormData = {
     medicalHistory: medicalHistory,
@@ -64,14 +84,56 @@ const HistoryForm = () => {
     alerts: alerts,
   }
 
-  const handleSubmit = () => {
-    onDataChange("history", newHistoryData)
+  const saveAndContinue = () => {
+    onDataChange("history", newHistoryData);
     router.push("/admin/case-builder/form/notes");
   }
 
+  const focusOnUnsaved = () => {
+    for (const ref of inputRefs) {
+      if (ref.current?.hasText()) {
+        ref.current?.focus();
+        break;
+      }
+    }
+  }
+
+  const handleSubmit = () => {
+    // Guardrail against unsaved text in MultiTextInput fields
+    const hasUnsaved = inputRefs.some(ref => ref.current?.hasText());
+    if (hasUnsaved) {
+      setShowUnsavedWarning(true);
+    }
+    else {
+      saveAndContinue();
+    }
+  }
+
+  const UnsavedTextAlert = () => (
+    <AlertDialog
+      open={showUnsavedWarning}
+      onOpenChange={setShowUnsavedWarning}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Unsaved Text Detected</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved text in one or more fields. If you continue, this text will be lost.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => { setTimeout(() => focusOnUnsaved(), 100) }}>Go Back</AlertDialogCancel>
+          <AlertDialogAction onClick={saveAndContinue}>
+            Continue Anyway
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+
   return (
     <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
-
+      <UnsavedTextAlert />
       <div className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm flex-shrink-0 z-10">
         <div>
           <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -100,6 +162,8 @@ const HistoryForm = () => {
                     value={medicalHistory}
                     onChange={setMedicalHistory}
                     placeholder="e.g. HTN, GERD..."
+                    emptyMessage="No diagnoses recorded."
+                    ref={diagnosesInputRef}
                   />
                 </FormSection>
 
@@ -109,6 +173,8 @@ const HistoryForm = () => {
                     value={surgicalHistory}
                     onChange={setSurgicalHistory}
                     placeholder="e.g. TAVR (2010)..."
+                    emptyMessage="No procedures recorded."
+                    ref={proceduresInputRef}
                   />
                 </FormSection>
 
@@ -118,6 +184,8 @@ const HistoryForm = () => {
                     value={allergies}
                     onChange={setAllergies}
                     placeholder="e.g. Penicillin..."
+                    emptyMessage="No allergens recorded."
+                    ref={allergensInputRef}
                   />
                 </FormSection>
               </CardContent>
@@ -137,12 +205,16 @@ const HistoryForm = () => {
                         value={socialHistory}
                         onChange={setSocialHistory}
                         placeholder="e.g. Tobacco Use, Polysubstance Use, High Risk Occupation..."
+                        emptyMessage="No social habits recorded."
+                        ref={socialHabitsInputRef}
                       />
                       <MultiTextInput
                         labelText="Living Situation"
                         value={livingSituation}
                         onChange={setLivingSituation}
                         placeholder="e.g. Lives alone, Group Home..."
+                        emptyMessage="No living situations recorded."
+                        ref={livingSituationInputRef}
                       />
                     </div>
                   </FormSection>

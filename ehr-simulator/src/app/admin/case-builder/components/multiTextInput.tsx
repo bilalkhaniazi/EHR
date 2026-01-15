@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle, useRef } from "react";
 import { Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
+
+export interface MultiTextInputHandle {
+  focus: () => void,
+  hasText: () => boolean
+}
 
 interface MultiTextInputProps {
   value?: string[];
@@ -11,24 +16,32 @@ interface MultiTextInputProps {
   labelText: string;
   required?: boolean;
   titleCase?: boolean;
+  emptyMessage: string;
 }
 
-function MultiTextInput({
+const MultiTextInput = forwardRef<MultiTextInputHandle, MultiTextInputProps>(({
   value = [],
   onChange,
   placeholder = "Add item...",
   labelText,
   required = false,
-  titleCase = false
-}: MultiTextInputProps) {
-  const [currentInput, setCurrentInput] = useState('');
+  titleCase = false,
+  emptyMessage
+}, ref) => {
 
+  const [currentInput, setCurrentInput] = useState('');
   // We can simplify the required check logic slightly
   const [isMissing, setIsMissing] = useState(required && value.length === 0);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    hasText: () => currentInput.trim().length > 0
+  }))
+
   const addInput = () => {
     let input = currentInput.trim();
-
     if (!input) return;
 
     if (titleCase) {
@@ -63,7 +76,6 @@ function MultiTextInput({
 
   return (
     <div className="w-full">
-
       {/* Header Label */}
       <label className="text-xs font-medium text-slate-500 mb-1.5 block">
         {labelText} {required && <span className="text-red-500">*</span>}
@@ -78,8 +90,8 @@ function MultiTextInput({
           onChange={(e) => setCurrentInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
+          ref={inputRef}
         />
-
         <Button
           type="button"
           onClick={(e) => { e.preventDefault(); addInput() }}
@@ -113,10 +125,10 @@ function MultiTextInput({
           ))}
         </div>
       ) :
-        <p className="text-xs text-slate-400 italic pt-2 pl-1">{`No ${labelText.toLowerCase()} recorded.`}</p>
+        <p className="text-xs text-slate-400 italic pt-2 pl-1">{emptyMessage}</p>
       }
     </div>
   );
-}
+});
 
 export default MultiTextInput;
