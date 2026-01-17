@@ -1,7 +1,7 @@
 import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
-import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
+import { ClinicalNote } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData";
 import { Column } from "@tanstack/react-table";
 
@@ -67,7 +67,7 @@ export interface MedOrderFormData {
 export interface FormBlob {
   demographics: DemographicFormData;
   history: HistoryFormData;
-  notes: NoteData[];
+  notes: ClinicalNote[];
   orders: OrderType[];
   labs: TableFormData<LabTableData>;
   charting: TableFormData<FlexSheetData>;
@@ -76,7 +76,7 @@ export interface FormBlob {
   medAdministrationInstances: MedAdministrationInstance[]
 }
 
-export type CompleteFormType = DemographicFormData | HistoryFormData | NoteData[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | MedOrderFormData | MedAdministrationInstance[]
+export type CompleteFormType = DemographicFormData | HistoryFormData | ClinicalNote[] | OrderType[] | TableFormData<FlexSheetData | LabTableData> | IntakeOutputFormData[] | MedOrderFormData | MedAdministrationInstance[]
 
 export function getPinnedStyles<T>(column: Column<T>): React.CSSProperties {
   const styles: React.CSSProperties = {
@@ -334,3 +334,11 @@ export const defaultOrders: OrderType[] = [
     visibleInPresim: true
   },
 ];
+
+export const soapTemplateNote = `
+  <h2><u>Subjective</u></h2>
+  <p></p><h2><u>Objective</u></h2>
+  <p></p><h2><u>Assessment</u></h2>
+  <p></p><h2><u>Plan</u></h2>
+  <p></p>
+`

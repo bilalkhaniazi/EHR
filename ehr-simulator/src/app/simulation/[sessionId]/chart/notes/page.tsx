@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
-import { NoteData, sampleNotes, SbarNote, StudentNote } from "./components/notesData"; // Assuming sampleNotes is exported from here
+import { ClinicalNote, sampleNotes } from "./components/notesData"; // Assuming sampleNotes is exported from here
 import NursingNoteEntry from "./components/nursingNoteEntry";
 import NoteDisplay from "./components/noteDisplay";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { differenceInMinutes, format } from "date-fns";
 
 const NotePage = () => {
-  const [notesData, setNotesData] = useState<NoteData[]>([]);
+  const [notesData, setNotesData] = useState<ClinicalNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [sessionStartTime] = useState(new Date().getTime())
@@ -27,7 +27,7 @@ const NotePage = () => {
       setIsLoading(true);
       try {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network
-        setNotesData(sampleNotes as NoteData[]);
+        setNotesData(sampleNotes as ClinicalNote[]);
       } catch (err) {
         console.error(err);
         setIsError(true);
@@ -66,15 +66,15 @@ const NotePage = () => {
 
 
 
-  const onSubmitNote = async (sbar: SbarNote) => {
+  const onSubmitNote = async (noteContent: string) => {
     const now = differenceInMinutes(new Date(), sessionStartTime)
 
-    const newNote: StudentNote = {
+    const newNote: ClinicalNote = {
       title: "Student Note",
       author: "Current User, RN BSN",
       specialty: "Nursing",
       timeOffset: now,
-      noteBody: sbar,
+      content: noteContent,
       excludedFromPresim: true
     }
 

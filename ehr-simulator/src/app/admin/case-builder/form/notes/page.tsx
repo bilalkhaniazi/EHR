@@ -20,17 +20,16 @@ import InfoTooltip from "../../components/helpTooltip";
 import { useRouter } from "next/navigation";
 import { categories, specialties } from "@/utils/form";
 
-import {
-  type NoteData,
-} from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
+import { ClinicalNote } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import NoteFormDisplay from "./noteFormDisplay";
 import { useFormContext } from "@/context/FormContext";
 import { Checkbox } from "@/components/ui/checkbox";
-import TextEditor, { templateNote } from "@/components/textEditor";
+import TextEditor from "@/components/textEditor";
+import { soapTemplateNote } from "@/utils/form";
 
 export default function NotesForm() {
   const { onDataChange, noteData } = useFormContext()
-  const [notes, setNotes] = useState<NoteData[]>(noteData);
+  const [notes, setNotes] = useState<ClinicalNote[]>(noteData);
 
   // individual note data
   const [category, setCategory] = useState<string>("");
@@ -38,7 +37,7 @@ export default function NotesForm() {
   const [author, setAuthor] = useState<string>("");
   const [isSoap, setIsSoap] = useState<boolean>(true);
   const [excludeFromPresim, setExcludeFromPresim] = useState<boolean>(false)
-  const [noteContent, setNoteContent] = useState<string>(templateNote);
+  const [noteContent, setNoteContent] = useState<string>(soapTemplateNote);
 
   // Time Offset
   const [days, setDays] = useState<number | ''>(0);
@@ -50,18 +49,26 @@ export default function NotesForm() {
   const handleCheckedChange = (value: boolean) => {
     setExcludeFromPresim(value)
   }
+
+  const handleNoteChange = (content: string) => {
+    setNoteContent(content)
+  }
+
+  const handleSoapToggle = (checked: boolean) => {
+    const template = checked ? soapTemplateNote : '<p></p>';
+    // const isCurrentContentEmpty = noteContent === '<p></p>' || noteContent === soapTemplateNote || noteContent === '';
+    setIsSoap(checked);
+    setNoteContent(template);
+  };
+
   const clearForm = () => {
     setCategory("");
-    setNoteContent(templateNote);
+    setNoteContent(isSoap ? soapTemplateNote : '<p></p>');
     setDays(0);
     setHours(0);
     setMinutes(0);
   };
 
-  console.log(noteContent)
-  const handleNoteChange = (content: string) => {
-    setNoteContent(content)
-  }
   useEffect(() => {
     const canSubmit = (specialty && author && category.length > 0 && noteContent.length > 0)
     setCanAddNote(!!canSubmit);
@@ -75,7 +82,7 @@ export default function NotesForm() {
       author,
       specialty,
       timeOffset,
-      noteBody: noteContent,
+      content: noteContent,
       excludedFromPresim: excludeFromPresim
     };
     setNotes(prev => [newNote, ...prev]);
@@ -187,60 +194,13 @@ export default function NotesForm() {
                     <Label>Exclude from Pre-Sim</Label>
                   </div>
                   <div className="flex items-center gap-2 text-sm font-normal">
-                    <Switch id="soap-mode" checked={isSoap} onCheckedChange={setIsSoap} className="border border-slate-300" />
+                    <Switch id="soap-mode" checked={isSoap} onCheckedChange={handleSoapToggle} className="border border-slate-300" />
                     <Label htmlFor="soap-mode">SOAP Format</Label>
                   </div>
                 </div>
 
                 <Separator />
                 <TextEditor content={noteContent} onChange={handleNoteChange} />
-                {/* {isSoap ? (
-                  <div className="space-y-4 animate-in fade-in duration-300">
-                    <div className="space-y-2">
-                      <TextEditor />
-                      <Label className="text-xs uppercase text-slate-500 font-semibold">Subjective</Label>
-                      <Textarea
-                        className="bg-white min-h-[80px]"
-                        value={soapContent.subjective}
-                        onChange={e => setSoapContent({ ...soapContent, subjective: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs uppercase text-slate-500 font-semibold">Objective</Label>
-                      <Textarea
-                        className="bg-white min-h-[80px]"
-                        value={soapContent.objective}
-                        onChange={e => setSoapContent({ ...soapContent, objective: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs uppercase text-slate-500 font-semibold">Assessment</Label>
-                      <Textarea
-                        className="bg-white min-h-[80px]"
-                        value={soapContent.assessment}
-                        onChange={e => setSoapContent({ ...soapContent, assessment: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs uppercase text-slate-500 font-semibold">Plan</Label>
-                      <Textarea
-                        className="bg-white min-h-[80px]"
-                        value={soapContent.plan}
-                        onChange={e => setSoapContent({ ...soapContent, plan: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2 animate-in fade-in duration-300">
-                    <Label className="text-xs uppercase text-slate-500 font-semibold">Note Body</Label>
-                    <Textarea
-                      className="bg-white min-h-[200px] font-mono text-sm leading-relaxed"
-                      placeholder="Enter note text..."
-                      value={plainNote}
-                      onChange={e => setPlainNote(e.target.value)}
-                    />
-                  </div>
-                )} */}
 
                 <div className="pt-2">
                   <Button

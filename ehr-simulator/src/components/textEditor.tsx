@@ -12,15 +12,6 @@ interface TextEditorProps {
   content: string;
   onChange: (content: string) => void
 }
-export const templateNote = `
-<h2><u>Subjective</u></h2><p>This is a <em>new and improved</em> example of a <strong>SOAP note</strong>.</p>
-<p></p><p>Now with many styling wonders</p><ul class="list-disc ml-6"><li><p>A bullet list with one …</p>
-</li><li><p>… or two list items.</p></li></ul><p></p><h2><u>Objective</u></h2>
-<p>This is a <em>new and improved</em> example of a <strong>SOAP note</strong>.</p>
-<p></p><h2><u>Assessment</u></h2><p>This is a <em>new and improved</em> example of a <strong>SOAP note</strong>.</p>
-<p></p><h2><u>Plan</u></h2><p>This is a <em>new and improved</em> example of a <strong>SOAP note</strong>.</p>
-<p></p>
-`
 
 const TextEditor = ({ content, onChange }: TextEditorProps) => {
   const editor = useEditor({
@@ -54,7 +45,6 @@ const TextEditor = ({ content, onChange }: TextEditorProps) => {
     },
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      // console.log(editor.getHTML());
       onChange(editor.getHTML());
     },
     content: content,
