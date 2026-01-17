@@ -10,12 +10,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
-import { NoteData, ProviderNote } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
+import { NoteData } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { Badge } from "@/components/ui/badge";
 
-function isSoapNote(note: NoteData): note is ProviderNote {
-  return typeof note.noteBody === 'object' && 'assessment' in note.noteBody;
-}
+// function isSoapNote(note: NoteData): note is ProviderNote {
+//   return typeof note.noteBody === 'object' && 'assessment' in note.noteBody;
+// }
 
 
 function displayTimeOffset(minutes: number): string {
@@ -79,7 +79,7 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
             <p className="whitespace-pre-wrap leading-relaxed">{note.noteBody}</p>
           )}
 
-          {isSoapNote(note) && (
+          {/* {isSoapNote(note) && (
             <div className="space-y-4">
               {note.noteBody.subjective && (
                 <div><span className="text-xs font-bold text-slate-400 uppercase block mb-1">Subjective</span><p className="bg-slate-50 p-2 rounded border border-slate-100">{note.noteBody.subjective}</p></div>
@@ -94,7 +94,7 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
                 <div><span className="text-xs font-bold text-slate-400 uppercase block mb-1">Plan</span><p className="bg-slate-50 p-2 rounded border border-slate-100">{note.noteBody.plan}</p></div>
               )}
             </div>
-          )}
+          )} */}
         </div>
       </CollapsibleContent>
       <div className="w-full h-4 ">
