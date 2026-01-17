@@ -2,6 +2,7 @@
 import { useState } from "react"
 import {
   FileText,
+  Stethoscope,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,13 +11,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from "@/components/ui/collapsible";
-import { NoteData, ProviderNote } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
+import { ClinicalNote } from "@/app/simulation/[sessionId]/chart/notes/components/notesData";
 import { Badge } from "@/components/ui/badge";
-
-function isSoapNote(note: NoteData): note is ProviderNote {
-  return typeof note.noteBody === 'object' && 'assessment' in note.noteBody;
-}
-
+import DOMPurify from "dompurify";
 
 function displayTimeOffset(minutes: number): string {
   const d = Math.floor(minutes / 1440);
@@ -29,8 +26,9 @@ function displayTimeOffset(minutes: number): string {
   return parts.join(' ') || '0m';
 }
 
-const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => void }) => {
+const NoteFormDisplay = ({ note, onDelete }: { note: ClinicalNote, onDelete: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const sanitizedContent = DOMPurify.sanitize(note.content)
 
   return (
     <Collapsible
@@ -40,8 +38,8 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
     >
       <div className="flex justify-between items-start p-3 bg-slate-50/50 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
         <div className="flex gap-3 items-center">
-          <div className={`p-2 rounded-md ${typeof note.noteBody === 'object' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-600'}`}>
-            <FileText size={16} />
+          <div className={`p-2 rounded-md ${note.title === 'Nursing Note' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-600'}`}>
+            {note.title === 'Nursing Note' ? <Stethoscope size={16} /> : <FileText size={16} />}
           </div>
           <div>
             <h4 className="text-sm font-semibold text-slate-800">{note.title}</h4>
@@ -73,37 +71,17 @@ const NoteFormDisplay = ({ note, onDelete }: { note: NoteData, onDelete: () => v
       </div>
 
       <CollapsibleContent>
-        <div className="p-4 text-sm text-slate-700 border-t border-slate-100 bg-white space-y-2">
-
-          {typeof note.noteBody === 'string' && (
-            <p className="whitespace-pre-wrap leading-relaxed">{note.noteBody}</p>
-          )}
-
-          {isSoapNote(note) && (
-            <div className="space-y-4">
-              {note.noteBody.subjective && (
-                <div><span className="text-xs font-bold text-slate-400 uppercase block mb-1">Subjective</span><p className="bg-slate-50 p-2 rounded border border-slate-100">{note.noteBody.subjective}</p></div>
-              )}
-              {note.noteBody.objective && (
-                <div><span className="text-xs font-bold text-slate-400 uppercase block mb-1">Objective</span><p className="bg-slate-50 p-2 rounded border border-slate-100">{note.noteBody.objective}</p></div>
-              )}
-              {note.noteBody.assessment && (
-                <div><span className="text-xs font-bold text-slate-400 uppercase block mb-1">Assessment</span><p className="bg-slate-50 p-2 rounded border border-slate-100">{note.noteBody.assessment}</p></div>
-              )}
-              {note.noteBody.plan && (
-                <div><span className="text-xs font-bold text-slate-400 uppercase block mb-1">Plan</span><p className="bg-slate-50 p-2 rounded border border-slate-100">{note.noteBody.plan}</p></div>
-              )}
-            </div>
-          )}
+        <div className="p-4 text-sm text-black border-t border-slate-100 bg-white space-y-2">
+          <div
+            className="w-full max-w-none [&_p]:min-h-[1rem]"
+            dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+          />
         </div>
       </CollapsibleContent>
       <div className="w-full h-4 ">
 
         <CollapsibleTrigger asChild className="p-0 m-0">
-          <button className="focus-visible:ring-none focus:ring-none  h-full bg-slate-100 w-full cursor-pointer">
-            {/* <ChevronDown style={{ transform: isOpen ? `rotate(180deg)` : "none" }} /> */}
-          </button>
-
+          <button className="focus-visible:ring-none focus:ring-none  h-full bg-slate-100 w-full cursor-pointer" />
         </CollapsibleTrigger>
       </div>
 

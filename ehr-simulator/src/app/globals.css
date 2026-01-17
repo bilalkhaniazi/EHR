@@ -169,5 +169,17 @@
     .case-form-textarea {
       @apply text-sm resize-none p-1 mt-1 mb-1 rounded border-2 max-w-120;
     }
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+    }
   }
 }

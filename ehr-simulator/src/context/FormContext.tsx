@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState } from 'react';
 import { CompleteFormType, defaultIoData, defaultOrders, DemographicFormData, FormBlob, HistoryFormData, IntakeOutputFormData, MedOrderFormData, TableFormData } from '@/utils/form';
-import { NoteData } from '@/app/simulation/[sessionId]/chart/notes/components/notesData';
+import { ClinicalNote } from '@/app/simulation/[sessionId]/chart/notes/components/notesData';
 import { OrderType } from '@/app/simulation/[sessionId]/chart/orders/components/orderData';
 import { LabTableData, labTemplate } from '@/app/simulation/[sessionId]/chart/labs/components/labsData';
 import { FlexSheetData, flexSheetTemplate } from '@/app/simulation/[sessionId]/chart/charting/components/flexSheetData';
@@ -11,7 +11,7 @@ import { MedAdministrationInstance } from '@/app/simulation/[sessionId]/chart/ma
 interface FormContextType {
   demographicData: DemographicFormData;
   historyData: HistoryFormData;
-  noteData: NoteData[];
+  noteData: ClinicalNote[];
   orderData: OrderType[];
   labData: TableFormData<LabTableData>;
   chartingData: TableFormData<FlexSheetData>;
@@ -70,7 +70,7 @@ const FormContext = createContext<FormContextType>({
 export function FormContextProvider({ children }: { children: React.ReactNode }) {
   const [demographicData, setDemographicData] = useState<DemographicFormData>(defaultDemographicData);
   const [historyData, setHistoryData] = useState<HistoryFormData>(defaultHistoryData);
-  const [noteData, setNoteData] = useState<NoteData[]>([]);
+  const [noteData, setNoteData] = useState<ClinicalNote[]>([]);
   const [orderData, setOrderData] = useState<OrderType[]>(defaultOrders);
   const [labData, setLabData] = useState<TableFormData<LabTableData>>({
     data: labTemplate,
@@ -97,7 +97,7 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
         setHistoryData(value as HistoryFormData);
         break;
       case 'notes':
-        setNoteData(value as NoteData[]);
+        setNoteData(value as ClinicalNote[]);
         break;
       case 'orders':
         setOrderData(value as OrderType[]);
