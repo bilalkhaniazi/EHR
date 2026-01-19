@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import SubmitButton from "../../components/submitButton"
+import GoBackButton from "../../components/goBackButton"
 import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/orderData"
@@ -98,6 +99,11 @@ export default function OrdersForm() {
     setOrders(orders.filter((_, i) => i !== index))
   }
 
+  const goBack = () => {
+    onDataChange('orders', orders)
+    router.push("/admin/case-builder/form/notes");
+  }
+
   const handleSubmit = () => {
     onDataChange('orders', orders)
     router.push('/admin/case-builder/form/labs')
@@ -117,8 +123,9 @@ export default function OrdersForm() {
 
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <div className="fixed top-6 right-8 z-10">
-            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
+          <div className="flex gap-2 fixed top-6 right-8 z-10">
+            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <SubmitButton onClick={handleSubmit} buttonText="Continue" />
           </div>
 
           <div className="lg:col-span-5 space-y-6">

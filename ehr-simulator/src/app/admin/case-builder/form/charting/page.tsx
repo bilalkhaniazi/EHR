@@ -30,6 +30,15 @@ export function ChartingForm() {
 
   const router = useRouter()
 
+  const goBack = () => {
+    onDataChange('charting', {
+      data: chartingData,
+      timePoints: timePoints,
+      timePointsInPreSim: timePointsInPresim
+    })
+    router.push("/admin/case-builder/form/labs");
+  }
+
   const handleSubmit = () => {
     onDataChange('charting', {
       data: chartingData,
@@ -161,8 +170,9 @@ export function ChartingForm() {
   return (
     <TableFormShell
       title="Documentation"
-      icon={<Clipboard />}
+      icon={<Clipboard className="text-slate-400" />}
       onSubmit={handleSubmit}
+      goBack={goBack}
       stepDescription="Step 5 of 9: Enter laboratory and imaging results"
     >
       <div className="flex gap-12 items-end px-8 py-2">

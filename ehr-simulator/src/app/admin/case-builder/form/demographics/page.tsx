@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import InfoTooltip from "../../components/helpTooltip";
 import SubmitButton from "../../components/submitButton";
+import GoBackButton from "../../components/goBackButton";
 import { useRouter } from "next/navigation";
 import { relationshipStatuses, precautions, months, codeStatuses, days, insuranceOptions, DemographicFormData } from "@/utils/form";
 import { useState } from "react";
@@ -25,6 +26,11 @@ export default function DemographicsForm() {
   const { onDataChange, demographicData: initialData } = useFormContext();
   const [demographicsData, setDemographicsData] = useState<DemographicFormData>(initialData);
   const router = useRouter();
+
+  const goBack = () => {
+    onDataChange("demographics", demographicsData)
+    router.push("/admin/case-builder/");
+  }
 
   const handleSubmit = () => {
     onDataChange("demographics", demographicsData)
@@ -54,8 +60,9 @@ export default function DemographicsForm() {
 
       <div className="flex-1 p-6 md:px-12 lg:px-24">
         <div id="demo-form" className="max-w-6xl mx-auto space-y-6 pb-20">
-          <div className="fixed top-6 right-8 z-10">
-            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
+          <div className="flex gap-2 fixed top-6 right-8 z-10">
+            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <SubmitButton onClick={handleSubmit} buttonText="Continue" />
           </div>
           <Card className="border-slate-200 shadow-sm pt-4">
             <CardHeader className="pb-3">

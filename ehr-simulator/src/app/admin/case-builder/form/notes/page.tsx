@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import SubmitButton from "../../components/submitButton";
+import GoBackButton from "../../components/goBackButton";
 import InfoTooltip from "../../components/helpTooltip";
 import { useRouter } from "next/navigation";
 import { categories, specialties } from "@/utils/form";
@@ -91,6 +92,11 @@ export default function NotesForm() {
 
   const router = useRouter();
 
+  const goBack = () => {
+    onDataChange("notes", notes);
+    router.push("/admin/case-builder/form/history");
+  }
+
   const handleSubmit = () => {
     onDataChange("notes", notes);
     router.push("/admin/case-builder/form/orders");
@@ -110,8 +116,9 @@ export default function NotesForm() {
 
       <div className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <div className="fixed top-6 right-8 z-10">
-            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
+          <div className="flex gap-2 fixed top-6 right-8 z-10">
+            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <SubmitButton onClick={handleSubmit} buttonText="Continue" />
           </div>
 
           <div className="lg:col-span-7 space-y-6">

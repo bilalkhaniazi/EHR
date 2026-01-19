@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import Combobox from "@/components/ui/combobox"
 import SubmitButton from "../../components/submitButton"
+import GoBackButton from "../../components/goBackButton"
 
 import {
   MedicationOrder,
@@ -159,6 +160,11 @@ export default function MedicationAdministrationsForm() {
     });
   }
 
+  const goBack = () => {
+    onDataChange('medAdministrationInstances', medAdministrations)
+    router.push("/admin/case-builder/form/medications");
+  }
+
   const handleSubmit = () => {
     onDataChange('medAdministrationInstances', medAdministrations)
     console.log(medAdministrations)
@@ -184,8 +190,9 @@ export default function MedicationAdministrationsForm() {
           </h1>
           <p className="text-xs text-slate-500 mt-1">Step 9 of 9: Document past administrations and Due times</p>
         </div>
-        <div>
-          <SubmitButton onClick={handleSubmit} buttonText="Save and Continue" />
+        <div className="flex gap-2 fixed top-6 right-8 z-10">
+          <GoBackButton onClick={goBack} buttonText="Go Back" />
+          <SubmitButton onClick={handleSubmit} buttonText="Continue" />
         </div>
       </header>
 

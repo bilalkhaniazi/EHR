@@ -10,6 +10,7 @@ import { allMedications, AllMedicationTypes, MedicationOrder } from "@/app/simul
 import Combobox from "@/components/ui/combobox"
 import MedCardForm from "./components/medCardForm"
 import SubmitButton from "../../components/submitButton"
+import GoBackButton from "../../components/goBackButton"
 import { useRouter } from "next/navigation"
 import { useFormContext } from "@/context/FormContext"
 
@@ -91,6 +92,14 @@ export default function MedicationOrderForm() {
     return getComboboxData(allMedications);
   }, []);
 
+  const goBack = () => {
+    onDataChange('medOrders', {
+      createdOrders: medOrders,
+      selectedMeds: selectedMeds
+    });
+    router.push("/admin/case-builder/form/intake-output");
+  }
+
   const handleSubmit = () => {
     onDataChange('medOrders', {
       createdOrders: medOrders,
@@ -112,8 +121,9 @@ export default function MedicationOrderForm() {
           <p className="text-xs text-slate-500 mt-1">Step 8 of 9: Create Medication Orders</p>
         </div>
 
-        <div>
-          <SubmitButton onClick={handleSubmit} buttonText="Save and Continue" />
+        <div className="flex gap-2 fixed top-6 right-8 z-10">
+          <GoBackButton onClick={goBack} buttonText="Go Back" />
+          <SubmitButton onClick={handleSubmit} buttonText="Continue" />
         </div>
       </header>
 

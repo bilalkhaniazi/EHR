@@ -64,13 +64,23 @@ export function LabForm() {
     }
   };
 
+  const goBack = () => {
+    onDataChange('labs', {
+      data: labTableData,
+      timePoints: timePoints,
+      timePointsInPreSim: timePointsInPresim,
+      visibleItems: visibleItems
+    });
+    router.push("/admin/case-builder/form/orders");
+  }
+
   const handleSubmit = () => {
     onDataChange('labs', {
       data: labTableData,
       timePoints: timePoints,
       timePointsInPreSim: timePointsInPresim,
       visibleItems: visibleItems
-    })
+    });
     router.push('/admin/case-builder/form/charting')
   }
   console.log(labTableData)
@@ -222,10 +232,11 @@ export function LabForm() {
 
   return (
     <TableFormShell
-      icon={<TestTube2 />}
+      icon={<TestTube2 className="text-slate-400" />}
       stepDescription="Step 5 of 9: Enter laboratory and imaging results"
       title="Lab Results"
       onSubmit={handleSubmit}
+      goBack={goBack}
     >
       <div className="w-full flex justify-start gap-12 mb-3 px-4 items-end">
         <AddTableColumn handleColumnAdd={addTimePoint} />

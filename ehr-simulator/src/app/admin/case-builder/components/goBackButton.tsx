@@ -1,22 +1,22 @@
-import { ArrowRight } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button";
 interface SubmitButtonProps {
   buttonText: string;
   onClick: () => void;
 }
 
-const SubmitButton = ({ buttonText, onClick }: SubmitButtonProps) => {
+const GoBackButton = ({ buttonText, onClick }: SubmitButtonProps) => {
   return (
-    <div className="">
+    <div className="flex flex-col gap-2 w-fit">
       <Button
         className="w-full cursor-pointer"
-        variant={"default"}
+        variant={"secondary"}
         onClick={onClick}
       >
-        {buttonText} <ArrowRight />
+        <ArrowLeft /> {buttonText}
       </Button>
     </div>
   )
 }
 
-export default SubmitButton
+export default GoBackButton
