@@ -8,6 +8,16 @@ import {
   Clock,
   ChevronDown
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,19 +27,29 @@ import { Label } from "@/components/ui/label";
 import InfoTooltip from "../../components/helpTooltip";
 import SubmitButton from "../../components/submitButton";
 import GoBackButton from "../../components/goBackButton";
-import { useRouter } from "next/navigation";
-import { relationshipStatuses, precautions, months, codeStatuses, days, insuranceOptions, DemographicFormData } from "@/utils/form";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useFormContext } from "@/context/FormContext";
+import { relationshipStatuses, precautions, months, codeStatuses, days, insuranceOptions, DemographicFormData } from "@/utils/form";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function DemographicsForm() {
   const { onDataChange, demographicData: initialData } = useFormContext();
   const [demographicsData, setDemographicsData] = useState<DemographicFormData>(initialData);
   const router = useRouter();
+  const [showCancelAlert, setShowCancelAlert] = useState<boolean>(false);
 
   const goBack = () => {
-    onDataChange("demographics", demographicsData)
+    setShowCancelAlert(true);
+  }
+
+  const handleCancelConfirm = () => {
+    setShowCancelAlert(false);
     router.push("/admin/");
+  }
+
+  const handleCancelDismiss = () => {
+    setShowCancelAlert(false);
   }
 
   const handleSubmit = () => {
@@ -45,8 +65,39 @@ export default function DemographicsForm() {
     minInches: 0, maxInches: 11,
   }
 
+  const CancelAlert = () => (
+    <AlertDialog
+      open={showCancelAlert}
+      onOpenChange={setShowCancelAlert}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            Confirm Cancellation
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to discard this case? Your changes won't be saved.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            className="cursor-pointer"
+            onClick={handleCancelDismiss}>
+            Keep Editing
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className={`${buttonVariants({ variant: "destructive" })} cursor-pointer`}
+            onClick={handleCancelConfirm}>
+            Cancel Case Creation
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-slate-50/50">
+      <CancelAlert />
 
       <header className="sticky top-0 flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
         <div>
@@ -86,7 +137,6 @@ export default function DemographicsForm() {
 
           <div className="grid grid-cols-1 gap-6">
 
-            {/* SECTION 2: Personal Info */}
             <Card className="border-slate-200 shadow-sm h-fit pt-4">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -193,7 +243,6 @@ export default function DemographicsForm() {
               </CardContent>
             </Card>
 
-            {/* SECTION 3: Clinical & Social */}
             <div className="space-y-6">
               <Card className="border-slate-200 shadow-sm pt-4">
                 <CardHeader>
@@ -371,7 +420,6 @@ export default function DemographicsForm() {
             </div>
           </div>
 
-          {/* SECTION 4: Admission Details */}
           <Card className="border-slate-200 shadow-sm pt-4">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
