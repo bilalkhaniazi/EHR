@@ -173,7 +173,7 @@ export function ChartingForm() {
       icon={<Clipboard className="text-slate-400" />}
       onSubmit={handleSubmit}
       goBack={goBack}
-      stepDescription="Step 5 of 9: Enter laboratory and imaging results"
+      stepDescription="Step 6 of 9: Enter laboratory and imaging results"
     >
       <div className="flex gap-12 items-end px-8 py-2">
         <AddTableColumn handleColumnAdd={addTimePoint} />
