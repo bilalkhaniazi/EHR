@@ -18,10 +18,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import SubmitButton from "../../components/submitButton";
-import GoBackButton from "../../components/goBackButton";
 import { useFormContext } from "@/context/FormContext";
 import { IntakeOutputFormData } from "@/utils/form";
+import { FormShell } from "../../components/formShell";
 
 const chartConfig = {
   intake: { label: "Intake", color: "hsl(var(--chart-6))" },
@@ -128,26 +127,20 @@ export default function IntakeOutputForm() {
   }
 
   return (
-
-    <div className="flex flex-col min-h-screen w-full bg-slate-50/50">
-
-      <header className="sticky top-0 flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Droplets className="text-slate-400" />
-            Intake & Output
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 7 of 9: Record patient intake and output</p>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12 w-full">
+    <FormShell
+      title="Intake & Output"
+      stepDescription="Step 7 of 9: Record patient intake and output"
+      icon={<Droplets className="text-slate-400" />}
+      onSubmit={handleSubmit}
+      goBack={goBack}
+      continueButtonText="Continue"
+      backButtonText="Back"
+      continueButtonTooltip="Proceed to Next Page"
+      backButtonTooltip="Return to Previous Page"
+    >
+      <div className="flex-1 bg-slate-50/50 overflow-y-auto p-6 md:px-8 lg:px-12 w-full">
         <div className="w-full max-w-7xl mx-auto space-y-6 pb-20">
-          <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Back" />
-            <SubmitButton onClick={handleSubmit} buttonText="Continue" />
-          </div>
-          <div className="flex flex-col lg:max-w-3xl 2xl:max-w-4xl w-full">
+          <div className="flex flex-col lg:max-w-3xl 2xl:max-w-4xl w-full mx-auto">
             <Card className="border-slate-200 shadow-sm w-full">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -279,6 +272,6 @@ export default function IntakeOutputForm() {
           </div>
         </div>
       </div>
-    </div>
+    </FormShell>
   );
 }

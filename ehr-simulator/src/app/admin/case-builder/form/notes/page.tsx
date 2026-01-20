@@ -15,8 +15,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import SubmitButton from "../../components/submitButton";
-import GoBackButton from "../../components/goBackButton";
 import InfoTooltip from "../../components/helpTooltip";
 import { useRouter } from "next/navigation";
 import { categories, specialties } from "@/utils/form";
@@ -27,6 +25,7 @@ import { useFormContext } from "@/context/FormContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import TextEditor from "@/components/textEditor";
 import { soapTemplateNote } from "@/utils/form";
+import { FormShell } from "../../components/formShell";
 
 export default function NotesForm() {
   const { onDataChange, noteData } = useFormContext()
@@ -103,24 +102,19 @@ export default function NotesForm() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
-      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm z-10">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <FilePlus className="text-slate-400" />
-            Clinical Documentation
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 3 of 9: Add all relevant notes</p>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
+    <FormShell
+      title="Clinical Documentation"
+      stepDescription="Step 3 of 9: Add all relevant notes"
+      icon={<FilePlus className="text-slate-400" />}
+      onSubmit={handleSubmit}
+      goBack={goBack}
+      continueButtonText="Continue"
+      backButtonText="Back"
+      continueButtonTooltip="Proceed to Next Page"
+      backButtonTooltip="Return to Previous Page"
+    >
+      <div className="bg-slate-50/50 flex-1 overflow-y-auto p-6 md:px-8 lg:px-12 ">
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Back" />
-            <SubmitButton onClick={handleSubmit} buttonText="Continue" />
-          </div>
-
           <div className="lg:col-span-7 space-y-6">
             <Card className="border-slate-200 shadow-sm pt-0">
               <CardHeader className="bg-slate-100/70 border-b border-slate-200 pt-4 !pb-2 rounded-t-xl">
@@ -253,6 +247,6 @@ export default function NotesForm() {
           </div>
         </div>
       </div>
-    </div>
+    </FormShell>
   );
 }

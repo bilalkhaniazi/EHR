@@ -21,13 +21,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import SubmitButton from "../../components/submitButton";
-import GoBackButton from "../../components/goBackButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
 import { useFormContext } from "@/context/FormContext";
 import { nursingAlerts } from "@/utils/form";
 import { HistoryFormData } from "@/utils/form";
+import { FormShell } from "../../components/formShell";
 
 const FormSection = ({
   icon: Icon,
@@ -161,24 +160,20 @@ const HistoryForm = () => {
   )
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
+    <FormShell
+      title="Patient History"
+      stepDescription="Step 2 of 9: Document medical history and social context"
+      icon={<FileClock className="text-slate-400" />}
+      onSubmit={handleSubmit}
+      goBack={goBack}
+      continueButtonText="Continue"
+      backButtonText="Back"
+      continueButtonTooltip="Proceed to Next Page"
+      backButtonTooltip="Return to Previous Page"
+    >
       <UnsavedTextAlert />
-      <div className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm flex-shrink-0 z-10">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <FileClock className="text-slate-400" />
-            Patient History
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 2 of 9: Document medical history and social context</p>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
+      <div className="bg-slate-50/50 flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
         <div className="max-w-6xl mx-auto space-y-6 pb-20">
-          <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Back" />
-            <SubmitButton onClick={handleSubmit} buttonText="Continue" />
-          </div>
           <div className="grid grid-cols-1 gap-6">
             <Card className="border-slate-200 shadow-sm h-fit pt-4">
               <CardHeader className="pb-2">
@@ -287,7 +282,7 @@ const HistoryForm = () => {
 
         </div>
       </div>
-    </div>
+    </FormShell >
   )
 }
 export default HistoryForm

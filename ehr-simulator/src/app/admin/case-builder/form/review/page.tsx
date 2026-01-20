@@ -2,7 +2,7 @@
 import { useFormContext } from "@/context/FormContext"
 import { useRouter } from "next/navigation"
 import { ClipboardCheck } from "lucide-react"
-import { FormShell } from "../../components/tableFormShell"
+import { FormShell } from "../../components/formShell"
 
 const FormReview = () => {
   const {
