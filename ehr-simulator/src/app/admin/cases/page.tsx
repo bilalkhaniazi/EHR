@@ -1,11 +1,10 @@
 "use client"
+// import { getAllSimCases } from "@/actions/cases";
 
 import * as React from "react";
 import { useEffect } from "react";
 import CaseListItem from "./CaseListItem";
-// import { getAllSimCases } from "@/actions/cases";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import CreateCaseButton from "../components/CreateCaseButton";
 
 type SimCase = {
   id: string;
@@ -38,9 +37,7 @@ export default function CasesPage() {
     <div className="pl-2">
       <h1 className="container mx-auto pt-10 text-4xl font-bold">CASES</h1>
       {cases.map((simCase) => <CaseListItem key={simCase.id} simCase={simCase} />)}
-      <Link href={"/admin/case-builder"} >
-        <Button className="cursor-pointer">Create New Case</Button>
-      </Link>
+      <CreateCaseButton />
     </div>
   );
 }
