@@ -1,16 +1,20 @@
 'use client'
 import { useFormContext } from "@/context/FormContext"
-import SubmitButton from "../../components/submitButton"
-import GoBackButton from "../../components/goBackButton"
 import { useRouter } from "next/navigation"
 import { ClipboardCheck } from "lucide-react"
+import { FormShell } from "../../components/tableFormShell"
 
 const FormReview = () => {
   const {
     demographicData,
     historyData,
     noteData,
-    orderData
+    orderData,
+    labData,
+    chartingData,
+    ioData,
+    medOrderData,
+    medAdministrationData
   } = useFormContext()
 
   const router = useRouter();
@@ -20,45 +24,59 @@ const FormReview = () => {
   }
 
   const handleSubmit = () => {
-    // push to db
+    // verify, prettify, push to db, etc
     router.push("/admin/case-builder/form/success");
-
   }
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
-      <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow z-10">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <ClipboardCheck className="text-slate-400" />
-            Review Case
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 10 of 9: Review case before submitting.</p>
-        </div>
-      </header>
+    <FormShell
+      title="Review & Submit Case"
+      stepDescription="Step 10 of 9: Review case before submitting"
+      icon={<ClipboardCheck className="text-slate-400" />}
+      onSubmit={handleSubmit}
+      goBack={goBack}
+      continueButtonText="Submit Case"
+      backButtonText="Back"
+      continueButtonTooltip="Proceed to Next Page"
+      backButtonTooltip="Return to Previous Page"
+    >
+      <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
+          <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
+            <div className="flex flex-col gap-2">
 
-      <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
-        <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
-          <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Back" />
-            <SubmitButton onClick={handleSubmit} buttonText="Submit Case" />
+              <h2 className="text-nowrap font-bold mt-4">Demographics Data</h2>
+              <pre>{JSON.stringify(demographicData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">History Data</h2>
+              <pre>{JSON.stringify(historyData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Notes Data</h2>
+              <pre>{JSON.stringify(noteData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Orders Data</h2>
+              <pre>{JSON.stringify(orderData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Lab Data</h2>
+              <pre>{JSON.stringify(labData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Charting Data</h2>
+              <pre>{JSON.stringify(chartingData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Input-Output Data</h2>
+              <pre>{JSON.stringify(ioData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Medication Order Data</h2>
+              <pre>{JSON.stringify(medOrderData, null, 4)}</pre>
+
+              <h2 className="text-nowrap font-bold mt-4">Medication Administration Data</h2>
+              <pre>{JSON.stringify(medAdministrationData, null, 4)}</pre>
+
+            </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <h2 className="text-nowrap font-bold underline mt-2">Demographics Data</h2>
-            <pre>{JSON.stringify(demographicData, null, 4)}</pre>
-
-            <h2 className="text-nowrap font-bold underline mt-2">History Data</h2>
-            <pre>{JSON.stringify(historyData, null, 4)}</pre>
-
-            <h2 className="text-nowrap font-bold underline mt-2">Notes Data</h2>
-            <pre>{JSON.stringify(noteData, null, 4)}</pre>
-
-            <h2 className="text-nowrap font-bold underline mt-2">Orders Data</h2>
-            <pre>{JSON.stringify(orderData, null, 4)}</pre>
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </FormShell>
   )
 }
 
