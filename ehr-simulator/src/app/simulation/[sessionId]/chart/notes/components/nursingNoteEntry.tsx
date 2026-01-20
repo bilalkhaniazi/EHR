@@ -29,7 +29,6 @@ interface NursingNoteEntryProps {
 
 const NursingNoteEntry = ({ submitNote }: NursingNoteEntryProps) => {
   const [newNote, setNewNote] = useState<string>(templateStudentNote);
-
   const [isOpen, setIsOpen] = useState(false);
 
   const handleNoteChange = (noteContent: string) => {

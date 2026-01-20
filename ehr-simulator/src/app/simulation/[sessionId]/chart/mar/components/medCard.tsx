@@ -3,6 +3,7 @@ import type { MedCardColumns } from "../page.jsx";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData.jsx"
 import { Checkbox } from "@/components/ui/checkbox";
 import { findLastAdminTime, renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
+// import { useState } from "react";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -11,13 +12,14 @@ interface MedCardProps {
   columns: MedCardColumns[];
   sessionStart: Date;
   isSelected: boolean;
-  onSelectionChange: (payload: { id: string, checked: boolean }) => void;
+  onSelectionChange: (order: MedicationOrder, checked: boolean) => void;
 }
 
 const MedCard = ({ medication, administrations, order, columns, sessionStart, onSelectionChange, isSelected }: MedCardProps) => {
+  // const [colOffset, setColOffset] = useState();
 
   const handleCheckboxChange = (checked: boolean) => {
-    onSelectionChange({ id: order.id, checked });
+    onSelectionChange(order, checked);
   };
 
   // using columns passed from main mar component, add relevant administration data (given, held, refused...)
@@ -25,7 +27,7 @@ const MedCard = ({ medication, administrations, order, columns, sessionStart, on
     const administrationsInColumn = administrations.filter(admin => {
       const adminTime = addMinutes(sessionStart || 0, admin.adminTimeMinuteOffset);
 
-      // 2. Check if that time falls inside this column
+      // Check if that time falls inside this column
       return isWithinInterval(adminTime, {
         start: col.startTime,
         end: col.endTime

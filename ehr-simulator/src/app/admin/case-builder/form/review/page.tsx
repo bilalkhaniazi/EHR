@@ -40,7 +40,7 @@ const FormReview = () => {
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <GoBackButton onClick={goBack} buttonText="Back" />
             <SubmitButton onClick={handleSubmit} buttonText="Submit Case" />
           </div>
           <div className="flex flex-col gap-4">

@@ -61,7 +61,7 @@ export default function DemographicsForm() {
       <div className="flex-1 p-6 md:px-12 lg:px-24">
         <div id="demo-form" className="max-w-6xl mx-auto space-y-6 pb-20">
           <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <GoBackButton onClick={goBack} buttonText="Back" />
             <SubmitButton onClick={handleSubmit} buttonText="Continue" />
           </div>
           <Card className="border-slate-200 shadow-sm pt-4">

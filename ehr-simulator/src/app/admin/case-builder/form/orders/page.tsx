@@ -124,7 +124,7 @@ export default function OrdersForm() {
       <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <GoBackButton onClick={goBack} buttonText="Back" />
             <SubmitButton onClick={handleSubmit} buttonText="Continue" />
           </div>
 
@@ -305,18 +305,18 @@ export default function OrdersForm() {
                               </p>
                             </div>
 
-                            <div className="md:col-span-1 p-2 flex items-center md:border-r">
-                              <div className="flex items-center gap-2">
+                            <div className="md:col-span-2 p-2 flex items-center justify-center md:border-r">
+                              <div className="flex items-center  gap-2">
                                 <span className="text-xs font-medium text-slate-700">{order.status}</span>
                                 <span className={`w-2 h-2 rounded-full ring-2 ring-white shadow-sm ${order.status === 'Active' ? 'bg-green-500' : 'bg-amber-400'}`} />
                               </div>
                             </div>
 
-                            <div className="md:col-span-3 p-2 flex items-center justify-between bg-slate-50/50">
+                            <div className="md:col-span-2 p-2 flex items-center justify-between bg-slate-50/50">
                               {
 
                               }
-                              <span className="text-xs text-slate-500 font-medium truncate" title={order.orderingProvider}>
+                              <span className="text-xs text-slate-500 font-medium text-wrap" title={order.orderingProvider}>
                                 {order.orderingProvider}
                               </span>
                               <button

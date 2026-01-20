@@ -63,7 +63,7 @@ export default function NoteDisplay({ note, startTime }: NoteDisplayProps) {
                 <User size={12} className="text-slate-400" />
                 {note.author}
               </span>
-              <span className="hidden sm:inline text-slate-300">•</span>
+              <span className="hidden sm:inline font-bold text-slate-500">•</span>
               <span className="font-medium text-slate-600">{note.specialty}</span>
             </div>
           </div>

@@ -191,7 +191,7 @@ export default function MedicationAdministrationsForm() {
           <p className="text-xs text-slate-500 mt-1">Step 9 of 9: Document past administrations and Due times</p>
         </div>
         <div className="flex gap-2 fixed top-6 right-8 z-10">
-          <GoBackButton onClick={goBack} buttonText="Go Back" />
+          <GoBackButton onClick={goBack} buttonText="Back" />
           <SubmitButton onClick={handleSubmit} buttonText="Continue" />
         </div>
       </header>
