@@ -34,7 +34,7 @@ const patientMRN = 'pt12345678'
 
 const filterOptions = ["Scheduled", "Continuous", "PRN"]
 export default function Mar() {
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([]);
   const [administrations, setAdministrations] = useState<MedAdministrationInstance[]>(medAdministrations)
   const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
   const [orderFilter, setOrderFilter] = useState<string>('');
@@ -54,29 +54,32 @@ export default function Mar() {
     // handle patient wristband scans
     if (symbol.slice(0, 2) === 'pt') {
       if (symbol === patientMRN) {
-        setIsScanned(true)
-        return
+        setIsScanned(true);
+        return;
       } else {
         if (!isWrongPtScan) {
-          setIsWrongPtScan(true)
-          return
+          setIsWrongPtScan(true);
+          return;
         }
       }
     }
-    // find all orders that use this medication
-    const newAssociatedOrders = medicationOrders.filter(order => order.medicationId === symbol)
-    const associatedOrderIds = newAssociatedOrders
-      .map(order => order.id)
-      .filter(id => !selectedOrders.includes(id))
 
-    if (associatedOrderIds.length === 0) {
-      toast.info(`Order already scanned or no associated orders found with ${symbol}`)
+    // find all orders that use this medication
+    const associatedOrders = medicationOrders.filter(order => order.medicationId === symbol);
+
+    if (associatedOrders.length === 0) {
+      toast.info(`No associated orders found with ${symbol}`)
       return
     }
 
-    if (newAssociatedOrders.length > 1) {
-      console.warn("more than one order shares this med")
-      setAssociatedOrders(newAssociatedOrders)
+    const existingSelectedOrder = selectedOrders.find(selected =>
+      associatedOrders.some(associated => associated.id === selected.id)
+    );
+
+
+    if (!existingSelectedOrder && associatedOrders.length > 1) {
+      console.warn("More than one order shares this med")
+      setAssociatedOrders(associatedOrders)
       setIsMultiOrderPopoverOpen(true)
       return
     }
@@ -84,34 +87,54 @@ export default function Mar() {
     if (!isPopoverOpen) {
       setIsMedAdminPanelOpen(true)
     }
-    setSelectedOrders(prev => {
-      return [...prev, associatedOrderIds[0]]
-    })
+    const targetOrder = existingSelectedOrder || associatedOrders[0];
 
-    setNewAdministrations(prev => ({
-      ...prev,
-      [associatedOrderIds[0]]: {
-        medicationOrderId: associatedOrderIds[0],
-        status: "Given",
-        administratorId: "currentUser",
-        adminTimeMinuteOffset: 0,
-        administeredDose: 0,
-        visibleInPresim: false, // doesn't matter - this entry will not affect case template
-        notes: '',
-      }
-    }));
+    if (existingSelectedOrder) {
+      setNewAdministrations(prev => {
+        const currentAdmin = prev[targetOrder.id];
+
+        // Guard clause in case state is out of sync
+        if (!currentAdmin) {
+          console.warn('No administration data found.')
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [targetOrder.id]: {
+            ...currentAdmin,
+            administeredDose: currentAdmin.administeredDose + targetOrder.dose
+          }
+        };
+      })
+    } else {
+      setSelectedOrders(prev => [...prev, targetOrder])
+
+      setNewAdministrations(prev => ({
+        ...prev,
+        [targetOrder.id]: {
+          medicationOrderId: targetOrder.id,
+          status: "Given",
+          administratorId: "currentUser",
+          adminTimeMinuteOffset: 0,
+          administeredDose: targetOrder.dose,
+          visibleInPresim: false, // doesn't matter - this entry will not affect case template
+          notes: '',
+        }
+      }));
+    }
   }
 
-  const handleMultiOrderPopoverChoice = (orderId: string) => {
-    setSelectedOrders(prev => [...prev, orderId])
+  const handleMultiOrderPopoverChoice = (order: MedicationOrder) => {
+    setSelectedOrders(prev => [...prev, order])
     setNewAdministrations(prev => ({
       ...prev,
-      [orderId]: {
-        medicationOrderId: orderId,
+      [order.id]: {
+        medicationOrderId: order.id,
         status: "Given",
         administratorId: "currentUser",
         adminTimeMinuteOffset: 0,
-        administeredDose: 0,
+        administeredDose: order.dose,
         visibleInPresim: false, // doesn't matter - this entry will not affect case template
         notes: '',
       }
@@ -119,9 +142,9 @@ export default function Mar() {
 
     setIsMultiOrderPopoverOpen(false)
     if (!isMedAdminPanelOpen) {
-      setIsMedAdminPanelOpen(true)
+      setIsMedAdminPanelOpen(true);
     }
-    setAssociatedOrders([])
+    setAssociatedOrders([]);
   }
 
   const handleMultiOrderPopoverClose = () => {
@@ -132,7 +155,7 @@ export default function Mar() {
 
   const handleRemoveOrder = (orderId: string) => {
     setSelectedOrders(prev => {
-      const newOrders = prev.filter(order => order !== orderId)
+      const newOrders = prev.filter(order => order.id !== orderId)
       return newOrders
     })
     setNewAdministrations(prev => {
@@ -150,29 +173,28 @@ export default function Mar() {
     },
   )
 
-  const handleMedCheckboxChange = (payload: { id: string, checked: boolean }) => {
-    const { id, checked } = payload;
+  const handleMedCheckboxChange = (order: MedicationOrder, checked: boolean) => {
     if (checked) {
-      setSelectedOrders(prev => [...prev, id]);
+      setSelectedOrders(prev => [...prev, order]);
 
       setNewAdministrations(prev => ({
         ...prev,
-        [id]: {
-          medicationOrderId: id,
+        [order.id]: {
+          medicationOrderId: order.id,
           status: "Given",
           administratorId: "currentUser",
           adminTimeMinuteOffset: 0,
-          administeredDose: 0,
+          administeredDose: order.dose,
           visibleInPresim: false // doesn't matter - this entry will not affect case template
         }
       }));
       console.log(selectedOrders)
     } else {
-      setSelectedOrders(prev => prev.filter(medId => medId !== id));
+      setSelectedOrders(prev => prev.filter(existingOrder => existingOrder.id !== order.id));
 
       setNewAdministrations(prev => {
         const copy = { ...prev };
-        delete copy[id];
+        delete copy[order.id];
         return copy;
       });
     }
@@ -296,8 +318,8 @@ export default function Mar() {
     : new Date();
 
   const displayColumns = createColumns(currentSimTime)
-  console.log(medicationOrders.length)
-  console.log(filteredMedOrders.length)
+  console.log(selectedOrders)
+  console.log(newAdministrations)
   return (
     <div className="flex flex-col p-2 pt-0 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
       <div className='flex gap-2 py-2'>
@@ -367,7 +389,6 @@ export default function Mar() {
           newAdministrations={newAdministrations}
           onUpdateAdministration={handleUpdateAdministration}
           onClearAll={handleClearAll}
-          allOrders={medicationOrders}
           medicationLookup={medsById}
           administrationsLookup={groupedAdministrationsByOrder}
           sessionStart={anchorDate}
@@ -391,7 +412,7 @@ export default function Mar() {
           </div>
         )}
         {filteredMedOrders.map((order) => {
-          const isSelected = selectedOrders.includes(order.id);
+          const isSelected = selectedOrders.includes(order);
           const associatedMedication = medsById[order.medicationId]
           const orderSpecifcAdministrations = groupedAdministrationsByOrder[order.id] || [];
 

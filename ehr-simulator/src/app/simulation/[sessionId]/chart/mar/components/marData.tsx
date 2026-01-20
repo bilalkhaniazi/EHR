@@ -988,18 +988,19 @@ export const medicationOrders: MedicationOrder[] = [
   //   instructions: "As needed for nausea.",
   //   orderingProvider: "Dr. Rahul Gupta"
   // },
-  // {
-  //   id: "orderCeftriaxoneIm250",
-  //   medicationId: "medCeftriaxoneIm250",
-  //   unitsOrdered: 1, // 1 Vial
-  //   dose: 250,
-  //   frequency: "Once",
-  //   priority: "STAT",
-  //   status: "active",
-  //   indication: "Bacterial Infection",
-  //   instructions: "Reconstitute with 1.8 mL sterile water and administer IM.",
-  //   orderingProvider: "Dr. Rahul Gupta"
-  // },
+  {
+    id: "orderCeftriaxoneIm250",
+    medicationId: "medCeftriaxoneIm250",
+    unitsOrdered: 1, // 1 Vial
+    dose: 250,
+    frequency: "Once",
+    priority: "STAT",
+    status: "active",
+    indication: "Bacterial Infection",
+    instructions: "Reconstitute with 1.8 mL sterile water and administer IM.",
+    orderingProvider: "Dr. Rahul Gupta",
+    visibleInPresim: true
+  },
   {
     id: "orderEpinephrineIm1mg",
     medicationId: "medEpinephrineIm1mg",
@@ -1040,11 +1041,64 @@ export const medicationOrders: MedicationOrder[] = [
   }
 ]
 
-
 // negative time offset -> occurred in the past
 export const medAdministrations: MedAdministrationInstance[] = [
   {
-    medicationOrderId: "orderMetoprololOral25", // Metoprolol
+    medicationOrderId: "orderAtropinePush",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -150,
+    status: 'Given',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderDopamine400InDex5",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: 60,
+    status: 'Due',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderCefazolin1000",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -120,
+    status: 'Missed',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderDextrose5inNS45",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -120,
+    status: 'Given',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderCefazolin1000",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: 60,
+    status: 'Due',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderCeftriaxoneIm250",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -30,
+    status: 'Given',
+    notes: "",
+    administeredDose: 250,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderMetoprololOral25",
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -200,
     status: 'Given',
@@ -1128,9 +1182,18 @@ export const medAdministrations: MedAdministrationInstance[] = [
     medicationOrderId: "orderOndansetronIv4",
     administratorId: "RN Jones",
     adminTimeMinuteOffset: -60,
-    status: 'Refused',
+    status: 'Held',
     notes: "-121 zofran dose.",
-    administeredDose: 100,
+    administeredDose: 0,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderOndansetronIv2",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -10,
+    status: 'Given',
+    notes: "",
+    administeredDose: 2,
     visibleInPresim: true
   },
 ]

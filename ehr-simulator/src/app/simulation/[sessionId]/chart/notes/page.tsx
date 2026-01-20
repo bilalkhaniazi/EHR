@@ -118,7 +118,7 @@ const NotePage = () => {
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="text-xs w-fit h-6 bg-white shadow-sm">
                 Specialty
-                <Filter className="ml-1 h-2 w-0" />
+                <Filter className={`${filteredSpecialties.length > 0 ? 'fill-blue-300 stroke-blue-500' : ''}`} />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-fit p-4 border rounded-lg shadow">

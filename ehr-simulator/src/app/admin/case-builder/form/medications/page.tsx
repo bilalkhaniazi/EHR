@@ -122,7 +122,7 @@ export default function MedicationOrderForm() {
         </div>
 
         <div className="flex gap-2 fixed top-6 right-8 z-10">
-          <GoBackButton onClick={goBack} buttonText="Go Back" />
+          <GoBackButton onClick={goBack} buttonText="Back" />
           <SubmitButton onClick={handleSubmit} buttonText="Continue" />
         </div>
       </header>

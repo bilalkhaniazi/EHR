@@ -176,7 +176,7 @@ const HistoryForm = () => {
       <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
         <div className="max-w-6xl mx-auto space-y-6 pb-20">
           <div className="flex gap-2 fixed top-6 right-8 z-10">
-            <GoBackButton onClick={goBack} buttonText="Go Back" />
+            <GoBackButton onClick={goBack} buttonText="Back" />
             <SubmitButton onClick={handleSubmit} buttonText="Continue" />
           </div>
           <div className="grid grid-cols-1 gap-6">

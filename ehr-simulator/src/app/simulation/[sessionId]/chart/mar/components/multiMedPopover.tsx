@@ -19,7 +19,7 @@ import { renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
 interface MultiMedPopoverProps {
   isOpen: boolean;
   associatedOrders: MedicationOrder[];
-  handleSelection: (orderId: string) => void;
+  handleSelection: (order: MedicationOrder) => void;
   handleClose: (open: boolean) => void;
   medication: AllMedicationTypes;
 }
@@ -53,7 +53,7 @@ export function MultiMedPopover({
           {associatedOrders.map((order) => (
             <button
               key={order.id}
-              onClick={() => handleSelection(order.id)}
+              onClick={() => handleSelection(order)}
               className="group relative flex flex-col items-start w-full h-fit px-4 pt-2 pb-3 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-500 hover:ring-1 hover:ring-blue-500 hover:shadow-md transition-all text-left"
             >
               <div className="flex justify-between w-full items-start mb-2">

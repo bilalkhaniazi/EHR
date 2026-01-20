@@ -18,6 +18,7 @@ import {
   ScanBarcode,
   ExternalLink,
   Pill,
+  PillBottle,
 } from "lucide-react"
 import { useState } from "react"
 import { type AllMedicationTypes, type MedAdministrationInstance, type MedicationOrder } from "./marData";
@@ -27,8 +28,7 @@ import type { NewAdministrationData } from "../page";
 import { Badge } from "@/components/ui/badge"
 
 interface MedAdministrationProps {
-  selectedMedIds: string[];
-  allOrders: MedicationOrder[];
+  selectedMedIds: MedicationOrder[];
   administrationsLookup: { [key: string]: MedAdministrationInstance[] };
   medicationLookup: { [key: string]: AllMedicationTypes };
   sessionStart: Date;
@@ -65,7 +65,6 @@ const PatientStatusBadge = ({ isScanned }: { isScanned: boolean }) => {
 
 const MedAdministrationPanel = ({
   selectedMedIds,
-  allOrders,
   medicationLookup,
   administrationsLookup,
   sessionStart,
@@ -82,12 +81,6 @@ const MedAdministrationPanel = ({
   const [isLoading] = useState(false)
 
   const hasSelections = selectedMedIds.length > 0;
-
-  const selectedMedOrders = allOrders.filter(order => {
-    if (selectedMedIds.includes(order.id)) {
-      return order
-    }
-  })
 
   const handleFakeScan = (scan: boolean) => {
     onPtScan(scan)
@@ -132,7 +125,7 @@ const MedAdministrationPanel = ({
             <PencilLine className="w-4 h-4" />
             <span className="">Document</span>
             {selectedMedIds.length > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-blue-400/80 text-white border-none px-1.5 h-5 min-w-5">
+              <Badge variant="secondary" className="ml-1 bg-blue-400/85 text-white font-medium border-none px-1.5 h-5 min-w-5">
                 {selectedMedIds.length}
               </Badge>
             )}
@@ -180,9 +173,14 @@ const MedAdministrationPanel = ({
               </div>
             </div>
           )} */}
-
+          {selectedMedIds.length === 0 && (
+            <div className="h-48 mt-4 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400">
+              <PillBottle className="w-8 h-8 mb-2 opacity-50" />
+              <p className="text-sm">No medications scanned yet.</p>
+            </div>
+          )}
           <div className="grid gap-6 pb-10">
-            {selectedMedOrders.map(order => {
+            {selectedMedIds.map(order => {
               const currentAdminData = newAdministrations[order.id] || { status: "Given", administeredDose: 0 };
 
               return (

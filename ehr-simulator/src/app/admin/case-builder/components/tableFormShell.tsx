@@ -21,7 +21,7 @@ export function TableFormShell({ title, stepDescription, icon, onSubmit, goBack,
           <p className="text-xs text-slate-500 mt-1">{stepDescription}</p>
         </div>
         <div className="flex gap-2 fixed top-6 right-8 z-10">
-          <GoBackButton onClick={goBack} buttonText="Go Back" />
+          <GoBackButton onClick={goBack} buttonText="Back" />
           <SubmitButton onClick={onSubmit} buttonText="Continue" />
         </div>
       </header>
