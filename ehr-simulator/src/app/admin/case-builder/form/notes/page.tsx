@@ -117,7 +117,7 @@ export default function NotesForm() {
         <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
           <div className="lg:col-span-7 space-y-6">
             <Card className="border-slate-200 shadow-sm pt-0">
-              <CardHeader className="bg-slate-100/70 border-b border-slate-200 pt-4 !pb-2 rounded-t-xl">
+              <CardHeader className="bg-slate-50 border-b border-slate-200 pt-4 !pb-2 rounded-t-xl">
                 <CardTitle className="text-lg flex items-center justify-between">
                   <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" /> New Entry</span>
                 </CardTitle>

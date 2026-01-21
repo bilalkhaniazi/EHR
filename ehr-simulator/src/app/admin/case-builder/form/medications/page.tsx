@@ -34,7 +34,7 @@ export default function MedicationOrderForm() {
   const { onDataChange, medOrderData } = useFormContext()
   const [selectedMed, setSelectedMed] = useState('')
   const [selectedMeds, setSelectedMeds] = useState<AllMedicationTypes[]>(medOrderData.selectedMeds)
-  const [medOrders, setOrders] = useState<MedicationOrder[]>(medOrderData.createdOrders)
+  const [medOrders, setMedOrders] = useState<MedicationOrder[]>(medOrderData.createdOrders)
 
   const handleAddMedication = (newMedId: string) => {
     setSelectedMed(newMedId)
@@ -42,7 +42,7 @@ export default function MedicationOrderForm() {
       const newMedObject = allMedications.find(med => med.id === newMedId)
       if (newMedObject) {
         setSelectedMeds(prev => [newMedObject, ...prev])
-        setOrders(prev => {
+        setMedOrders(prev => {
           const newOrder = {
             id: crypto.randomUUID(),
             medicationId: newMedObject.id,
@@ -67,11 +67,11 @@ export default function MedicationOrderForm() {
 
   const handleRemoveMedication = (index: number) => {
     setSelectedMeds(prev => prev.filter((_, i) => i !== index))
-    setOrders(prev => prev.filter((_, i) => i !== index))
+    setMedOrders(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleOrderChange = (index: number, field: keyof MedicationOrder, value: string | boolean) => {
-    setOrders(currentOrders =>
+    setMedOrders(currentOrders =>
       currentOrders.map((order, i) => {
         if (i === index) {
           if (typeof value === 'string' && (field === 'dose' || field === 'infusionRate')) {
@@ -105,7 +105,6 @@ export default function MedicationOrderForm() {
       createdOrders: medOrders,
       selectedMeds: selectedMeds
     });
-    console.log(medOrders);
     router.push('/admin/case-builder/form/medication-administrations');
   }
   console.log(medOrders)
@@ -125,11 +124,11 @@ export default function MedicationOrderForm() {
         <div className="flex-1 p-6 md:px-12 lg:px-24">
           <div className="max-w-4xl mx-auto space-y-6 pb-20">
             <Card className="p-4">
-              <Label className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                 <Search className="w-4 h-4 text-blue-600" />
                 Search Formulary
               </Label>
-              <div className="max-w-2xl">
+              <div className="w-fit">
                 <Combobox
                   value={selectedMed}
                   onValueChange={handleAddMedication}
@@ -147,7 +146,7 @@ export default function MedicationOrderForm() {
                 <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                   Active Orders
                 </h2>
-                <span className="text-xs font-medium bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">
+                <span className="text-xs font-medium bg-slate-200 text-slate-800 px-2.5 py-0.5 rounded-full">
                   {selectedMeds.length} Added
                 </span>
               </div>
@@ -160,7 +159,7 @@ export default function MedicationOrderForm() {
                         medication={med}
                         handleMedicationRemoval={handleRemoveMedication}
                         index={index}
-                        orderData={medOrders[index]}
+                        order={medOrders[index]}
                         onOrderChange={handleOrderChange}
                       />
                     </div>

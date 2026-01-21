@@ -75,7 +75,7 @@ export default function DemographicsForm() {
             Confirm Cancellation
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to discard this case? Your changes won't be saved.
+            Are you sure you want to discard this case? Your changes won`&apos;`t be saved.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

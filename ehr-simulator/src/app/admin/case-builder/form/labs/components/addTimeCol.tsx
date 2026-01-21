@@ -51,7 +51,7 @@ export function AddTableColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
             variant='outline'
           >
             <Clock className="mr-1" />
-            Add Past Time Column
+            Add Time Column
           </Button>
         </PopoverTrigger>
         <PopoverContent className="z-100 p-3 flex flex-col gap-4 items-center bg-white shadow shadow-black/25 rounded-xl" sideOffset={4}>
