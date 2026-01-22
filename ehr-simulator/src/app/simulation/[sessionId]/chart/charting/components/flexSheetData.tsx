@@ -1141,7 +1141,7 @@ export const flexSheetTemplate: FlexSheetData[] = [
   },
   {
     id: "painadBreathingSelect",
-    field: "Breathing (Independent of Vocalization)",
+    field: "Breathing",
     componentType: "assessmentselect",
     chartingOptions: [
       { subsetId: "0", label: "0 - Normal" },

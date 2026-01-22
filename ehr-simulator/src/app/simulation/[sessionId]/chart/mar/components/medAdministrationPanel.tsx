@@ -13,8 +13,6 @@ import {
 import { Button } from "@/components/ui/button"
 import {
   PencilLine,
-  UserCheck,
-  UserX,
   ScanBarcode,
   ExternalLink,
   Pill,
@@ -26,6 +24,7 @@ import MedAdminCard from "./medAdminCard";
 import { toast } from "sonner";
 import type { NewAdministrationData } from "../page";
 import { Badge } from "@/components/ui/badge"
+import { PatientStatusBadge } from "./marHelpers"
 
 interface MedAdministrationProps {
   selectedMedIds: MedicationOrder[];
@@ -44,24 +43,7 @@ interface MedAdministrationProps {
   elapsedMinutes: number;
 }
 
-// Helper for status badge
-const PatientStatusBadge = ({ isScanned }: { isScanned: boolean }) => {
-  if (isScanned) {
-    return (
 
-      <Badge className="text-emerald-700 h-6  border-emerald-700 bg-emerald-50 rounded-xl gap-2 text-sm font-normal">
-        <UserCheck className="!size-4" />
-        Patient Scanned
-      </Badge>
-    )
-  }
-  return (
-    <Badge className="text-red-700 h-6 border-red-700 bg-red-50 rounded-xl gap-2 text-sm font-normal">
-      <UserX className="!size-4" />
-      Patient Not Scanned
-    </Badge>
-  )
-}
 
 const MedAdministrationPanel = ({
   selectedMedIds,
@@ -114,24 +96,21 @@ const MedAdministrationPanel = ({
   return (
     <Dialog open={isOpen} onOpenChange={handlePopoverClose}>
 
-      <div className="flex w-full justify-end items-center h-full px-4 gap-12">
-        <PatientStatusBadge isScanned={isScanned} />
-        <DialogTrigger asChild>
-          <Button
-            onClick={() => handlePopoverClose(true)}
-            className="h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm gap-2 px-4"
-            disabled={!hasSelections}
-          >
-            <PencilLine className="w-4 h-4" />
-            <span className="">Document</span>
-            {selectedMedIds.length > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-blue-400/85 text-white font-medium border-none px-1.5 h-5 min-w-5">
-                {selectedMedIds.length}
-              </Badge>
-            )}
-          </Button>
-        </DialogTrigger>
-      </div>
+      <DialogTrigger asChild>
+        <Button
+          onClick={() => handlePopoverClose(true)}
+          className="h-9 bg-blue-600 hover:bg-blue-700 text-white shadow-sm gap-2 px-4"
+          disabled={!hasSelections}
+        >
+          <PencilLine className="w-4 h-4" />
+          <span className="">Document</span>
+          {selectedMedIds.length > 0 && (
+            <Badge variant="secondary" className="ml-1 bg-blue-400/85 text-white font-medium border-none px-1.5 h-5 min-w-5">
+              {selectedMedIds.length}
+            </Badge>
+          )}
+        </Button>
+      </DialogTrigger>
 
       <DialogContent className="flex flex-col md:max-w-4xl xl:max-w-6xl max-w-6xl h-[90vh] p-0 gap-0 overflow-hidden bg-white border-slate-200">
 
@@ -161,18 +140,6 @@ const MedAdministrationPanel = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {/* {!isScanned && (
-            <div className="mb-6 bg-red-50 border border-red-100 rounded-lg p-2 flex items-start gap-3">
-              <AlertCircle className="text-red-600 w-5 h-5 mt-0.5 flex-shrink-0 animate-pulse" />
-              <div>
-                <h4 className="text-sm font-bold text-red-800">Safety Warning</h4>
-                <p className="text-sm text-red-700 mt-1">
-                  Patient identity has not been verified via barcode scan.
-                  Please scan the patient wristband to complete 5 Rights of Medication Administration.
-                </p>
-              </div>
-            </div>
-          )} */}
           {selectedMedIds.length === 0 && (
             <div className="h-48 mt-4 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400">
               <PillBottle className="w-8 h-8 mb-2 opacity-50" />
@@ -192,7 +159,6 @@ const MedAdministrationPanel = ({
                   sessionStart={sessionStart}
                   elapsedMinutes={elapsedMinutes}
                   onOrderRemove={onOrderRemove}
-
                   onStatusChange={(value) => {
                     onUpdateAdministration(order.id, "status", value);
                   }}

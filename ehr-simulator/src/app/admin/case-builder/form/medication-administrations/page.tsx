@@ -9,7 +9,7 @@ import {
   Syringe,
   ChevronDown,
 } from "lucide-react"
-import { addHours, addMinutes, format, startOfHour } from "date-fns"
+import { addMinutes } from "date-fns"
 import { useRouter } from "next/navigation"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,11 +26,12 @@ import {
   MedAdministrationInstance,
   AdministrationStatus,
 } from "@/app/simulation/[sessionId]/chart/mar/components/marData"
-import type { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page"
+import { createColumns } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers"
 import MedAdministrationFormCard from "./components/medAdministrationFormCard"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useFormContext } from "@/context/FormContext"
 import { FormShell } from "../../components/formShell"
+import ColumnShiftControl from "@/app/simulation/[sessionId]/chart/mar/components/columnShiftControl"
 
 function getComboboxData(orders: MedicationOrder[]) {
   return orders.map(order => {
@@ -48,26 +49,6 @@ function getComboboxData(orders: MedicationOrder[]) {
     }
   })
 }
-
-export const createColumns = (currentTime: Date, offset = 2) => {
-  const columnAnchor = startOfHour(currentTime)
-  const columnCount = 6
-  const displayColumns = [] as MedCardColumns[]
-
-  for (let i = 0; i < columnCount; i++) {
-    // two columns in the future, one at current hours, three in the past
-    const colStart = addHours(columnAnchor, offset + i * -1);
-    const colEnd = addMinutes(addHours(colStart, 1), -1);
-
-    displayColumns.unshift({
-      startTime: colStart,
-      endTime: colEnd,
-      colHeader: format(colStart, 'HHmm')
-    })
-  }
-  return displayColumns
-}
-
 
 export default function MedicationAdministrationsForm() {
   const { onDataChange, medAdministrationData, medOrderData } = useFormContext()
@@ -91,7 +72,7 @@ export default function MedicationAdministrationsForm() {
   const [startTime] = useState(new Date())
   const [anchorDate] = useState<Date>(new Date());
   const [elapsedMinutes] = useState(0);
-
+  const [timeColumnOffset, setTimeColumnOffset] = useState(0);
 
   const router = useRouter()
 
@@ -168,14 +149,16 @@ export default function MedicationAdministrationsForm() {
 
     router.push('/admin/case-builder/form/review')
   }
-
+  const handleColumnShift = (offset: number) => {
+    setTimeColumnOffset(prev => prev + offset);
+  }
   const handleDoseChange = (val: string) => {
     if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
       setDose(Number(val))
     }
   }
   const currentSimTime = addMinutes(anchorDate, elapsedMinutes);
-  const displayColumns = createColumns(currentSimTime);
+  const displayColumns = createColumns(currentSimTime, timeColumnOffset);
 
   return (
     <FormShell
@@ -216,12 +199,6 @@ export default function MedicationAdministrationsForm() {
                         <Label className="flex items-center gap-2 text-slate-700">
                           <Clock className="w-4 h-4" /> Time Offset
                         </Label>
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor="past-mode" className={`text-xs text-slate-500`}>
-                            {/* {isInPast ? "In the past" : "In the future"} */}
-                          </Label>
-                          {/* <Switch checked={isInPast} onCheckedChange={setIsInPast} id="past-mode" /> */}
-                        </div>
                       </div>
                       <div className="flex gap-2">
                         <div className="flex-1">
@@ -295,11 +272,11 @@ export default function MedicationAdministrationsForm() {
                     <div className="flex items-center space-x-2 border bg-white rounded-md w-fit p-2">
                       <Checkbox
                         id='presim'
-                        checked={visibleInPresim}
-                        onCheckedChange={(checked) => setVisibleInPresim(!!checked)}
+                        checked={!visibleInPresim}
+                        onCheckedChange={(checked) => setVisibleInPresim(!checked)}
                         className="bg-white data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
                       />
-                      <Label>Included in Pre-Sim?</Label>
+                      <Label>Exclude from Pre-Sim</Label>
                     </div>
                   </div>
                 </div>
@@ -322,6 +299,7 @@ export default function MedicationAdministrationsForm() {
                 <h3 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
                   <History className="w-5 h-5" /> Recorded Administrations
                 </h3>
+                <ColumnShiftControl columns={displayColumns} onColumnShift={handleColumnShift} />
                 <Badge variant="secondary">{medAdministrations.length} Records</Badge>
               </div>
 
@@ -347,6 +325,7 @@ export default function MedicationAdministrationsForm() {
                         columns={displayColumns}
                         administrations={linkedAdmins}
                         sessionStartTime={startTime.getTime()}
+                        isHighlightableColumn={timeColumnOffset === 0}
                         onDeleteAdministration={handleDeleteAdministration}
                       />
                     </div>

@@ -1,22 +1,30 @@
 import { addMinutes, format, isWithinInterval } from "date-fns";
-import type { MedCardColumns } from "../page.jsx";
+import type { MedCardColumn } from "../components/marHelpers";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData.jsx"
 import { Checkbox } from "@/components/ui/checkbox";
 import { findLastAdminTime, renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
-// import { useState } from "react";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
-  columns: MedCardColumns[];
+  columns: MedCardColumn[];
   sessionStart: Date;
   isSelected: boolean;
   onSelectionChange: (order: MedicationOrder, checked: boolean) => void;
+  isHighlightableColumn: boolean;
 }
 
-const MedCard = ({ medication, administrations, order, columns, sessionStart, onSelectionChange, isSelected }: MedCardProps) => {
-  // const [colOffset, setColOffset] = useState();
+const MedCard = ({
+  medication,
+  administrations,
+  order,
+  columns,
+  sessionStart,
+  onSelectionChange,
+  isSelected,
+  isHighlightableColumn
+}: MedCardProps) => {
 
   const handleCheckboxChange = (checked: boolean) => {
     onSelectionChange(order, checked);
@@ -73,8 +81,8 @@ const MedCard = ({ medication, administrations, order, columns, sessionStart, on
           const isCurrentHour = colIndex === 3;
 
           return (
-            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour ? 'bg-blue-50/30' : ''}`}>
-              <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
+            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour && isHighlightableColumn ? 'bg-blue-50/30' : ''}`}>
+              <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
                 {col.colHeader}
               </div>
 
@@ -91,7 +99,7 @@ const MedCard = ({ medication, administrations, order, columns, sessionStart, on
 
                   return (
                     <div key={`${admin.id}-${index}`} className={`w-fit text-center p-1 rounded border text-xs ${statusStyle}`}>
-                      <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
+                      <div className="font-bold font-mono">{format(adminTime, 'HHmm')}</div>
                       <div className="text-xs">{admin.status}</div>
                     </div>
                   )

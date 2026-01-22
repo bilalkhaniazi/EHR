@@ -1,6 +1,6 @@
 import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
-import { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
+import { MedCardColumn } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { Check, Trash2 } from "lucide-react";
@@ -9,12 +9,21 @@ interface MedCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
-  columns: MedCardColumns[];
+  columns: MedCardColumn[];
   sessionStartTime: number;
+  isHighlightableColumn: boolean;
   onDeleteAdministration: (adminId: string) => void;
 }
 
-export default function MedAdministrationFormCard({ medication, administrations, order, columns, sessionStartTime, onDeleteAdministration }: MedCardProps) {
+export default function MedAdministrationFormCard({
+  medication,
+  administrations,
+  order,
+  columns,
+  sessionStartTime,
+  isHighlightableColumn,
+  onDeleteAdministration
+}: MedCardProps) {
   // Calculate columns logic
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
@@ -44,7 +53,7 @@ export default function MedAdministrationFormCard({ medication, administrations,
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
       {/* Left Info Panel */}
-      <div className="px-4 py-3 md:w-80 lg:w-110 2xl:w-140  border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/30 flex flex-col justify-between">
+      <div className="px-4 py-3 md:w-80 lg:w-90 2xl:w-140  border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/30 flex flex-col justify-between">
         <div>
           <div className="flex items-start justify-between mb-2">
             <h4 className="font-bold text-slate-900 leading-tight">
@@ -72,8 +81,8 @@ export default function MedAdministrationFormCard({ medication, administrations,
           const isCurrentHour = colIndex === 3;
 
           return (
-            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour ? 'bg-blue-50/30' : ''}`}>
-              <div className={`text-xs text-center py-1 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
+            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour && isHighlightableColumn ? 'bg-blue-50/30' : ''}`}>
+              <div className={`text-xs text-center py-1 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
                 {col.colHeader}
               </div>
 

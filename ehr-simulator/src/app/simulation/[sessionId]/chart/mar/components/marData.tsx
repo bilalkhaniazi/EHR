@@ -1064,8 +1064,26 @@ export const medAdministrations: MedAdministrationInstance[] = [
   {
     medicationOrderId: "orderCefazolin1000",
     administratorId: "RN Smith",
+    adminTimeMinuteOffset: -480,
+    status: 'Held',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderCefazolin1000",
+    administratorId: "RN Smith",
     adminTimeMinuteOffset: -120,
     status: 'Missed',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderCefazolin1000",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: 420,
+    status: 'Due',
     notes: "",
     administeredDose: 1000,
     visibleInPresim: true
@@ -1074,6 +1092,24 @@ export const medAdministrations: MedAdministrationInstance[] = [
     medicationOrderId: "orderDextrose5inNS45",
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -120,
+    status: 'Given',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderDextrose5inNS45",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: 361,
+    status: 'Due',
+    notes: "",
+    administeredDose: 1000,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderDextrose5inNS45",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -420,
     status: 'Given',
     notes: "",
     administeredDose: 1000,
@@ -1092,6 +1128,15 @@ export const medAdministrations: MedAdministrationInstance[] = [
     medicationOrderId: "orderCeftriaxoneIm250",
     administratorId: "RN Smith",
     adminTimeMinuteOffset: -30,
+    status: 'Given',
+    notes: "",
+    administeredDose: 250,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderCeftriaxoneIm250",
+    administratorId: "RN Smith",
+    adminTimeMinuteOffset: -360,
     status: 'Given',
     notes: "",
     administeredDose: 250,
@@ -1188,9 +1233,36 @@ export const medAdministrations: MedAdministrationInstance[] = [
     visibleInPresim: true
   },
   {
+    medicationOrderId: "orderOndansetronIv4",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: 240,
+    status: 'Due',
+    notes: "-121 zofran dose.",
+    administeredDose: 0,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderOndansetronIv4",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -260,
+    status: 'Refused',
+    notes: "-121 zofran dose.",
+    administeredDose: 0,
+    visibleInPresim: true
+  },
+  {
     medicationOrderId: "orderOndansetronIv2",
     administratorId: "RN Jones",
     adminTimeMinuteOffset: -10,
+    status: 'Given',
+    notes: "",
+    administeredDose: 2,
+    visibleInPresim: true
+  },
+  {
+    medicationOrderId: "orderOndansetronIv2",
+    administratorId: "RN Jones",
+    adminTimeMinuteOffset: -530,
     status: 'Given',
     notes: "",
     administeredDose: 2,

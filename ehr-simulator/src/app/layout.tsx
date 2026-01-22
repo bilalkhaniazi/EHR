@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-// import { SidebarProvider } from "@/components/ui/sidebar";
 import { UserProvider } from "@/context/UserContext";
-// import { AppSidebar } from "@/components/app-sidebar";
+import "./globals.css";
+import { Toaster } from "sonner";
+import { Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
-// Font
-import { Inter } from "next/font/google";
-import { Toaster } from "sonner";
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"]
-})
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-roboto-mono",
+});
 
 export const metadata: Metadata = {
   title: "GVSU EHR Simulator",
@@ -23,16 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable}`}>
+    <html lang="en" className={robotoMono.variable}>
       <body>
         <UserProvider>
-          {/* <SidebarProvider> */}
-          {/* <AppSidebar /> */}
           <Toaster position="top-right" />
           <main className="w-full">
             {children}
           </main>
-          {/* </SidebarProvider> */}
         </UserProvider>
       </body>
     </html>

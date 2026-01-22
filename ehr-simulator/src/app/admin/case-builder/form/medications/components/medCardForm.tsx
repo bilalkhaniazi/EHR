@@ -42,7 +42,6 @@ const MedCardForm = ({
   onOrderChange
 }: MedAdminCardProps) => {
 
-
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
