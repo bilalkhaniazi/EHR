@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { renderMedTitleRow, renderMedCardDetails, isSlidingScaleInsulin } from "./marHelpers";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 
 interface MedAdminCardProps {
   medication: AllMedicationTypes;
@@ -74,6 +74,7 @@ const MedAdminCard = ({
 
   const threePrevAdministrations = getPreviousAdministrations(administrations, 3);
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
+  const isOverdose = currentDose > order.dose;
 
   return (
     <div className="relative grid grid-cols-2 gap-6 border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 shadow">
@@ -166,18 +167,25 @@ const MedAdminCard = ({
             {medication.route}
           </p>
         </div>
-        <div className="w-full space-y-1">
+        <div className={`w-full space-y-1 `}>
           <Label>Dose</Label>
-          <div className="flex items-end">
+          <div className="flex group items-end h-9">
             <Input
               onChange={(e) => handleDoseChange(e)}
               value={currentDose}
-              className="text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-200"
+              className={`text-sm w-16 border px-3 py-2 rounded-r-none shadow-xs ${isOverdose ? "ring-2 ring-red-700 focus-visible:ring-red-700 focus-visible:ring-2" : "focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:border-gray-200"} `}
             />
-            <div className="h-9 bg-gray-50 border border-l-0 rounded-r-lg border-gray-200 p-2 shadow-xs">
+            <div className={`h-9 bg-gray-50  border-l-0 rounded-r-lg p-2 shadow-xs ${isOverdose ? "outline-2 outline-red-700 group-focus-within:outline-2 bg-red-50" : "border border-gray-200 group-focus-within:outline-2"}`}>
               <p className="text-sm">{medication.strengthUnit}</p>
             </div>
           </div>
+          {currentDose > order.dose &&
+            <div className="flex gap-2 pt-1">
+              <AlertCircle className="text-red-700 size-4"></AlertCircle>
+              <p className="text-red-700 text-xs ">Dose greater than ordered</p>
+            </div>
+          }
+
         </div>
         {medication.route === "IV" && order.infusionRate &&
           <div className="w-full space-y-1">

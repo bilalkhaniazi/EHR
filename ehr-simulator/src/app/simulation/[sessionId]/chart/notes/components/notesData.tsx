@@ -14,7 +14,7 @@ export const sampleNotes: ClinicalNote[] = [
     specialty: "Internal Medicine",
     timeOffset: 0,
     content: `
-      <h2><u>Subjective</u></h2>
+      <h1><u>Subjective</u></h1>
       <p>Patient continues to report <strong>improvement</strong> in energy and overall well-being.</p>
       <ul class="list-disc ml-6">
         <li>Foot numbness persists.</li>

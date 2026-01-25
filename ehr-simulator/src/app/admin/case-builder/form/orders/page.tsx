@@ -9,7 +9,8 @@ import {
   UserRound,
   ClipboardList,
   AlertCircle,
-  ChevronDown
+  ChevronDown,
+  Utensils
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -31,7 +32,7 @@ import { useFormContext } from "@/context/FormContext"
 import { FormShell } from "../../components/formShell"
 import { Checkbox } from "@/components/ui/checkbox"
 
-const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult"]
+const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult", "Diet"]
 
 const getCategoryIcon = (cat: string | undefined) => {
   switch (cat) {
@@ -39,6 +40,7 @@ const getCategoryIcon = (cat: string | undefined) => {
     case "Respiratory": return <Wind className="w-4 h-4" />;
     case "Laboratory": return <FlaskConical className="w-4 h-4" />;
     case "Consult": return <UserRound className="w-4 h-4" />;
+    case "Diet": return <Utensils className="w-4 h-4" />;
     default: return <ClipboardList className="w-4 h-4" />;
   }
 }
@@ -49,6 +51,7 @@ const getCategoryColor = (cat: string | undefined) => {
     case "Respiratory": return "bg-cyan-100 text-cyan-700 border-cyan-200";
     case "Laboratory": return "bg-purple-100 text-purple-700 border-purple-200";
     case "Consult": return "bg-orange-100 text-orange-700 border-orange-200";
+    case "Diet": return "bg-lime-100 text-lime-700 border-lime-200";
     default: return "bg-slate-100 text-slate-700 border-slate-200";
   }
 }

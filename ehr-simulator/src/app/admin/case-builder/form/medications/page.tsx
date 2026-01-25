@@ -28,7 +28,6 @@ function getComboboxData(medications: AllMedicationTypes[]) {
   })
 }
 
-
 export default function MedicationOrderForm() {
   const router = useRouter()
   const { onDataChange, medOrderData } = useFormContext()

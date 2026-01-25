@@ -1,5 +1,5 @@
 export interface OrderType {
-  category?: "Nursing" | "Respiratory" | "Laboratory" | "Consult"
+  category?: "Nursing" | "Respiratory" | "Laboratory" | "Consult" | "Diet"
   title: string
   details: string
   status: string;

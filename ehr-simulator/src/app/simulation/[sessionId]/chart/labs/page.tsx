@@ -154,7 +154,7 @@ export function LabPage() {
         header: () => (
           <div className="flex flex-col justify-center items-center">
             <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
-            <h1 className="mb-1">{displayTime}</h1>
+            <p className="mb-1 text-sm">{displayTime}</p>
           </div>
         ),
         cell: ({ row, column, getValue }) => {

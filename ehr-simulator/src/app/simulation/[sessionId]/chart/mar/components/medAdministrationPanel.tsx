@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge"
 import { PatientStatusBadge } from "./marHelpers"
 
 interface MedAdministrationProps {
-  selectedMedIds: MedicationOrder[];
+  selectedOrders: MedicationOrder[];
   administrationsLookup: { [key: string]: MedAdministrationInstance[] };
   medicationLookup: { [key: string]: AllMedicationTypes };
   sessionStart: Date;
@@ -46,7 +46,7 @@ interface MedAdministrationProps {
 
 
 const MedAdministrationPanel = ({
-  selectedMedIds,
+  selectedOrders,
   medicationLookup,
   administrationsLookup,
   sessionStart,
@@ -61,9 +61,8 @@ const MedAdministrationPanel = ({
   onOrderRemove
 }: MedAdministrationProps) => {
   const [isLoading] = useState(false)
-
-  const hasSelections = selectedMedIds.length > 0;
-
+  const hasSelections = selectedOrders.length > 0;
+  const hasOverdose = selectedOrders.some(order => order.dose < newAdministrations[order.id].administeredDose)
   const handleFakeScan = (scan: boolean) => {
     onPtScan(scan)
   }
@@ -104,15 +103,15 @@ const MedAdministrationPanel = ({
         >
           <PencilLine className="w-4 h-4" />
           <span className="">Document</span>
-          {selectedMedIds.length > 0 && (
+          {selectedOrders.length > 0 && (
             <Badge variant="secondary" className="ml-1 bg-blue-400/85 text-white font-medium border-none px-1.5 h-5 min-w-5">
-              {selectedMedIds.length}
+              {selectedOrders.length}
             </Badge>
           )}
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="flex flex-col md:max-w-4xl xl:max-w-6xl max-w-6xl h-[90vh] p-0 gap-0 overflow-hidden bg-white border-slate-200">
+      <DialogContent className="flex flex-col md:max-w-3xl xl:max-w-4xl max-w-5xl h-[90vh] p-0 gap-0 overflow-hidden bg-white border-slate-200">
 
         <DialogHeader className="px-6 py-4 bg-gray-100 border-b border-gray-300 flex-shrink-0 shadow-[0_2px_4px_-1px_rgba(0,0,0,0.1)]">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -140,14 +139,14 @@ const MedAdministrationPanel = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {selectedMedIds.length === 0 && (
+          {selectedOrders.length === 0 && (
             <div className="h-48 mt-4 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400">
               <PillBottle className="w-8 h-8 mb-2 opacity-50" />
               <p className="text-sm">No medications scanned yet.</p>
             </div>
           )}
           <div className="grid gap-6 pb-10">
-            {selectedMedIds.map(order => {
+            {selectedOrders.map(order => {
               const currentAdminData = newAdministrations[order.id] || { status: "Given", administeredDose: 0 };
 
               return (
@@ -159,6 +158,7 @@ const MedAdministrationPanel = ({
                   sessionStart={sessionStart}
                   elapsedMinutes={elapsedMinutes}
                   onOrderRemove={onOrderRemove}
+
                   onStatusChange={(value) => {
                     onUpdateAdministration(order.id, "status", value);
                   }}
@@ -196,7 +196,7 @@ const MedAdministrationPanel = ({
               </Button>
             </DialogClose>
             <Button
-              disabled={isLoading || !isScanned}
+              disabled={isLoading || !isScanned || hasOverdose}
               onClick={handleSubmit}
               className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm min-w-[120px]"
             >

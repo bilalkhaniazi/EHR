@@ -92,7 +92,6 @@ export default function Mar() {
       setNewAdministrations(prev => {
         const currentAdmin = prev[targetOrder.id];
 
-        // Guard clause in case state is out of sync
         if (!currentAdmin) {
           console.warn('No administration data found.')
           return prev;
@@ -394,7 +393,7 @@ export default function Mar() {
         <div className='flex gap-4 lg:gap-10 xl:gap-30 2xl:gap-45'>
           <ColumnShiftControl columns={displayColumns} onColumnShift={handleTimeColChange} />
           <MedAdministrationPanel
-            selectedMedIds={selectedOrders}
+            selectedOrders={selectedOrders}
             newAdministrations={newAdministrations}
             onUpdateAdministration={handleUpdateAdministration}
             onClearAll={handleClearAll}

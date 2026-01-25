@@ -169,6 +169,7 @@
       @apply text-sm resize-none p-1 mt-1 mb-1 rounded border-2 max-w-120;
     }
 
+    /* Header styling for Text-Editor notes */
     h1 {
       font-size: 1.4rem;
     }
@@ -181,4 +182,19 @@
       font-size: 1.1rem;
     }
   }
+}
+
+@keyframes pulse-blue {
+  0% {
+    background-color: #7faef410;
+  }
+
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+.medCard-pulse {
+  animation: pulse-blue 0.5s ease-out;
 }

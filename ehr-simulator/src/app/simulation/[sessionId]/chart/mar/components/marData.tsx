@@ -494,7 +494,8 @@ export const allMedications: AllMedicationTypes[] = [
     strengthUnit: "mg",
     orderableUnit: 'Vial',
     administrationFrequencies: [],
-    isContinuous: false
+    isContinuous: false,
+    infusionRateUnit: 'mL/hr'
   }
 ];
 
@@ -668,7 +669,9 @@ export const medicationOrders: MedicationOrder[] = [
     indication: 'Infx',
     status: 'active',
     orderingProvider: 'Dr. Samuel Wanjouri',
-    visibleInPresim: true
+    visibleInPresim: true,
+    infusionRate: 125
+
   },
   {
     id: "orderDextrose5inNS45",
@@ -680,7 +683,8 @@ export const medicationOrders: MedicationOrder[] = [
     indication: '',
     status: "active",
     orderingProvider: "Dr. Nigel Amos",
-    visibleInPresim: true
+    visibleInPresim: true,
+    infusionRate: 125
   },
   {
     id: "orderAtropinePush",

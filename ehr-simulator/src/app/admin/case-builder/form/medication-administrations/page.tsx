@@ -62,7 +62,7 @@ export default function MedicationAdministrationsForm() {
   const [administratorId, setAdministratorId] = useState('')
   const [status, setStatus] = useState<AdministrationStatus>('Due')
   const isInPast = status === 'Due' ? false : true
-  const [dose, setDose] = useState(0)
+  const [dose, setDose] = useState('')
   const [visibleInPresim, setVisibleInPresim] = useState<boolean>(true)
 
   const [days, setDays] = useState<number | ''>(0);
@@ -78,15 +78,15 @@ export default function MedicationAdministrationsForm() {
 
   const comboboxData = getComboboxData(medOrderData.createdOrders)
   const linkedMed = selectedOrder ? allMedications.find(med => med.id === selectedOrder.medicationId) : undefined
+
   const handleComboboxSelection = (id: string) => {
     const order = medOrderData.createdOrders.find(order => order.id === id);
     if (order) {
       setSelectedOrder(order);
-      setDose(order.dose);
+      setDose(String(order.dose));
     }
-
-
   }
+
   const handleAddMedAdministration = () => {
     if (!selectedOrder) return;
 
@@ -98,7 +98,7 @@ export default function MedicationAdministrationsForm() {
       administratorId: administratorId || "System",
       adminTimeMinuteOffset: isInPast ? -1 * timeOffset : timeOffset,
       status: status,
-      administeredDose: dose,
+      administeredDose: parseFloat(dose),
       visibleInPresim: visibleInPresim
     }
 
@@ -154,7 +154,7 @@ export default function MedicationAdministrationsForm() {
   }
   const handleDoseChange = (val: string) => {
     if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
-      setDose(Number(val))
+      setDose(val)
     }
   }
   const currentSimTime = addMinutes(anchorDate, elapsedMinutes);
@@ -299,7 +299,9 @@ export default function MedicationAdministrationsForm() {
                 <h3 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
                   <History className="w-5 h-5" /> Recorded Administrations
                 </h3>
-                <ColumnShiftControl columns={displayColumns} onColumnShift={handleColumnShift} />
+                <div className="flex w-80 justify-end">
+                  <ColumnShiftControl columns={displayColumns} onColumnShift={handleColumnShift} />
+                </div>
                 <Badge variant="secondary">{medAdministrations.length} Records</Badge>
               </div>
 

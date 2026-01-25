@@ -82,8 +82,14 @@ const MedCard = ({
 
           return (
             <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour && isHighlightableColumn ? 'bg-blue-50/30' : ''}`}>
-              <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
-                {col.colHeader}
+              <div
+                key={col.colHeader}
+                className="medCard-pulse"
+              // style={{ animation: 'pulse-blue 0.5s ease-out' }}
+              >
+                <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
+                  {col.colHeader}
+                </div>
               </div>
 
               <div className="flex-1 p-2 space-y-2 flex flex-col items-center justify-center min-h-[80px]">
