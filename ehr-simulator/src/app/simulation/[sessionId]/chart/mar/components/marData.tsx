@@ -374,6 +374,17 @@ export const allMedications: AllMedicationTypes[] = [
     reconstitutionInstructions: "Reconstitute with 1.8 mL sterile water for injection",
   },
   {
+    id: "medCeftriaxoneIv1g",
+    genericName: "ceftriaxone",
+    brandName: "Rocephin",
+    route: "IV",
+    strength: 1,
+    strengthUnit: "g",
+    orderableUnit: "Syringe",
+    administrationFrequencies: ["Once"],
+    isContinuous: false
+  },
+  {
     id: "medEpinephrineIm1mg",
     genericName: "epinephrine",
     brandName: "EpiPen",

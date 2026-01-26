@@ -149,8 +149,12 @@ export default function MedicationAdministrationsForm() {
 
     router.push('/admin/case-builder/form/review')
   }
-  const handleColumnShift = (offset: number) => {
-    setTimeColumnOffset(prev => prev + offset);
+  const handleColumnShift = (offset: number | string) => {
+    if (typeof offset === 'number') {
+      setTimeColumnOffset(prev => prev + offset);
+    } else if (offset === 'reset') {
+      setTimeColumnOffset(prev => prev + (-1 * prev))
+    }
   }
   const handleDoseChange = (val: string) => {
     if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
@@ -159,7 +163,6 @@ export default function MedicationAdministrationsForm() {
   }
   const currentSimTime = addMinutes(anchorDate, elapsedMinutes);
   const displayColumns = createColumns(currentSimTime, timeColumnOffset);
-
   return (
     <FormShell
       title="Medication History"
@@ -300,7 +303,7 @@ export default function MedicationAdministrationsForm() {
                   <History className="w-5 h-5" /> Recorded Administrations
                 </h3>
                 <div className="flex w-80 justify-end">
-                  <ColumnShiftControl columns={displayColumns} onColumnShift={handleColumnShift} />
+                  <ColumnShiftControl columns={displayColumns} onColumnShift={handleColumnShift} columnOffset={timeColumnOffset} />
                 </div>
                 <Badge variant="secondary">{medAdministrations.length} Records</Badge>
               </div>

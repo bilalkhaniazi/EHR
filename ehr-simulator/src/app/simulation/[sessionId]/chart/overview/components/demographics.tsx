@@ -106,7 +106,6 @@ const Demographics = () => {
           <p className="text-sm pr-2 font-light">{chartData.language.label}: </p>
           <p className="text-sm">{chartData.language.value}</p>
         </div>
-        <Separator className="bg-lime-200" />
       </CardContent>
       <div className="absolute bottom-0 bg-lime-200 w-full h-3"></div>
     </Card>

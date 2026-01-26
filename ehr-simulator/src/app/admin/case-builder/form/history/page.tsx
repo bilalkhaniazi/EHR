@@ -229,7 +229,7 @@ const HistoryForm = () => {
                         labelText="Social Habits"
                         value={socialHistory}
                         onChange={setSocialHistory}
-                        placeholder="e.g. Tobacco Use, Polysubstance Use, High Risk Occupation..."
+                        placeholder="e.g. Tobacco Use, High Risk Occupation..."
                         emptyMessage="No social habits recorded."
                         ref={socialHabitsInputRef}
                       />

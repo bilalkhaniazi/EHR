@@ -3,7 +3,7 @@ import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessi
 import { MedCardColumn } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
-import { Check, Trash2 } from "lucide-react";
+import { Check, Trash2, X } from "lucide-react";
 
 interface MedCardProps {
   medication: AllMedicationTypes;
@@ -76,6 +76,7 @@ export default function MedAdministrationFormCard({
         </div>
       </div>
 
+      {/* Right Columns */}
       <div className="flex-1 grid grid-cols-6 divide-x divide-slate-100 overflow-x-auto">
         {processedColumns.map((col, colIndex) => {
           const isCurrentHour = colIndex === 3;
@@ -97,27 +98,36 @@ export default function MedAdministrationFormCard({
 
                   let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
                   if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
-                  if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
-                  if (admin.status === "Refused") statusStyle = "bg-red-100 text-red-700 border-red-200";
+                  else if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
+                  else if (admin.status === "Due") statusStyle = 'bg-blue-100 text-blue-700 border-blue-200'
+                  else if (admin.status === "Missed") statusStyle = "bg-red-100 text-red-700 border-red-200";
 
                   return (
                     <div key={admin.id} className={`relative w-fit text-center p-1.5 rounded border text-xs ${statusStyle} group`}>
                       <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
                       <div className="text-[10px] opacity-">{admin.status}</div>
-                      {admin.visibleInPresim &&
-                        <div className="absolute -top-1.5 -left-1.5 size-4 rounded-full bg-white border flex justify-center items-center">
-                          <Tooltip>
-                            <TooltipTrigger>
+
+                      <div className="absolute -top-1.5 -left-1.5 size-4 rounded-full bg-white border flex justify-center items-center">
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {admin.visibleInPresim ? (
                               <Check size={12} className="" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Visible in Pre-sim</p>
-                            </TooltipContent>
-                          </Tooltip>
+                            ) : (
+                              <X size={12} />
+                            )
+                            }
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {admin.visibleInPresim ? (
+                              <p>Visible in Pre-Sim</p>
+                            ) : (
+                              <p>Excluded from Pre-Sim</p>
+                            )
+                            }
+                          </TooltipContent>
+                        </Tooltip>
 
-                        </div>
-
-                      }
+                      </div>
                       <button
                         onClick={() => onDeleteAdministration(admin.id!)}
                         className="absolute -top-1.5 -right-1.5 bg-white border border-slate-200 rounded-full p-0.5 text-slate-400 hover:text-red-600 hover:border-red-200 shadow-sm  transition-all"

@@ -280,7 +280,7 @@ export default function DemographicsForm() {
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2 w-50">
                         <Label htmlFor="dosingWeight">Dosing Weight</Label>
                         <div className="relative">
                           <Input

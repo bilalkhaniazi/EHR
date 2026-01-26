@@ -85,7 +85,6 @@ const MedCard = ({
               <div
                 key={col.colHeader}
                 className="medCard-pulse"
-              // style={{ animation: 'pulse-blue 0.5s ease-out' }}
               >
                 <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
                   {col.colHeader}
@@ -100,7 +99,7 @@ const MedCard = ({
                   let statusStyle = "bg-slate-100 text-slate-600 border-slate-200";
                   if (admin.status === "Given") statusStyle = "bg-green-100 text-green-700 border-green-200";
                   else if (admin.status === "Held") statusStyle = "bg-amber-100 text-amber-700 border-amber-200";
-                  else if (admin.status === "Due") statusStyle = 'bg-blue-100 text-blue-700 border-blue-200'
+                  else if (admin.status === "Due") statusStyle = 'bg-blue-100 text-blue-700 border-blue-200';
                   else if (admin.status === "Missed") statusStyle = "bg-red-100 text-red-700 border-red-200";
 
                   return (

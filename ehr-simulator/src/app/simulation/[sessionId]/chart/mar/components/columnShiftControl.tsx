@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { MedCardColumn } from "../components/marHelpers";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Undo2 } from "lucide-react";
 import { displayColumnShifterDate } from "./marHelpers";
 
 interface ColumnShiftControlProps {
   columns: MedCardColumn[];
-  onColumnShift: (offset: number) => void;
+  columnOffset: number;
+  onColumnShift: (offset: number | string) => void;
 
 }
 
-const ColumnShiftControl = ({ columns, onColumnShift }: ColumnShiftControlProps) => {
+const ColumnShiftControl = ({ columns, onColumnShift, columnOffset }: ColumnShiftControlProps) => {
   return (
     <div className="flex items-center h-9 border border-slate-200 rounded-lg shadow-sm overflow-hidden w-fit">
       <div className="flex items-center h-full px-3 bg-slate-100 border-r border-slate-200">
@@ -40,6 +41,17 @@ const ColumnShiftControl = ({ columns, onColumnShift }: ColumnShiftControlProps)
           <ChevronsRight size={16} />
         </Button>
       </div>
+      <Button
+        variant='secondary'
+        size="icon"
+        className="bg-slate-100 group"
+        disabled={columnOffset === 0}
+        onClick={() => onColumnShift('reset')}
+      >
+        <div className="rounded-md p-1 transition-all ease-out group-hover:bg-blue-100 group-hover:text-blue-600 text-slate-500">
+          <Undo2 />
+        </div>
+      </Button>
     </div>
   )
 }

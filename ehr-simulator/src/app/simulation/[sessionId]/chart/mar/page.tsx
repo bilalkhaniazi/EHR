@@ -198,8 +198,12 @@ export default function Mar() {
     }
   };
 
-  const handleTimeColChange = (offset: number) => {
-    setTimeColumnOffset(prev => prev + offset);
+  const handleTimeColChange = (offset: number | string) => {
+    if (typeof offset === "number") {
+      setTimeColumnOffset(prev => prev + offset);
+    } else if (offset === 'reset') {
+      setTimeColumnOffset(prev => prev + (-1 * prev))
+    }
   }
 
   const handleFilterChange = (option: string, checked: boolean | "indeterminate") => {
@@ -336,7 +340,7 @@ export default function Mar() {
         scanStatus={isWrongPtScan}
         onWrongScanChange={setIsWrongPtScan}
       />
-      <div className='flex gap-2 py-2 items-center justify-between mr-6'>
+      <div className='flex gap-2 py-3 items-start justify-between mr-6'>
         <div className="space-x-4">
           <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
@@ -391,7 +395,11 @@ export default function Mar() {
         </div>
 
         <div className='flex gap-4 lg:gap-10 xl:gap-30 2xl:gap-45'>
-          <ColumnShiftControl columns={displayColumns} onColumnShift={handleTimeColChange} />
+          <ColumnShiftControl
+            columns={displayColumns}
+            onColumnShift={handleTimeColChange}
+            columnOffset={timeColumnOffset}
+          />
           <MedAdministrationPanel
             selectedOrders={selectedOrders}
             newAdministrations={newAdministrations}
