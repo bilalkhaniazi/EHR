@@ -31,8 +31,8 @@ const ImagingReport = ({
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl md:max-w-3/4 xl:max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white rounded">
-        <DialogHeader className="px-6 py-4 border-b bg-slate-50 flex flex-row items-start justify-between">
+      <DialogContent className="max-w-3xl md:max-w-3/4 xl:max-w-4xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white rounded-lg">
+        <DialogHeader className="px-6 py-4 border-b bg-slate-50 flex flex-row items-start justify-between rounded-lg">
           <div>
             <div className="flex items-center gap-4 mb-1">
               <DialogTitle className="text-xl font-semibold text-slate-900">

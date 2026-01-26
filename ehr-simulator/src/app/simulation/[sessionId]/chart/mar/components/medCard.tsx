@@ -1,5 +1,5 @@
 import { addMinutes, format, isWithinInterval } from "date-fns";
-import type { MedCardColumns } from "../page.jsx";
+import type { MedCardColumn } from "../components/marHelpers";
 import type { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "./marData.jsx"
 import { Checkbox } from "@/components/ui/checkbox";
 import { findLastAdminTime, renderMedCardDetails, renderMedTitleRow } from "./marHelpers";
@@ -8,16 +8,26 @@ interface MedCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
-  columns: MedCardColumns[];
+  columns: MedCardColumn[];
   sessionStart: Date;
   isSelected: boolean;
-  onSelectionChange: (payload: { id: string, checked: boolean }) => void;
+  onSelectionChange: (order: MedicationOrder, checked: boolean) => void;
+  isHighlightableColumn: boolean;
 }
 
-const MedCard = ({ medication, administrations, order, columns, sessionStart, onSelectionChange, isSelected }: MedCardProps) => {
+const MedCard = ({
+  medication,
+  administrations,
+  order,
+  columns,
+  sessionStart,
+  onSelectionChange,
+  isSelected,
+  isHighlightableColumn
+}: MedCardProps) => {
 
   const handleCheckboxChange = (checked: boolean) => {
-    onSelectionChange({ id: order.id, checked });
+    onSelectionChange(order, checked);
   };
 
   // using columns passed from main mar component, add relevant administration data (given, held, refused...)
@@ -25,7 +35,7 @@ const MedCard = ({ medication, administrations, order, columns, sessionStart, on
     const administrationsInColumn = administrations.filter(admin => {
       const adminTime = addMinutes(sessionStart || 0, admin.adminTimeMinuteOffset);
 
-      // 2. Check if that time falls inside this column
+      // Check if that time falls inside this column
       return isWithinInterval(adminTime, {
         start: col.startTime,
         end: col.endTime
@@ -71,9 +81,15 @@ const MedCard = ({ medication, administrations, order, columns, sessionStart, on
           const isCurrentHour = colIndex === 3;
 
           return (
-            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour ? 'bg-blue-50/30' : ''}`}>
-              <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
-                {col.colHeader}
+            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour && isHighlightableColumn ? 'bg-blue-50/30' : ''}`}>
+              <div
+                key={col.colHeader}
+                className="medCard-pulse"
+              // style={{ animation: 'pulse-blue 0.5s ease-out' }}
+              >
+                <div className={`text-xs text-center py-0.5 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
+                  {col.colHeader}
+                </div>
               </div>
 
               <div className="flex-1 p-2 space-y-2 flex flex-col items-center justify-center min-h-[80px]">
@@ -89,7 +105,7 @@ const MedCard = ({ medication, administrations, order, columns, sessionStart, on
 
                   return (
                     <div key={`${admin.id}-${index}`} className={`w-fit text-center p-1 rounded border text-xs ${statusStyle}`}>
-                      <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
+                      <div className="font-bold font-mono">{format(adminTime, 'HHmm')}</div>
                       <div className="text-xs">{admin.status}</div>
                     </div>
                   )

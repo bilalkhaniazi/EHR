@@ -1,6 +1,6 @@
 import { columns, StudentInfo } from "./columns"
 import { DataTable } from "./data-table"
-import { AdminQuickActionsList } from "./AdminQuickActionsList"
+import { AdminQuickActionsList } from "./components/AdminQuickActionsList"
 import { getAllUsers } from "@/actions/users"
 
 async function getData(): Promise<StudentInfo[]> {

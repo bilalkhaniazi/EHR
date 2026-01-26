@@ -1,6 +1,7 @@
 import { AllMedicationTypes, MedAdministrationInstance, MedicationOrder } from "@/app/simulation/[sessionId]/chart/mar/components/marData";
 import { renderMedCardDetails, renderMedTitleRow } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
-import { MedCardColumns } from "@/app/simulation/[sessionId]/chart/mar/page";
+import { MedCardColumn } from "@/app/simulation/[sessionId]/chart/mar/components/marHelpers";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { Check, Trash2 } from "lucide-react";
 
@@ -8,12 +9,21 @@ interface MedCardProps {
   medication: AllMedicationTypes;
   administrations: MedAdministrationInstance[];
   order: MedicationOrder;
-  columns: MedCardColumns[];
+  columns: MedCardColumn[];
   sessionStartTime: number;
+  isHighlightableColumn: boolean;
   onDeleteAdministration: (adminId: string) => void;
 }
 
-export default function MedAdministrationFormCard({ medication, administrations, order, columns, sessionStartTime, onDeleteAdministration }: MedCardProps) {
+export default function MedAdministrationFormCard({
+  medication,
+  administrations,
+  order,
+  columns,
+  sessionStartTime,
+  isHighlightableColumn,
+  onDeleteAdministration
+}: MedCardProps) {
   // Calculate columns logic
   const processedColumns = columns.map(col => {
     const administrationsInColumn = administrations.filter(admin => {
@@ -43,10 +53,10 @@ export default function MedAdministrationFormCard({ medication, administrations,
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
       {/* Left Info Panel */}
-      <div className="px-4 py-3 md:w-80 lg:w-110 2xl:w-140  border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/30 flex flex-col justify-between">
+      <div className="px-4 py-3 md:w-80 lg:w-90 2xl:w-140  border-b md:border-b-0 md:border-r border-slate-100 bg-slate-50/30 flex flex-col justify-between">
         <div>
           <div className="flex items-start justify-between mb-2">
-            <h4 className="font-bold text-slate-900 leading-tight text-sm">
+            <h4 className="font-bold text-slate-900 leading-tight">
               {renderMedTitleRow(medication, order)}
             </h4>
           </div>
@@ -71,9 +81,14 @@ export default function MedAdministrationFormCard({ medication, administrations,
           const isCurrentHour = colIndex === 3;
 
           return (
-            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour ? 'bg-blue-50/30' : ''}`}>
-              <div className={`text-xs text-center py-1 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
-                {col.colHeader}
+            <div key={colIndex} className={`flex flex-col min-w-[60px] ${isCurrentHour && isHighlightableColumn ? 'bg-blue-50/30' : ''}`}>
+              <div
+                key={col.colHeader}
+                className="medCard-pulse"
+              >
+                <div className={`text-xs text-center py-1 font-mono uppercase tracking-wider border-b border-slate-100 ${isCurrentHour && isHighlightableColumn ? 'text-blue-600 font-bold' : 'text-slate-500'}`}>
+                  {col.colHeader}
+                </div>
               </div>
 
               <div className="flex-1 p-2 space-y-2 flex flex-col items-center justify-center min-h-[80px]">
@@ -88,10 +103,21 @@ export default function MedAdministrationFormCard({ medication, administrations,
                   return (
                     <div key={admin.id} className={`relative w-fit text-center p-1.5 rounded border text-xs ${statusStyle} group`}>
                       <div className="font-bold">{format(adminTime, 'HH:mm')}</div>
-                      <div className="text-[10px] opacity-80">{admin.status}</div>
-                      {admin.visibleInPresim && <div className="absolute -top-1.5 -left-1.5 size-4 rounded-full bg-white border flex justify-center items-center">
-                        <Check size={12} />
-                      </div>}
+                      <div className="text-[10px] opacity-">{admin.status}</div>
+                      {admin.visibleInPresim &&
+                        <div className="absolute -top-1.5 -left-1.5 size-4 rounded-full bg-white border flex justify-center items-center">
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Check size={12} className="" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Visible in Pre-sim</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                        </div>
+
+                      }
                       <button
                         onClick={() => onDeleteAdministration(admin.id!)}
                         className="absolute -top-1.5 -right-1.5 bg-white border border-slate-200 rounded-full p-0.5 text-slate-400 hover:text-red-600 hover:border-red-200 shadow-sm  transition-all"

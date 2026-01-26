@@ -11,7 +11,7 @@ import { TableAssessmentSelectFormCell, TableInputFormCell } from "./components/
 import { useFormContext } from "@/context/FormContext";
 import { useTimePoints } from "../../components/useFormTableOffsets";
 import { TableFormHeader } from "../../components/tableFormHeader";
-import { TableFormShell } from "../../components/tableFormShell";
+import { FormShell } from "../../components/formShell";
 import { ChartingToolTip } from "@/app/simulation/[sessionId]/chart/charting/components/ChartingToolTip";
 import { FormTable } from "../../components/FormTable";
 
@@ -29,6 +29,15 @@ export function ChartingForm() {
   } = useTimePoints(initialChartingData.timePoints, initialChartingData.timePointsInPreSim)
 
   const router = useRouter()
+
+  const goBack = () => {
+    onDataChange('charting', {
+      data: chartingData,
+      timePoints: timePoints,
+      timePointsInPreSim: timePointsInPresim
+    })
+    router.push("/admin/case-builder/form/labs");
+  }
 
   const handleSubmit = () => {
     onDataChange('charting', {
@@ -159,34 +168,39 @@ export function ChartingForm() {
   });
 
   return (
-    <TableFormShell
+    <FormShell
       title="Documentation"
-      icon={<Clipboard />}
+      stepDescription="Step 6 of 9: Enter laboratory and imaging results"
+      icon={<Clipboard className="text-slate-400" />}
       onSubmit={handleSubmit}
-      stepDescription="Step 5 of 9: Enter laboratory and imaging results"
+      goBack={goBack}
+      continueButtonText="Continue"
+      backButtonText="Back"
     >
-      <div className="flex gap-12 items-end px-8 py-2">
-        <AddTableColumn handleColumnAdd={addTimePoint} />
-        <div className="space-y-1.5">
-          <p className="w-fit items-center justify-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
-            <span className="size-1.5 rounded full bg-yellow-600"></span>
-            Not included in Pre-Sim
-          </p>
-          <p className="w-fit items-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
-            <span className="size-1.5 rounded full bg-lime-600"></span>
-            Included in Pre-Sim
-          </p>
+      <div className="bg-slate-50/50 flex-1 flex flex-col min-h-0  px-6 pt-4">
+        <div className="flex gap-12 items-end px-8 py-2">
+          <AddTableColumn handleColumnAdd={addTimePoint} />
+          <div className="space-y-1.5">
+            <p className="w-fit items-center justify-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
+              <span className="size-1.5 rounded full bg-yellow-600"></span>
+              Not included in Pre-Sim
+            </p>
+            <p className="w-fit items-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
+              <span className="size-1.5 rounded full bg-lime-600"></span>
+              Included in Pre-Sim
+            </p>
+          </div>
+        </div>
+
+        <div className="flex-1 w-full border border-gray-300 rounded-t-lg overflow-auto bg-white shadow-sm relative">
+          <FormTable table={ptTable} getCellClassName={(row) => {
+            return row.componentType === "static"
+              ? "bg-lime-50"
+              : "bg-white border-r last:border-r-0";
+          }} />
         </div>
       </div>
-
-      <div className="flex-1 w-full border border-gray-300 rounded-t-lg overflow-auto bg-white shadow-sm relative">
-        <FormTable table={ptTable} getCellClassName={(row) => {
-          return row.componentType === "static"
-            ? "bg-lime-50"
-            : "bg-white border-r last:border-r-0";
-        }} />
-      </div>
-    </TableFormShell>
+    </FormShell>
   );
 }
 

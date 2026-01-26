@@ -21,12 +21,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import SubmitButton from "../../components/submitButton";
 import { useRouter } from "next/navigation";
 import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
 import { useFormContext } from "@/context/FormContext";
 import { nursingAlerts } from "@/utils/form";
 import { HistoryFormData } from "@/utils/form";
+import { FormShell } from "../../components/formShell";
 
 const FormSection = ({
   icon: Icon,
@@ -72,7 +72,19 @@ const HistoryForm = () => {
   const livingSituationInputRef = useRef<MultiTextInputHandle>(null);
   const inputRefs = [diagnosesInputRef, proceduresInputRef, allergensInputRef, socialHabitsInputRef, livingSituationInputRef];
 
+  const focusOnUnsaved = () => {
+    for (const ref of inputRefs) {
+      if (ref.current?.hasText()) {
+        ref.current?.focus();
+        break;
+      }
+    }
+  }
+
+  const checkUnsaved = () => inputRefs.some(ref => ref.current?.hasText())
+
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<'back' | 'continue' | null>(null);
 
   const newHistoryData: HistoryFormData = {
     medicalHistory: medicalHistory,
@@ -84,27 +96,41 @@ const HistoryForm = () => {
     alerts: alerts,
   }
 
+  const goBack = () => {
+    if (checkUnsaved()) {
+      setPendingNavigation('back');
+      setShowUnsavedWarning(true);
+    } else {
+      onDataChange("history", newHistoryData);
+      router.push("/admin/case-builder/form/demographics");
+    }
+  }
+
   const saveAndContinue = () => {
     onDataChange("history", newHistoryData);
     router.push("/admin/case-builder/form/notes");
   }
 
-  const focusOnUnsaved = () => {
-    for (const ref of inputRefs) {
-      if (ref.current?.hasText()) {
-        ref.current?.focus();
-        break;
-      }
-    }
+  const saveAndGoBack = () => {
+    onDataChange("history", newHistoryData);
+    router.push("/admin/case-builder/form/demographics");
   }
 
   const handleSubmit = () => {
     // Guardrail against unsaved text in MultiTextInput fields
-    const hasUnsaved = inputRefs.some(ref => ref.current?.hasText());
-    if (hasUnsaved) {
+    if (checkUnsaved()) {
+      setPendingNavigation('continue');
       setShowUnsavedWarning(true);
     }
     else {
+      saveAndContinue();
+    }
+  }
+
+  const handleNavigateAnyway = () => {
+    if (pendingNavigation === 'back') {
+      saveAndGoBack();
+    } else {
       saveAndContinue();
     }
   }
@@ -118,13 +144,15 @@ const HistoryForm = () => {
         <AlertDialogHeader>
           <AlertDialogTitle>Unsaved Text Detected</AlertDialogTitle>
           <AlertDialogDescription>
-            You have unsaved text in one or more fields. If you continue, this text will be lost.
+            You have unsaved text in one or more fields. If you leave this page, this text will be lost.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => { setTimeout(() => focusOnUnsaved(), 100) }}>Go Back</AlertDialogCancel>
-          <AlertDialogAction onClick={saveAndContinue}>
-            Continue Anyway
+          <AlertDialogCancel className="cursor-pointer" onClick={() => { setTimeout(() => focusOnUnsaved(), 100) }}>
+            Keep Editing
+          </AlertDialogCancel>
+          <AlertDialogAction className="cursor-pointer" onClick={handleNavigateAnyway}>
+            {pendingNavigation == "continue" ? "Continue Anyway" : "Go Back Anyway"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -132,23 +160,20 @@ const HistoryForm = () => {
   )
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50/50 overflow-hidden w-full">
+    <FormShell
+      title="Patient History"
+      stepDescription="Step 2 of 9: Document medical history and social context"
+      icon={<FileClock className="text-slate-400" />}
+      onSubmit={handleSubmit}
+      goBack={goBack}
+      continueButtonText="Continue"
+      backButtonText="Back"
+      continueButtonTooltip="Proceed to Next Page"
+      backButtonTooltip="Return to Previous Page"
+    >
       <UnsavedTextAlert />
-      <div className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 shadow-sm flex-shrink-0 z-10">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <FileClock className="text-slate-400" />
-            Patient History
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Step 2 of 9: Document medical history and social context</p>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
+      <div className="bg-slate-50/50 flex-1 overflow-y-auto p-6 md:px-12 lg:px-24">
         <div className="max-w-6xl mx-auto space-y-6 pb-20">
-          <div className="fixed top-6 right-8 z-10">
-            <SubmitButton onClick={handleSubmit} buttonText="Save & Continue" />
-          </div>
           <div className="grid grid-cols-1 gap-6">
             <Card className="border-slate-200 shadow-sm h-fit pt-4">
               <CardHeader className="pb-2">
@@ -257,7 +282,7 @@ const HistoryForm = () => {
 
         </div>
       </div>
-    </div>
+    </FormShell >
   )
 }
 export default HistoryForm

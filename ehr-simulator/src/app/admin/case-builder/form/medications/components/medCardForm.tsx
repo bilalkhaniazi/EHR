@@ -30,7 +30,7 @@ interface MedAdminCardProps {
   medication: AllMedicationTypes;
   handleMedicationRemoval: (index: number) => void;
   index: number;
-  orderData: Partial<MedicationOrder>; // Data comes from parent
+  order: MedicationOrder; // Data comes from parent
   onOrderChange: (index: number, field: keyof MedicationOrder, value: string | boolean) => void;
 }
 
@@ -38,17 +38,16 @@ const MedCardForm = ({
   medication,
   handleMedicationRemoval,
   index,
-  orderData,
+  order: orderData,
   onOrderChange
 }: MedAdminCardProps) => {
-
 
   const isSlidingScaleInsulinMed = isSlidingScaleInsulin(medication)
 
   return (
     <div className="border bg-white rounded-2xl w-full p-0 overflow-hidden flex-shrink-0 relative shadow">
-      <button onClick={() => handleMedicationRemoval(index)} className="absolute top-2 right-2">
-        <X size={18} />
+      <button onClick={() => handleMedicationRemoval(index)} className="group rounded-full hover:bg-red-200 absolute top-2 right-2">
+        <X size={18} className="group-hover:text-red-800" />
       </button>
       <div className="grid grid-cols-2 gap-4">
         <div className=" flex flex-col justify-between py-3 pl-6 space-y-4">
@@ -61,12 +60,12 @@ const MedCardForm = ({
           </div>
           <div className="flex items-center space-x-2 border rounded-md w-fit p-2 bg-blue-50/50">
             <Checkbox
-              id='presim'
-              checked={orderData.visibleInPresim || false}
-              onCheckedChange={(checked) => onOrderChange(index, 'visibleInPresim', !!checked)}
+              id={`${index}-presim-check`}
+              checked={!orderData.visibleInPresim}
+              onCheckedChange={(checked) => onOrderChange(index, 'visibleInPresim', !checked)}
               className="bg-white"
             />
-            <Label htmlFor="presim">Included in Pre-Sim?</Label>
+            <Label htmlFor={`${index}-presim-check`}>Excluded from Pre-Sim</Label>
           </div>
 
           <div>

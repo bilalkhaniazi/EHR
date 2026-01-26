@@ -3,15 +3,17 @@ import { Button } from "@/components/ui/button";
 interface SubmitButtonProps {
   buttonText: string;
   onClick: () => void;
+  tooltip?: string;
 }
 
-const SubmitButton = ({ buttonText, onClick }: SubmitButtonProps) => {
+const ContinueButton = ({ buttonText, onClick, tooltip }: SubmitButtonProps) => {
   return (
-    <div className="flex flex-col gap-2 w-fit">
+    <div className="">
       <Button
         className="w-full cursor-pointer"
         variant={"default"}
         onClick={onClick}
+        title={tooltip}
       >
         {buttonText} <ArrowRight />
       </Button>
@@ -19,5 +21,4 @@ const SubmitButton = ({ buttonText, onClick }: SubmitButtonProps) => {
   )
 }
 
-export default SubmitButton
-
+export default ContinueButton

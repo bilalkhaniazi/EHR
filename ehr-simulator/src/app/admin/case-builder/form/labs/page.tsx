@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { LabTableImagingReport, LabTableInputCell, LabTableMicrobioReport } from "./components/labTableInputCell";
 import { useFormContext } from "@/context/FormContext";
 import { useTimePoints } from "../../components/useFormTableOffsets";
-import { TableFormShell } from "../../components/tableFormShell";
+import { FormShell } from "../../components/formShell";
 import { TableFormHeader } from "../../components/tableFormHeader";
 import { FormTable } from "../../components/FormTable";
 
@@ -64,13 +64,23 @@ export function LabForm() {
     }
   };
 
+  const goBack = () => {
+    onDataChange('labs', {
+      data: labTableData,
+      timePoints: timePoints,
+      timePointsInPreSim: timePointsInPresim,
+      visibleItems: visibleItems
+    });
+    router.push("/admin/case-builder/form/orders");
+  }
+
   const handleSubmit = () => {
     onDataChange('labs', {
       data: labTableData,
       timePoints: timePoints,
       timePointsInPreSim: timePointsInPresim,
       visibleItems: visibleItems
-    })
+    });
     router.push('/admin/case-builder/form/charting')
   }
   console.log(labTableData)
@@ -221,43 +231,50 @@ export function LabForm() {
   });
 
   return (
-    <TableFormShell
-      icon={<TestTube2 />}
-      stepDescription="Step 5 of 9: Enter laboratory and imaging results"
+    <FormShell
       title="Lab Results"
+      stepDescription="Step 5 of 9: Enter laboratory and imaging results"
+      icon={<TestTube2 className="text-slate-400" />}
       onSubmit={handleSubmit}
+      goBack={goBack}
+      continueButtonText="Continue"
+      backButtonText="Back"
+      continueButtonTooltip="Proceed to Next Page"
+      backButtonTooltip="Return to Previous Page"
     >
-      <div className="w-full flex justify-start gap-12 mb-3 px-4 items-end">
-        <AddTableColumn handleColumnAdd={addTimePoint} />
-        <div>
-          <Label>Imaging Options</Label>
-          <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
-        </div>
-        <div className="flex items-end gap-2">
-          <div className="space-y-1.5">
-            <p className="w-fit items-center  px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
-              Not included in Pre-Sim
-            </p>
-            <p className="w-fit items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
-              Included in Pre-Sim
-            </p>
+      <div className="bg-slate-50/50 flex-1 flex flex-col min-h-0 px-6 pt-4">
+        <div className="px-4 w-full flex justify-start gap-12 mb-3 items-end">
+          <AddTableColumn handleColumnAdd={addTimePoint} />
+          <div>
+            <Label>Imaging Options</Label>
+            <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="space-y-1.5">
+              <p className="w-fit items-center  px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
+                Not included in Pre-Sim
+              </p>
+              <p className="w-fit items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-lime-50 text-lime-600 border border-lime-300 uppercase tracking-wide">
+                Included in Pre-Sim
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex-1 w-full border border-gray-300 rounded-t-lg overflow-auto bg-white shadow-sm relative">
-        <FormTable
-          table={ptTable}
-          getCellClassName={(row) => {
-            const baseClass = "min-w-40";
-            const colorClass = row.rowType === "divider"
-              ? "bg-blue-50"
-              : "bg-white border-r last:border-r-0";
+        <div className="flex-1 w-full border border-gray-300 rounded-t-lg overflow-auto bg-white shadow-sm relative">
+          <FormTable
+            table={ptTable}
+            getCellClassName={(row) => {
+              const baseClass = "min-w-40";
+              const colorClass = row.rowType === "divider"
+                ? "bg-blue-50"
+                : "bg-white border-r last:border-r-0";
 
-            return `${baseClass} ${colorClass}`;
-          }}
-        />
+              return `${baseClass} ${colorClass}`;
+            }}
+          />
+        </div>
       </div>
-    </TableFormShell>
+    </FormShell>
   );
 }
 

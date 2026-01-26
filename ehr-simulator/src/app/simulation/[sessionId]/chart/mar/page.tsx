@@ -16,67 +16,69 @@ import { useSymbologyScanner } from '@use-symbology-scanner/react';
 import { MultiMedPopover } from './components/multiMedPopover';
 import { toast } from 'sonner';
 import WrongPatientAlert from './components/wrongPatientAlert';
-import { createColumns } from '@/app/admin/case-builder/form/medication-administrations/page';
+import { createColumns } from '@/app/simulation/[sessionId]/chart/mar/components/marHelpers';
+import { PatientStatusBadge } from './components/marHelpers';
+import ColumnShiftControl from './components/columnShiftControl';
 
 
 export interface NewAdministrationData {
   [medOrderId: string]: MedAdministrationInstance;
 }
 
-export interface MedCardColumns {
-  startTime: Date;
-  endTime: Date;
-  colHeader: string;
-  associatedAdministrations?: MedAdministrationInstance[];
-}
-
 const patientMRN = 'pt12345678'
 
 const filterOptions = ["Scheduled", "Continuous", "PRN"]
 export default function Mar() {
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  // data
+  const [selectedOrders, setSelectedOrders] = useState<MedicationOrder[]>([]);
   const [administrations, setAdministrations] = useState<MedAdministrationInstance[]>(medAdministrations)
   const [newAdministrations, setNewAdministrations] = useState<NewAdministrationData>({});
-  const [orderFilter, setOrderFilter] = useState<string>('');
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [isDue, setIsDue] = useState<boolean | undefined>(false)
-  const [isScanned, setIsScanned] = useState(false);
-  // const [scannedSymbol, setScannedSymbol] = useState('')
-  const [isMultiOrderPopoverOpen, setIsMultiOrderPopoverOpen] = useState<boolean>(false)
   const [associatedOrders, setAssociatedOrders] = useState<MedicationOrder[]>([])
+  // filters
+  const [isDue, setIsDue] = useState<boolean | undefined>(false)
+  const [orderFilter, setOrderFilter] = useState<string>('');
+  // alerts
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [isScanned, setIsScanned] = useState(false);
+  const [isMultiOrderPopoverOpen, setIsMultiOrderPopoverOpen] = useState<boolean>(false)
   const [isWrongPtScan, setIsWrongPtScan] = useState<boolean>(false)
   const [isMedAdminPanelOpen, setIsMedAdminPanelOpen] = useState(false);
+  // temp time management
   const [anchorDate] = useState<Date>(new Date());
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
+  const [timeColumnOffset, setTimeColumnOffset] = useState(0)
+  // const [scannedSymbol, setScannedSymbol] = useState('')
 
   const handleScan = (symbol: string) => {
-    // setScannedSymbol(symbol)
     // handle patient wristband scans
     if (symbol.slice(0, 2) === 'pt') {
       if (symbol === patientMRN) {
-        setIsScanned(true)
-        return
+        setIsScanned(true);
+        return;
       } else {
         if (!isWrongPtScan) {
-          setIsWrongPtScan(true)
-          return
+          setIsWrongPtScan(true);
+          return;
         }
       }
     }
-    // find all orders that use this medication
-    const newAssociatedOrders = medicationOrders.filter(order => order.medicationId === symbol)
-    const associatedOrderIds = newAssociatedOrders
-      .map(order => order.id)
-      .filter(id => !selectedOrders.includes(id))
 
-    if (associatedOrderIds.length === 0) {
-      toast.info(`Order already scanned or no associated orders found with ${symbol}`)
+    // find all orders that use this medication
+    const associatedOrders = medicationOrders.filter(order => order.medicationId === symbol);
+
+    if (associatedOrders.length === 0) {
+      toast.info(`No associated orders found with ${symbol}`)
       return
     }
 
-    if (newAssociatedOrders.length > 1) {
-      console.warn("more than one order shares this med")
-      setAssociatedOrders(newAssociatedOrders)
+    const existingSelectedOrder = selectedOrders.find(selected =>
+      associatedOrders.some(associated => associated.id === selected.id)
+    );
+
+
+    if (!existingSelectedOrder && associatedOrders.length > 1) {
+      console.warn("More than one order shares this med")
+      setAssociatedOrders(associatedOrders)
       setIsMultiOrderPopoverOpen(true)
       return
     }
@@ -84,34 +86,53 @@ export default function Mar() {
     if (!isPopoverOpen) {
       setIsMedAdminPanelOpen(true)
     }
-    setSelectedOrders(prev => {
-      return [...prev, associatedOrderIds[0]]
-    })
+    const targetOrder = existingSelectedOrder || associatedOrders[0];
 
-    setNewAdministrations(prev => ({
-      ...prev,
-      [associatedOrderIds[0]]: {
-        medicationOrderId: associatedOrderIds[0],
-        status: "Given",
-        administratorId: "currentUser",
-        adminTimeMinuteOffset: 0,
-        administeredDose: 0,
-        visibleInPresim: false, // doesn't matter - this entry will not affect case template
-        notes: '',
-      }
-    }));
+    if (existingSelectedOrder) {
+      setNewAdministrations(prev => {
+        const currentAdmin = prev[targetOrder.id];
+
+        if (!currentAdmin) {
+          console.warn('No administration data found.')
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [targetOrder.id]: {
+            ...currentAdmin,
+            administeredDose: currentAdmin.administeredDose + targetOrder.dose
+          }
+        };
+      })
+    } else {
+      setSelectedOrders(prev => [...prev, targetOrder])
+
+      setNewAdministrations(prev => ({
+        ...prev,
+        [targetOrder.id]: {
+          medicationOrderId: targetOrder.id,
+          status: "Given",
+          administratorId: "currentUser",
+          adminTimeMinuteOffset: 0,
+          administeredDose: targetOrder.dose,
+          visibleInPresim: false, // doesn't matter - this entry will not affect case template
+          notes: '',
+        }
+      }));
+    }
   }
 
-  const handleMultiOrderPopoverChoice = (orderId: string) => {
-    setSelectedOrders(prev => [...prev, orderId])
+  const handleMultiOrderPopoverChoice = (order: MedicationOrder) => {
+    setSelectedOrders(prev => [...prev, order])
     setNewAdministrations(prev => ({
       ...prev,
-      [orderId]: {
-        medicationOrderId: orderId,
+      [order.id]: {
+        medicationOrderId: order.id,
         status: "Given",
         administratorId: "currentUser",
         adminTimeMinuteOffset: 0,
-        administeredDose: 0,
+        administeredDose: order.dose,
         visibleInPresim: false, // doesn't matter - this entry will not affect case template
         notes: '',
       }
@@ -119,9 +140,9 @@ export default function Mar() {
 
     setIsMultiOrderPopoverOpen(false)
     if (!isMedAdminPanelOpen) {
-      setIsMedAdminPanelOpen(true)
+      setIsMedAdminPanelOpen(true);
     }
-    setAssociatedOrders([])
+    setAssociatedOrders([]);
   }
 
   const handleMultiOrderPopoverClose = () => {
@@ -132,7 +153,7 @@ export default function Mar() {
 
   const handleRemoveOrder = (orderId: string) => {
     setSelectedOrders(prev => {
-      const newOrders = prev.filter(order => order !== orderId)
+      const newOrders = prev.filter(order => order.id !== orderId)
       return newOrders
     })
     setNewAdministrations(prev => {
@@ -150,33 +171,36 @@ export default function Mar() {
     },
   )
 
-  const handleMedCheckboxChange = (payload: { id: string, checked: boolean }) => {
-    const { id, checked } = payload;
+  const handleMedCheckboxChange = (order: MedicationOrder, checked: boolean) => {
     if (checked) {
-      setSelectedOrders(prev => [...prev, id]);
+      setSelectedOrders(prev => [...prev, order]);
 
       setNewAdministrations(prev => ({
         ...prev,
-        [id]: {
-          medicationOrderId: id,
+        [order.id]: {
+          medicationOrderId: order.id,
           status: "Given",
           administratorId: "currentUser",
           adminTimeMinuteOffset: 0,
-          administeredDose: 0,
+          administeredDose: order.dose,
           visibleInPresim: false // doesn't matter - this entry will not affect case template
         }
       }));
       console.log(selectedOrders)
     } else {
-      setSelectedOrders(prev => prev.filter(medId => medId !== id));
+      setSelectedOrders(prev => prev.filter(existingOrder => existingOrder.id !== order.id));
 
       setNewAdministrations(prev => {
         const copy = { ...prev };
-        delete copy[id];
+        delete copy[order.id];
         return copy;
       });
     }
   };
+
+  const handleTimeColChange = (offset: number) => {
+    setTimeColumnOffset(prev => prev + offset);
+  }
 
   const handleFilterChange = (option: string, checked: boolean | "indeterminate") => {
     setOrderFilter(() => {
@@ -295,91 +319,96 @@ export default function Mar() {
     ? addMinutes(anchorDate, elapsedMinutes)
     : new Date();
 
-  const displayColumns = createColumns(currentSimTime)
-  console.log(medicationOrders.length)
-  console.log(filteredMedOrders.length)
+  const displayColumns = createColumns(currentSimTime, timeColumnOffset);
+
   return (
     <div className="flex flex-col p-2 pt-0 w-full h-[calc(100vh-4rem)] bg-gray-100 overflow-y-auto">
-      <div className='flex gap-2 py-2'>
-        {associatedOrders.length > 0 &&
-          <MultiMedPopover
-            isOpen={isMultiOrderPopoverOpen}
-            associatedOrders={associatedOrders}
-            handleClose={handleMultiOrderPopoverClose}
-            handleSelection={handleMultiOrderPopoverChoice}
-            medication={medsById[associatedOrders[0].medicationId] || undefined}
-          />
-        }
-        <WrongPatientAlert
-          scanStatus={isWrongPtScan}
-          onWrongScanChange={setIsWrongPtScan}
+      {associatedOrders.length > 0 &&
+        <MultiMedPopover
+          isOpen={isMultiOrderPopoverOpen}
+          associatedOrders={associatedOrders}
+          handleClose={handleMultiOrderPopoverClose}
+          handleSelection={handleMultiOrderPopoverChoice}
+          medication={medsById[associatedOrders[0].medicationId]}
         />
-        {/* <p className='fixed top-4 left-4 bg-white p-4'>{scannedSymbol}</p> */}
-        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
-              <Filter className={`${orderFilter ? 'fill-blue-300 stroke-blue-500' : ''}`} />
-              Filter
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-fit p-4 border rounded-lg shadow">
-            <div className="grid gap-4">
-              <div className="flex flex-col gap-2">
-                {filterOptions.map(option => (
-                  <div key={option} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`filter-${option}`}
-                      checked={orderFilter.includes(option)}
-                      onCheckedChange={(checked) => handleFilterChange(option, checked)}
-                    />
-                    <Label htmlFor={`filter-${option}`} className="font-normal">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
+      }
+      <WrongPatientAlert
+        scanStatus={isWrongPtScan}
+        onWrongScanChange={setIsWrongPtScan}
+      />
+      <div className='flex gap-2 py-2 items-center justify-between mr-6'>
+        <div className="space-x-4">
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="text-xs w-fit h-8 bg-white shadow-xs">
+                <Filter className={`${orderFilter ? 'fill-blue-300 stroke-blue-500' : ''}`} />
+                Filter
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-fit p-4 border rounded-lg shadow">
+              <div className="grid gap-4">
+                <div className="flex flex-col gap-2">
+                  {filterOptions.map(option => (
+                    <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`filter-${option}`}
+                        checked={orderFilter.includes(option)}
+                        onCheckedChange={(checked) => handleFilterChange(option, checked)}
+                      />
+                      <Label htmlFor={`filter-${option}`} className="font-normal">
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                {filterOptions.length > 0 && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleClearFilters}
+                    className="h-6 border shadow"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
               </div>
-              {filterOptions.length > 0 && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleClearFilters}
-                  className="h-6 border shadow"
-                >
-                  Clear Filters
-                </Button>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
-        <Toggle
-          pressed={isDue}
-          onPressedChange={setIsDue}
-          aria-label="Toggle bookmark"
-          size="sm"
-          variant="outline"
-          className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-fit shrink-0 bg-white h-8 text-xs "
-        >
-          <ClipboardClock />
-          Due
-        </Toggle>
-        <MedAdministrationPanel
-          selectedMedIds={selectedOrders}
-          newAdministrations={newAdministrations}
-          onUpdateAdministration={handleUpdateAdministration}
-          onClearAll={handleClearAll}
-          allOrders={medicationOrders}
-          medicationLookup={medsById}
-          administrationsLookup={groupedAdministrationsByOrder}
-          sessionStart={anchorDate}
-          isScanned={isScanned}
-          onPtScan={setIsScanned}
-          onAdministerMeds={handleAdministerMeds}
-          isOpen={isMedAdminPanelOpen}
-          handlePopoverClose={setIsMedAdminPanelOpen}
-          onOrderRemove={handleRemoveOrder}
-          elapsedMinutes={elapsedMinutes}
-        />
+            </PopoverContent>
+          </Popover>
 
+          <Toggle
+            pressed={isDue}
+            onPressedChange={setIsDue}
+            aria-label="Toggle bookmark"
+            size="sm"
+            variant="outline"
+            className="data-[state=on]:*:[svg]:fill-blue-300 data-[state=on]:*:[svg]:stroke-blue-500 w-fit shrink-0 bg-white h-8 text-xs"
+          >
+            <ClipboardClock />
+            Due
+          </Toggle>
+
+          <PatientStatusBadge isScanned={isScanned} />
+        </div>
+
+        <div className='flex gap-4 lg:gap-10 xl:gap-30 2xl:gap-45'>
+          <ColumnShiftControl columns={displayColumns} onColumnShift={handleTimeColChange} />
+          <MedAdministrationPanel
+            selectedOrders={selectedOrders}
+            newAdministrations={newAdministrations}
+            onUpdateAdministration={handleUpdateAdministration}
+            onClearAll={handleClearAll}
+            medicationLookup={medsById}
+            administrationsLookup={groupedAdministrationsByOrder}
+            sessionStart={anchorDate}
+            isScanned={isScanned}
+            onPtScan={setIsScanned}
+            onAdministerMeds={handleAdministerMeds}
+            isOpen={isMedAdminPanelOpen}
+            handlePopoverClose={setIsMedAdminPanelOpen}
+            onOrderRemove={handleRemoveOrder}
+            elapsedMinutes={elapsedMinutes}
+          />
+        </div>
       </div>
 
       <div className="flex w-full h-full flex-col flex-1 gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
@@ -391,7 +420,7 @@ export default function Mar() {
           </div>
         )}
         {filteredMedOrders.map((order) => {
-          const isSelected = selectedOrders.includes(order.id);
+          const isSelected = selectedOrders.includes(order);
           const associatedMedication = medsById[order.medicationId]
           const orderSpecifcAdministrations = groupedAdministrationsByOrder[order.id] || [];
 
@@ -410,6 +439,7 @@ export default function Mar() {
               sessionStart={anchorDate}
               onSelectionChange={handleMedCheckboxChange}
               isSelected={isSelected}
+              isHighlightableColumn={timeColumnOffset === 0}
             />
           )
         })}
