@@ -105,7 +105,7 @@ export default function IntakeOutputForm() {
     }
 
     const numValue = parseFloat(value);
-    if (!isNaN(numValue) && numValue >= 0) {
+    if (!isNaN(numValue) && numValue >= 0 && numValue <= 99999999) {
       setIntakeOutput(prev =>
         prev.map(item => item.blockId === blockId ? { ...item, [type]: numValue } : item)
       );
