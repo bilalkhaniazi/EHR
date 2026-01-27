@@ -157,7 +157,7 @@ export default function MedicationAdministrationsForm() {
     }
   }
   const handleDoseChange = (val: string) => {
-    if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val)) {
+    if (val === '' || /^[0-9]*\.?[0-9]*$/.test(val) && Number(val) <= 99999999) {
       setDose(val)
     }
   }
