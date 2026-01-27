@@ -243,11 +243,11 @@ export function LabForm() {
       backButtonTooltip="Return to Previous Page"
     >
       <div className="bg-slate-50/50 flex-1 flex flex-col min-h-0 px-6 pt-4">
-        <div className="px-4 w-full flex justify-start gap-12 mb-3 items-end">
+        <div className="h-12 px-4 w-full flex justify-start gap-12 mb-3 items-end">
           <AddTableColumn handleColumnAdd={addTimePoint} />
           <div>
             <Label>Imaging Options</Label>
-            <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions}></Combobox>
+            <Combobox onValueChange={handleAddVisibleItem} value={comboboxValue} displayText="Select scans..." data={hideableOptions} />
           </div>
           <div className="flex items-end gap-2">
             <div className="space-y-1.5">
@@ -268,7 +268,6 @@ export function LabForm() {
               const colorClass = row.rowType === "divider"
                 ? "bg-blue-50"
                 : "bg-white border-r last:border-r-0";
-
               return `${baseClass} ${colorClass}`;
             }}
           />
