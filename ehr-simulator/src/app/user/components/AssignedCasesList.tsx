@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-// no router here: actions use absolute redirects or button handlers
 import { startOfDay, isAfter } from "date-fns";
 import styles from "../../../styles/details.module.css";
 
