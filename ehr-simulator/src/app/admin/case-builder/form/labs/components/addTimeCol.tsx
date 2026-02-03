@@ -29,7 +29,7 @@ export function AddTableColumn({ handleColumnAdd }: AddTimeColumnButtonProps) {
     }
     const numValue = parseFloat(inputValue);
 
-    if (!isNaN(numValue) && numValue >= 0) {
+    if (!isNaN(numValue) && numValue >= 0 && numValue <= 99999999) {
       setter(numValue);
     }
   };

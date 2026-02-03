@@ -9,6 +9,7 @@ import { IntakeOutput } from "./components/intakeOutput"
 import { SelectedLabs } from "./components/selectedLabs"
 import MarSnapshot from "./components/marSnapshot"
 import Demographics from "./components/demographics"
+import FamilyHistory from "./components/familyHistory"
 
 const OverviewPage = () => {
   return (
@@ -26,6 +27,7 @@ const OverviewPage = () => {
           <SelectedLabs />
           <MarSnapshot />
           <Demographics />
+          <FamilyHistory />
         </div>
       </div>
     </div>

@@ -177,15 +177,15 @@ export default function NotesForm() {
                     </div>
                     <div className="flex gap-2">
                       <div className="relative flex-1">
-                        <Input type="number" min={0} value={days} onChange={e => setDays(Number(e.target.value))} className="pr-8 bg-white" />
+                        <Input type="number" min={0} value={days} onChange={e => { if (Number(e.target.value) <= 99999999) setDays(Number(e.target.value)) }} className="pr-8 bg-white" />
                         <span className="absolute right-3 top-2.5 text-xs text-slate-400">d</span>
                       </div>
                       <div className="relative flex-1">
-                        <Input type="number" min={0} value={hours} onChange={e => setHours(Number(e.target.value))} className="pr-8 bg-white" />
+                        <Input type="number" min={0} value={hours} onChange={e => { if (Number(e.target.value) <= 99999999) setHours(Number(e.target.value)) }} className="pr-8 bg-white" />
                         <span className="absolute right-3 top-2.5 text-xs text-slate-400">h</span>
                       </div>
                       <div className="relative flex-1">
-                        <Input type="number" min={0} value={minutes} onChange={e => setMinutes(Number(e.target.value))} className="pr-8 bg-white" />
+                        <Input type="number" min={0} value={minutes} onChange={e => { if (Number(e.target.value) <= 99999999) setMinutes(Number(e.target.value)) }} className="pr-8 bg-white" />
                         <span className="absolute right-3 top-2.5 text-xs text-slate-400">m</span>
                       </div>
                     </div>

@@ -1,10 +1,15 @@
 'use client'
+import { useState, forwardRef, useImperativeHandle, useRef } from "react";
 import { ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { useState, useRef } from 'react';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+
+export interface FamilyHistoryInputHandle {
+  focus: () => void,
+  hasText: () => boolean
+}
 
 export interface FamilyHistoryData {
   relation: string;
@@ -22,11 +27,19 @@ const relations: string[] = [
   'Maternal Grandmother', 'Maternal Grandfather', 'Maternal Aunt', 'Maternal Uncle', 'Maternal Cousin',
 ];
 
-export function FamilyHistory(
-  { value, onChange }: FamilyHistoryProps
-) {
+export const FamilyHistory = forwardRef<FamilyHistoryInputHandle, FamilyHistoryProps>(({
+  value,
+  onChange
+}, ref) => {
   const [relation, setRelation] = useState('');
   const [condition, setCondition] = useState('');
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    hasText: () => condition.trim().length > 0,
+  }))
 
   // Ref to focus back on the select after adding
   const selectTriggerRef = useRef<HTMLButtonElement>(null);
@@ -69,6 +82,7 @@ export function FamilyHistory(
         <div className="space-y-1 flex-[2] w-full">
           <label className="text-xs font-medium text-slate-500">Condition / Disease</label>
           <Input
+            ref={inputRef}
             value={condition}
             onChange={(e) => setCondition(e.target.value)}
             placeholder="e.g. Type 2 Diabetes, Hypertension"
@@ -102,7 +116,7 @@ export function FamilyHistory(
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-slate-400 hover:text-red-600"
+                        className="cursor-pointer h-6 w-6 text-slate-400 hover:text-red-600"
                         onClick={() => deleteEntry(index)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -118,4 +132,4 @@ export function FamilyHistory(
       )}
     </div>
   );
-}
+})

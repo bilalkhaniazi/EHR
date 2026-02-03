@@ -177,8 +177,8 @@ export function ChartingForm() {
       continueButtonText="Continue"
       backButtonText="Back"
     >
-      <div className="bg-slate-50/50 flex-1 flex flex-col min-h-0  px-6 pt-4">
-        <div className="flex gap-12 items-end px-8 py-2">
+      <div className="bg-slate-50/50 flex-1 flex flex-col min-h-0 px-6 pt-4">
+        <div className="h-12 px-4 w-full flex justify-start gap-12 mb-3 items-end">
           <AddTableColumn handleColumnAdd={addTimePoint} />
           <div className="space-y-1.5">
             <p className="w-fit items-center justify-center flex gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-600 border border-yellow-300 uppercase tracking-wide">
@@ -193,11 +193,13 @@ export function ChartingForm() {
         </div>
 
         <div className="flex-1 w-full border border-gray-300 rounded-t-lg overflow-auto bg-white shadow-sm relative">
-          <FormTable table={ptTable} getCellClassName={(row) => {
-            return row.componentType === "static"
-              ? "bg-lime-50"
-              : "bg-white border-r last:border-r-0";
-          }} />
+          <FormTable
+            table={ptTable}
+            getCellClassName={(row) => {
+              return row.componentType === "static"
+                ? "bg-lime-50"
+                : "bg-white border-r last:border-r-0";
+            }} />
         </div>
       </div>
     </FormShell>

@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
-import { FamilyHistory, FamilyHistoryData } from "./familyHistory";
+import { FamilyHistory, FamilyHistoryData, FamilyHistoryInputHandle } from "./familyHistory";
 import { useFormContext } from "@/context/FormContext";
 import { nursingAlerts } from "@/utils/form";
 import { HistoryFormData } from "@/utils/form";
@@ -70,7 +70,9 @@ const HistoryForm = () => {
   const allergensInputRef = useRef<MultiTextInputHandle>(null);
   const socialHabitsInputRef = useRef<MultiTextInputHandle>(null);
   const livingSituationInputRef = useRef<MultiTextInputHandle>(null);
-  const inputRefs = [diagnosesInputRef, proceduresInputRef, allergensInputRef, socialHabitsInputRef, livingSituationInputRef];
+  const familyHistoryInputRef = useRef<FamilyHistoryInputHandle>(null);
+
+  const inputRefs = [diagnosesInputRef, proceduresInputRef, allergensInputRef, socialHabitsInputRef, livingSituationInputRef, familyHistoryInputRef];
 
   const focusOnUnsaved = () => {
     for (const ref of inputRefs) {
@@ -229,7 +231,7 @@ const HistoryForm = () => {
                         labelText="Social Habits"
                         value={socialHistory}
                         onChange={setSocialHistory}
-                        placeholder="e.g. Tobacco Use, Polysubstance Use, High Risk Occupation..."
+                        placeholder="e.g. Tobacco Use, High Risk Occupation..."
                         emptyMessage="No social habits recorded."
                         ref={socialHabitsInputRef}
                       />
@@ -276,10 +278,10 @@ const HistoryForm = () => {
               <FamilyHistory
                 value={familyHistory}
                 onChange={setFamilyHistory}
+                ref={familyHistoryInputRef}
               />
             </CardContent>
           </Card>
-
         </div>
       </div>
     </FormShell >

@@ -60,7 +60,7 @@ const ActiveProblems = () => {
       <CardContent className="px-4 space-y-1">
         {pmh.map(problem => {
           return (
-            <div key={problem} className="">
+            <div key={problem} className="group">
               <p className="text-sm">{problem}</p>
               <Separator className="bg-red-200" />
             </div>

@@ -203,7 +203,7 @@ export default function DemographicsForm() {
                       <Label htmlFor="age">Age</Label>
                       <div className="relative">
                         <Input
-                          onChange={(e) => { setDemographicsData({ ...demographicsData, ["age"]: e.target.value }) }}
+                          onChange={(e) => { if (Number(e.target.value) <= limits.maxAge && (Number(e.target.value) >= limits.minAge)) setDemographicsData({ ...demographicsData, ["age"]: e.target.value }) }}
                           required
                           id="age"
                           name="age"
@@ -260,7 +260,7 @@ export default function DemographicsForm() {
                               min={limits.minFeet}
                               max={limits.maxFeet}
                               className="pr-8"
-                              onChange={(e) => { setDemographicsData({ ...demographicsData, ["heightFeet"]: e.target.value }) }}
+                              onChange={(e) => { if (Number(e.target.value) <= limits.maxFeet && (Number(e.target.value) >= limits.minFeet)) setDemographicsData({ ...demographicsData, ["heightFeet"]: e.target.value }) }}
                               value={demographicsData.heightFeet}
                             />
                             <span className="absolute right-3 top-2.5 text-xs text-slate-400">ft</span>
@@ -273,14 +273,14 @@ export default function DemographicsForm() {
                               min={limits.minInches}
                               max={limits.maxInches}
                               className="pr-8"
-                              onChange={(e) => { setDemographicsData({ ...demographicsData, ["heightInches"]: e.target.value }) }}
+                              onChange={(e) => { if (Number(e.target.value) <= limits.maxInches && (Number(e.target.value) >= limits.minInches)) setDemographicsData({ ...demographicsData, ["heightInches"]: e.target.value }) }}
                               value={demographicsData.heightInches}
                             />
                             <span className="absolute right-3 top-2.5 text-xs text-slate-400">in</span>
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-2 w-50">
                         <Label htmlFor="dosingWeight">Dosing Weight</Label>
                         <div className="relative">
                           <Input
@@ -291,7 +291,7 @@ export default function DemographicsForm() {
                             min={limits.minKilograms}
                             max={limits.maxKilograms}
                             className="pr-8"
-                            onChange={(e) => { setDemographicsData({ ...demographicsData, ["dosingWeight"]: e.target.value }) }}
+                            onChange={(e) => { if (Number(e.target.value) <= limits.maxKilograms && (Number(e.target.value) >= limits.minKilograms)) setDemographicsData({ ...demographicsData, ["dosingWeight"]: e.target.value }) }}
                             value={demographicsData.dosingWeight}
                           />
                           <span className="absolute right-3 top-2.5 text-xs text-slate-400">kg</span>
@@ -480,7 +480,7 @@ export default function DemographicsForm() {
                       name="admissionDateOffest"
                       type="number"
                       className="pr-12"
-                      onChange={(e) => { setDemographicsData({ ...demographicsData, ["admissionDateOffest"]: e.target.value }) }}
+                      onChange={(e) => { if (Number(e.target.value) <= 99999999 && (Number(e.target.value) >= 0)) setDemographicsData({ ...demographicsData, ["admissionDateOffest"]: e.target.value }) }}
                       value={demographicsData.admissionDateOffest}
                     />
                     <span className="absolute right-3 top-2.5 text-xs text-slate-400">days</span>
