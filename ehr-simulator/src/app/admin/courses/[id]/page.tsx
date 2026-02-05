@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
-import { Calendar, Users, UserRoundX } from "lucide-react";
+import { Calendar, Users, UserRoundX, Trash } from "lucide-react";
 import { getCourseSimulations } from "@/actions/courses";
 import { format } from "date-fns";
 import CaseAssignment from "./caseAssignment";
+import { deleteCaseAssignment, getCaseByCourse } from "@/actions/cases";
+
 
 interface CoursePageProps {
   params: { id: string };
@@ -19,17 +21,23 @@ interface AssignmentGroups {
 
 interface SimAssignment {
   id: string;
-  scheduled_datetime: string;
-  is_published: boolean;
+  sim_time: string;
+  presim_time: string;
   section_name: string;
   section_id: string;
   case_name: string;
+  case_id: string;
 }
+
+export type CourseSimulationsResult = Awaited<ReturnType<typeof getCourseSimulations>>;
+export type CasesWithName = Awaited<ReturnType<typeof getCaseByCourse>>;
 
 
 export default async function CoursePage({ params }: CoursePageProps) {
   const course = await getCourseById(params.id);
   const sections = await getCourseSimulations(params.id);
+  const cases = await getCaseByCourse(params.id)
+
   const now = new Date()
   console.log(sections)
 
@@ -41,19 +49,29 @@ export default async function CoursePage({ params }: CoursePageProps) {
     );
   }
 
-  console.log(sections)
+  const handleDeleteAssignment = async (id: string) => {
+    try {
+      await deleteCaseAssignment(id);
+
+    } catch (error) {
+      console.error("Failed to delete case:", error);
+      alert("Something went wrong. Please try again.");
+
+    }
+  }
 
   const processedSims = sections.flatMap((section) =>
     section.section_assignments.map((assignment) => ({
       id: assignment.id,
-      scheduled_datetime: assignment.scheduled_datetime,
-      is_published: assignment.is_published,
+      sim_time: assignment.sim_time,
+      presim_time: assignment.presim_time,
       section_name: section.name,
       section_id: section.id,
-      case_name: assignment.case_template.name
+      case_name: assignment.case_template.name,
+      case_id: assignment.case_template.id
     }))
   ).reduce<AssignmentGroups>((acc, item) => {
-    const scheduledDate = new Date(item.scheduled_datetime);
+    const scheduledDate = new Date(item.sim_time);
 
     if (scheduledDate < now) {
       acc.completed.push(item);
@@ -69,10 +87,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <div className="flex items-end gap-3">
-              <h1 className="text-4xl font-bold tracking-tight text-blue-900">
+              <h1 className="text-5xl font-bold tracking-tight text-blue-900">
                 {course.code}
               </h1>
-              <Badge variant="secondary" className="text-md font-normal">
+              <Badge className="bg-gray-100 text-black text-md ">
                 {course.semester}
               </Badge>
             </div>
@@ -86,7 +104,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold tracking-tight">Assigned Simulations</h2>
-            <CaseAssignment />
+            <CaseAssignment
+              sections={sections}
+              cases={cases}
+              isEditMode={false}
+            />
           </div>
 
           <Card className="p-0 overflow-hidden">
@@ -102,25 +124,36 @@ export default async function CoursePage({ params }: CoursePageProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {processedSims.assigned.map((sim) => (
-                      <TableRow key={sim.id} className="hover:bg-transparent">
+                    {processedSims.assigned.map((assignment) => (
+                      <TableRow key={assignment.id} className="hover:bg-transparent">
                         <TableCell>
                           <div className="font-medium flex items-center gap-2 text-gray-600">
                             <Calendar size={14} />
-                            <p>{format(sim.scheduled_datetime, 'Pp')}</p>
+                            <p>{format(assignment.sim_time, 'Pp')}</p>
                           </div>
                         </TableCell>
-                        <TableCell className="font-semibold text-gray-900">{sim.case_name}</TableCell>
+                        <TableCell className="font-semibold text-gray-900">{assignment.case_name}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Users size={14} className="text-gray-400" />
-                            {sim.section_name}
+                            {assignment.section_name}
                           </div>
                         </TableCell>
                         <TableCell className="">
-                          <Button variant="ghost" size="sm" className=" text-blue-600 hover:text-blue-700 hover:underline hover:bg-transparent">
-                            Manage
-                          </Button>
+                          <CaseAssignment
+                            isEditMode={true}
+                            sections={sections}
+                            cases={cases}
+                            existing_id={assignment.id}
+                            initialData={
+                              {
+                                sectionId: assignment.section_id,
+                                caseId: assignment.case_id,
+                                simTime: assignment.sim_time,
+                                presimTime: assignment.presim_time
+                              }
+                            }
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
@@ -148,25 +181,33 @@ export default async function CoursePage({ params }: CoursePageProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {processedSims.completed.map((sim) => (
-                      <TableRow key={sim.id} className="hover:bg-transparent">
+                    {processedSims.completed.map((assignment) => (
+                      <TableRow key={assignment.id} className="hover:bg-transparent">
                         <TableCell>
                           <div className="font-medium flex items-center gap-2 text-gray-600">
                             <Calendar size={14} />
-                            <p>{format(sim.scheduled_datetime, 'P')}</p>
+                            <p>{format(assignment.sim_time, 'P')}</p>
                           </div>
                         </TableCell>
-                        <TableCell>{sim.case_name}</TableCell>
+                        <TableCell>{assignment.case_name}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Users size={14} className="text-gray-400" />
-                            {sim.section_name}
+                            {assignment.section_name}
                           </div>
                         </TableCell>
-                        <TableCell className="">
+                        <TableCell className="flex items-center gap-2">
                           <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                             Completed
                           </Badge>
+                          <Button
+                            variant='ghost'
+                            className="group hover:bg-red-100 size-6"
+                          // onClick={() => handleDeleteAssignment(assignment.id)}
+                          >
+                            <Trash className="text-gray-300 group-hover:text-red-500" />
+                          </Button>
+
                         </TableCell>
                       </TableRow>
                     ))}

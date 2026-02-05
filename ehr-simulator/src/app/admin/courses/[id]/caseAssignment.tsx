@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,67 +8,228 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SelectGroup } from "@radix-ui/react-select";
+import { ChevronDown, Loader2, Plus } from "lucide-react";
+import { CasesWithName, CourseSimulationsResult } from "./page";
+import { format } from "date-fns";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Plus } from "lucide-react";
+import { useState } from "react";
+import { createCaseAssignment, deleteCaseAssignment, SectionAssignmentInsert } from "@/actions/cases";
 
-export const title = "Invite Team Members";
+interface CaseAssignmentProps {
+  sections: CourseSimulationsResult
+  cases: CasesWithName
+  isEditMode: boolean
+  existing_id?: string;
+  initialData?: {
+    sectionId: string,
+    caseId: string,
+    simTime: string,
+    presimTime: string
+  }
+}
 
-const CaseAssignment = () => {
+const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData }: CaseAssignmentProps) => {
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(initialData?.caseId || '');
+  const [selectedSectionId, setSelectedSectionId] = useState<string>(initialData?.sectionId || '');
+  const [presimDate, setPresimDate] = useState(
+    initialData?.presimTime ? new Date(initialData?.presimTime) : new Date()
+  );
+
+  const [simDate, setSimDate] = useState<Date>(
+    initialData?.simTime ? new Date(initialData.simTime) : new Date()
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    // Optional: Reset form when closing if you want
+    if (!open && !isEditMode) {
+      setSimDate(new Date());
+      setSelectedCaseId("");
+      setSelectedSectionId("");
+    }
+  }
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    try {
+      const payload: SectionAssignmentInsert = {
+        section_id: selectedSectionId,
+        case_id: selectedCaseId,
+        sim_time: simDate.toISOString(),
+        presim_time: presimDate.toISOString(),
+        // or if your action is an "Upsert", you include the ID here.
+        ...(isEditMode && existing_id ? { id: existing_id } : {})
+      };
+
+      await createCaseAssignment(payload);
+
+      setIsOpen(false);
+      // router.refresh(); 
+
+    } catch (error) {
+      console.error("Failed to assign case:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const handleDeleteAssignment = async (id: string) => {
+    setIsSubmitting(true);
+    try {
+      await deleteCaseAssignment(id);
+      setIsOpen(false);
+
+    } catch (error) {
+      console.error("Failed to delete case:", error);
+      alert("Something went wrong. Please try again.");
+
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+
+
+
+
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-700 hover:bg-blue-800 gap-2 shadow">
-          <Plus />
-          Assign Case
-        </Button>
+        {isEditMode ?
+          (
+            <Button variant="ghost" size="sm" className=" text-blue-600 hover:text-blue-700 hover:underline hover:bg-transparent">
+              Manage
+            </Button>
+          ) : (
+            <Button className="bg-blue-700 hover:bg-blue-800 gap-2 shadow">
+              <Plus />
+              Assign Case
+            </Button>
+          )
+        }
+
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Invite team members</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Case Assignment' : 'Assign Cases'}</DialogTitle>
           <DialogDescription>
-            Invite your team members to collaborate on this project.
+            Link simulation cases to specific sections
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <Select>
+        <div className="gap-6 grid grid-cols-2 pb-6">
+          <div>
+            <Label htmlFor="section-select">Section</Label>
+            <Select
+              key='sections-select'
+              value={selectedSectionId}
+              onValueChange={setSelectedSectionId}
 
-          </Select>
-          <div className="space-y-2">
-            <Label htmlFor="email2">Email address</Label>
-            <Input id="email2" placeholder="teammate@example.com" type="email" />
+            >
+              <SelectTrigger className="w-full max-w-48 mt-1">
+                <SelectValue placeholder="Select a section" />
+                <ChevronDown />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Sections</SelectLabel>
+                  {
+                    sections.length > 0 ? (
+                      sections.map((section, index) => {
+                        if (!section.meeting_time) {
+                          return null
+                        }
+                        const displayTime = format(section.meeting_time, 'p')
+                        return (
+                          <SelectItem key={`${index}`} value={section.id}>{section.name} - {displayTime}</SelectItem>
+                        )
+                      }
+                      )) : (
+                      <></>
+                    )
+                  }
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email3">Email address</Label>
-            <Input id="email3" placeholder="partner@example.com" type="email" />
+          <div>
+            <Label htmlFor="case-select">Case</Label>
+            <Select
+              key="case-select"
+              value={selectedCaseId}
+              onValueChange={setSelectedCaseId}
+            >
+              <SelectTrigger className="w-full max-w-48 mt-1">
+                <SelectValue placeholder="Select a case" />
+                <ChevronDown />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Cases</SelectLabel>
+                  {
+                    cases.length > 0 ? (
+                      cases.map((c, index) => {
+                        return (
+                          <SelectItem key={`${index}`} value={c.case_id}>{c.case_template.name || "Unknown Sim"}</SelectItem>
+                        )
+                      }
+                      )) : (
+                      <></>
+                    )
+                  }
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
-          <Button className="w-full">Send Invitations</Button>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or share link
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Input
-              className="flex-1"
-              readOnly
-              value="https://example.com/invite/abc123"
+          <div>
+            <Label htmlFor="presim-date">Pre-Sim Opening Date</Label>
+            <DateTimePicker
+              date={presimDate}
+              onDateChange={setPresimDate}
+              key="presim-date"
             />
-            <Button size="sm" variant="outline">
-              Copy
-            </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Anyone with this link can join your team
-          </p>
+          <div>
+            <Label htmlFor="presim-date">Sim Date</Label>
+            <DateTimePicker
+              date={simDate}
+              onDateChange={setSimDate}
+              key="presim-date"
+            />
+          </div>
+        </div>
+
+
+        <div className="flex gap-4 justify-between">
+
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !selectedCaseId || !selectedSectionId}
+            className="flex-2"
+          >
+            {isEditMode ? "Edit Case Assignment" : "Assign Sim"}
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          </Button>
+
+          {
+            (isEditMode && existing_id) && (
+              <Button
+                variant='destructive'
+                className="flex-1"
+                onClick={() => handleDeleteAssignment(existing_id)}
+              >
+                Delete Case Assignment
+              </Button>
+
+            )
+          }
         </div>
       </DialogContent>
     </Dialog>

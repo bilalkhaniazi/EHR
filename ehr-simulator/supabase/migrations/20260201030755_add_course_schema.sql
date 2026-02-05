@@ -6,10 +6,7 @@ ADD CONSTRAINT users_role_check
 CHECK (role IN ('admin', 'student', 'faculty')); 
 
 ALTER TABLE public.users ALTER COLUMN role SET DEFAULT 'student';
-
--- ALTER TABLE public.courses
--- DROP COLUMN IF EXISTS start_date,
--- DROP COLUMN IF EXISTS end_date;
+ALTER TABLE public.users ADD COLUMN status BOOLEAN DEFAULT true;
 
 CREATE TABLE IF NOT EXISTS case_template (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -55,8 +52,8 @@ CREATE TABLE IF NOT EXISTS public.section_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     section_id UUID REFERENCES public.sections(id) ON DELETE CASCADE,
     case_id UUID REFERENCES public.case_template(id) ON DELETE CASCADE,
-    scheduled_datetime TIMESTAMPTZ NOT NULL, 
-    is_published BOOLEAN DEFAULT false,
+    sim_time TIMESTAMPTZ NOT NULL, 
+    presim_time TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
     -- status text CHECK(status in ())
 );
@@ -71,16 +68,16 @@ CREATE TABLE IF NOT EXISTS public.case_sessions (
     feedback text,
     started_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ
-)
+);
 
--- CREATE TABLE public.course_case_requirements (
---     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---     course_id UUID REFERENCES public.courses(id) ON DELETE CASCADE,
---     case_id UUID REFERENCES public.case_template(id) ON DELETE CASCADE,
---     created_at TIMESTAMPTZ DEFAULT NOW(),
+CREATE TABLE public.course_cases (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_id UUID REFERENCES public.courses(id) ON DELETE CASCADE,
+    case_id UUID REFERENCES public.case_template(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
     
---     UNIQUE(course_id, case_id)
--- );
+    UNIQUE(course_id, case_id)
+);
 
 
 
