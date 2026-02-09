@@ -110,7 +110,7 @@ VALUES ('e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9b', 'c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5
        ('e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9e', 'd4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f2e', true),
        ('e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9d', 'd4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f2e', true);
 
-INSERT INTO public.case_template (id, name) 
+INSERT INTO public.case_data (id, name) 
 VALUES('e5f6a7b8-c9d0-4e5f-4b1a-4c5d6e7f8a9d', 'Wallace Peterson'),
     ('e5f6a7b8-c9d0-4e5f-9c1f-4c5d6e7f8a9d', 'Melody Dix');
 

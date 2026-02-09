@@ -1,7 +1,6 @@
 "use server"
 
-import { createClient, QueryData } from "@supabase/supabase-js";
-import { Database } from "../../database.types";
+import { createClient } from "@supabase/supabase-js";
 
 export async function getAllCourses() {
   const supabase = createClient(
@@ -51,35 +50,3 @@ export async function getSections(id: string) {
   return data || null;
 }
 
-export async function getCourseSimulations(courseId: string) {
-  const supabase = createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  const sectionSimulationsQuery = supabase
-    .from('sections')
-    .select(`
-      id,
-      name,
-      meeting_time,
-      section_assignments (
-        id,
-        sim_time,
-        presim_time,
-        case_template!inner (
-          id,
-          name
-        )
-      )
-    `)
-    .eq('course_id', courseId);
-
-  type SectionSimulationsQuery = QueryData<typeof sectionSimulationsQuery>
-
-  const { data, error } = await sectionSimulationsQuery
-  if (error) throw error;
-
-  const sectionSimulations: SectionSimulationsQuery = data
-  return sectionSimulations || null;
-}

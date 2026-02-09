@@ -1,43 +1,40 @@
-"use client"
+// "use client"
 // import { getAllSimCases } from "@/actions/cases";
 
 import * as React from "react";
-import { useEffect } from "react";
 import CaseListItem from "./CaseListItem";
-import CreateCaseButton from "../components/CreateCaseButton";
+import { Button } from "@/components/ui/button";
+import { getAllSimCases } from "@/actions/cases";
 
-type SimCase = {
-  id: string;
-  name: string;
-  patient_name: string;
-  description: string;
-}
 
-async function getCases(): Promise<SimCase[]> {
-  return [
-    {
-      id: "1",
-      name: "Fluid & Electrolyte Simulation",
-      patient_name: "Harry Adams",
-      description: "Recently returned from a Caribbean cruise. Reports ongoing nausea and vomiting for 3 days. Has not been eating or drinking. Presents with dizziness and fatigue. Complains of generalized weakness and nausea. Has not urinated much in the past 24 hours",
-    },
-  ];
-}
+export default async function CasesPage() {
+  const casesResult = await getAllSimCases()
 
-export default function CasesPage() {
-  const [cases, setCases] = React.useState<SimCase[]>([]);
+  if (!casesResult.success) {
+    return (
+      <div>Failed to fetch simulation cases</div>
+    )
+  }
 
-  useEffect(() => {
-    getCases().then((cases) => {
-      setCases(cases);
-    });
-  }, []);
+  const casesData = casesResult.data || []
 
   return (
-    <div className="pl-2">
-      <h1 className="container mx-auto pt-10 text-4xl font-bold">CASES</h1>
-      {cases.map((simCase) => <CaseListItem key={simCase.id} simCase={simCase} />)}
-      <CreateCaseButton />
+    <div className="w-full">
+      <header className="bg-white border-b px-8 py-6 pb-4 sticky top-0 z-10">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h1 className="text-5xl font-bold tracking-tight">CASES</h1>
+
+            <p className="text-xs text-gray-500">Manage all simulation cases</p>
+          </div>
+          <Button>Create Case</Button>
+        </div>
+      </header>
+
+
+      <div className="flex flex-col gap-1 px-2">
+        {casesData.map((simCase) => <CaseListItem key={simCase.id} simCase={simCase} />)}
+      </div>
     </div>
   );
 }

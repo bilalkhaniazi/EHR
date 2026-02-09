@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      case_data: {
+        Row: {
+          id: string
+          name: string
+        }
+        Insert: {
+          id?: string
+          name: string
+        }
+        Update: {
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       case_sessions: {
         Row: {
           case_id: string | null
@@ -45,7 +60,7 @@ export type Database = {
             foreignKeyName: "case_sessions_case_id_fkey"
             columns: ["case_id"]
             isOneToOne: false
-            referencedRelation: "case_template"
+            referencedRelation: "case_data"
             referencedColumns: ["id"]
           },
           {
@@ -56,21 +71,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      case_template: {
-        Row: {
-          id: string
-          name: string
-        }
-        Insert: {
-          id?: string
-          name: string
-        }
-        Update: {
-          id?: string
-          name?: string
-        }
-        Relationships: []
       }
       course_cases: {
         Row: {
@@ -96,7 +96,7 @@ export type Database = {
             foreignKeyName: "course_cases_case_id_fkey"
             columns: ["case_id"]
             isOneToOne: false
-            referencedRelation: "case_template"
+            referencedRelation: "case_data"
             referencedColumns: ["id"]
           },
           {
@@ -290,7 +290,7 @@ export type Database = {
             foreignKeyName: "section_assignments_case_id_fkey"
             columns: ["case_id"]
             isOneToOne: false
-            referencedRelation: "case_template"
+            referencedRelation: "case_data"
             referencedColumns: ["id"]
           },
           {

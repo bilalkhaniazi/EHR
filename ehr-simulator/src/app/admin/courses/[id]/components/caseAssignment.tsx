@@ -11,16 +11,16 @@ import {
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SelectGroup } from "@radix-ui/react-select";
 import { ChevronDown, Loader2, Plus } from "lucide-react";
-import { CasesWithName, CourseSimulationsResult } from "./page";
 import { format } from "date-fns";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { createCaseAssignment, deleteCaseAssignment, SectionAssignmentInsert } from "@/actions/cases";
+import { CasesData, createCaseAssignment, deleteCaseAssignment, SectionAssignmentInsert, SectionSimulationsData } from "@/actions/cases";
+import { toast } from "sonner";
 
 interface CaseAssignmentProps {
-  sections: CourseSimulationsResult
-  cases: CasesWithName
+  sections: SectionSimulationsData
+  cases: CasesData
   isEditMode: boolean
   existing_id?: string;
   initialData?: {
@@ -46,9 +46,7 @@ const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData 
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    // Optional: Reset form when closing if you want
     if (!open && !isEditMode) {
-      setSimDate(new Date());
       setSelectedCaseId("");
       setSelectedSectionId("");
     }
@@ -57,48 +55,41 @@ const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData 
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
-    try {
-      const payload: SectionAssignmentInsert = {
-        section_id: selectedSectionId,
-        case_id: selectedCaseId,
-        sim_time: simDate.toISOString(),
-        presim_time: presimDate.toISOString(),
-        // or if your action is an "Upsert", you include the ID here.
-        ...(isEditMode && existing_id ? { id: existing_id } : {})
-      };
+    const payload: SectionAssignmentInsert = {
+      section_id: selectedSectionId,
+      case_id: selectedCaseId,
+      sim_time: simDate.toISOString(),
+      presim_time: presimDate.toISOString(),
+      ...(isEditMode && existing_id ? { id: existing_id } : {})
+    };
 
-      await createCaseAssignment(payload);
+    const result = await createCaseAssignment(payload);
 
-      setIsOpen(false);
-      // router.refresh(); 
-
-    } catch (error) {
-      console.error("Failed to assign case:", error);
-      alert("Something went wrong. Please try again.");
-    } finally {
+    if (!result.success) {
+      toast.error(result.message)
       setIsSubmitting(false);
+      return;
     }
+
+    toast.success(result.message);
+    setIsOpen(false);
+    setIsSubmitting(false);
+    handleOpenChange(false);
   }
 
   const handleDeleteAssignment = async (id: string) => {
     setIsSubmitting(true);
-    try {
-      await deleteCaseAssignment(id);
-      setIsOpen(false);
+    const result = await deleteCaseAssignment(id);
 
-    } catch (error) {
-      console.error("Failed to delete case:", error);
-      alert("Something went wrong. Please try again.");
-
-    } finally {
+    if (!result.success) {
+      toast.error(result.message);
       setIsSubmitting(false);
+      return;
     }
+
+    setIsOpen(false);
+    setIsSubmitting(false);
   }
-
-
-
-
-
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -177,7 +168,7 @@ const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData 
                     cases.length > 0 ? (
                       cases.map((c, index) => {
                         return (
-                          <SelectItem key={`${index}`} value={c.case_id}>{c.case_template.name || "Unknown Sim"}</SelectItem>
+                          <SelectItem key={`${index}`} value={c.case_id}>{c.case_data.name || "Unknown Sim"}</SelectItem>
                         )
                       }
                       )) : (

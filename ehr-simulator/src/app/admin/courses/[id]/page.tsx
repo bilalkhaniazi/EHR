@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
-import { Calendar, Users, UserRoundX, Trash } from "lucide-react";
-import { getCourseSimulations } from "@/actions/courses";
+import { Calendar, Users, UserRoundX } from "lucide-react";
+import { getSimAssignments } from "@/actions/cases";
 import { format } from "date-fns";
-import CaseAssignment from "./caseAssignment";
-import { deleteCaseAssignment, getCaseByCourse } from "@/actions/cases";
+import CaseAssignment from "./components/caseAssignment";
+import { getCaseByCourseId } from "@/actions/cases";
+import DeleteCaseButton from "./components/deleteCaseButton";
 
 
 interface CoursePageProps {
@@ -29,17 +30,13 @@ interface SimAssignment {
   case_id: string;
 }
 
-export type CourseSimulationsResult = Awaited<ReturnType<typeof getCourseSimulations>>;
-export type CasesWithName = Awaited<ReturnType<typeof getCaseByCourse>>;
-
-
 export default async function CoursePage({ params }: CoursePageProps) {
-  const course = await getCourseById(params.id);
-  const sections = await getCourseSimulations(params.id);
-  const cases = await getCaseByCourse(params.id)
-
-  const now = new Date()
-  console.log(sections)
+  const [course, sectionsResult, casesResult] = await Promise.all([
+    getCourseById(params.id),
+    getSimAssignments(params.id),
+    getCaseByCourseId(params.id)
+  ]);
+  // console.log(sections)
 
   if (!course) {
     return (
@@ -49,29 +46,38 @@ export default async function CoursePage({ params }: CoursePageProps) {
     );
   }
 
-  const handleDeleteAssignment = async (id: string) => {
-    try {
-      await deleteCaseAssignment(id);
-
-    } catch (error) {
-      console.error("Failed to delete case:", error);
-      alert("Something went wrong. Please try again.");
-
-    }
+  if (!sectionsResult.success || !casesResult.success) {
+    return <div>Error loading data: {sectionsResult.message || casesResult.message}</div>
   }
 
-  const processedSims = sections.flatMap((section) =>
-    section.section_assignments.map((assignment) => ({
-      id: assignment.id,
-      sim_time: assignment.sim_time,
-      presim_time: assignment.presim_time,
-      section_name: section.name,
-      section_id: section.id,
-      case_name: assignment.case_template.name,
-      case_id: assignment.case_template.id
-    }))
+  const sectionsData = sectionsResult.data ?? [];
+  const casesData = casesResult.data ?? [];
+
+  const processedSims = sectionsData.flatMap((section) =>
+    section.section_assignments.map((assignment) => {
+
+      // TS believes case_data is an array, when it is actually an object
+      const caseName = Array.isArray(assignment.case_data)
+        ? assignment.case_data[0]?.name
+        : assignment.case_data?.name;
+
+      const caseId = Array.isArray(assignment.case_data)
+        ? assignment.case_data[0]?.id
+        : assignment.case_data?.id;
+
+      return {
+        id: assignment.id,
+        sim_time: assignment.sim_time,
+        presim_time: assignment.presim_time,
+        section_name: section.name,
+        section_id: section.id,
+        case_name: caseName ?? "Unknown Case",
+        case_id: caseId ?? ""
+      };
+    })
   ).reduce<AssignmentGroups>((acc, item) => {
     const scheduledDate = new Date(item.sim_time);
+    const now = new Date()
 
     if (scheduledDate < now) {
       acc.completed.push(item);
@@ -82,7 +88,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   }, { completed: [], assigned: [] });
 
   return (
-    <div className="flex h-screen w-full flex-col bg-gray-50/50">
+    <div className="h-screen w-full bg-gray-50/50">
       <header className="bg-white border-b px-8 py-6 pb-4 sticky top-0 z-10">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
@@ -105,8 +111,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold tracking-tight">Assigned Simulations</h2>
             <CaseAssignment
-              sections={sections}
-              cases={cases}
+              sections={sectionsData}
+              cases={casesData}
               isEditMode={false}
             />
           </div>
@@ -142,8 +148,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
                         <TableCell className="">
                           <CaseAssignment
                             isEditMode={true}
-                            sections={sections}
-                            cases={cases}
+                            sections={sectionsData}
+                            cases={casesData}
                             existing_id={assignment.id}
                             initialData={
                               {
@@ -200,13 +206,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
                           <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                             Completed
                           </Badge>
-                          <Button
-                            variant='ghost'
-                            className="group hover:bg-red-100 size-6"
-                          // onClick={() => handleDeleteAssignment(assignment.id)}
-                          >
-                            <Trash className="text-gray-300 group-hover:text-red-500" />
-                          </Button>
+                          <DeleteCaseButton caseId={assignment.id} />
 
                         </TableCell>
                       </TableRow>
@@ -224,7 +224,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   );
 }
 
-// Reusable Empty State Component
+// Empty Case Component
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-4  text-center text-gray-500">
