@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient, PostgrestError, QueryData } from "@supabase/supabase-js";
+import { createClient, PostgrestError } from "@supabase/supabase-js";
 import { Database } from "../../database.types";
 import { revalidatePath } from "next/cache";
 
@@ -123,7 +123,7 @@ export async function getSimAssignments(courseId: string) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const sectionSimulationsQuery = supabase
+  const { data, error } = await supabase
     .from('sections')
     .select(`
       id,
@@ -141,9 +141,6 @@ export async function getSimAssignments(courseId: string) {
     `)
     .eq('course_id', courseId);
 
-  type SectionAssignment = QueryData<typeof sectionSimulationsQuery>;
-  const { data, error } = await sectionSimulationsQuery
-
   if (error) {
     const result = {
       success: false,
@@ -156,7 +153,7 @@ export async function getSimAssignments(courseId: string) {
   return {
     success: true,
     message: 'Successfully retrieved Sim Assignment for this section.',
-    data: data as SectionAssignment,
+    data: data,
   }
 }
 

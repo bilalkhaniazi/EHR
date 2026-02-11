@@ -37,10 +37,10 @@ const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData 
   const [presimDate, setPresimDate] = useState(
     initialData?.presimTime ? new Date(initialData?.presimTime) : new Date()
   );
-
   const [simDate, setSimDate] = useState<Date>(
     initialData?.simTime ? new Date(initialData.simTime) : new Date()
   );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 

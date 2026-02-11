@@ -5,6 +5,7 @@ import * as React from "react";
 import CaseListItem from "./CaseListItem";
 import { Button } from "@/components/ui/button";
 import { getAllSimCases } from "@/actions/cases";
+import Link from "next/link";
 
 
 export default async function CasesPage() {
@@ -27,12 +28,16 @@ export default async function CasesPage() {
 
             <p className="text-xs text-gray-500">Manage all simulation cases</p>
           </div>
-          <Button>Create Case</Button>
+          <Link href='/admin/case-builder/form/demographics'>
+            <Button
+            // route to cases creation/editor onClick={}
+            >Create Case</Button>
+          </Link>
         </div>
       </header>
 
 
-      <div className="flex flex-col gap-1 px-2">
+      <div className="flex flex-col gap-4 p-4">
         {casesData.map((simCase) => <CaseListItem key={simCase.id} simCase={simCase} />)}
       </div>
     </div>

@@ -55,16 +55,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
   const processedSims = sectionsData.flatMap((section) =>
     section.section_assignments.map((assignment) => {
-
       // TS believes case_data is an array, when it is actually an object
-      const caseName = Array.isArray(assignment.case_data)
-        ? assignment.case_data[0]?.name
-        : assignment.case_data?.name;
-
-      const caseId = Array.isArray(assignment.case_data)
-        ? assignment.case_data[0]?.id
-        : assignment.case_data?.id;
-
+      const caseName = assignment.case_data?.name;
+      const caseId = assignment.case_data?.id;
       return {
         id: assignment.id,
         sim_time: assignment.sim_time,
