@@ -8,177 +8,24 @@ import {
   Upload,
   AlertCircleIcon,
   CheckCircle2Icon,
-  GripVertical,
-  Plus,
-  Pencil,
-  Check,
-  Trash
+  Plus
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction
-} from "@/components/ui/alert-dialog"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, useState, DragEvent, useRef } from "react"
+import { GroupTable, Student, Groups } from "./GroupTable"
 
-interface Student {
-  groupCode: string
-  userName: string
-  studentId: string
-  firstName: string
-  lastName: string
-  groupSet: string
-}
-
-interface GroupData {
-  [groupName: string]: Student[]
-}
-
-const GroupTable = ({
-  groupData,
-  draggedStudent,
-  dragOverGroup,
-  onDragStart,
-  onDragEnd,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  onRenameGroup,
-  onDeleteGroup
-}: any) => {
-  const [editingGroup, setEditingGroup] = useState<string | null>(null)
-  const [editValue, setEditValue] = useState("")
-
-  const handleStartEdit = (groupName: string) => {
-    setEditingGroup(groupName)
-    setEditValue(groupName)
-  }
-
-  const handleSaveEdit = (oldGroupName: string) => {
-    if (editValue.trim() && editValue !== oldGroupName) {
-      onRenameGroup(oldGroupName, editValue.trim())
-    }
-    setEditingGroup(null)
-    setEditValue("")
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent, oldGroupName: string) => {
-    if (e.key === "Enter") handleSaveEdit(oldGroupName)
-    if (e.key === "Escape") {
-      setEditingGroup(null)
-      setEditValue("")
-    }
-  }
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-      {Object.entries(groupData).map(([groupName, students]: [string, any]) => (
-        <div
-          key={groupName}
-          onDragOver={(e) => onDragOver(e, groupName)}
-          onDragLeave={onDragLeave}
-          onDrop={(e) => onDrop(e, groupName)}
-          className={`bg-white border rounded-lg p-4 shadow-sm transition-all ${dragOverGroup === groupName && draggedStudent?.fromGroup !== groupName
-            ? "outline-blue-500 outline-2 bg-blue-50 shadow-lg"
-            : "outline-slate-200 hover:shadow-md"
-            }`}
-        >
-          <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-200">
-            {editingGroup === groupName ? (
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <Input
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, groupName)}
-                  onBlur={() => handleSaveEdit(groupName)}
-                  autoFocus
-                  className="h-8 text-sm font-semibold min-w-0"
-                />
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0 flex-shrink-0" onClick={() => handleSaveEdit(groupName)}>
-                  <Check className="w-4 h-4 text-green-600" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-800 truncate">{groupName}</h3>
-                <Button size="sm" variant="ghost" className="cursor-pointer h-6 w-6 p-0 flex-shrink-0" onClick={() => handleStartEdit(groupName)}>
-                  <Pencil className="w-3 h-3 text-slate-400" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="ghost" className="cursor-pointer h-6 w-6 p-0 flex-shrink-0">
-                      <Trash className="w-3 h-3 text-red-400" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete group</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete the group and remove all students from it.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDeleteGroup(groupName)} className="bg-red-600">
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            )}
-            <Badge variant="secondary" className="text-xs whitespace-nowrap flex-shrink-0">
-              {students.length} {students.length === 1 ? "student" : "students"}
-            </Badge>
-          </div>
-          <div className="space-y-2">
-            {students
-              .sort((a: Student, b: Student) => a.lastName.localeCompare(b.lastName))
-              .map((student: Student) => (
-                <div
-                  key={student.studentId}
-                  draggable
-                  onDragStart={(e) => onDragStart(e, student, groupName)}
-                  onDragEnd={onDragEnd}
-                  className={`flex items-center gap-2 p-2 bg-slate-50 rounded border border-slate-200 hover:bg-slate-100 cursor-move transition-all select-none ${draggedStudent?.student.studentId === student.studentId ? "opacity-50" : ""
-                    }`}
-                >
-                  <GripVertical className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 truncate">
-                      {student.firstName} {student.lastName}
-                    </p>
-                    <p className="text-xs text-slate-500 truncate">
-                      {student.userName} • {student.studentId}
-                    </p>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default function CreateCoursePage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<File>()
   const [fileUploadError, setFileUploadError] = useState("")
-  const [groupData, setGroupData] = useState<GroupData>({})
+  const [groups, setGroupData] = useState<Groups>({})
   const [draggedStudent, setDraggedStudent] = useState<{ student: Student; fromGroup: string } | null>(null)
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null)
 
@@ -232,7 +79,7 @@ export default function CreateCoursePage() {
     reader.onload = (event) => {
       try {
         const students = parseCSV(event.target?.result as string)
-        const groups = students.reduce((acc: GroupData, s) => {
+        const groups = students.reduce((acc: Groups, s) => {
           acc[s.groupCode] = [...(acc[s.groupCode] || []), s]
           return acc
         }, {})
@@ -262,7 +109,7 @@ export default function CreateCoursePage() {
     if (!draggedStudent || draggedStudent.fromGroup === toGroup) return
 
     const { student, fromGroup } = draggedStudent
-    const newData = { ...groupData }
+    const newData = { ...groups }
     newData[fromGroup] = newData[fromGroup].filter(s => s.studentId !== student.studentId)
     newData[toGroup] = [...(newData[toGroup] || []), { ...student, groupCode: toGroup }]
 
@@ -272,19 +119,19 @@ export default function CreateCoursePage() {
   }
 
   const handleCreateNewGroup = () => {
-    const existingGroups = Object.keys(groupData)
+    const existingGroups = Object.keys(groups)
     let i = 1
     let name = `New Group ${i}`
     while (existingGroups.includes(name)) {
       i++
       name = `New Group ${i}`
     }
-    setGroupData({ ...groupData, [name]: [] })
+    setGroupData({ ...groups, [name]: [] })
   }
 
   const handleRenameGroup = (oldName: string, newName: string) => {
-    if (oldName === newName || groupData[newName]) return
-    const newData = { ...groupData }
+    if (oldName === newName || groups[newName]) return
+    const newData = { ...groups }
     const students = newData[oldName].map(s => ({ ...s, groupCode: newName }))
     delete newData[oldName]
     newData[newName] = students
@@ -292,7 +139,7 @@ export default function CreateCoursePage() {
   }
 
   const handleDeleteGroup = (groupName: string) => {
-    const newData = { ...groupData }
+    const newData = { ...groups }
     delete newData[groupName]
     setGroupData(newData)
   }
@@ -316,7 +163,9 @@ export default function CreateCoursePage() {
         <div className="max-w-6xl mx-auto space-y-6 pb-20">
           <Card className="pt-4">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2"><Upload className="w-5 h-5 text-blue-600" />Upload .CSV File</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Upload className="w-5 h-5 text-blue-600" /> Upload .CSV File
+              </CardTitle>
               <CardDescription>Upload course information file</CardDescription>
             </CardHeader>
             <CardContent>
@@ -341,27 +190,31 @@ export default function CreateCoursePage() {
             </CardContent>
           </Card>
 
-          {Object.keys(groupData).length > 0 && (
-            <Card className="pt-4">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="w-5 h-5 text-blue-600" /> Student Groups
-                  </CardTitle>
-                  <Button className="cursor-pointer" onClick={handleCreateNewGroup} size="sm">
-                    <Plus className="w-4 h-4" /> New Group
-                  </Button>
-                </div>
+          {Object.keys(groups).length > 0 && (
+            <Card>
+              <CardHeader className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-600" /> Student Groups
+                  <Badge variant="secondary" className="text-xs whitespace-nowrap flex-shrink-0">
+                    {Object.keys(groups).length} {Object.keys(groups).length === 1 ? "group" : "groups"}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs whitespace-nowrap flex-shrink-0">
+                    {(() => { const total = Object.values(groups).reduce((sum, students) => sum + students.length, 0); return `${total} ${total === 1 ? "student" : "students"}`; })()}
+                  </Badge>
+                </CardTitle>
+                <Button className="cursor-pointer" onClick={handleCreateNewGroup} size="sm">
+                  <Plus className="w-4 h-4" /> New Group
+                </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <GroupTable
-                  groupData={groupData}
+                  groups={groups}
                   draggedStudent={draggedStudent}
                   dragOverGroup={dragOverGroup}
-                  onDragStart={(e: any, s: Student, g: string) => { setDraggedStudent({ student: s, fromGroup: g }); e.dataTransfer.effectAllowed = "move" }}
+                  onDragStart={(e: React.DragEvent, s: Student, g: string) => { setDraggedStudent({ student: s, fromGroup: g }); e.dataTransfer.effectAllowed = "move" }}
                   onDragEnd={() => { setDraggedStudent(null); setDragOverGroup(null) }}
-                  onDragOver={(e: any, g: string) => { e.preventDefault(); setDragOverGroup(g) }}
-                  onDragLeave={(e: any) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverGroup(null) }}
+                  onDragOver={(e: React.DragEvent, g: string) => { e.preventDefault(); setDragOverGroup(g) }}
+                  onDragLeave={(e: React.DragEvent) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverGroup(null) }}
                   onDrop={handleDrop}
                   onRenameGroup={handleRenameGroup}
                   onDeleteGroup={handleDeleteGroup}
