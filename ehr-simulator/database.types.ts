@@ -11,14 +11,23 @@ export type Database = {
     Tables: {
       case_data: {
         Row: {
+          age: number | null
+          description: string | null
+          diagnosis: string | null
           id: string
           name: string
         }
         Insert: {
+          age?: number | null
+          description?: string | null
+          diagnosis?: string | null
           id?: string
           name: string
         }
         Update: {
+          age?: number | null
+          description?: string | null
+          diagnosis?: string | null
           id?: string
           name?: string
         }
@@ -113,33 +122,24 @@ export type Database = {
           active: boolean | null
           code: string
           created_at: string | null
-          end_date: string | null
           id: string
           name: string
-          semester: string
-          start_date: string | null
           updated_at: string | null
         }
         Insert: {
           active?: boolean | null
           code: string
           created_at?: string | null
-          end_date?: string | null
           id?: string
           name: string
-          semester: string
-          start_date?: string | null
           updated_at?: string | null
         }
         Update: {
           active?: boolean | null
           code?: string
           created_at?: string | null
-          end_date?: string | null
           id?: string
           name?: string
-          semester?: string
-          start_date?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -306,25 +306,34 @@ export type Database = {
         Row: {
           course_id: string | null
           created_at: string | null
+          end_date: string | null
           id: string
           meeting_time: string | null
           name: string
+          semester: string | null
+          start_date: string | null
           updated_at: string | null
         }
         Insert: {
           course_id?: string | null
           created_at?: string | null
+          end_date?: string | null
           id?: string
           meeting_time?: string | null
           name: string
+          semester?: string | null
+          start_date?: string | null
           updated_at?: string | null
         }
         Update: {
           course_id?: string | null
           created_at?: string | null
+          end_date?: string | null
           id?: string
           meeting_time?: string | null
           name?: string
+          semester?: string | null
+          start_date?: string | null
           updated_at?: string | null
         }
         Relationships: [

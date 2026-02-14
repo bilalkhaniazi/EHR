@@ -1,6 +1,6 @@
 'use client'
 
-import { deleteCaseAssignment } from "@/actions/cases";
+import { deleteSectionCaseAssignment } from "@/actions/cases";
 import { Button } from "@/components/ui/button"
 import { Trash } from "lucide-react"
 import { useState } from "react";
@@ -15,14 +15,13 @@ const DeleteCaseButton = ({ caseId }: DeleteCaseButtonProps) => {
 
   const handleDelete = async (caseId: string) => {
     setIsDeleting(true);
-    const result = await deleteCaseAssignment(caseId);
+    const result = await deleteSectionCaseAssignment(caseId);
 
     if (!result.success) {
       toast.error(result.message);
       setIsDeleting(false);
       return;
     }
-
     setIsDeleting(false);
   }
 

@@ -11,7 +11,7 @@ export async function getAllCourses() {
   const { data, error } = await supabase
     .from("courses")
     .select("*")
-    .order("start_date", { ascending: false });
+  // .order("start_date", { ascending: false });
 
   if (error) throw new Error(error.message);
 

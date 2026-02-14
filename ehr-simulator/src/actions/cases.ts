@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 
 export type SectionAssignment = Database['public']['Tables']['section_assignments']['Row'];
 export type SectionAssignmentInsert = Database['public']['Tables']['section_assignments']['Insert'];
-export type SectionAssignmentUpdate = Database['public']['Tables']['section_assignments']['Update'];
 
 export type ActionResponse<T = null> = {
   success: boolean;
@@ -117,7 +116,7 @@ export async function getCaseByCourseId(id: string) {
   };
 }
 
-export async function getSimAssignments(courseId: string) {
+export async function getSectionCaseAssignments(courseId: string) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -133,9 +132,11 @@ export async function getSimAssignments(courseId: string) {
         id,
         sim_time,
         presim_time,
-        case_data!section_assignments_case_id_fkey!inner (
+        case_data!section_assignments_case_id_fkey (
           id,
-          name
+          name,
+          description,
+          diagnosis
         )
       )
     `)
@@ -157,7 +158,7 @@ export async function getSimAssignments(courseId: string) {
   }
 }
 
-export async function createCaseAssignment(payload: SectionAssignmentInsert): Promise<ActionResponse<SectionAssignment>> {
+export async function createSectionCaseAssignment(payload: SectionAssignmentInsert): Promise<ActionResponse<SectionAssignment>> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -187,7 +188,7 @@ export async function createCaseAssignment(payload: SectionAssignmentInsert): Pr
   };
 }
 
-export async function deleteCaseAssignment(id: string): Promise<ActionResponse> {
+export async function deleteSectionCaseAssignment(id: string): Promise<ActionResponse> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -215,9 +216,67 @@ export async function deleteCaseAssignment(id: string): Promise<ActionResponse> 
   };
 }
 
+export async function getCourseCaseAssignments() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: rawData, error } = await supabase
+    .from('course_cases')
+    .select(`
+      id,
+      course_id,
+      case_id,
+      case_data!course_cases_case_id_fkey (
+        *
+      ),
+      courses!course_cases_course_id_fkey (
+        name,
+        code
+      )
+    `);
+
+  if (error) {
+    const result = {
+      success: false,
+      message: 'Failed to retreive sim cases.',
+      error,
+      data: null
+    };
+    return result
+  }
+  // Get TS to recognize that course and case are single objects, not arrays
+  const assignments = rawData?.map((item) => {
+    const course = Array.isArray(item.courses) ? item.courses[0] : item.courses;
+    const caseItem = Array.isArray(item.case_data) ? item.case_data[0] : item.case_data;
+
+    return {
+      id: item.id,
+      courseId: item.course_id,
+      caseId: item.case_id,
+      courseName: course?.name,
+      courseCode: course?.code,
+      caseName: caseItem?.name,
+      description: caseItem?.description,
+      diagnosis: caseItem?.diagnosis
+    };
+  }) ?? [];
+
+
+  return {
+    success: true,
+    message: 'Successfully retrieved sim cases.',
+    error: undefined,
+    data: assignments,
+  }
+}
+
 // extracts type of data from ActionResponse for use in frontend
 type ExtractData<T extends (...args: any) => Promise<ActionResponse<any>>> =
   NonNullable<Awaited<ReturnType<T>>['data']>;
 
-export type SectionSimulationsData = ExtractData<typeof getSimAssignments>;
+export type SectionSimulationsData = ExtractData<typeof getSectionCaseAssignments>;
 export type CasesData = ExtractData<typeof getCaseByCourseId>;
+export type CaseCourseAssignments = ExtractData<typeof getCourseCaseAssignments>;
+export type CaseCourseAssignment = CaseCourseAssignments[number]

@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { CasesData, createCaseAssignment, deleteCaseAssignment, SectionAssignmentInsert, SectionSimulationsData } from "@/actions/cases";
+import { CasesData, createSectionCaseAssignment, deleteSectionCaseAssignment, SectionAssignmentInsert, SectionSimulationsData } from "@/actions/cases";
 import { toast } from "sonner";
 
 interface CaseAssignmentProps {
@@ -63,7 +63,7 @@ const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData 
       ...(isEditMode && existing_id ? { id: existing_id } : {})
     };
 
-    const result = await createCaseAssignment(payload);
+    const result = await createSectionCaseAssignment(payload);
 
     if (!result.success) {
       toast.error(result.message)
@@ -79,7 +79,7 @@ const CaseAssignment = ({ sections, cases, isEditMode, existing_id, initialData 
 
   const handleDeleteAssignment = async (id: string) => {
     setIsSubmitting(true);
-    const result = await deleteCaseAssignment(id);
+    const result = await deleteSectionCaseAssignment(id);
 
     if (!result.success) {
       toast.error(result.message);
