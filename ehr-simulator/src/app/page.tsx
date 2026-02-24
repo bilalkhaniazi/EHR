@@ -5,7 +5,8 @@ import Link from "next/link";
 export default async function Home() {
 
   const { data: users } = await supabase.from("users").select("*");
-  console.log(users);
+  console.log(users,'users from supabase');
+
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">

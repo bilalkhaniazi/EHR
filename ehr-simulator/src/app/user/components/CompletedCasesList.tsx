@@ -24,6 +24,9 @@ export default function CompletedCasesList({ cases }: { cases: CaseItem[] }) {
                 <div>
                   <div className="font-medium text-lg">{c.name}</div>
                   <div className="text-sm text-muted-foreground mt-1">Completed: {c.completionDate ? new Date(c.completionDate).toLocaleDateString() : "-"}</div>
+                  {c.teamMembers && c.teamMembers.length > 0 && (
+                    <div className="text-sm text-muted-foreground mt-1">Team: {c.teamMembers.join(", ")}</div>
+                  )}
                 </div>
               </div>
               <span className={styles.arrow} aria-hidden>

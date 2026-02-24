@@ -2,6 +2,7 @@ import React from "react";
 import ProfileHeader from "@/app/user/components/ProfileHeader";
 import AssignedCasesList from "@/app/user/components/AssignedCasesList";
 import CompletedCasesList from "@/app/user/components/CompletedCasesList";
+import { createServerSupabase } from "@/utils/supabase/server";
 
 type PerfMetrics = {
   score: number;
@@ -45,14 +46,22 @@ const mockCases: CaseItem[] = [
   },
 ];
 
-export default function ProfilePage() {
-  // split assigned vs completed
+export default async function ProfilePage() {
+  // get server-side user info from Supabase session
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const studentName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "Student";
+  const avatarUrl = user?.user_metadata?.avatar_url || "";
+
   const assigned = mockCases.filter((c) => c.status !== "Completed");
   const completed = mockCases.filter((c) => c.status === "Completed");
 
   const student = {
-    name: "Alex Johnson",
-    avatarUrl: "",
+    name: studentName,
+    avatarUrl,
     classes: ["NURS 201", "Clinical Simulation"],
   };
 

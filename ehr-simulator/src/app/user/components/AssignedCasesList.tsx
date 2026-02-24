@@ -26,7 +26,7 @@ export default function AssignedCasesList({ cases }: { cases: CaseItem[] }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              window.location.href = `/`;
+              window.location.href = "/simulation/123/chart/overview";
             }}
             className="mt-2 px-3 py-1 bg-green-600 text-white rounded-md text-sm"
             aria-label={`Start simulation for ${c.name}`}
@@ -37,7 +37,7 @@ export default function AssignedCasesList({ cases }: { cases: CaseItem[] }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              window.location.href = `/`;
+              window.location.href = `/simulation/123/chart/overview`;
             }}
             className="mt-2 px-3 py-1 bg-gray-100 text-sm rounded-md"
             aria-label={`View case report for ${c.name}`}
