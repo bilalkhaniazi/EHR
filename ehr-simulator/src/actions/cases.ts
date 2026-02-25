@@ -82,7 +82,7 @@ export async function getSimCaseById(id: string) {
   );
 
   const { data, error } = await supabase
-    .from("cases")
+    .from("case_data")
     .select("*")
     .eq("id", id)
 
