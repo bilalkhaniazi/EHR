@@ -207,7 +207,8 @@
         "parenteral_nutrition": ""
       },
       "output": {
-        "urine": "",
+        "urine_output_ml": "",
+        "urine_sample_description": "",
         "emesis": "",
         "stool": "",
         "wound_drainage": "",
