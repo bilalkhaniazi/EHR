@@ -14,6 +14,40 @@ export type ActionResponse<T = null> = {
   error?: PostgrestError;
 };
 
+export type CaseDataInsert = Database["public"]["Tables"]["case_data"]["Insert"];
+export type CaseDataRow = Database["public"]["Tables"]["case_data"]["Row"];
+
+export async function createCaseData(
+  payload: CaseDataInsert
+): Promise<ActionResponse<CaseDataRow>> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data, error } = await supabase
+    .from("case_data")
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("createCaseData error:", error);
+    return {
+      success: false,
+      message: error.message ?? "Failed to create case.",
+      error,
+      data: undefined,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Case created successfully.",
+    data,
+  };
+}
+
 export async function getAllSimCases() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

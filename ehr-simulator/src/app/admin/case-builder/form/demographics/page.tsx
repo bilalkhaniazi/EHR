@@ -117,17 +117,33 @@ export default function DemographicsForm() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   Case Overview
                 </CardTitle>
-                <CardDescription>Brief description of the patient scenario.</CardDescription>
+                <CardDescription>Case name (for admin/course assignment) and brief description of the patient scenario.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={demographicsData.summary}
-                  onChange={(e) => { setDemographicsData({ ...demographicsData, ["summary"]: e.target.value }) }}
-                  required
-                  name="summary"
-                  placeholder="e.g. 68-year-old male admitted with shortness of breath..."
-                  className="min-h-[100px] bg-white"
-                />
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="caseName">Case Name</Label>
+                  <Input
+                    required
+                    id="caseName"
+                    name="caseName"
+                    placeholder="e.g. COPD Exacerbation - John Doe"
+                    value={demographicsData.caseName}
+                    onChange={(e) => setDemographicsData({ ...demographicsData, caseName: e.target.value })}
+                    className="bg-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="summary">Case Description</Label>
+                  <Textarea
+                    value={demographicsData.summary}
+                    onChange={(e) => { setDemographicsData({ ...demographicsData, ["summary"]: e.target.value }) }}
+                    required
+                    name="summary"
+                    id="summary"
+                    placeholder="e.g. 68-year-old male admitted with shortness of breath..."
+                    className="min-h-[100px] bg-white"
+                  />
+                </div>
               </CardContent>
             </Card>
 

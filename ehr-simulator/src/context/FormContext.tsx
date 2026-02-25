@@ -30,6 +30,7 @@ const defaultDemographicData: DemographicFormData = {
   age: '',
   attendingProviderName: '',
   attendingProviderTitle: '',
+  caseName: '',
   codeStatus: '',
   dosingWeight: '',
   employment: '',

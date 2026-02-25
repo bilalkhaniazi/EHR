@@ -12,9 +12,10 @@ interface FormShellProps {
   backButtonText: string
   continueButtonTooltip?: string
   backButtonTooltip?: string
+  continueDisabled?: boolean
 }
 
-export function FormShell({ children, title, stepDescription, icon, onSubmit, goBack, backButtonText, continueButtonText, continueButtonTooltip, backButtonTooltip }: FormShellProps) {
+export function FormShell({ children, title, stepDescription, icon, onSubmit, goBack, backButtonText, continueButtonText, continueButtonTooltip, backButtonTooltip, continueDisabled }: FormShellProps) {
   return (
     <div className="flex flex-col w-full h-[calc(100vh)] bg-slate-50/50 overflow-hidden shadow-sm border border-slate-200">
       <header className="flex-none flex items-center justify-between px-8 py-4 bg-white border-b border-slate-200 z-10 shadow">
@@ -26,7 +27,7 @@ export function FormShell({ children, title, stepDescription, icon, onSubmit, go
         </div>
         <div className="flex gap-2">
           <BackButton tooltip={backButtonTooltip} onClick={goBack} buttonText={backButtonText} />
-          <ContinueButton tooltip={continueButtonTooltip} onClick={onSubmit} buttonText={continueButtonText} />
+          <ContinueButton tooltip={continueButtonTooltip} onClick={onSubmit} buttonText={continueButtonText} disabled={continueDisabled} />
         </div>
       </header>
       {children}
