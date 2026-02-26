@@ -27,9 +27,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-import { ChangeEvent, useState, useRef } from "react"
-import { Student } from "./GroupCard"
-import { SectionCard, SectionData, FacultyMember, SectionGroups, randomlyAssignGroups, generateGroupNames } from "./SectionCard"
+import { ChangeEvent, useState, useRef, useEffect } from "react"
+import { Student, FacultyMember } from "./types"
+import { SectionCard, SectionData, SectionGroups, randomlyAssignGroups, generateGroupNames } from "./SectionCard"
+
+import { getAllFacultyUsers } from "@/actions/users"
+import { getAllAdminUsers } from "@/actions/users"
 
 interface SectionState {
   groups: SectionGroups
@@ -38,16 +41,19 @@ interface SectionState {
   groupFacultyLeads: Record<string, string[]>
 }
 
-const PLACEHOLDER_FACULTY: FacultyMember[] = [
-  { id: "f1", name: "Dr. Sarah Mitchell", email: "s.mitchell@university.edu" },
-  { id: "f2", name: "Dr. James Okafor", email: "j.okafor@university.edu" },
-  { id: "f3", name: "Prof. Linda Chen", email: "l.chen@university.edu" },
-  { id: "f4", name: "Dr. Marcus Webb", email: "m.webb@university.edu" },
-  { id: "f5", name: "Prof. Anita Patel", email: "a.patel@university.edu" },
-  { id: "f6", name: "Dr. Robert Torres", email: "r.torres@university.edu" },
-]
+const generateSemesters = (): string[] => {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const semesters: string[] = []
 
-const SEMESTERS = ["Winter 2026", "Summer 2026", "Fall 2026", "Winter 2027", "Summer 2027", "Fall 2027"]
+  for (let i = 0; i < 3; i++) {
+    const year = currentYear + i
+    semesters.push(`Winter ${year}`, `Summer ${year}`, `Fall ${year}`)
+  }
+
+  return semesters
+}
+const SEMESTERS = generateSemesters()
 
 const DEFAULT_GROUP_SIZE = 4
 
@@ -66,6 +72,14 @@ function makeSection(index: number): SectionData {
 export default function CreateCoursePage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [adminUsers, setAdminUsers] = useState<FacultyMember[]>([])
+  const [facultyUsers, setFacultyUsers] = useState<FacultyMember[]>([])
+
+  useEffect(() => {
+    getAllAdminUsers().then(setAdminUsers)
+    getAllFacultyUsers().then(setFacultyUsers)
+  }, [])
 
   const [selectedFile, setSelectedFile] = useState<File>()
   const [fileUploadError, setFileUploadError] = useState("")
@@ -352,7 +366,7 @@ export default function CreateCoursePage() {
     )
   }
 
-  const assignedCourseFaculty = PLACEHOLDER_FACULTY.filter(f => courseFacultyIds.includes(f.id))
+  const assignedCourseFaculty = adminUsers.filter(f => courseFacultyIds.includes(f.id))
 
   const totalStudents = allStudents.length
 
@@ -473,19 +487,19 @@ export default function CreateCoursePage() {
                           <CommandList>
                             <CommandEmpty>No faculty found.</CommandEmpty>
                             <CommandGroup>
-                              {PLACEHOLDER_FACULTY.map(member => {
+                              {adminUsers.map(member => {
                                 const isSelected = courseFacultyIds.includes(member.id)
                                 return (
                                   <CommandItem
                                     key={member.id}
-                                    value={member.name}
+                                    value={member.full_name ?? ""}
                                     onSelect={() => toggleCourseFaculty(member)}
                                     className="cursor-pointer"
                                   >
                                     <Check className={cn("mr-2 h-4 w-4 flex-shrink-0", isSelected ? "opacity-100 text-slate-700" : "opacity-0")} />
                                     <div className="flex flex-col min-w-0">
-                                      <span className="text-sm font-medium">{member.name}</span>
-                                      <span className="text-xs text-slate-500 truncate">{member.email}</span>
+                                      <span className="text-sm font-medium">{member.full_name ?? ""}</span>
+                                      <span className="text-xs text-slate-500 truncate">{member.email ?? ""}</span>
                                     </div>
                                   </CommandItem>
                                 )
@@ -503,8 +517,8 @@ export default function CreateCoursePage() {
                             className="flex items-center justify-between px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg"
                           >
                             <div className="flex flex-col min-w-0">
-                              <span className="text-sm font-medium text-slate-800">{member.name}</span>
-                              <span className="text-xs text-slate-500 truncate">{member.email}</span>
+                              <span className="text-sm font-medium text-slate-800">{member.full_name ?? ""}</span>
+                              <span className="text-xs text-slate-500 truncate">{member.email ?? ""}</span>
                             </div>
                             <Button
                               size="sm"
@@ -566,7 +580,7 @@ export default function CreateCoursePage() {
               groups={sectionStates[section.id]?.groups ?? {}}
               unassigned={sectionStates[section.id]?.unassigned ?? []}
               groupSize={sectionStates[section.id]?.groupSize ?? DEFAULT_GROUP_SIZE}
-              facultyMembers={PLACEHOLDER_FACULTY}
+              facultyMembers={facultyUsers}
               groupFacultyLeads={sectionStates[section.id]?.groupFacultyLeads ?? {}}
               onGroupFacultyLeadsChange={handleGroupFacultyLeadsChange}
               draggedStudent={draggedStudent}

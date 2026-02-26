@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { GripVertical, Pencil, Check, Trash2, User, UserCog, ChevronsUpDown, X } from "lucide-react"
+import { Pencil, Check, Trash2, User, UserCog, ChevronsUpDown, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,19 +18,10 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
+import { Student, FacultyMember } from "./types"
+import StudentBlock from "./StudentBlock"
 
-export interface Student {
-  userName: string
-  studentId: string
-  firstName: string
-  lastName: string
-}
-
-export interface FacultyMember {
-  id: string
-  name: string
-  email: string
-}
+export type { Student, FacultyMember }
 
 interface GroupCardProps {
   groupName: string
@@ -180,7 +171,7 @@ export const GroupCard = ({
                     return (
                       <CommandItem
                         key={member.id}
-                        value={member.name}
+                        value={member.full_name ?? ""}
                         onSelect={() => {
                           const updated = isSelected
                             ? facultyLeads.filter(id => id !== member.id)
@@ -191,8 +182,8 @@ export const GroupCard = ({
                       >
                         <Check className={cn("mr-2 h-3.5 w-3.5 flex-shrink-0", isSelected ? "opacity-100 text-slate-700" : "opacity-0")} />
                         <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-medium">{member.name}</span>
-                          <span className="text-xs text-slate-500 truncate">{member.email}</span>
+                          <span className="text-sm font-medium">{member.full_name ?? ""}</span>
+                          <span className="text-xs text-slate-500 truncate">{member.email ?? ""}</span>
                         </div>
                       </CommandItem>
                     )
@@ -209,7 +200,7 @@ export const GroupCard = ({
               if (!member) return null
               return (
                 <div key={id} className="flex items-center justify-between px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs">
-                  <span className="font-medium text-slate-800 truncate">{member.name}</span>
+                  <span className="font-medium text-slate-800 truncate">{member.full_name ?? ""}</span>
                   <Button
                     type="button"
                     size="sm"
@@ -233,24 +224,16 @@ export const GroupCard = ({
         {[...students]
           .sort((a, b) => a.lastName.localeCompare(b.lastName))
           .map((student) => (
-            <div
+            <StudentBlock
               key={student.studentId}
+              student={student}
               draggable
               onDragStart={(e) => onDragStart(e, student, groupName, sectionId)}
               onDragEnd={onDragEnd}
-              className={`flex items-center gap-2 p-2 bg-slate-50 rounded border border-slate-200 hover:bg-slate-100 cursor-move transition-all select-none ${draggedStudent?.student.studentId === student.studentId ? "opacity-40" : ""
-                }`}
-            >
-              <GripVertical className="size-4 text-slate-400 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-900 truncate">
-                  {student.firstName} {student.lastName}
-                </p>
-                <p className="text-xs text-slate-500 truncate">
-                  {student.userName} · {student.studentId}
-                </p>
-              </div>
-            </div>
+              className={draggedStudent?.student.studentId === student.studentId ? "opacity-40" : ""}
+              fromGroup={groupName}
+              fromSection={sectionId}
+            />
           ))}
       </div>
     </div>
