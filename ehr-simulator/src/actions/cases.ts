@@ -14,23 +14,6 @@ export type ActionResponse<T = null> = {
   error?: PostgrestError;
 };
 
-export type SectionWithAssignments = {
-  id: string;
-  name: string;
-  section_assignments: {
-    id: string;
-    sim_time: string;
-    presim_time: string;
-    // Explicitly defined case_data as an object, not an array
-    case_data: {
-      id: string;
-      name: string;
-      description: string;
-      diagnosis: string;
-    } | null;
-  }[];
-};
-
 export async function getAllSimCases() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -323,7 +306,6 @@ export async function getCourseCaseAssignments() {
   return {
     success: true,
     message: 'Successfully retrieved sim cases.',
-    error: undefined,
     data: assignments,
   };
 }
