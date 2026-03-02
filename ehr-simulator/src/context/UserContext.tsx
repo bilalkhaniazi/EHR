@@ -13,21 +13,21 @@ type UserRoles = "student" | "admin" | "faculty"
 interface UserContextType {
   user: any;
   role: UserRoles | null;
+  isAdmin: boolean;
   loading: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   role: null,
+  isAdmin: false,
   loading: true,
 })
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null)
   const [role, setRole] = useState<UserRoles | null>(null)
-  const [loading, setLoading] = useState<boolean>(
-    typeof window !== "undefined" && window.localStorage.getItem("role") ? false : true
-  );
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadUser() {

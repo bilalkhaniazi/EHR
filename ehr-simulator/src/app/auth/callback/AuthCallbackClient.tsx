@@ -4,12 +4,31 @@ import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
-export default function AuthCallbackPage() {
+function normalizeRedirect(path: string | null): string {
+  if (!path || !path.startsWith('/')) {
+    return '/admin'
+  }
+  return path
+}
+
+export default function AuthCallbackClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectedFrom') || '/admin'
+  const rawRedirect = searchParams.get('redirectedFrom')
+  const redirectTo = normalizeRedirect(rawRedirect)
+  const error = searchParams.get('error')
 
   useEffect(() => {
+    if (error) {
+      const params = new URLSearchParams()
+      if (redirectTo && redirectTo !== '/admin') {
+        params.set('redirectedFrom', redirectTo)
+      }
+      const query = params.toString()
+      router.replace(`/auth/login${query ? `?${query}` : ''}`)
+      return
+    }
+
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
@@ -22,20 +41,24 @@ export default function AuthCallbackPage() {
 
       if (session) {
         router.replace(redirectTo)
-      } else {
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-          (_event, session) => {
-            if (session) {
-              router.replace(redirectTo)
-            }
-          })
-        return () => {
-          authListener.subscription.unsubscribe()
+        return
+      }
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, newSession) => {
+        if (newSession) {
+          router.replace(redirectTo)
         }
+      })
+
+      return () => {
+        subscription.unsubscribe()
       }
     }
+
     handleSession()
-  }, [router, redirectTo])
+  }, [router, redirectTo, error])
 
   return <p>Signing you in…</p>
 }
