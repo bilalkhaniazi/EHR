@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
+import { clearDraft as clearCaseBuilderDraft } from '@/utils/drafts/caseBuilderDraft';
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,6 +49,28 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
     loadUser();
   }, [])
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        const signedOutUserId = session?.user?.id || user?.id;
+        if (signedOutUserId) {
+          clearCaseBuilderDraft(signedOutUserId);
+        }
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem('role');
+        }
+        setUser(null);
+        setRole(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user])
 
   const value = {
     user,

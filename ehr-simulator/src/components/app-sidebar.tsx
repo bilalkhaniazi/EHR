@@ -17,6 +17,7 @@ import { useUser } from "@/context/UserContext";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
+import { clearDraft as clearCaseBuilderDraft } from "@/utils/drafts/caseBuilderDraft";
 
 const adminRoutes = [
   {
@@ -61,13 +62,16 @@ const supabase = createBrowserClient(
 
 export function AppSidebar() {
 
-  const { loading } = useUser();
+  const { loading, user } = useUser();
   const pathname = usePathname();
   const router = useRouter();
   const isCurrentPath = (url: string) => pathname === url;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    if (user?.id) {
+      clearCaseBuilderDraft(user.id);
+    }
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("role");
     }

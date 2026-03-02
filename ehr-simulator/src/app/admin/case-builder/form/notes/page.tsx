@@ -74,6 +74,11 @@ export default function NotesForm() {
     setCanAddNote(!!canSubmit);
   }, [specialty, author, noteContent, category]);
 
+  // Keep FormContext.noteData in sync as notes are edited so autosave can persist them
+  useEffect(() => {
+    onDataChange("notes", notes);
+  }, [notes, onDataChange]);
+
   const createNote = () => {
     const timeOffset = ((Number(days) || 0) * 1440) + ((Number(hours) || 0) * 60) + (Number(minutes) || 0);
 
