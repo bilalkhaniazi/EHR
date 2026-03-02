@@ -44,6 +44,8 @@ const defaultDemographicData: DemographicFormData = {
   relationshipStatus: '',
   religion: '',
   summary: '',
+  contact: '',
+  contactRelationship: ''
 }
 const defaultHistoryData = {
   medicalHistory: [],
