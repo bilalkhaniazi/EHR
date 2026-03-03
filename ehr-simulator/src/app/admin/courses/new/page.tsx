@@ -28,37 +28,37 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, useState, useRef, useEffect } from "react"
-import { Student, FacultyMember } from "./types"
-import { SectionCard, SectionData, SectionGroups, randomlyAssignGroups, generateGroupNames } from "./SectionCard"
+import { Student, FacultyMember, SectionData } from "./types"
+import { SectionCard, SectionGroups, randomlyAssignGroups, generateGroupNames } from "./SectionCard"
 
-import { getAllFacultyUsers } from "@/actions/users"
-import { getAllAdminUsers } from "@/actions/users"
+import { getAllFacultyUsers, getAllAdminUsers } from "@/actions/users"
+import { createCourse, createSection } from "@/actions/courses"
+import { TablesInsert } from "../../../../../database.types"
 
 interface SectionState {
   groups: SectionGroups
   unassigned: Student[]
   groupSize: number
-  groupFacultyLeads: Record<string, string[]>
+  groupFacultyLeads: Record<string, string>
 }
 
 const generateSemesters = (): string[] => {
   const now = new Date()
   const currentYear = now.getFullYear()
   const semesters: string[] = []
-
   for (let i = 0; i < 3; i++) {
     const year = currentYear + i
     semesters.push(`Winter ${year}`, `Summer ${year}`, `Fall ${year}`)
   }
-
   return semesters
 }
 const SEMESTERS = generateSemesters()
 
 const DEFAULT_GROUP_SIZE = 4
 
-function makeSectionId(index: number): string {
-  return String(index + 1).padStart(2, "0")
+/** "Section 01", "Section 02", etc. — single source of truth for section names */
+function makeSectionName(index: number): string {
+  return `Section ${String(index + 1).padStart(2, "0")}`
 }
 
 function makeSectionState(students: Student[] = []): SectionState {
@@ -66,7 +66,12 @@ function makeSectionState(students: Student[] = []): SectionState {
 }
 
 function makeSection(index: number): SectionData {
-  return { id: makeSectionId(index), startTime: "", endTime: "", meetingDays: [] }
+  return {
+    name: makeSectionName(index),
+    start_date: null,
+    end_date: null,
+    meeting_time: null,
+  }
 }
 
 export default function CreateCoursePage() {
@@ -85,13 +90,15 @@ export default function CreateCoursePage() {
   const [fileUploadError, setFileUploadError] = useState("")
   const [allStudents, setAllStudents] = useState<Student[]>([])
 
+  const [courseName, setCourseName] = useState("")
+  const [courseCode, setCourseCode] = useState("")
   const [semester, setSemester] = useState("")
   const [courseFacultyIds, setCourseFacultyIds] = useState<string[]>([])
   const [facultyOpen, setFacultyOpen] = useState(false)
 
   const [sections, setSections] = useState<SectionData[]>([makeSection(0)])
   const [sectionStates, setSectionStates] = useState<Record<string, SectionState>>({
-    "01": makeSectionState(),
+    [makeSectionName(0)]: makeSectionState(),
   })
 
   const [draggedStudent, setDraggedStudent] = useState<{
@@ -101,19 +108,51 @@ export default function CreateCoursePage() {
   } | null>(null)
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null)
 
+  const handleSubmit = async () => {
+
+    // Create course
+    const course: TablesInsert<"courses"> = {
+      active: true,
+      code: courseCode,
+      name: courseName,
+    }
+    const courseResponse = await createCourse(course)
+    if (!courseResponse.success || !courseResponse.data) return
+
+    const courseId = courseResponse.data.id
+
+    // Create sections with course_id returned from Supabase
+    const sectionResults = await Promise.all(
+      sections.map((section) =>
+        createSection({
+          course_id: courseId,
+          name: section.name,
+          start_date: section.start_date,
+          end_date: section.end_date,
+          meeting_time: section.meeting_time,
+          semester: semester,
+        })
+      )
+    )
+
+    sectionResults.map((result) => {
+      console.log(result)
+    })
+  }
+
   const parseCSV = (text: string): Student[] => {
     const lines = text.trim().split("\n")
     if (lines.length < 2) throw new Error("CSV file is empty or contains only headers")
 
     const header = lines[0].split(",").map(h => h.replace(/"/g, "").trim())
-    const cols = ["User Name", "Student Id", "First Name", "Last Name"]
+    const cols = ["User Name", "First Name", "Last Name"]
     const indices = cols.map(col => header.indexOf(col))
 
     if (indices.includes(-1)) {
       throw new Error(`Missing columns: ${cols.filter((_, i) => indices[i] === -1).join(", ")}`)
     }
 
-    const [uIdx, sIdx, fIdx, lIdx] = indices
+    const [uIdx, fIdx, lIdx] = indices
 
     return lines.slice(1).filter(line => line.trim()).map(line => {
       const values: string[] = []
@@ -127,12 +166,19 @@ export default function CreateCoursePage() {
       values.push(current.trim())
 
       const clean = (idx: number) => values[idx]?.replace(/"/g, "") || ""
+      const userName = clean(uIdx)
+      const firstName = clean(fIdx)
+      const lastName = clean(lIdx)
+
       return {
-        userName: clean(uIdx),
-        studentId: clean(sIdx),
-        firstName: clean(fIdx),
-        lastName: clean(lIdx),
-      }
+        id: crypto.randomUUID(),
+        email: `${userName}@gvsu.edu`,
+        full_name: `${firstName} ${lastName}`.trim(),
+        role: "student",
+        status: null,
+        created_at: null,
+        updated_at: null,
+      } satisfies Student
     })
   }
 
@@ -154,8 +200,8 @@ export default function CreateCoursePage() {
         setAllStudents(students)
         setSectionStates(prev => {
           const next = { ...prev }
-          Object.keys(next).forEach((id, i) => {
-            next[id] = { ...next[id], unassigned: i === 0 ? students : [], groups: {} }
+          Object.keys(next).forEach((name, i) => {
+            next[name] = { ...next[name], unassigned: i === 0 ? students : [], groups: {} }
           })
           return next
         })
@@ -174,7 +220,7 @@ export default function CreateCoursePage() {
     setAllStudents([])
     setSectionStates(prev => {
       const next = { ...prev }
-      Object.keys(next).forEach(id => { next[id] = makeSectionState() })
+      Object.keys(next).forEach(name => { next[name] = makeSectionState() })
       return next
     })
     setSelectedFile(undefined)
@@ -184,85 +230,85 @@ export default function CreateCoursePage() {
 
   const handleAddSection = () => {
     const newIndex = sections.length
-    const newId = makeSectionId(newIndex)
+    const newName = makeSectionName(newIndex)
     setSections(prev => [...prev, makeSection(newIndex)])
-    setSectionStates(prev => ({ ...prev, [newId]: makeSectionState() }))
+    setSectionStates(prev => ({ ...prev, [newName]: makeSectionState() }))
   }
 
   const handleRemoveSection = () => {
     if (sections.length <= 1) return
-    const removedId = sections[sections.length - 1].id
+    const removedName = sections[sections.length - 1].name
     setSections(prev => prev.slice(0, -1))
     setSectionStates(prev => {
-      const removed = prev[removedId]
+      const removed = prev[removedName]
       const orphans: Student[] = [
         ...removed.unassigned,
         ...Object.values(removed.groups).flat(),
       ]
       const next = { ...prev }
-      delete next[removedId]
+      delete next[removedName]
       if (orphans.length > 0) {
-        const firstId = sections[0].id
-        next[firstId] = {
-          ...next[firstId],
-          unassigned: [...next[firstId].unassigned, ...orphans],
+        const firstName = sections[0].name
+        next[firstName] = {
+          ...next[firstName],
+          unassigned: [...next[firstName].unassigned, ...orphans],
         }
       }
       return next
     })
   }
 
-  const handleSectionDataChange = (id: string, field: keyof Omit<SectionData, "id">, value: string | string[]) => {
-    setSections(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
+  const handleSectionDataChange = (name: string, field: keyof SectionData, value: string | null) => {
+    setSections(prev => prev.map(s => s.name === name ? { ...s, [field]: value } : s))
   }
 
-  const handleGroupSizeChange = (sectionId: string, size: number) => {
+  const handleGroupSizeChange = (sectionName: string, size: number) => {
     setSectionStates(prev => ({
       ...prev,
-      [sectionId]: { ...prev[sectionId], groupSize: size },
+      [sectionName]: { ...prev[sectionName], groupSize: size },
     }))
   }
 
-  const handleRandomAssign = (sectionId: string) => {
+  const handleRandomAssign = (sectionName: string) => {
     setSectionStates(prev => {
-      const state = prev[sectionId]
+      const state = prev[sectionName]
       const all: Student[] = [
         ...state.unassigned,
         ...Object.values(state.groups).flat(),
       ]
       if (all.length === 0) return prev
       const newGroups = randomlyAssignGroups(all, state.groupSize)
-      return { ...prev, [sectionId]: { ...state, groups: newGroups, unassigned: [] } }
+      return { ...prev, [sectionName]: { ...state, groups: newGroups, unassigned: [] } }
     })
   }
 
-  const handleUnassignAll = (sectionId: string) => {
+  const handleUnassignAll = (sectionName: string) => {
     setSectionStates(prev => {
-      const state = prev[sectionId]
+      const state = prev[sectionName]
       const all: Student[] = [
         ...state.unassigned,
         ...Object.values(state.groups).flat(),
       ]
-      return { ...prev, [sectionId]: { ...state, groups: {}, unassigned: all } }
+      return { ...prev, [sectionName]: { ...state, groups: {}, unassigned: all } }
     })
   }
 
-  const handleAddGroup = (sectionId: string) => {
+  const handleAddGroup = (sectionName: string) => {
     setSectionStates(prev => {
-      const state = prev[sectionId]
+      const state = prev[sectionName]
       const existingNames = Object.keys(state.groups)
       let name = ""
       for (let i = 0; i < 702; i++) {
         const candidate = generateGroupNames(i + 1)[i]
         if (!existingNames.includes(candidate)) { name = candidate; break }
       }
-      return { ...prev, [sectionId]: { ...state, groups: { ...state.groups, [name]: [] } } }
+      return { ...prev, [sectionName]: { ...state, groups: { ...state.groups, [name]: [] } } }
     })
   }
 
-  const handleRenameGroup = (sectionId: string, oldName: string, newName: string) => {
+  const handleRenameGroup = (sectionName: string, oldName: string, newName: string) => {
     setSectionStates(prev => {
-      const state = prev[sectionId]
+      const state = prev[sectionName]
       if (state.groups[newName] !== undefined) return prev
       const newGroups = { ...state.groups }
       newGroups[newName] = newGroups[oldName]
@@ -272,13 +318,13 @@ export default function CreateCoursePage() {
         newLeads[newName] = newLeads[oldName]
         delete newLeads[oldName]
       }
-      return { ...prev, [sectionId]: { ...state, groups: newGroups, groupFacultyLeads: newLeads } }
+      return { ...prev, [sectionName]: { ...state, groups: newGroups, groupFacultyLeads: newLeads } }
     })
   }
 
-  const handleDeleteGroup = (sectionId: string, groupName: string) => {
+  const handleDeleteGroup = (sectionName: string, groupName: string) => {
     setSectionStates(prev => {
-      const state = prev[sectionId]
+      const state = prev[sectionName]
       const students = state.groups[groupName] ?? []
       const newGroups = { ...state.groups }
       delete newGroups[groupName]
@@ -286,7 +332,7 @@ export default function CreateCoursePage() {
       delete newLeads[groupName]
       return {
         ...prev,
-        [sectionId]: {
+        [sectionName]: {
           ...state,
           groups: newGroups,
           groupFacultyLeads: newLeads,
@@ -296,19 +342,56 @@ export default function CreateCoursePage() {
     })
   }
 
-  const handleGroupFacultyLeadsChange = (sectionId: string, groupName: string, facultyIds: string[]) => {
+  const handleGroupFacultyLeadChange = (sectionName: string, groupName: string, facultyId: string) => {
     setSectionStates(prev => ({
       ...prev,
-      [sectionId]: {
-        ...prev[sectionId],
-        groupFacultyLeads: { ...prev[sectionId].groupFacultyLeads, [groupName]: facultyIds },
+      [sectionName]: {
+        ...prev[sectionName],
+        groupFacultyLeads: { ...prev[sectionName].groupFacultyLeads, [groupName]: facultyId },
       },
     }))
   }
 
-  const handleDragStart = (e: React.DragEvent, student: Student, fromGroup: string, fromSection: string) => {
-    setDraggedStudent({ student, fromGroup, fromSection })
-    e.dataTransfer.effectAllowed = "move"
+  const handleMoveGroup = (fromSectionId: string, groupName: string, toSectionId: string) => {
+    setSectionStates(prev => {
+      const from = prev[fromSectionId]
+      const to = prev[toSectionId]
+      if (!from || !to) return prev
+
+      const movingStudents = from.groups[groupName] ?? []
+      const movingFacultyLead = from.groupFacultyLeads[groupName] ?? ""
+
+      // Pick a non-colliding name in the destination
+      const existingNames = new Set(Object.keys(to.groups))
+      let newName = groupName
+      if (existingNames.has(newName)) {
+        const allNames = generateGroupNames(existingNames.size + 1)
+        newName = allNames.find(n => !existingNames.has(n)) ?? groupName
+      }
+
+      const updatedFrom: SectionState = {
+        ...from,
+        groups: Object.fromEntries(Object.entries(from.groups).filter(([k]) => k !== groupName)),
+        groupFacultyLeads: Object.fromEntries(Object.entries(from.groupFacultyLeads).filter(([k]) => k !== groupName)),
+      }
+
+      const updatedTo: SectionState = {
+        ...to,
+        groups: { ...to.groups, [newName]: movingStudents },
+        groupFacultyLeads: movingFacultyLead
+          ? { ...to.groupFacultyLeads, [newName]: movingFacultyLead }
+          : to.groupFacultyLeads,
+      }
+
+      return { ...prev, [fromSectionId]: updatedFrom, [toSectionId]: updatedTo }
+    })
+  }
+
+  const handleDragStart = (e: React.DragEvent, student: Student, fromGroup?: string, fromSection?: string) => {
+    if (fromGroup && fromSection) {
+      setDraggedStudent({ student, fromGroup, fromSection })
+      e.dataTransfer.effectAllowed = "move"
+    }
   }
 
   const handleDragEnd = () => {
@@ -316,9 +399,9 @@ export default function CreateCoursePage() {
     setDragOverGroup(null)
   }
 
-  const handleDragOver = (e: React.DragEvent, sectionId: string, groupName: string) => {
+  const handleDragOver = (e: React.DragEvent, sectionName: string, groupName: string) => {
     e.preventDefault()
-    setDragOverGroup(`${sectionId}::${groupName}`)
+    setDragOverGroup(`${sectionName}::${groupName}`)
   }
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -342,9 +425,9 @@ export default function CreateCoursePage() {
       let newUnassigned = [...state.unassigned]
 
       if (fromGroup === "__unassigned__") {
-        newUnassigned = newUnassigned.filter(s => s.studentId !== student.studentId)
+        newUnassigned = newUnassigned.filter(s => s.email !== student.email)
       } else {
-        newGroups[fromGroup] = (newGroups[fromGroup] ?? []).filter(s => s.studentId !== student.studentId)
+        newGroups[fromGroup] = (newGroups[fromGroup] ?? []).filter(s => s.email !== student.email)
       }
 
       if (toGroup === "__unassigned__") {
@@ -367,7 +450,6 @@ export default function CreateCoursePage() {
   }
 
   const assignedCourseFaculty = adminUsers.filter(f => courseFacultyIds.includes(f.id))
-
   const totalStudents = allStudents.length
 
   return (
@@ -380,10 +462,10 @@ export default function CreateCoursePage() {
           <p className="text-xs text-slate-500 mt-1">Define course and section details</p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
-          <Button variant="secondary" onClick={() => router.push("/admin/courses")}>
+          <Button className="cursor-pointer" variant="secondary" onClick={() => router.push("/admin/courses")}>
             <ArrowLeft /> Cancel
           </Button>
-          <Button onClick={() => router.push("/admin/courses")}>
+          <Button className="cursor-pointer" onClick={handleSubmit}>
             Submit Course <ArrowRight />
           </Button>
         </div>
@@ -442,8 +524,16 @@ export default function CreateCoursePage() {
             <CardContent>
               <div className="flex flex-col gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="course-code" className="text-sm font-medium text-slate-600">Course Code</Label>
+                  <Input
+                    value={courseCode} onChange={(e) => setCourseCode(e.target.value)}
+                    id="course-code" placeholder="e.g., NUR 305" className="w-full sm:w-1/2" />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="course-name" className="text-sm font-medium text-slate-600">Course Name</Label>
-                  <Input id="course-name" placeholder="e.g., NUR 305" className="w-full sm:w-1/2" />
+                  <Input
+                    value={courseName} onChange={(e) => setCourseName(e.target.value)}
+                    id="course-name" placeholder="e.g., Adult Nursing Simulation" className="w-full sm:w-1/2" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="course-description" className="text-sm font-medium text-slate-600">Course Description</Label>
@@ -573,23 +663,24 @@ export default function CreateCoursePage() {
             </CardHeader>
           </Card>
 
-          {sections.map(section => (
+          {sections.map((section, i) => (
             <SectionCard
-              key={section.id}
+              key={section.name}
               section={section}
-              groups={sectionStates[section.id]?.groups ?? {}}
-              unassigned={sectionStates[section.id]?.unassigned ?? []}
-              groupSize={sectionStates[section.id]?.groupSize ?? DEFAULT_GROUP_SIZE}
+              index={i + 1}
+              groups={sectionStates[section.name]?.groups ?? {}}
+              unassigned={sectionStates[section.name]?.unassigned ?? []}
+              groupSize={sectionStates[section.name]?.groupSize ?? DEFAULT_GROUP_SIZE}
               facultyMembers={facultyUsers}
-              groupFacultyLeads={sectionStates[section.id]?.groupFacultyLeads ?? {}}
-              onGroupFacultyLeadsChange={handleGroupFacultyLeadsChange}
+              groupFacultyLeads={sectionStates[section.name]?.groupFacultyLeads ?? {}}
+              onGroupFacultyLeadChange={handleGroupFacultyLeadChange}
               draggedStudent={draggedStudent}
               dragOverGroup={dragOverGroup}
-              onSectionChange={(field, value) => handleSectionDataChange(section.id, field, value)}
-              onGroupSizeChange={(size) => handleGroupSizeChange(section.id, size)}
-              onRandomAssign={() => handleRandomAssign(section.id)}
-              onUnassignAll={() => handleUnassignAll(section.id)}
-              onAddGroup={() => handleAddGroup(section.id)}
+              onSectionChange={(field, value) => handleSectionDataChange(section.name, field, value)}
+              onGroupSizeChange={(size) => handleGroupSizeChange(section.name, size)}
+              onRandomAssign={() => handleRandomAssign(section.name)}
+              onUnassignAll={() => handleUnassignAll(section.name)}
+              onAddGroup={() => handleAddGroup(section.name)}
               onRenameGroup={handleRenameGroup}
               onDeleteGroup={handleDeleteGroup}
               onDragStart={handleDragStart}
@@ -597,6 +688,10 @@ export default function CreateCoursePage() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
+              availableSections={sections
+                .filter(s => s.name !== section.name)
+                .map(s => ({ id: s.name, label: s.name }))}
+              onMoveGroup={handleMoveGroup}
             />
           ))}
 

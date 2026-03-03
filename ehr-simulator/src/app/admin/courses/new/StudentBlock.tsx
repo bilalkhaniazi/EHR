@@ -27,7 +27,7 @@ export const StudentBlock = ({
 }: StudentBlockProps) => {
   return (
     <div
-      key={student.studentId}
+      key={student.email}
       draggable={draggable}
       onDragStart={(e) => onDragStart?.(e, student, fromGroup ?? "", fromSection ?? "")}
       onDragEnd={() => onDragEnd?.()}
@@ -40,10 +40,10 @@ export const StudentBlock = ({
       <GripVertical className="size-4 text-slate-400 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-slate-900 truncate">
-          {student.firstName} {student.lastName}
+          {student.full_name ?? "Unknown"}
         </p>
         <p className="text-xs text-slate-500 truncate">
-          {student.userName} · {student.studentId}
+          {student.email ?? ""}
         </p>
       </div>
     </div>

@@ -1,17 +1,24 @@
 "use client"
 import { useState } from "react"
+import { format, parseISO } from "date-fns"
 import {
-  Clock, Calendar,
-  ChevronDown, ChevronUp, Plus, Shuffle, GripVertical, Users2, UserX
+  CalendarIcon, ChevronDown, ChevronUp, Plus, Shuffle, Users2, UserX
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { Student, FacultyMember, SectionData } from "./types"
 import { GroupCard } from "./GroupCard"
+import { StudentBlock } from "./StudentBlock"
 
 export type { FacultyMember, SectionData }
 
@@ -39,38 +46,143 @@ export function randomlyAssignGroups(students: Student[], groupSize: number): Se
   return groups
 }
 
+// ─── Date+time picker helpers ────────────────────────────────────────────────
+
+/** Extract the HH:mm part from an ISO timestamptz string, or return "". */
+function isoToTimeInput(iso: string | null | undefined): string {
+  if (!iso) return ""
+  try {
+    return format(parseISO(iso), "HH:mm")
+  } catch {
+    return ""
+  }
+}
+
+/** Extract just the date from an ISO string for the Calendar, or undefined. */
+function isoToDate(iso: string | null | undefined): Date | undefined {
+  if (!iso) return undefined
+  try {
+    return parseISO(iso)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Combine a Date (from the calendar) and an HH:mm string (from the time input)
+ * into a full ISO 8601 string. Falls back gracefully if either is missing.
+ */
+function toISO(date: Date | undefined, time: string): string | null {
+  if (!date) return null
+  const [hours, minutes] = time ? time.split(":").map(Number) : [0, 0]
+  const combined = new Date(date)
+  combined.setHours(hours ?? 0, minutes ?? 0, 0, 0)
+  return combined.toISOString()
+}
+
+// ─── DateTimePicker sub-component ────────────────────────────────────────────
+
+interface DateTimePickerProps {
+  label: string
+  value: string | null | undefined   // timestamptz ISO string
+  onChange: (iso: string | null) => void
+}
+
+function DateTimePicker({ label, value, onChange }: DateTimePickerProps) {
+  const date = isoToDate(value)
+  const time = isoToTimeInput(value)
+
+  const handleDateSelect = (selected: Date | undefined) => {
+    onChange(toISO(selected, time))
+  }
+
+  const handleTimeChange = (newTime: string) => {
+    onChange(toISO(date, newTime))
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs text-slate-500 normal-case">{label}</Label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className={cn(
+              "h-8 w-full justify-start text-left font-normal text-xs px-2.5 gap-1.5",
+              !date && "text-slate-400"
+            )}
+          >
+            <CalendarIcon className="w-3.5 h-3.5 flex-shrink-0" />
+            {date ? format(date, "MMM d, yyyy") : "Pick a date"}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={handleDateSelect}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <Input
+        type="time"
+        value={time}
+        onChange={e => handleTimeChange(e.target.value)}
+        className="h-8 text-xs"
+        placeholder="HH:MM"
+      />
+    </div>
+  )
+}
+
+// ─── SectionCard ──────────────────────────────────────────────────────────────
+
 interface SectionCardProps {
   section: SectionData
+  /** 1-based display index, used to derive the section name ("Section 01", etc.) */
+  index: number
   groups: SectionGroups
   unassigned: Student[]
   groupSize: number
   facultyMembers: FacultyMember[]
-  groupFacultyLeads: Record<string, string[]>
-  onGroupFacultyLeadsChange: (sectionId: string, groupName: string, facultyIds: string[]) => void
+  groupFacultyLeads: Record<string, string>
+  onGroupFacultyLeadChange: (sectionClientId: string, groupName: string, facultyId: string) => void
   draggedStudent: { student: Student; fromGroup: string; fromSection: string } | null
   dragOverGroup: string | null
-  onSectionChange: (field: keyof Omit<SectionData, "id">, value: string | string[]) => void
+  onSectionChange: (field: keyof SectionData, value: string | null) => void
   onGroupSizeChange: (size: number) => void
   onRandomAssign: () => void
   onUnassignAll: () => void
   onAddGroup: () => void
-  onRenameGroup: (sectionId: string, oldName: string, newName: string) => void
-  onDeleteGroup: (sectionId: string, groupName: string) => void
-  onDragStart: (e: React.DragEvent, student: Student, fromGroup: string, fromSection: string) => void
+  onRenameGroup: (sectionClientId: string, oldName: string, newName: string) => void
+  onDeleteGroup: (sectionClientId: string, groupName: string) => void
+  onDragStart: (e: React.DragEvent, student: Student, fromGroup?: string, fromSection?: string) => void
   onDragEnd: () => void
-  onDragOver: (e: React.DragEvent, sectionId: string, groupName: string) => void
+  onDragOver: (e: React.DragEvent, sectionClientId: string, groupName: string) => void
   onDragLeave: (e: React.DragEvent) => void
   onDrop: (e: React.DragEvent, toGroup: string, toSection: string) => void
+  /** Other sections a group can be moved to (passed down to GroupCard) */
+  availableSections?: { id: string; label: string }[]
+  /** Called when user moves a group to another section */
+  onMoveGroup?: (fromSectionId: string, groupName: string, toSectionId: string) => void
+}
+
+/** Zero-pad a 1-based index: 1 → "01", 12 → "12" */
+function sectionLabel(index: number): string {
+  return `Section ${String(index).padStart(2, "0")}`
 }
 
 export const SectionCard = ({
   section,
+  index,
   groups,
   unassigned,
   groupSize,
   facultyMembers,
   groupFacultyLeads,
-  onGroupFacultyLeadsChange,
+  onGroupFacultyLeadChange,
   draggedStudent,
   dragOverGroup,
   onSectionChange,
@@ -85,16 +197,18 @@ export const SectionCard = ({
   onDragOver,
   onDragLeave,
   onDrop,
+  availableSections = [],
+  onMoveGroup,
 }: SectionCardProps) => {
   const [expanded, setExpanded] = useState(true)
 
+  const label = sectionLabel(index)
   const totalAssigned = Object.values(groups).reduce((s, g) => s + g.length, 0)
-  const unassignedDropKey = `${section.id}::__unassigned__`
+  const unassignedDropKey = `${section.name}::__unassigned__`
   const isOverUnassigned =
     dragOverGroup === unassignedDropKey &&
-    draggedStudent?.fromSection === section.id &&
+    draggedStudent?.fromSection === section.name &&
     draggedStudent?.fromGroup !== "__unassigned__"
-
 
   return (
     <Card className="border-2 border-slate-200 overflow-hidden">
@@ -104,17 +218,20 @@ export const SectionCard = ({
         className="cursor-pointer w-full flex items-center justify-between gap-2 px-4 sm:px-5 py-3.5 bg-slate-50/60 hover:brightness-95 transition-all text-left"
       >
         <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
-          <span className="text-base font-bold text-slate-800 flex-shrink-0">Section {section.id}</span>
-          {section.meetingDays.length > 0 && (
+          <span className="text-base font-bold text-slate-800 flex-shrink-0">{label}</span>
+          {section.start_date && (
             <Badge variant="outline" className="text-xs">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-                .filter(d => section.meetingDays.includes(d))
-                .join(", ")}
+              Starts {format(parseISO(section.start_date as string), "MMM d, yyyy")}
             </Badge>
           )}
-          {section.startTime && section.endTime && (
+          {section.end_date && (
             <Badge variant="outline" className="text-xs">
-              {section.startTime} – {section.endTime}
+              Ends {format(parseISO(section.end_date as string), "MMM d, yyyy")}
+            </Badge>
+          )}
+          {section.meeting_time && (
+            <Badge variant="outline" className="text-xs">
+              Meets {format(parseISO(section.meeting_time as string), "MMM d, yyyy 'at' h:mm a")}
             </Badge>
           )}
           <Badge variant="secondary" className="text-xs">
@@ -131,70 +248,29 @@ export const SectionCard = ({
 
       {expanded && (
         <CardContent className="p-4 sm:p-5 pt-3 sm:pt-3 space-y-5">
-          {/* Schedule row: times on left, meeting days on right */}
+          {/* Schedule */}
           <div className="pb-3 border-b border-slate-100">
             <p className="text-xs font-semibold text-slate-500 mb-3">Schedule</p>
-            <div className="flex flex-col sm:flex-row gap-4 sm:items-start">
-              {/* Time inputs */}
-              <div className="grid grid-cols-2 gap-3 flex-shrink-0">
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-slate-500 flex items-center gap-1 normal-case">
-                    <Clock className="w-3 h-3" /> Start Time
-                  </Label>
-                  <Input
-                    type="time"
-                    value={section.startTime}
-                    onChange={e => onSectionChange("startTime", e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-slate-500 flex items-center gap-1 normal-case">
-                    <Clock className="w-3 h-3" /> End Time
-                  </Label>
-                  <Input
-                    type="time"
-                    value={section.endTime}
-                    onChange={e => onSectionChange("endTime", e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Meeting days */}
-              <div className="space-y-1.5 flex-1">
-                <Label className="text-xs text-slate-500 flex items-center gap-1 normal-case">
-                  <Calendar className="w-3 h-3" /> Meeting Days
-                </Label>
-                <div className="flex gap-1 flex-wrap">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => {
-                    const selected = section.meetingDays.includes(day)
-                    return (
-                      <Button
-                        key={day}
-                        type="button"
-                        onClick={() => {
-                          const updated = selected
-                            ? section.meetingDays.filter(d => d !== day)
-                            : [...section.meetingDays, day]
-                          onSectionChange("meetingDays", updated)
-                        }}
-                        className={cn(
-                          "text-xs w-12 px-0 py-1 rounded border font-medium transition-colors cursor-pointer justify-center hover:text-white",
-                          selected
-                            ? "bg-slate-800 text-white border-slate-800"
-                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                        )}
-                      >
-                        {day}
-                      </Button>
-                    )
-                  })}
-                </div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <DateTimePicker
+                label="Start Date"
+                value={section.start_date as string | null | undefined}
+                onChange={iso => onSectionChange("start_date", iso)}
+              />
+              <DateTimePicker
+                label="End Date"
+                value={section.end_date as string | null | undefined}
+                onChange={iso => onSectionChange("end_date", iso)}
+              />
+              <DateTimePicker
+                label="Meeting Time"
+                value={section.meeting_time as string | null | undefined}
+                onChange={iso => onSectionChange("meeting_time", iso)}
+              />
             </div>
           </div>
 
+          {/* Group controls */}
           <div className="flex items-center flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <Label className="text-xs font-medium text-slate-500 whitespace-nowrap">Group size</Label>
@@ -257,10 +333,10 @@ export const SectionCard = ({
                           key={groupName}
                           groupName={groupName}
                           students={students}
-                          sectionId={section.id}
+                          sectionId={section.name}
                           facultyMembers={facultyMembers}
-                          facultyLeads={groupFacultyLeads[groupName] ?? []}
-                          onFacultyLeadsChange={onGroupFacultyLeadsChange}
+                          facultyLead={groupFacultyLeads[groupName] ?? ""}
+                          onFacultyLeadChange={onGroupFacultyLeadChange}
                           draggedStudent={draggedStudent}
                           dragOverGroup={dragOverGroup}
                           onDragStart={onDragStart}
@@ -270,6 +346,8 @@ export const SectionCard = ({
                           onDrop={onDrop}
                           onRenameGroup={onRenameGroup}
                           onDeleteGroup={onDeleteGroup}
+                          availableSections={availableSections}
+                          onMoveGroup={onMoveGroup}
                         />
                       ))}
                   </div>
@@ -277,9 +355,9 @@ export const SectionCard = ({
               </div>
 
               <div
-                onDragOver={(e) => onDragOver(e, section.id, "__unassigned__")}
+                onDragOver={(e) => onDragOver(e, section.name, "__unassigned__")}
                 onDragLeave={onDragLeave}
-                onDrop={(e) => onDrop(e, "__unassigned__", section.id)}
+                onDrop={(e) => onDrop(e, "__unassigned__", section.name)}
                 className={`w-full lg:w-52 xl:w-56 flex-shrink-0 border-2 border-dashed rounded-lg p-3 transition-all ${isOverUnassigned
                   ? "border-blue-400 bg-blue-50"
                   : "border-slate-200 bg-slate-50/50"
@@ -295,32 +373,24 @@ export const SectionCard = ({
                     <p className="text-xs text-slate-400 italic text-center py-4">All assigned!</p>
                   )}
                   {[...unassigned]
-                    .sort((a, b) => a.lastName.localeCompare(b.lastName))
+                    .sort((a, b) => (a.full_name ?? "").localeCompare(b.full_name ?? ""))
                     .map(student => (
-                      <div
-                        key={student.studentId}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, student, "__unassigned__", section.id)}
+                      <StudentBlock
+                        key={student.email}
+                        student={student}
+                        onDragStart={onDragStart}
                         onDragEnd={onDragEnd}
-                        className={`flex items-center gap-2 p-2 bg-white rounded border border-slate-200 hover:bg-slate-100 cursor-move transition-all select-none ${draggedStudent?.student.studentId === student.studentId ? "opacity-40" : ""
-                          }`}
-                      >
-                        <GripVertical className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-slate-900 truncate leading-tight">
-                            {student.firstName} {student.lastName}
-                          </p>
-                          <p className="text-xs text-slate-400 truncate">{student.studentId}</p>
-                        </div>
-                      </div>
+                        isDimmed={draggedStudent?.student.email === student.email}
+                        fromGroup="__unassigned__"
+                        fromSection={section.name}
+                      />
                     ))}
                 </div>
               </div>
             </div>
           )}
         </CardContent>
-      )
-      }
-    </Card >
+      )}
+    </Card>
   )
 }

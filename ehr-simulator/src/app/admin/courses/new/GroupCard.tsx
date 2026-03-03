@@ -1,12 +1,16 @@
 "use client"
 import { useState } from "react"
-import { Pencil, Check, Trash2, User, UserCog, ChevronsUpDown, X } from "lucide-react"
+import { Pencil, Check, Trash2, User, UserCog, X, ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { cn } from "@/lib/utils"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -18,6 +22,11 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Student, FacultyMember } from "./types"
 import StudentBlock from "./StudentBlock"
 
@@ -28,8 +37,8 @@ interface GroupCardProps {
   students: Student[]
   sectionId: string
   facultyMembers: FacultyMember[]
-  facultyLeads: string[]
-  onFacultyLeadsChange: (sectionId: string, groupName: string, facultyIds: string[]) => void
+  facultyLead: string
+  onFacultyLeadChange: (sectionId: string, groupName: string, facultyId: string) => void
   draggedStudent: { student: Student; fromGroup: string; fromSection: string } | null
   dragOverGroup: string | null
   onDragStart: (e: React.DragEvent, student: Student, fromGroup: string, fromSection: string) => void
@@ -39,6 +48,10 @@ interface GroupCardProps {
   onDrop: (e: React.DragEvent, toGroup: string, toSection: string) => void
   onRenameGroup: (sectionId: string, oldName: string, newName: string) => void
   onDeleteGroup: (sectionId: string, groupName: string) => void
+  /** Other sections this group can be moved to */
+  availableSections?: { id: string; label: string }[]
+  /** Called when the user selects a target section */
+  onMoveGroup?: (fromSectionId: string, groupName: string, toSectionId: string) => void
 }
 
 export const GroupCard = ({
@@ -46,8 +59,8 @@ export const GroupCard = ({
   students,
   sectionId,
   facultyMembers,
-  facultyLeads,
-  onFacultyLeadsChange,
+  facultyLead,
+  onFacultyLeadChange,
   draggedStudent,
   dragOverGroup,
   onDragStart,
@@ -57,13 +70,18 @@ export const GroupCard = ({
   onDrop,
   onRenameGroup,
   onDeleteGroup,
+  availableSections = [],
+  onMoveGroup,
 }: GroupCardProps) => {
   const [editing, setEditing] = useState(false)
   const [editValue, setEditValue] = useState("")
-  const [facultyOpen, setFacultyOpen] = useState(false)
+  const [movePopoverOpen, setMovePopoverOpen] = useState(false)
 
   const dropKey = `${sectionId}::${groupName}`
-  const isOver = dragOverGroup === dropKey && draggedStudent?.fromSection === sectionId && draggedStudent?.fromGroup !== groupName
+  const isOver =
+    dragOverGroup === dropKey &&
+    draggedStudent?.fromSection === sectionId &&
+    draggedStudent?.fromGroup !== groupName
 
   const handleStartEdit = () => {
     setEditing(true)
@@ -82,6 +100,11 @@ export const GroupCard = ({
     if (e.key === "Escape") setEditing(false)
   }
 
+  const handleMoveToSection = (toSectionId: string) => {
+    onMoveGroup?.(sectionId, groupName, toSectionId)
+    setMovePopoverOpen(false)
+  }
+
   return (
     <div
       onDragOver={(e) => onDragOver(e, sectionId, groupName)}
@@ -92,6 +115,7 @@ export const GroupCard = ({
         : "border-slate-200 hover:shadow-md"
         }`}
     >
+      {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-100 min-w-0">
         {editing ? (
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -110,9 +134,49 @@ export const GroupCard = ({
         ) : (
           <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden">
             <span className="font-semibold text-slate-800 text-sm truncate">Group {groupName}</span>
-            <Button onClick={handleStartEdit} size="sm" variant="ghost" className="cursor-pointer h-6 w-6 p-0 flex-shrink-0">
+
+            {/* Rename */}
+            <Button
+              onClick={handleStartEdit}
+              size="sm"
+              variant="ghost"
+              className="cursor-pointer h-6 w-6 p-0 flex-shrink-0"
+            >
               <Pencil className="w-3 h-3 text-slate-400" />
             </Button>
+
+            {/* Move to section */}
+            {availableSections.length > 0 && onMoveGroup && (
+              <Popover open={movePopoverOpen} onOpenChange={setMovePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="cursor-pointer h-6 w-6 p-0 flex-shrink-0"
+                    title="Move to another section"
+                  >
+                    <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="start" sideOffset={4} className="w-44 p-1.5">
+                  <p className="text-xs font-semibold text-slate-500 px-2 py-1">Move to…</p>
+                  <div className="flex flex-col gap-0.5">
+                    {availableSections.map((section) => (
+                      <button
+                        key={section.id}
+                        type="button"
+                        onClick={() => handleMoveToSection(section.id)}
+                        className="w-full text-left text-xs px-2 py-1.5 rounded hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"
+                      >
+                        {section.label}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
+
+            {/* Delete */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button size="sm" variant="ghost" className="cursor-pointer h-6 w-6 p-0 flex-shrink-0">
@@ -141,96 +205,58 @@ export const GroupCard = ({
         </Badge>
       </div>
 
-      {/* Faculty Leads */}
+      {/* Faculty Lead */}
       <div className="mb-2 pb-2 border-b border-slate-100">
-        <p className="text-xs font-semibold text-slate-500 mb-1.5">Faculty Lead(s)</p>
-        <Popover open={facultyOpen} onOpenChange={setFacultyOpen}>
-          <PopoverTrigger asChild>
+        <p className="text-xs font-semibold text-slate-500 mb-1.5">Faculty Lead</p>
+        <div className="flex items-center gap-1">
+          <Select
+            value={facultyLead}
+            onValueChange={(value) => onFacultyLeadChange(sectionId, groupName, value)}
+          >
+            <SelectTrigger className="h-7 text-xs flex-1 cursor-pointer text-slate-500 gap-1.5 justify-start [&>span]:flex-1 [&>span]:text-left">
+              <UserCog className="w-3 h-3 flex-shrink-0" />
+              <SelectValue placeholder="Assign faculty..." />
+            </SelectTrigger>
+            <SelectContent>
+              {facultyMembers.map((member) => (
+                <SelectItem key={member.id} value={member.id} className="text-xs cursor-pointer">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{member.full_name ?? ""}</span>
+                    <span className="text-slate-400">{member.email ?? ""}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {facultyLead && (
             <Button
               type="button"
-              variant="outline"
-              className="w-full justify-between h-7 text-xs font-normal cursor-pointer text-slate-500"
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 flex-shrink-0 cursor-pointer"
+              onClick={() => onFacultyLeadChange(sectionId, groupName, "")}
             >
-              <span className="flex items-center gap-1.5">
-                <UserCog className="w-3 h-3" />
-                {facultyLeads.length === 0
-                  ? "Assign faculty..."
-                  : `${facultyLeads.length} assigned`}
-              </span>
-              <ChevronsUpDown className="h-3 w-3 opacity-50 flex-shrink-0" />
+              <X className="w-3 h-3 text-slate-400" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="p-0 w-72" align="start">
-            <Command>
-              <CommandInput placeholder="Search faculty..." />
-              <CommandList>
-                <CommandEmpty>No faculty found.</CommandEmpty>
-                <CommandGroup>
-                  {facultyMembers.map(member => {
-                    const isSelected = facultyLeads.includes(member.id)
-                    return (
-                      <CommandItem
-                        key={member.id}
-                        value={member.full_name ?? ""}
-                        onSelect={() => {
-                          const updated = isSelected
-                            ? facultyLeads.filter(id => id !== member.id)
-                            : [...facultyLeads, member.id]
-                          onFacultyLeadsChange(sectionId, groupName, updated)
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Check className={cn("mr-2 h-3.5 w-3.5 flex-shrink-0", isSelected ? "opacity-100 text-slate-700" : "opacity-0")} />
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-medium">{member.full_name ?? ""}</span>
-                          <span className="text-xs text-slate-500 truncate">{member.email ?? ""}</span>
-                        </div>
-                      </CommandItem>
-                    )
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-        {facultyLeads.length > 0 && (
-          <div className="flex flex-col gap-1 mt-1.5">
-            {facultyLeads.map(id => {
-              const member = facultyMembers.find(f => f.id === id)
-              if (!member) return null
-              return (
-                <div key={id} className="flex items-center justify-between px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs">
-                  <span className="font-medium text-slate-800 truncate">{member.full_name ?? ""}</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    className="h-5 w-5 p-0 cursor-pointer flex-shrink-0 ml-1"
-                    onClick={() => onFacultyLeadsChange(sectionId, groupName, facultyLeads.filter(fid => fid !== id))}
-                  >
-                    <X className="w-3 h-3 text-slate-400" />
-                  </Button>
-                </div>
-              )
-            })}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
+      {/* Students */}
       <div className="space-y-1.5 flex-1">
         {students.length === 0 && (
           <p className="text-xs text-slate-400 italic text-center py-3">Drop students here</p>
         )}
         {[...students]
-          .sort((a, b) => a.lastName.localeCompare(b.lastName))
+          .sort((a, b) => (a.full_name ?? "").localeCompare(b.full_name ?? ""))
           .map((student) => (
             <StudentBlock
-              key={student.studentId}
+              key={student.email}
               student={student}
               draggable
               onDragStart={(e) => onDragStart(e, student, groupName, sectionId)}
               onDragEnd={onDragEnd}
-              className={draggedStudent?.student.studentId === student.studentId ? "opacity-40" : ""}
+              className={draggedStudent?.student.email === student.email ? "opacity-40" : ""}
               fromGroup={groupName}
               fromSection={sectionId}
             />
