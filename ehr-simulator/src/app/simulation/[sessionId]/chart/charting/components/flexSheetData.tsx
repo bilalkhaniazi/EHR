@@ -223,9 +223,18 @@ export const flexSheetTemplate: FlexSheetData[] = [
     normalRange: { low: 95, high: 100 }
   },
   {
-    id: "painInput",
-    field: "Pain",
-    componentType: "input",
+    id: "o2SourceSelect",
+    field: "O2 Source",
+    componentType: "assessmentselect",
+    chartingOptions: [
+      { subsetId: "Room Air", label: "Room Air" },
+      { subsetId: "Nasal Cannula", label: "Nasal Cannula" },
+      { subsetId: "Non-Rebreather Mask", label: "Non-Rebreather Mask" },
+      { subsetId: "Venturi Mask", label: "Venturi Mask" },
+      { subsetId: "High-Flow Nasal Cannula", label: "High-Flow Nasal Cannula" },
+      { subsetId: "Tracheostomy Collar", label: "Tracheostomy Collar" },
+      { subsetId: "Simple Mask", label: "Simple Mask" },
+    ]
   },
   {
     id: "weightKgInput",
@@ -311,7 +320,7 @@ export const flexSheetTemplate: FlexSheetData[] = [
     hideableId: "ioEmesis"
   },
   {
-    id: "stoolInputt",
+    id: "stoolInput",
     field: "Stool",
     componentType: "input",
     hideable: true,
@@ -330,6 +339,42 @@ export const flexSheetTemplate: FlexSheetData[] = [
     componentType: "input",
     hideable: true,
     hideableId: "Enteral Output"
+  },
+  {
+    id: "painTitle",
+    field: "Pain",
+    componentType: "static",
+    rowType: "titleRow",
+  },
+  {
+    id: "painNumeric",
+    field: "Numeric Rating",
+    componentType: "input",
+  },
+  {
+    id: "painLocation",
+    field: "Location",
+    componentType: "input",
+  },
+  {
+    id: "painCharacteristics",
+    field: "Characteristics",
+    componentType: "input",
+  },
+  {
+    id: "painAlleviatingFactors",
+    field: "Alleviating Factors",
+    componentType: "input",
+  },
+  {
+    id: "painAggravatingFactors",
+    field: "Aggravating Factors",
+    componentType: "input",
+  },
+  {
+    id: "painInterventions",
+    field: "Interventions",
+    componentType: "input",
   },
   {
     id: "generalAppearanceTitle",
@@ -1849,7 +1894,7 @@ export const tempFlexSheetData: FlexSheetData[] = [
     "hideableId": "ioEmesis"
   },
   {
-    "id": "stoolInputt",
+    "id": "stoolInput",
     "field": "Stool",
     "componentType": "input",
     "hideable": true,

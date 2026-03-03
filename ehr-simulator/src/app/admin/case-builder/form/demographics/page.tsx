@@ -323,7 +323,7 @@ export default function DemographicsForm() {
                         onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["precautions"]: value }) }}
                         value={demographicsData.precautions}
                       >
-                        <SelectTrigger className="bg-white">
+                        <SelectTrigger className="bg-white min-w-50">
                           <SelectValue placeholder="Select..." />
                           <ChevronDown />
                         </SelectTrigger>
@@ -363,7 +363,7 @@ export default function DemographicsForm() {
                           onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["insurance"]: value }) }}
                           value={demographicsData.insurance}
                         >
-                          <SelectTrigger className="bg-white">
+                          <SelectTrigger className="bg-white min-w-50">
                             <SelectValue placeholder="Select..." />
                             <ChevronDown />
                           </SelectTrigger>
@@ -393,7 +393,7 @@ export default function DemographicsForm() {
                           onValueChange={(value) => { setDemographicsData({ ...demographicsData, ["relationshipStatus"]: value }) }}
                           value={demographicsData.relationshipStatus}
                         >
-                          <SelectTrigger className="bg-white">
+                          <SelectTrigger className="bg-white min-w-50">
                             <SelectValue placeholder="Select..." />
                             <ChevronDown />
                           </SelectTrigger>
@@ -517,6 +517,28 @@ export default function DemographicsForm() {
                       value={demographicsData.admissionTime}
                     />
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="patientContact">Emergency Contact</Label>
+                  <Input
+                    required
+                    name="patientContact"
+                    id="patientContact"
+                    placeholder="First & Last Name"
+                    className=""
+                    onChange={(e) => { setDemographicsData({ ...demographicsData, ["contact"]: e.target.value }) }}
+                    value={demographicsData.contact}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactRelationship">Contact Relationship</Label>
+                  <Input
+                    required
+                    name="contactRelationship"
+                    id="contactRelationship"
+                    onChange={(e) => { setDemographicsData({ ...demographicsData, ["contactRelationship"]: e.target.value }) }}
+                    value={demographicsData.contactRelationship}
+                  />
                 </div>
               </CardContent>
             </Card>
