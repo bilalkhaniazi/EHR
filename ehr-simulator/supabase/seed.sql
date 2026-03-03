@@ -112,7 +112,8 @@ VALUES ('e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9b', 'c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5
 
 INSERT INTO public.case_data (id, name, description, diagnosis) 
 VALUES('e5f6a7b8-c9d0-4e5f-4b1a-4c5d6e7f8a9d', 'Wallace Peterson', 'This will be a brief case description providing basic details of the case, perhaps mentioning events leading up to admission, current symptoms, and an area of focus for the simulation.', 'Acute CHF Exacerbation'),
-    ('e5f6a7b8-c9d0-4e5f-9c1f-4c5d6e7f8a9d', 'Melody Dix', 'This will be a brief case description providing basic details of the case, perhaps mentioning events leading up to admission, current symptoms, and an area of focus for the simulation.', 'Acute Pancreatitis');
+    ('e5f6a7b8-c9d0-4e5f-9c1f-4c5d6e7f8a9d', 'Melody Dix', 'This will be a brief case description providing basic details of the case, perhaps mentioning events leading up to admission, current symptoms, and an area of focus for the simulation.', 'Acute Pancreatitis'),
+        ('e5f6a7b8-c9a0-4e5f-9c1f-4c5d6e7f8a9d', 'Jimmy Houston', 'This will be a brief case description providing basic details of the case, perhaps mentioning events leading up to admission, current symptoms, and an area of focus for the simulation.', 'Acute EtOH withdrawal');
 
 INSERT INTO public.section_assignments (section_id, case_id, sim_time, presim_time) 
 VALUES  ('b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e', 'e5f6a7b8-c9d0-4e5f-4b1a-4c5d6e7f8a9d', '2026-02-05 01:00:00+00', '2026-02-02 01:00:00+00'),

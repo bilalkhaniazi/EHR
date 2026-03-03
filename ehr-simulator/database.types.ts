@@ -40,6 +40,7 @@ export type Database = {
           feedback: string | null
           group_id: string | null
           id: string
+          section_assignment_id: string | null
           started_at: string | null
           status: string | null
           student_ids: string | null
@@ -50,6 +51,7 @@ export type Database = {
           feedback?: string | null
           group_id?: string | null
           id?: string
+          section_assignment_id?: string | null
           started_at?: string | null
           status?: string | null
           student_ids?: string | null
@@ -60,6 +62,7 @@ export type Database = {
           feedback?: string | null
           group_id?: string | null
           id?: string
+          section_assignment_id?: string | null
           started_at?: string | null
           status?: string | null
           student_ids?: string | null
@@ -77,6 +80,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_sessions_section_assignment_id_fkey"
+            columns: ["section_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "section_assignments"
             referencedColumns: ["id"]
           },
         ]

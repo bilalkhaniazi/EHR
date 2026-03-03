@@ -28,7 +28,6 @@ export interface SimAssignment {
   caseId: string;
   caseDescription: string;
   caseDiagnosis: string;
-
 }
 
 export type Course = Database['public']['Tables']['courses']['Row'];
@@ -36,46 +35,32 @@ export type Course = Database['public']['Tables']['courses']['Row'];
 
 export default async function CoursePage({ params }: CoursePageProps) {
   const { id } = await params;
-  const [course, sectionsResult, casesResult] = await Promise.all([
+  const [courseResult, sectionsResult, casesResult] = await Promise.all([
     getCourseById(id),
     getSectionCaseAssignments(id),
     getCaseByCourseId(id)
   ]);
-  // console.log(sections)
 
-  if (!course) {
-    return (
-      <div className="flex h-screen items-center justify-center text-muted-foreground">
-        Course not found.
-      </div>
-    );
-  }
-
-  if (!sectionsResult.success || !casesResult.success) {
-    return <div>Error loading data: {sectionsResult.message || casesResult.message}</div>
+  if (!sectionsResult.success || !casesResult.success || !courseResult.success || !courseResult.data) {
+    return <div>Error loading data: {sectionsResult.message || casesResult.message || courseResult.message}</div>
   }
 
   const sectionsData = sectionsResult.data ?? [];
   const casesData = casesResult.data ?? [];
+  const courseData = courseResult.data;
 
   const processedSims = sectionsData.flatMap((section) =>
     section.section_assignments.map((assignment) => {
-      // TS believes case_data is an array, when it is actually an object
-      const caseName = assignment.case_data?.name ?? "Unknown Case";
-      const caseId = assignment.case_data?.id ?? '';
-      const caseDescription = assignment.case_data?.description ?? '';
-      const caseDiagnosis = assignment.case_data?.diagnosis ?? '';
-      console.log(caseDiagnosis)
       return {
         id: assignment.id,
         simTime: assignment.sim_time,
         presimTime: assignment.presim_time,
         sectionName: section.name,
         sectionId: section.id,
-        caseName: caseName,
-        caseId: caseId,
-        caseDescription: caseDescription,
-        caseDiagnosis: caseDiagnosis
+        caseName: assignment.case_data.name || "Unknown Case",
+        caseId: assignment.case_data.id,
+        caseDescription: assignment.case_data.description || '',
+        caseDiagnosis: assignment.case_data.diagnosis || ''
       };
     })
   ).reduce<AssignmentGroups>((acc, item) => {
@@ -96,7 +81,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h1 className="text-5xl font-bold tracking-tight text-blue-900">
-              {course.code}
+              {courseData.code}
             </h1>
             <p className="text-xs text-gray-500">Manage assigned for cases this course.</p>
           </div>

@@ -301,7 +301,6 @@ export async function getCourseCaseAssignments() {
   return {
     success: true,
     message: 'Successfully retrieved sim cases.',
-    error: undefined,
     data: assignments,
   }
 }
