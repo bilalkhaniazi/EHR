@@ -1,9 +1,7 @@
 "use client"
 
-import * as React from "react"
 import Link from "next/link"
 import { Course } from "@/actions/courses";
-
 
 interface CourseListItemProps {
   course: Course;
