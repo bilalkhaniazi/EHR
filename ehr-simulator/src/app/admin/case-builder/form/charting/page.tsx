@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 // import { Skeleton } from "@/components/ui/skeleton";
 import { AddTableColumn } from "../labs/components/addTimeCol";
 import { useRouter } from "next/navigation";
-import { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
+import { FlexSheetData, migrateLegacyUrineRowIds } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 import { Clipboard } from "lucide-react";
 import { TableAssessmentSelectFormCell, TableInputFormCell } from "./components/tableInputFormCell";
 import { useFormContext } from "@/context/FormContext";
@@ -19,7 +19,7 @@ const columnHelper = createColumnHelper<FlexSheetData>();
 
 export function ChartingForm() {
   const { onDataChange, chartingData: initialChartingData } = useFormContext()
-  const [chartingData, setChartingData] = useState<FlexSheetData[]>(initialChartingData.data)
+  const [chartingData, setChartingData] = useState<FlexSheetData[]>(() => migrateLegacyUrineRowIds(initialChartingData.data))
   const {
     timePoints,
     timePointsInPresim,

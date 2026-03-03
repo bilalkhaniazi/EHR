@@ -1,9 +1,10 @@
 'use client'
 import { useFormContext } from "@/context/FormContext"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { ClipboardCheck } from "lucide-react"
 import { FormShell } from "../../components/formShell"
-import { saveCaseJsonBlob } from "../../api/dump_case_json"
+import { createCaseData } from "@/actions/cases"
 
 const FormReview = () => {
   const {
@@ -19,32 +20,42 @@ const FormReview = () => {
   } = useFormContext()
 
   const router = useRouter();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const goBack = () => {
     router.push("/admin/case-builder/form/medication-administrations");
   }
 
   const handleSubmit = async () => {
-    try {
-      const fullCasePayload = {
-        demographics: demographicData,
-        history: historyData,
-        notes: noteData,
-        orders: orderData,
-        labs: labData,
-        charting: chartingData,
-        inputOutput: ioData,
-        medicationOrders: medOrderData,
-        medicationAdministrations: medAdministrationData
-      }
-      const title = "Case " + demographicData.firstName + " " + demographicData.lastName;
-      await saveCaseJsonBlob(fullCasePayload, title);
-      router.push("/admin/case-builder/form/success");
-    } catch (error) {
-      console.error(error)
-      alert("Something went wrong saving the case.")
-    };
+    setSubmitError(null);
+    setIsSubmitting(true);
 
+    const name =
+      demographicData.caseName?.trim() ||
+      [demographicData.firstName, demographicData.lastName].filter(Boolean).join(" ").trim() ||
+      "Unnamed Case";
+    const ageRaw = demographicData.age?.trim();
+    const age = ageRaw !== "" ? parseInt(ageRaw, 10) : null;
+    if (ageRaw !== "" && (Number.isNaN(age) || age === null)) {
+      setSubmitError("Age must be a valid number.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const result = await createCaseData({
+      name,
+      description: demographicData.summary?.trim() || null,
+      age: age ?? null,
+      diagnosis: demographicData.admittingDiagnosis?.trim() || null,
+    });
+
+    setIsSubmitting(false);
+    if (!result.success) {
+      setSubmitError(result.message ?? "Failed to create case.");
+      return;
+    }
+    router.push("/admin/case-builder/form/success");
   }
 
   return (
@@ -54,16 +65,21 @@ const FormReview = () => {
       icon={<ClipboardCheck className="text-slate-400" />}
       onSubmit={handleSubmit}
       goBack={goBack}
-      continueButtonText="Submit Case"
+      continueButtonText={isSubmitting ? "Submitting…" : "Submit Case"}
       backButtonText="Back"
       continueButtonTooltip="Proceed to Next Page"
       backButtonTooltip="Return to Previous Page"
+      continueDisabled={isSubmitting}
     >
       <div className="flex flex-col h-screen w-full bg-slate-50/50 overflow-hidden">
         <main className="flex-1 overflow-y-auto p-6 md:px-8 lg:px-12">
           <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 h-full max-w-7xl mx-auto pb-20">
             <div className="flex flex-col gap-2">
-
+              {submitError && (
+                <div className="rounded-md bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm">
+                  {submitError}
+                </div>
+              )}
               <h2 className="text-nowrap font-bold mt-4">Demographics Data</h2>
               <pre>{JSON.stringify(demographicData, null, 4)}</pre>
 

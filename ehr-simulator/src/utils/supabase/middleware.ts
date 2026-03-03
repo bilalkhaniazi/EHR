@@ -1,6 +1,12 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+function buildRedirectedFrom(request: NextRequest) {
+  const { pathname, search } = request.nextUrl
+  const fullPath = `${pathname}${search}`
+  return fullPath.startsWith('/') ? fullPath : '/'
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -27,37 +33,34 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  // IMPORTANT: Don't remove getClaims()
   const { data } = await supabase.auth.getClaims()
   const user = data?.claims
 
+  const pathname = request.nextUrl.pathname
+
+  if (pathname === '/') {
+    const url = request.nextUrl.clone()
+    url.pathname = user ? '/admin' : '/auth/login'
+    return NextResponse.redirect(url)
+  }
+
+  if (!user && pathname.startsWith('/admin')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/login'
+    const redirectedFrom = buildRedirectedFrom(request)
+    url.searchParams.set('redirectedFrom', redirectedFrom)
+    return NextResponse.redirect(url)
+  }
+
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/auth/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !pathname.startsWith('/auth/login') &&
+    !pathname.startsWith('/auth')
   ) {
-    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     return NextResponse.redirect(url)
   }
-
-  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-  // creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
 
   return supabaseResponse
 }

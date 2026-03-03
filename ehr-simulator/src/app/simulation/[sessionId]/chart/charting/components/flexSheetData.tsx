@@ -38,6 +38,22 @@ export const getAllTimeOffsets = (simulationNow: number) => {
   return allTimeOffsets.sort((a, b) => b - a)
 };
 
+/**
+ * Backward compatibility: when loading saved charting data that still has legacy "urineInput" row ids,
+ * map the first occurrence to urineOutputMlInput (numeric output) and the second to urineSampleDescriptionInput (text description).
+ */
+export function migrateLegacyUrineRowIds(data: FlexSheetData[]): FlexSheetData[] {
+  let urineInputIndex = 0;
+  return data.map((row) => {
+    if (row.id !== "urineInput") return row;
+    urineInputIndex += 1;
+    if (urineInputIndex === 1) {
+      return { ...row, id: "urineOutputMlInput", field: "Urine output (mL)", hideableId: "ioUrine" };
+    }
+    return { ...row, id: "urineSampleDescriptionInput", field: "Urine sample description", hideableId: "urineSampleDescription" };
+  });
+}
+
 export const generateInitialChartingData = (allTimeOffsets: number[]): FlexSheetData[] => {
   const generatedData: FlexSheetData[] = []
 
@@ -273,7 +289,7 @@ export const flexSheetTemplate: FlexSheetData[] = [
     field: "Output Fields",
     componentType: "checkboxlist",
     assessmentSubsets: [
-      { subsetId: "ioUrine", label: "Urine" },
+      { subsetId: "ioUrine", label: "Urine output (mL)" },
       { subsetId: "ioEmesis", label: "Emesis" },
       { subsetId: "ioStool", label: "Stool" },
       { subsetId: "Wound Drainage", label: "Wound Drainage" },
@@ -281,8 +297,8 @@ export const flexSheetTemplate: FlexSheetData[] = [
     ]
   },
   {
-    id: "urineInput",
-    field: "Urine",
+    id: "urineOutputMlInput",
+    field: "Urine output (mL)",
     componentType: "input",
     hideable: true,
     hideableId: "ioUrine"
@@ -703,7 +719,7 @@ export const flexSheetTemplate: FlexSheetData[] = [
     rowType: "titleRow",
     wdlDescription: [
       { assessment: "Voiding", description: "Without pain, burning, or urgency. No new incontinence." },
-      { assessment: "Urine", description: "Clear, yellow, absent of odor." }
+      { assessment: "Urine sample description", description: "Clear, yellow, absent of odor." }
     ]
   },
   {
@@ -714,7 +730,7 @@ export const flexSheetTemplate: FlexSheetData[] = [
       { subsetId: "WDL", label: "WDL" },
       { subsetId: "WDL, except:", label: "WDL, except:" },
       { subsetId: "Voiding", label: "Voiding" },
-      { subsetId: "Urine", label: "Urine" },
+      { subsetId: "urineSampleDescription", label: "Urine sample description" },
     ]
   },
   {
@@ -725,11 +741,11 @@ export const flexSheetTemplate: FlexSheetData[] = [
     hideableId: "Voiding"
   },
   {
-    id: "urineInput",
-    field: "Urine",
+    id: "urineSampleDescriptionInput",
+    field: "Urine sample description",
     componentType: "input",
     hideable: true,
-    hideableId: "Urine"
+    hideableId: "urineSampleDescription"
   },
   {
     id: "ivAssessmentTitle",
@@ -1797,7 +1813,7 @@ export const tempFlexSheetData: FlexSheetData[] = [
     "assessmentSubsets": [
       {
         "subsetId": "ioUrine",
-        "label": "Urine"
+        "label": "Urine output (mL)"
       },
       {
         "subsetId": "ioEmesis",
@@ -1819,8 +1835,8 @@ export const tempFlexSheetData: FlexSheetData[] = [
     "hideable": false
   },
   {
-    "id": "urineInput",
-    "field": "Urine",
+    "id": "urineOutputMlInput",
+    "field": "Urine output (mL)",
     "componentType": "input",
     "hideable": true,
     "hideableId": "ioUrine"
@@ -2463,7 +2479,7 @@ export const tempFlexSheetData: FlexSheetData[] = [
         "description": "Without pain, burning, or urgency. No new incontinence."
       },
       {
-        "assessment": "Urine",
+        "assessment": "Urine sample description",
         "description": "Clear, yellow, absent of odor."
       }
     ],
@@ -2487,8 +2503,8 @@ export const tempFlexSheetData: FlexSheetData[] = [
         "label": "Voiding"
       },
       {
-        "subsetId": "Urine",
-        "label": "Urine"
+        "subsetId": "urineSampleDescription",
+        "label": "Urine sample description"
       }
     ],
     "hideable": false
@@ -2501,11 +2517,11 @@ export const tempFlexSheetData: FlexSheetData[] = [
     "hideableId": "Voiding"
   },
   {
-    "id": "urineInput",
-    "field": "Urine",
+    "id": "urineSampleDescriptionInput",
+    "field": "Urine sample description",
     "componentType": "input",
     "hideable": true,
-    "hideableId": "Urine"
+    "hideableId": "urineSampleDescription"
   },
   {
     "id": "ivAssessmentTitle",

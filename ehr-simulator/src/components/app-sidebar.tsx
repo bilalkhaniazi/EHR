@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, Settings, User, BookOpenText, Hospital, Presentation } from "lucide-react";
+import { Home, Settings, User, BookOpenText, Hospital, Presentation, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,8 +14,10 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { useUser } from "@/context/UserContext";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
+import { clearDraft as clearCaseBuilderDraft } from "@/utils/drafts/caseBuilderDraft";
 
 const adminRoutes = [
   {
@@ -35,7 +37,7 @@ const adminRoutes = [
   },
   {
     title: "Active Simulations (WIP)",
-    url: "/",
+    url: "/simulation",
     icom: Presentation,
   },
 ]
@@ -43,7 +45,7 @@ const adminRoutes = [
 const defaultRoutes = [
   {
     title: "Profile",
-    url: "/",
+    url: "/profile",
     icom: User,
   },
   {
@@ -53,11 +55,28 @@ const defaultRoutes = [
   },
 ];
 
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+);
+
 export function AppSidebar() {
 
-  const { loading } = useUser();
+  const { loading, user } = useUser();
   const pathname = usePathname();
+  const router = useRouter();
   const isCurrentPath = (url: string) => pathname === url;
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    if (user?.id) {
+      clearCaseBuilderDraft(user.id);
+    }
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("role");
+    }
+    router.replace("/auth/login");
+  };
 
   if (loading) return null;
 
@@ -99,6 +118,12 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleLogout}>
+                <LogOut />
+                <span>Logout</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
         <SidebarGroup />

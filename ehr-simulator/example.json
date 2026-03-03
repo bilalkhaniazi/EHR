@@ -64,13 +64,22 @@
   ],
   "orders": [
     {
-      "category": "Nursing", // Finite set
+      "category": "Nursing", // Finite set: Nursing | Respiratory | Laboratory | Consult | Diet
       "provider": "Dr. John Doe",
       "order_title": "Insert Peripheral IV",
       "instructions": "loren ipsum",
       "initial_status": "active", // Active | Held
       "included_in_presim": true,
       "mark_as_important": true,
+    },
+    {
+      "category": "Diet",
+      "provider": "Dr. Jane Smith",
+      "order_title": "Diabetic Diet",
+      "instructions": "Consistent carbohydrate diet, fluid encouragement unless contraindicated.",
+      "initial_status": "active",
+      "included_in_presim": true,
+      "mark_as_important": false,
     }
   ],
   "lab_results": [
@@ -207,7 +216,8 @@
         "parenteral_nutrition": ""
       },
       "output": {
-        "urine": "",
+        "urine_output_ml": "",
+        "urine_sample_description": "",
         "emesis": "",
         "stool": "",
         "wound_drainage": "",

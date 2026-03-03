@@ -14,22 +14,39 @@ export type ActionResponse<T = null> = {
   error?: PostgrestError;
 };
 
-export type SectionWithAssignments = {
-  id: string;
-  name: string;
-  section_assignments: {
-    id: string;
-    sim_time: string;
-    presim_time: string;
-    // Explicitly defined case_data as an object, not an array
-    case_data: {
-      id: string;
-      name: string;
-      description: string;
-      diagnosis: string;
-    } | null;
-  }[];
-};
+export type CaseDataInsert = Database["public"]["Tables"]["case_data"]["Insert"];
+export type CaseDataRow = Database["public"]["Tables"]["case_data"]["Row"];
+
+export async function createCaseData(
+  payload: CaseDataInsert
+): Promise<ActionResponse<CaseDataRow>> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data, error } = await supabase
+    .from("case_data")
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("createCaseData error:", error);
+    return {
+      success: false,
+      message: error.message ?? "Failed to create case.",
+      error,
+      data: undefined,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Case created successfully.",
+    data,
+  };
+}
 
 export async function getAllSimCases() {
   const supabase = createClient(
@@ -65,7 +82,7 @@ export async function getSimCaseById(id: string) {
   );
 
   const { data, error } = await supabase
-    .from("cases")
+    .from("case_data")
     .select("*")
     .eq("id", id)
 
@@ -168,30 +185,10 @@ export async function getSectionCaseAssignments(courseId: string) {
     };
     return result
   }
-
-  // explicitly get TS to recognize case_data as object, not array
-  const cleanData = data?.map((item) => {
-    const cleanedAssignments = item.section_assignments.map(assignment => {
-      const _caseData = Array.isArray(assignment.case_data)
-        ? assignment.case_data[0]
-        : assignment.case_data;
-
-      return {
-        ...assignment,
-        case_data: _caseData
-      };
-    });
-
-    return {
-      ...item,
-      section_assignments: cleanedAssignments
-    };
-  });
-
   return {
     success: true,
     message: 'Successfully retrieved Sim Assignment for this section.',
-    data: cleanData,
+    data: data,
   }
 }
 
@@ -259,77 +256,57 @@ export async function getCourseCaseAssignments() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const { data, error } = await supabase
-    .from('case_data')
+  const { data: rawData, error } = await supabase
+    .from('course_cases')
     .select(`
       id,
-      name,
-      description, 
-      diagnosis,
-      course_cases (
-        id,
-        course_id,
-        courses (
-          id,
-          name,
-          code
-        )
+      course_id,
+      case_id,
+      case_data!course_cases_case_id_fkey (
+        *
+      ),
+      courses!course_cases_course_id_fkey (
+        name,
+        code
       )
     `);
 
   if (error) {
-    return {
+    const result = {
       success: false,
-      message: 'Failed to retrieve sim cases.',
+      message: 'Failed to retreive sim cases.',
       error,
       data: null
     };
+    return result
   }
+  // Get TS to recognize that course and case are single objects, not arrays
+  const assignments = rawData?.map((item) => {
+    const course = Array.isArray(item.courses) ? item.courses[0] : item.courses;
+    const caseItem = Array.isArray(item.case_data) ? item.case_data[0] : item.case_data;
 
-  const assignments = data?.flatMap((caseItem) => {
-    // Handle unassigned cases (Left Join equivalent)
-    if (!caseItem.course_cases || caseItem.course_cases.length === 0) {
-      return [{
-        id: null, // No assignment ID because it's not in course_cases
-        courseId: null,
-        caseId: caseItem.id,
-        courseName: null,
-        courseCode: null,
-        caseName: caseItem.name,
-        description: caseItem.description,
-        diagnosis: caseItem.diagnosis
-      }];
-    }
-
-    // Handle cases assigned to one or more courses
-    return caseItem.course_cases.map((assignment) => {
-      const course = Array.isArray(assignment.courses)
-        ? assignment.courses[0]
-        : assignment.courses;
-
-      return {
-        id: assignment.id, // The course_cases ID
-        courseId: assignment.course_id,
-        caseId: caseItem.id,
-        courseName: course?.name,
-        courseCode: course?.code,
-        caseName: caseItem.name,
-        description: caseItem.description,
-        diagnosis: caseItem.diagnosis
-      };
-    });
+    return {
+      id: item.id,
+      courseId: item.course_id,
+      caseId: item.case_id,
+      courseName: course?.name,
+      courseCode: course?.code,
+      caseName: caseItem?.name,
+      description: caseItem?.description,
+      diagnosis: caseItem?.diagnosis
+    };
   }) ?? [];
+
 
   return {
     success: true,
     message: 'Successfully retrieved sim cases.',
     error: undefined,
     data: assignments,
-  };
+  }
 }
 
 // extracts type of data from ActionResponse for use in frontend
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ExtractData<T extends (...args: any) => Promise<ActionResponse<any>>> =
   NonNullable<Awaited<ReturnType<T>>['data']>;
 

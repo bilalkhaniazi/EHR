@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
 export default function LoginPage() {
@@ -8,11 +10,33 @@ export default function LoginPage() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
   )
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectedFrom = searchParams.get('redirectedFrom') || '/admin'
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (session) {
+        router.replace(redirectedFrom)
+      }
+    }
+
+    checkSession()
+  }, [router, redirectedFrom, supabase])
+
   const handleSignIn = async () => {
+    const redirectTo = `${window.location.origin}/auth/callback?redirectedFrom=${encodeURIComponent(
+      redirectedFrom
+    )}`
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`, // your redirect route
+        redirectTo,
       },
     })
   }

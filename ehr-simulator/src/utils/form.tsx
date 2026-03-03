@@ -14,6 +14,7 @@ export interface DemographicFormData {
   age: string;
   attendingProviderName: string;
   attendingProviderTitle: string;
+  caseName: string;
   codeStatus: string;
   dosingWeight: string;
   employment: string;

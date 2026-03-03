@@ -4,9 +4,10 @@ interface SubmitButtonProps {
   buttonText: string;
   onClick: () => void;
   tooltip?: string;
+  disabled?: boolean;
 }
 
-const ContinueButton = ({ buttonText, onClick, tooltip }: SubmitButtonProps) => {
+const ContinueButton = ({ buttonText, onClick, tooltip, disabled }: SubmitButtonProps) => {
   return (
     <div className="">
       <Button
@@ -14,6 +15,7 @@ const ContinueButton = ({ buttonText, onClick, tooltip }: SubmitButtonProps) => 
         variant={"default"}
         onClick={onClick}
         title={tooltip}
+        disabled={disabled}
       >
         {buttonText} <ArrowRight />
       </Button>

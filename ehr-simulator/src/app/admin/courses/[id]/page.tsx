@@ -10,7 +10,7 @@ import { SimAssignmentTable } from "./components/simAssignmentTable";
 
 
 interface CoursePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface AssignmentGroups {
@@ -35,10 +35,11 @@ export type Course = Database['public']['Tables']['courses']['Row'];
 
 
 export default async function CoursePage({ params }: CoursePageProps) {
+  const { id } = await params;
   const [course, sectionsResult, casesResult] = await Promise.all([
-    getCourseById(params.id),
-    getSectionCaseAssignments(params.id),
-    getCaseByCourseId(params.id)
+    getCourseById(id),
+    getSectionCaseAssignments(id),
+    getCaseByCourseId(id)
   ]);
   // console.log(sections)
 
