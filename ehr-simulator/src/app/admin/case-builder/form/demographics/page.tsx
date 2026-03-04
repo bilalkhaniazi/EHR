@@ -31,6 +31,8 @@ import { useFormContext } from "@/context/FormContext";
 import { relationshipStatuses, precautions, months, codeStatuses, days, insuranceOptions, DemographicFormData } from "@/utils/form";
 import { buttonVariants } from "@/components/ui/button";
 import { FormShell } from "../../components/formShell";
+import { CaseSection } from "@/lib/saveCase";
+import { saveCaseData } from "@/actions/case_builder/caseBuilder";
 
 export default function DemographicsForm() {
   const { onDataChange, demographicData: initialData } = useFormContext();
@@ -53,6 +55,11 @@ export default function DemographicsForm() {
 
   const handleSubmit = () => {
     onDataChange("demographics", demographicsData)
+    saveCaseData({
+      payload: demographicsData,
+      section: CaseSection.DEMOGRAPHICS
+    }
+    );
     router.push("/admin/case-builder/form/history");
   }
 
