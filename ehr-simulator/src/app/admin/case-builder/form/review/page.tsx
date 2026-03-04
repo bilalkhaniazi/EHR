@@ -3,6 +3,7 @@ import { useFormContext } from "@/context/FormContext"
 import { useRouter } from "next/navigation"
 import { ClipboardCheck } from "lucide-react"
 import { FormShell } from "../../components/formShell"
+import { saveCaseJsonBlob } from "../../api/dump_case_json"
 
 const FormReview = () => {
   const {
@@ -23,9 +24,27 @@ const FormReview = () => {
     router.push("/admin/case-builder/form/medication-administrations");
   }
 
-  const handleSubmit = () => {
-    // verify, prettify, push to db, etc
-    router.push("/admin/case-builder/form/success");
+  const handleSubmit = async () => {
+    try {
+      const fullCasePayload = {
+        demographics: demographicData,
+        history: historyData,
+        notes: noteData,
+        orders: orderData,
+        labs: labData,
+        charting: chartingData,
+        inputOutput: ioData,
+        medicationOrders: medOrderData,
+        medicationAdministrations: medAdministrationData
+      }
+      const title = "Case " + demographicData.firstName + " " + demographicData.lastName;
+      await saveCaseJsonBlob(fullCasePayload, title);
+      router.push("/admin/case-builder/form/success");
+    } catch (error) {
+      console.error(error)
+      alert("Something went wrong saving the case.")
+    };
+
   }
 
   return (
