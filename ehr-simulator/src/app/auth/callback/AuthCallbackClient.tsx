@@ -12,17 +12,29 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+      // use ANON key for browser client
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
     console.log('Auth callback page loaded, checking session...')
+    const getRoleForUser = async (userId: string, fallbackRole?: string) => {
+      try {
+        const { data: profile, error } = await supabase.from('users').select('role').eq('id', userId).single()
+        if (!error && profile?.role) return profile.role as string
+      } catch {
+        // ignore errors reading users table (RLS or missing row) and fall back
+      }
+      return fallbackRole || undefined
+    }
+
     const handleSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession()
 
       if (session) {
-        const role = session.user?.user_metadata?.role as string | undefined
+        const fallbackRole = session.user?.user_metadata?.role as string | undefined
+        const role = await getRoleForUser(session.user.id, fallbackRole)
         if (typeof window !== 'undefined' && role) {
           try {
             window.localStorage.setItem('role', role)
@@ -31,19 +43,20 @@ export default function AuthCallbackPage() {
           }
         }
 
-        const destination = role === 'admin' ? '/admin' : '/user/profile'
+        const destination = role === 'admin' ? '/admin' : `/user/profile/${session.user.id}`
         router.replace(destination)
       } else {
         const { data: authListener } = supabase.auth.onAuthStateChange(
-          (_event, sess) => {
+          async (_event, sess) => {
             if (sess) {
-              const role = sess.user?.user_metadata?.role as string | undefined
+              const fallbackRole = sess.user?.user_metadata?.role as string | undefined
+              const role = await getRoleForUser(sess.user.id, fallbackRole)
               if (typeof window !== 'undefined' && role) {
                 try {
                   window.localStorage.setItem('role', role)
                 } catch {}
               }
-              const destination = role === 'admin' ? '/admin' : '/user/profile'
+              const destination = role === 'admin' ? '/admin' : `/user/profile/${sess.user.id}`
               router.replace(destination)
             }
           })

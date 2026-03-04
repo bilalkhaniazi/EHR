@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { createBrowserClient } from "@supabase/ssr";
 
 type Props = {
   name: string;
@@ -46,15 +47,29 @@ export default function ProfileHeader({ name, avatarUrl, classes = [] }: Props) 
         </div>
       </div>
 
-      <div>
+      <div className="flex items-center gap-3">
         <button
-          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm"
-          onClick={() => {
-            // wire up to real profile edit route later
-            window.location.href = "/user/profile/edit";
+          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
+          onClick={async () => {
+            try {
+              const supabase = createBrowserClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+              );
+
+              await supabase.auth.signOut();
+            } catch {
+              // ignore sign out errors
+            } finally {
+              try {
+                if (typeof window !== "undefined") window.localStorage.removeItem("role");
+              } catch {}
+              // redirect to login
+              window.location.href = "/auth/login";
+            }
           }}
         >
-          Edit Profile
+          Logout
         </button>
       </div>
     </header>

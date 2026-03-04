@@ -45,7 +45,6 @@ export function ChartingForm() {
       timePoints: timePoints,
       timePointsInPreSim: timePointsInPresim
     })
-    console.log(chartingData)
     router.push('/admin/case-builder/form/intake-output')
   }
 

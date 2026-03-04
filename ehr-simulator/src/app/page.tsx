@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
 export default async function Home() {
 
-  const { data: users } = await supabase.from("users").select("*");
-  console.log(users,'users from supabase');
+  // const { data: users } = await supabase.from("users").select("*");
+  // console.log(users,'users from supabase');
 
 
   return (
