@@ -18,8 +18,8 @@ export async function saveCaseData({ payload, section, caseId }: SaveCaseArgs) {
 
   switch (section) {
     case CaseSection.DEMOGRAPHICS:
-      const { data, error } = await upsertCaseDemographics(supabase, payload, caseId);
-      return data;
+      const savedRow = await upsertCaseDemographics(supabase, payload, caseId);
+      return savedRow;
   }
   return;
 }
