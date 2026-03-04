@@ -3,7 +3,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { CaseSection } from "@/lib/saveCase"
 import { upsertCaseDemographics } from "@/actions/case_builder/upsertCaseDemographics";
-
+import { updatePatientHistory } from "@/actions/case_builder/updatePatientHistory";
 type SaveCaseArgs = {
   payload: any;
   section: keyof typeof CaseSection;
@@ -18,8 +18,9 @@ export async function saveCaseData({ payload, section, caseId }: SaveCaseArgs) {
 
   switch (section) {
     case CaseSection.DEMOGRAPHICS:
-      const savedRow = await upsertCaseDemographics(supabase, payload, caseId);
-      return savedRow;
+      return await upsertCaseDemographics(supabase, payload, caseId);
+    case CaseSection.HISTORY:
+      return await updatePatientHistory(supabase, payload, caseId);
   }
   return;
 }
