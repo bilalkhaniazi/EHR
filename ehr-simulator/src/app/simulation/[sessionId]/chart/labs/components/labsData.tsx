@@ -289,7 +289,6 @@ export const labTemplate: LabTableData[] = [
     unit: "(mg/dL)",
     rowType: "results",
     normalRange: { low: 70, high: 100 },
-
   },
   {
     field: "CO2",
@@ -310,7 +309,12 @@ export const labTemplate: LabTableData[] = [
     unit: "(mmol/L)",
     rowType: "results",
     normalRange: { low: 0.5, high: 1.0 },
-
+  },
+  {
+    field: "HbA1c",
+    unit: "%",
+    rowType: "results",
+    normalRange: { low: 4.0, high: 5.6 },
   },
   {
     field: "Hematology",
@@ -430,6 +434,24 @@ export const labTemplate: LabTableData[] = [
 
   },
   {
+    field: "BNP",
+    unit: "pg/mL",
+    rowType: "results",
+    normalRange: { low: 0, high: 100 },
+  },
+  {
+    field: "D-Dimer",
+    unit: "ng/mL",
+    rowType: "results",
+    normalRange: { low: 0, high: 500 },
+  },
+  {
+    field: "Procalcitonin",
+    unit: "ng/mL",
+    rowType: "results",
+    normalRange: { low: 0.0, high: 0.15 },
+  },
+  {
     field: "Hepatology",
     unit: "",
     rowType: "divider",
@@ -476,7 +498,7 @@ export const labTemplate: LabTableData[] = [
     normalRange: { low: 15, high: 45 }
   },
   {
-    field: "Venous Blood Gas",
+    field: "Blood Gas",
     unit: "",
     rowType: "divider",
   },
@@ -485,6 +507,13 @@ export const labTemplate: LabTableData[] = [
     unit: "", // pH is unitless
     rowType: "results",
     normalRange: { low: 7.35, high: 7.45 },
+
+  },
+  {
+    field: "O2 Sat.",
+    unit: "%", // pH is unitless
+    rowType: "results",
+    normalRange: { low: 95, high: 101 },
 
   },
   {
