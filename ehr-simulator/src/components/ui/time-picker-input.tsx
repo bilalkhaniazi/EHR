@@ -1,5 +1,6 @@
+"use client"
+
 import { Input } from "@/components/ui/input";
- 
 import { cn } from "@/lib/utils";
 import React from "react";
 import {
@@ -9,7 +10,7 @@ import {
   getDateByType,
   setDateByType,
 } from "./time-picker-utils";
- 
+
 export interface TimePickerInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   picker: TimePickerType;
@@ -19,7 +20,7 @@ export interface TimePickerInputProps
   onRightFocus?: () => void;
   onLeftFocus?: () => void;
 }
- 
+
 const TimePickerInput = React.forwardRef<
   HTMLInputElement,
   TimePickerInputProps
@@ -45,7 +46,7 @@ const TimePickerInput = React.forwardRef<
   ) => {
     const [flag, setFlag] = React.useState<boolean>(false);
     const [prevIntKey, setPrevIntKey] = React.useState<string>("0");
- 
+
     /**
      * allow the user to enter the second digit within 2 seconds
      * otherwise start again with entering first digit
@@ -55,15 +56,15 @@ const TimePickerInput = React.forwardRef<
         const timer = setTimeout(() => {
           setFlag(false);
         }, 500);
- 
+
         return () => clearTimeout(timer);
       }
     }, [flag]);
- 
+
     const calculatedValue = React.useMemo(() => {
       return getDateByType(date, picker);
     }, [date, picker]);
- 
+
     const calculateNewValue = (key: string) => {
       /*
        * If picker is '12hours' and the first digit is 0, then the second digit is automatically set to 1.
@@ -73,10 +74,10 @@ const TimePickerInput = React.forwardRef<
         if (flag && calculatedValue.slice(1, 2) === "1" && prevIntKey === "0")
           return "0" + key;
       }
- 
+
       return !flag ? "0" + key : calculatedValue.slice(1, 2) + key;
     };
- 
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Tab") return;
       e.preventDefault();
@@ -91,7 +92,7 @@ const TimePickerInput = React.forwardRef<
       }
       if (e.key >= "0" && e.key <= "9") {
         if (picker === "12hours") setPrevIntKey(e.key);
- 
+
         const newValue = calculateNewValue(e.key);
         if (flag) onRightFocus?.();
         setFlag((prev) => !prev);
@@ -99,7 +100,7 @@ const TimePickerInput = React.forwardRef<
         setDate(setDateByType(tempDate, newValue, picker, period));
       }
     };
- 
+
     return (
       <Input
         ref={ref}
@@ -125,7 +126,7 @@ const TimePickerInput = React.forwardRef<
     );
   }
 );
- 
+
 TimePickerInput.displayName = "TimePickerInput";
- 
+
 export { TimePickerInput };
