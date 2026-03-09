@@ -189,9 +189,8 @@ CREATE table if NOT exists clinical_documents (
   category clinical_doc_category_type NOT NULL,
   specialty TEXT NOT NULL,
   author TEXT NOT NULL, 
-  doc_type TEXT NOT NULL CHECK (doc_type IN ('soap', 'free_text')),
-
-  data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  time_offset integer NOT NULL,
+  doc_text TEXT NOT NULL,
 
   created_at timestamptz DEFAULT now()
 );

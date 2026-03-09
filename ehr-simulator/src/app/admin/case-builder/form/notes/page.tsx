@@ -26,9 +26,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import TextEditor from "@/components/textEditor";
 import { soapTemplateNote } from "@/utils/form";
 import { FormShell } from "../../components/formShell";
+import { saveCaseData } from "@/actions/case_builder/caseBuilder";
+import { CaseSection } from "@/lib/saveCase";
 
 export default function NotesForm() {
-  const { onDataChange, noteData } = useFormContext()
+  const { onDataChange, noteData, caseId } = useFormContext()
   const [notes, setNotes] = useState<ClinicalNote[]>(noteData);
 
   // individual note data
@@ -96,8 +98,15 @@ export default function NotesForm() {
     router.push("/admin/case-builder/form/history");
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onDataChange("notes", notes);
+
+    await saveCaseData({
+      payload: notes,
+      section: CaseSection.DOCUMENTATION,
+      caseId: caseId
+    })
+
     router.push("/admin/case-builder/form/orders");
   }
 

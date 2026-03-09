@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js"
 import { CaseSection } from "@/lib/saveCase"
 import { upsertCaseDemographics } from "@/actions/case_builder/upsertCaseDemographics";
 import { updatePatientHistory } from "@/actions/case_builder/updatePatientHistory";
+import { updateClinicalDocuments } from "@/actions/case_builder/updateClinicalDocuments";
+
 type SaveCaseArgs = {
   payload: any;
   section: keyof typeof CaseSection;
@@ -21,6 +23,9 @@ export async function saveCaseData({ payload, section, caseId }: SaveCaseArgs) {
       return await upsertCaseDemographics(supabase, payload, caseId);
     case CaseSection.HISTORY:
       return await updatePatientHistory(supabase, payload, caseId);
+    case CaseSection.DOCUMENTATION:
+      console.log("Updating docs");
+      return await updateClinicalDocuments(supabase, payload, caseId);
   }
   return;
 }
