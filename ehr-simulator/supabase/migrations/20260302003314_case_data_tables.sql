@@ -199,17 +199,16 @@ CREATE table if NOT exists clinical_documents (
 -- =========================================
 -- Orders
 -- =========================================
-CREATE type order_category_type as enum ('Nursing', 'Respiratory', 'Laboratory', 'Consult');
 CREATE table if NOT EXISTS orders (
   id uuid primary key DEFAULT gen_random_uuid(),
   case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,
-  category order_category_type NOT NULL,
-  provider TEXT NOT NULL,
+  category TEXT NOT NULL,
   title TEXT NOT NULL,
   details TEXT NOT NULL,
-  initial_status_active BOOLEAN NOT NULL DEFAULT TRUE,
-  is_in_presim BOOLEAN NOT NULL DEFAULT TRUE,
+  status TEXT NOT NULL,
+  provider TEXT NOT NULL,
   is_important BOOLEAN NOT NULL DEFAULT FALSE,
+  is_in_presim BOOLEAN NOT NULL DEFAULT TRUE,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
