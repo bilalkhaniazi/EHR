@@ -218,9 +218,7 @@ CREATE table if NOT EXISTS orders (
 CREATE table if NOT EXISTS lab_results (
   id uuid primary key DEFAULT gen_random_uuid(),
   case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,
-  time_offset_days integer check (time_offset_days >= 0) NOT NULL,
-  time_offset_hours integer check (time_offset_hours BETWEEN 0 AND 23),
-  time_offset_minutes integer check (time_offset_minutes BETWEEN 0 AND 59) NOT NULL,
+  time_offset integer NOT NULL,
   is_in_presim BOOLEAN NOT NULL DEFAULT TRUE,
 
   sodium numeric,
@@ -288,6 +286,7 @@ CREATE table if NOT EXISTS lab_results (
 
   data JSONB NOT NULL DEFAULT '{}'::jsonb,
 
+  CONSTRAINT lab_results_case_id_time_offset_key UNIQUE (case_id, time_offset),
   created_at timestamptz NOT NULL DEFAULT now()
 ); 
 
@@ -300,11 +299,28 @@ CREATE table if NOT EXISTS imaging_reports (
   lab_id uuid NOT NULL references lab_results(id) ON DELETE CASCADE,
   name text NOT NULL,
   technique text NOT NULL,
-  body_region text NOT NULL,
-  description text NOT NULL,
   findings jsonb NOT NULL DEFAULT '{}'::jsonb,
   impressions text[] NOT NULL DEFAULT '{}',
-  is_critical_or_abnormal BOOLEAN NOT NULL DEFAULT FALSE,
+  is_critical BOOLEAN NOT NULL DEFAULT FALSE,
+
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE table if NOT EXISTS microbiology_reports (
+  id uuid primary key DEFAULT gen_random_uuid(),
+  case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,
+  lab_id uuid NOT NULL references lab_results(id) ON DELETE CASCADE,
+  name text NOT NULL,
+
+  sample_type text NOT NULL,
+  appearance text NOT NULL,
+  microscopy text NOT NULL,
+  location text,
+  culture_results text NOT NULL,
+  sensitivity text NOT NULL,
+  comments text NOT NULL,
+  reporter text NOT NULL, 
+  is_critical text ,
 
   created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -410,75 +426,3 @@ CREATE table if NOT EXISTS documentation_results (
 -- =========================================
 -- Indexing
 -- =========================================
-CREATE INDEX IF NOT exists idx_clinical_documents_case_id
-  ON clinical_documents(case_id);
-
-CREATE INDEX IF NOT exists idx_orders_case_id
-  ON orders(case_id);
-
-CREATE INDEX IF NOT exists idx_imaging_reports_case_id
-  ON imaging_reports(case_id);
-
-CREATE INDEX IF NOT exists idx_case_family_history_case_id
-  ON case_family_history(case_id);
-
-CREATE INDEX IF NOT exists idx_lab_results_case_time
-  ON lab_results(case_id, time_offset_days, time_offset_hours, time_offset_minutes);
-
-CREATE INDEX IF NOT exists idx_documentation_results_case_time
-  ON documentation_results(case_id, time_offset_days, time_offset_hours, time_offset_minutes);
-
-CREATE INDEX IF NOT EXISTS idx_cases_isolation_precautions_id
-  ON public.cases (isolation_precautions_id);
-
-CREATE INDEX IF NOT EXISTS idx_cases_relationship_status_id
-  ON public.cases (relationship_status_id);
-
-CREATE INDEX IF NOT EXISTS idx_cases_time_of_admission
-  ON public.cases (time_of_admission);
-
-CREATE INDEX IF NOT EXISTS idx_cases_last_first_dob
-  ON public.cases (last_name, first_name, date_of_birth);
-
-CREATE INDEX IF NOT EXISTS idx_case_family_history_relationship_id
-  ON public.case_family_history (relationship_id);
-
-CREATE INDEX IF NOT EXISTS idx_imaging_reports_lab_id
-  ON public.imaging_reports (lab_id);
-
-CREATE INDEX IF NOT EXISTS idx_lab_results_case_time_desc
-  ON public.lab_results (case_id, time_offset_days DESC, time_offset_hours DESC, time_offset_minutes DESC);
-
-CREATE INDEX IF NOT EXISTS idx_documentation_results_case_time_desc
-  ON public.documentation_results (case_id, time_offset_days DESC, time_offset_hours DESC, time_offset_minutes DESC);
-
-CREATE INDEX IF NOT EXISTS idx_clinical_documents_case_created_at_desc
-  ON public.clinical_documents (case_id, created_at DESC);
-
-CREATE INDEX IF NOT EXISTS idx_orders_case_created_at_desc
-  ON public.orders (case_id, created_at DESC);
-
-CREATE INDEX IF NOT EXISTS idx_imaging_reports_case_created_at_desc
-  ON public.imaging_reports (case_id, created_at DESC);
-
--- =========================================
--- Likely
--- =========================================
-
-CREATE INDEX IF NOT EXISTS idx_clinical_documents_case_presim
-  ON public.clinical_documents (case_id, is_in_presim);
-
-CREATE INDEX IF NOT EXISTS idx_orders_case_presim
-  ON public.orders (case_id, is_in_presim);
-
-CREATE INDEX IF NOT EXISTS idx_lab_results_case_presim
-  ON public.lab_results (case_id, is_in_presim);
-
-CREATE INDEX IF NOT EXISTS idx_documentation_results_case_presim
-  ON public.documentation_results (case_id, is_in_presim);
-
-CREATE INDEX IF NOT EXISTS idx_clinical_documents_case_category
-  ON public.clinical_documents (case_id, category);
-
-CREATE INDEX IF NOT EXISTS idx_orders_case_category
-  ON public.orders (case_id, category);

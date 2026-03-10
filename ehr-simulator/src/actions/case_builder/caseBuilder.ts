@@ -6,6 +6,7 @@ import { upsertCaseDemographics } from "@/actions/case_builder/upsertCaseDemogra
 import { updatePatientHistory } from "@/actions/case_builder/updatePatientHistory";
 import { updateClinicalDocuments } from "@/actions/case_builder/updateClinicalDocuments";
 import { updateOrders } from "@/actions/case_builder/updateOrders";
+import { updateLabs } from "@/actions/case_builder/updateLabs";
 
 type SaveCaseArgs = {
   payload: any;
@@ -28,6 +29,8 @@ export async function saveCaseData({ payload, section, caseId }: SaveCaseArgs) {
       return await updateClinicalDocuments(supabase, payload, caseId);
     case CaseSection.ORDERS:
       return await updateOrders(supabase, payload, caseId);
+    case CaseSection.LABS:
+      return await updateLabs(supabase, payload, caseId);
   }
   return;
 }

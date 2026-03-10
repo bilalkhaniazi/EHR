@@ -38,9 +38,6 @@ export interface LabTableData {
   [key: string | number]: string | number | boolean | undefined | object | ImagingData | MicrobiologyReportData | LabCellValue;
 }
 
-
-
-
 export interface Lab {
   labName: string;
   value: string | ImagingData | MicrobiologyReportData;
