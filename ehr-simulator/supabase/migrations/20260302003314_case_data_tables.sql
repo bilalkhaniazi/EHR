@@ -257,12 +257,12 @@ CREATE table if NOT EXISTS lab_results (
 
   specific_gravity numeric,
   urine_ph numeric,
-  protein numeric,
-  urine_glucose numeric,
-  ketones numeric,
-  leukocyte_esterase numeric,
-  nitrites numeric,
-  blood numeric,
+  protein text,
+  urine_glucose text,
+  ketones text,
+  leukocyte_esterase text,
+  nitrites text,
+  blood text,
 
   pt numeric,
   ptt numeric,
@@ -325,11 +325,6 @@ CREATE table if NOT EXISTS microbiology_reports (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE type hr_source_type as enum ('Apical','Brachial', 'Dorsalis pedis', 'Femoral', 'Monitor', 'Popliteal', 'Radial');
-CREATE type bp_source_type as enum ('Left upper arm', 'Right upper arm', 'Left lower arm', 'Right lower arm', 'Left thigh', 'Right thigh', 'Left lower leg', 'Right lower leg', 'Arterial line', 'Other');
-CREATE type temp_source_type as enum ('Oral', 'Axillary', 'Rectal', 'Tympanic', 'Temporal', 'Bladder', 'Other');
-
-
 -- =========================================
 -- Documentation Results
 -- =========================================
@@ -342,12 +337,14 @@ CREATE table if NOT EXISTS documentation_results (
   time_offset_minutes integer check (time_offset_minutes BETWEEN 0 AND 59) NOT NULL,
 
   hr text,
-  hr_source hr_source_type,
+
+  hr_source text,
   bp text,
-  bp_source bp_source_type,
+
+  bp_source text,
   rr text,
   temp text, 
-  temp_source temp_source_type,
+  temp_source text,
   spo2 text,
   pain text,
   weight_kg text,

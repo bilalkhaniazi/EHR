@@ -42,12 +42,12 @@ export type LabResultInsert = {
 
   specific_gravity?: number | null
   urine_ph?: number | null
-  protein?: number | null
-  urine_glucose?: number | null
-  ketones?: number | null
-  leukocyte_esterase?: number | null
-  nitrites?: number | null
-  blood?: number | null
+  protein?: string | null
+  urine_glucose?: string | null
+  ketones?: string | null
+  leukocyte_esterase?: string | null
+  nitrites?: string | null
+  blood?: string | null
 
   pt?: number | null
   ptt?: number | null
