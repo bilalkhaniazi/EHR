@@ -103,7 +103,7 @@ export default function NotesForm() {
 
     await saveCaseData({
       payload: notes,
-      section: CaseSection.DOCUMENTATION,
+      section: CaseSection.CLINICAL_DOCUMENTS,
       caseId: caseId
     })
 

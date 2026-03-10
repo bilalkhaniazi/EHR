@@ -332,9 +332,7 @@ CREATE table if NOT EXISTS documentation_results (
   id uuid primary key DEFAULT gen_random_uuid(),
   case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,
   is_in_presim BOOLEAN NOT NULL DEFAULT TRUE,
-  time_offset_days integer check (time_offset_days >= 0) NOT NULL,
-  time_offset_hours integer check (time_offset_hours BETWEEN 0 AND 23),
-  time_offset_minutes integer check (time_offset_minutes BETWEEN 0 AND 59) NOT NULL,
+  time_offset integer NOT NULL,
 
   hr text,
 
