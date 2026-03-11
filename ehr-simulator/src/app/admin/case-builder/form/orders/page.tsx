@@ -31,6 +31,8 @@ import { OrderType } from "@/app/simulation/[sessionId]/chart/orders/components/
 import { useFormContext } from "@/context/FormContext"
 import { FormShell } from "../../components/formShell"
 import { Checkbox } from "@/components/ui/checkbox"
+import { saveCaseData } from "@/actions/case_builder/caseBuilder"
+import { CaseSection } from "@/lib/saveCase"
 
 const categories: OrderType["category"][] = ["Nursing", "Respiratory", "Laboratory", "Consult", "Diet"]
 
@@ -58,7 +60,7 @@ const getCategoryColor = (cat: string | undefined) => {
 
 export default function OrdersForm() {
   const router = useRouter();
-  const { onDataChange, orderData } = useFormContext();
+  const { onDataChange, orderData, caseId } = useFormContext();
 
   const [orders, setOrders] = useState<OrderType[]>(orderData);
 
@@ -106,8 +108,15 @@ export default function OrdersForm() {
     router.push("/admin/case-builder/form/notes");
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onDataChange('orders', orders)
+
+    await saveCaseData({
+      payload: orders,
+      section: CaseSection.ORDERS,
+      caseId: caseId
+    })
+
     router.push('/admin/case-builder/form/labs')
   }
 

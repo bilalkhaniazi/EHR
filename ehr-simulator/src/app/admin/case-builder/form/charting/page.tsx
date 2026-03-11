@@ -14,11 +14,14 @@ import { TableFormHeader } from "../../components/tableFormHeader";
 import { FormShell } from "../../components/formShell";
 import { ChartingToolTip } from "@/app/simulation/[sessionId]/chart/charting/components/ChartingToolTip";
 import { FormTable } from "../../components/FormTable";
+import { saveCaseData } from "@/actions/case_builder/caseBuilder";
+import { CaseSection } from "@/lib/saveCase";
+
 
 const columnHelper = createColumnHelper<FlexSheetData>();
 
 export function ChartingForm() {
-  const { onDataChange, chartingData: initialChartingData } = useFormContext()
+  const { onDataChange, chartingData: initialChartingData, caseId } = useFormContext()
   const [chartingData, setChartingData] = useState<FlexSheetData[]>(initialChartingData.data)
   const {
     timePoints,
@@ -39,12 +42,24 @@ export function ChartingForm() {
     router.push("/admin/case-builder/form/labs");
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onDataChange('charting', {
       data: chartingData,
       timePoints: timePoints,
       timePointsInPreSim: timePointsInPresim
     })
+
+    await saveCaseData({
+      payload: {
+        data: chartingData,
+        timePoints,
+        timePointsInPreSim: Array.from(timePointsInPresim),
+      },
+      section: CaseSection.DOCUMENTATION,
+      caseId: caseId
+    })
+
+    console.log(chartingData)
     router.push('/admin/case-builder/form/intake-output')
   }
 
