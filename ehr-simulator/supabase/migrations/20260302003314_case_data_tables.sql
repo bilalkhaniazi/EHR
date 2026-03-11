@@ -333,12 +333,9 @@ CREATE table if NOT EXISTS documentation_results (
   case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,
   is_in_presim BOOLEAN NOT NULL DEFAULT TRUE,
   time_offset integer NOT NULL,
-
   hr text,
-
   hr_source text,
   bp text,
-
   bp_source text,
   rr text,
   temp text, 
@@ -415,6 +412,18 @@ CREATE table if NOT EXISTS documentation_results (
   facial_expression smallint CHECK (facial_expression IN (0, 1, 2)),
   body_language smallint CHECK (body_language IN (0, 1, 2)),
   consolability smallint CHECK (consolability IN (0, 1, 2)),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS medication_administrations (
+  case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,
+  medication_id text,
+  administrator text,
+  time_offset integer NOT NULL,
+  status text,
+  notes text,
+  administered_dose numeric,
+  is_in_presim BOOLEAN NOT NULL DEFAULT TRUE,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

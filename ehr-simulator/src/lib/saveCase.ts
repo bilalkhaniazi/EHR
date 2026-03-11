@@ -5,7 +5,7 @@ export const CaseSection = {
   ORDERS: "ORDERS",
   LABS: "LABS",
   DOCUMENTATION: "DOCUMENTATION",
-  MEDICATION: "MEDICATION",
+  MEDICATION_ORDERS: "MEDICATION_ORDERS",
 } as const;
 
 export type CaseSection = typeof CaseSection[keyof typeof CaseSection];
