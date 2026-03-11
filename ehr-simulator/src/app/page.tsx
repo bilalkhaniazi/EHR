@@ -1,10 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
 export default async function Home() {
-
-  const { data: users } = await supabase.from("users").select("*");
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">

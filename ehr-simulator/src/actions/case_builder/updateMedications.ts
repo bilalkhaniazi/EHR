@@ -7,7 +7,7 @@ import { MedAdministrationInstance } from "@/app/simulation/[sessionId]/chart/ma
 export async function updateMedications(
   supabase: SupabaseClient,
   payload: MedAdministrationInstance[],
-  caseId: string,
+  caseId: string
 ) {
   deleteMedications(supabase, caseId)
   insertMedications(

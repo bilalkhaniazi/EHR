@@ -29,7 +29,7 @@ export async function updateLabs(
 
   await deleteImagingReports(supabase, savedLabIds)
   const imagingRows = constructImagingRows(imagingReports, labIdByOffset)
-  await saveImagingReports(supabase, imagingRows, savedLabIds)
+  await saveImagingReports(supabase, imagingRows)
 
   await deleteMicrobiologyReports(supabase, savedLabIds)
   const microbiologyRows = constructMicrobiologyRows(microbiologyReports, labIdByOffset)
@@ -88,7 +88,7 @@ async function deleteImagingReports(supabase: SupabaseClient, labIds: string[]) 
   if (delErr) throw delErr
 }
 
-async function saveImagingReports(supabase: SupabaseClient, imagingRows: any[], labIds: string[]) {
+async function saveImagingReports(supabase: SupabaseClient, imagingRows: any[]) {
   if (imagingRows.length > 0) {
     const { error: imagingError } = await supabase
       .from("imaging_reports")

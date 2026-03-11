@@ -3,7 +3,7 @@ import { SupabaseClient } from "@supabase/supabase-js"
 export async function upsertCaseDemographics(
   supabase: SupabaseClient,
   payload: any,
-  caseId?: string | null
+  caseId: string
 ) {
   const d = payload
 

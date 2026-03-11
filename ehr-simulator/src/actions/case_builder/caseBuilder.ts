@@ -28,6 +28,8 @@ export async function saveCaseData({ payload, section, caseId }: SaveCaseArgs) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
+  if (!caseId) throw new Error("Case ID is required");
+
   switch (section) {
     case CaseSection.DEMOGRAPHICS:
       return await upsertCaseDemographics(supabase, payload, caseId);
@@ -44,7 +46,6 @@ export async function saveCaseData({ payload, section, caseId }: SaveCaseArgs) {
     case CaseSection.MEDICATION_ORDERS:
       return await updateMedications(supabase, payload, caseId);
   }
-  return;
 }
 
 
