@@ -31,9 +31,11 @@ import { useFormContext } from "@/context/FormContext";
 import { relationshipStatuses, precautions, months, codeStatuses, days, insuranceOptions, DemographicFormData } from "@/utils/form";
 import { buttonVariants } from "@/components/ui/button";
 import { FormShell } from "../../components/formShell";
+import { CaseSection } from "@/lib/saveCase";
+import { saveCaseData } from "@/actions/case_builder/caseBuilder";
 
 export default function DemographicsForm() {
-  const { onDataChange, demographicData: initialData } = useFormContext();
+  const { onDataChange, demographicData: initialData, setCaseId, caseId } = useFormContext();
   const [demographicsData, setDemographicsData] = useState<DemographicFormData>(initialData);
   const router = useRouter();
   const [showCancelAlert, setShowCancelAlert] = useState<boolean>(false);
@@ -51,8 +53,17 @@ export default function DemographicsForm() {
     setShowCancelAlert(false);
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onDataChange("demographics", demographicsData)
+    const result = await saveCaseData({
+      payload: demographicsData,
+      section: CaseSection.DEMOGRAPHICS,
+      caseId: caseId
+    });
+
+    if (result?.id) {
+      setCaseId(result.id)
+    }
     router.push("/admin/case-builder/form/history");
   }
 

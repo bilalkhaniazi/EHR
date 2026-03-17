@@ -18,11 +18,13 @@ import { useTimePoints } from "../../components/useFormTableOffsets";
 import { FormShell } from "../../components/formShell";
 import { TableFormHeader } from "../../components/tableFormHeader";
 import { FormTable } from "../../components/FormTable";
+import { saveCaseData } from "@/actions/case_builder/caseBuilder";
+import { CaseSection } from "@/lib/saveCase";
 
 const columnHelper = createColumnHelper<LabTableData>();
 
 export function LabForm() {
-  const { onDataChange, labData } = useFormContext()
+  const { onDataChange, labData, caseId } = useFormContext()
   const [labTableData, setLabTableData] = useState<LabTableData[]>(labData.data);
   const [visibleItems, setVisibleItems] = useState<Set<string>>(labData.visibleItems ?? new Set());
   const [comboboxValue, setComboboxValue] = useState<string>('');
@@ -81,9 +83,20 @@ export function LabForm() {
       timePointsInPreSim: timePointsInPresim,
       visibleItems: visibleItems
     });
+
+    saveCaseData({
+      payload: {
+        data: labTableData,
+        timePoints,
+        timePointsInPreSim: Array.from(timePointsInPresim),
+        visibleItems: Array.from(visibleItems),
+      },
+      section: CaseSection.LABS,
+      caseId: caseId
+    })
+
     router.push('/admin/case-builder/form/charting')
   }
-  console.log(labTableData)
   const columns = useMemo(
     () => [
       // first column has unique formatting

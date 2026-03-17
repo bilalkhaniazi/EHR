@@ -32,6 +32,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useFormContext } from "@/context/FormContext"
 import { FormShell } from "../../components/formShell"
 import ColumnShiftControl from "@/app/simulation/[sessionId]/chart/mar/components/columnShiftControl"
+import { CaseSection } from "@/lib/saveCase"
+import { saveCaseData } from "@/actions/case_builder/caseBuilder"
 
 function getComboboxData(orders: MedicationOrder[]) {
   return orders.map(order => {
@@ -51,7 +53,7 @@ function getComboboxData(orders: MedicationOrder[]) {
 }
 
 export default function MedicationAdministrationsForm() {
-  const { onDataChange, medAdministrationData, medOrderData } = useFormContext()
+  const { onDataChange, medAdministrationData, medOrderData, caseId } = useFormContext()
 
   const [medAdministrations, setMedAdministrations] = useState<MedAdministrationInstance[]>(medAdministrationData.filter(admin => {
     return medOrderData.createdOrders.find(med => med.id === admin.medicationOrderId) !== undefined;
@@ -143,9 +145,14 @@ export default function MedicationAdministrationsForm() {
     router.push("/admin/case-builder/form/medications");
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onDataChange('medAdministrationInstances', medAdministrations)
-    console.log(medAdministrations)
+
+    await saveCaseData({
+      payload: medAdministrations,
+      section: CaseSection.MEDICATION_ORDERS,
+      caseId: caseId
+    })
 
     router.push('/admin/case-builder/form/review')
   }
