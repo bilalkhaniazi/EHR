@@ -31,7 +31,7 @@ import { ChangeEvent, useState, useRef, useEffect } from "react"
 import { Student, FacultyMember, SectionData } from "./types"
 import { SectionCard, SectionGroups, randomlyAssignGroups, generateGroupNames } from "./SectionCard"
 
-import { getAllFacultyUsers, getAllAdminUsers } from "@/actions/users"
+import { getAllFacultyUsers, getAllAdminUsers, provisionStudents } from "@/actions/users"
 import { createCourse, createSection } from "@/actions/courses"
 import { TablesInsert } from "../../../../../database.types"
 
@@ -110,6 +110,12 @@ export default function CreateCoursePage() {
 
   const handleSubmit = async () => {
 
+    // Provision students from CSV into the users table (is_active: false)
+    // before they have logged in. Already-existing users are skipped.
+    if (allStudents.length > 0) {
+      await provisionStudents(allStudents)
+    }
+
     // Create course
     const course: TablesInsert<"courses"> = {
       active: true,
@@ -172,7 +178,7 @@ export default function CreateCoursePage() {
 
       return {
         id: crypto.randomUUID(),
-        email: `${userName}@gvsu.edu`,
+        email: `${userName}@mail.gvsu.edu`,
         full_name: `${firstName} ${lastName}`.trim(),
         role: "student",
         status: null,
