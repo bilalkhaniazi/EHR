@@ -3,8 +3,6 @@ ALTER TABLE public.users
   ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true;
 
 -- Drop the FK constraint that ties users.id to auth.users.id.
--- This allows pre-provisioning student rows (with generated UUIDs) before
--- a student has ever signed in via Google OAuth.
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_id_fkey;
 
 -- Re-add the group_members FK with ON UPDATE CASCADE so that when a
@@ -33,7 +31,6 @@ CREATE OR REPLACE FUNCTION public.link_new_user_profile()
 RETURNS trigger AS $$
 BEGIN
   IF EXISTS (SELECT 1 FROM public.users WHERE email = new.email) THEN
-    -- Pre-provisioned user: link to their auth account and activate
     UPDATE public.users
     SET
       id         = new.id,
@@ -46,7 +43,6 @@ BEGIN
       updated_at = now()
     WHERE email = new.email;
   ELSE
-    -- Brand-new user: create their profile
     INSERT INTO public.users (id, role, full_name, email, is_active)
     VALUES (
       new.id,
