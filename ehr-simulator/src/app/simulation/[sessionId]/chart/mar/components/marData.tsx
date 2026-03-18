@@ -74,7 +74,7 @@ export type AllMedicationTypes =     // route property acts as discriminator
 export interface MedicationOrder {
   id: string;
   medicationId: string;
-  unitsOrdered: number;
+  unitsOrdered: number; // deprecated, using dose to represented amount of strengthUnits of medication ordered
   frequency: string;
   priority: "STAT" | "NOW" | "Routine" | 'PRN' | '';
   instructions?: string;
@@ -126,6 +126,22 @@ export const allMedications: AllMedicationTypes[] = [
     // --- IVMedication specific properties ---
     infusionRateUnit: 'mL/hr',
     diluent: "normal saline 0.9%",
+    totalVolume: 50,
+    infusionDurationHours: 0.5,
+    isContinuous: false,
+  },
+  {
+    id: "medAcetaminophenIv",
+    genericName: "acetaminophen",
+    brandName: "Ofirmev",
+    route: "IV",
+    strength: 1000,
+    strengthUnit: "mg",
+    orderableUnit: "Vial",
+    administrationFrequencies: ["Q6H", "Q8H"],
+    // --- IVMedication specific properties ---
+    infusionRateUnit: 'mL/hr',
+    // diluent: "normal saline 0.9%",
     totalVolume: 50,
     infusionDurationHours: 0.5,
     isContinuous: false,
@@ -254,18 +270,6 @@ export const allMedications: AllMedicationTypes[] = [
       { bgRange: ">400", units: "18" },
     ],
   },
-  // {
-  //   id: "medHydrocortisoneCream",
-  //   genericName: "hydrocortisone",
-  //   brandName: "Cortaid",
-  //   route: "Topical",
-  //   strength: 1,
-  //   strengthUnit: "%",
-  //   orderableUnit: "Gram",
-  //   administrationFrequencies: ["PRN"],
-  //   applicationArea: "Affected skin area",
-  //   form: "cream",
-  // },
   {
     id: "medFurosemideOral20",
     genericName: "furosemide",
@@ -507,6 +511,17 @@ export const allMedications: AllMedicationTypes[] = [
     administrationFrequencies: [],
     isContinuous: false,
     infusionRateUnit: 'mL/hr'
+  },
+  {
+    id: "medSodiumChloride",
+    genericName: "Sodium chloride",
+    route: "PO",
+    strength: 1,
+    strengthUnit: "g",
+    orderableUnit: 'Tablet',
+    form: 'tablet',
+    administrationFrequencies: [],
+    canBeCrushedOrSplit: true
   }
 ];
 
@@ -646,6 +661,31 @@ export const allMedications: AllMedicationTypes[] = [
 // ]
 
 export const medicationOrders: MedicationOrder[] = [
+  {
+    id: 'orderAcetaminophenIV',
+    medicationId: 'medAcetaminophenIv',
+    unitsOrdered: 1,
+    dose: 1000,
+    frequency: "Q6hr",
+    priority: "PRN",
+    indication: 'Pain',
+    status: 'active',
+    orderingProvider: 'Dr. Samuel Wanjouri',
+    visibleInPresim: true,
+    infusionRate: 125
+  },
+  {
+    id: 'orderSodiumChloride',
+    medicationId: 'medSodiumChloride',
+    unitsOrdered: 2,
+    dose: 2,
+    frequency: "Q6hr",
+    priority: "PRN",
+    indication: 'Hyponatremia',
+    status: 'active',
+    orderingProvider: 'Dr. Samuel Wanjouri',
+    visibleInPresim: true
+  },
   {
     id: 'orderOndansetronIv4',
     medicationId: 'medOndansetronIv4',
