@@ -133,7 +133,7 @@ export const GroupCard = ({
           </div>
         ) : (
           <div className="flex items-center gap-1 flex-1 min-w-0 overflow-hidden">
-            <span className="font-semibold text-slate-800 text-sm truncate">Group {groupName}</span>
+            <span className="font-semibold text-slate-800 text-sm truncate">{groupName}</span>
 
             {/* Rename */}
             <Button

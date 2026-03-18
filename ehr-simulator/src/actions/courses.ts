@@ -102,10 +102,12 @@ export async function updateCourse(course: CourseInsert): Promise<ActionResponse
     return { success: false, message: "Failed to update the course. Please try again.", error };
   }
   revalidatePath('/courses');
-  return { success: true, message: "Course updated successfully.", data };
+  return {
+    success: true,
+    message: "Course saved successfully.",
+    data
+  };
 }
-
-
 
 export async function createSection(section: SectionInsert): Promise<ActionResponse<Section>> {
   const supabase = createClient(
@@ -123,7 +125,7 @@ export async function createSection(section: SectionInsert): Promise<ActionRespo
     console.error("Upsert Error:", error);
     return {
       success: false,
-      message: "Failed to save the assignment. Please try again.",
+      message: "Failed to update the section. Please try again.",
       error: error
     };
   }
@@ -132,13 +134,63 @@ export async function createSection(section: SectionInsert): Promise<ActionRespo
 
   return {
     success: true,
-    message: "Assignment saved successfully.",
+    message: "Section saved successfully.",
     data
   };
 }
 
-
 export async function createGroup(group: GroupInsert) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
+  const { data, error } = await supabase
+    .from('groups')
+    .upsert(group)
+    .select()
+    .single()
 
+  if (error) {
+    console.error("Upsert Error:", error);
+    return {
+      success: false,
+      message: "Failed to update the section. Please try again.",
+      error: error
+    };
+  }
+
+  return {
+    success: true,
+    message: "Group saved successfully.",
+    data
+  };
+}
+
+export async function createGroupMembers(groupMember: GroupMembersInsert) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data, error } = await supabase
+    .from('group_members')
+    .upsert(groupMember)
+    .select()
+    .single()
+
+  if (error) {
+    console.error("Upsert Error:", error);
+    return {
+      success: false,
+      message: "Failed to update the section. Please try again.",
+      error: error
+    };
+  }
+
+  return {
+    success: true,
+    message: "Group saved successfully.",
+    data
+  };
 }

@@ -1,9 +1,6 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js";
-import { Tables } from "../../database.types";
-
-type Student = Tables<"users">
 
 export async function getAllUsers() {
   const supabase = createClient(
@@ -102,4 +99,19 @@ export async function provisionStudents(students: { email?: string | null; full_
   if (error) throw new Error(`Insert failed: ${error.message}`);
 
   return { provisioned: newStudents };
+}
+
+export async function getUsersByEmails(emails: string[]) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, email")
+    .in("email", emails)
+
+  if (error) throw new Error(error.message)
+  return data || []
 }

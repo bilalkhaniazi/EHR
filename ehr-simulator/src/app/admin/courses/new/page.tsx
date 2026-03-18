@@ -31,10 +31,8 @@ import { ChangeEvent, useState, useRef, useEffect } from "react"
 import { Student, FacultyMember, SectionData } from "./types"
 import { SectionCard, SectionGroups, randomlyAssignGroups, generateGroupNames } from "./SectionCard"
 
-import { getAllFacultyUsers, getAllAdminUsers, provisionStudents } from "@/actions/users"
-import { createCourse, createSection } from "@/actions/courses"
-import { TablesInsert } from "../../../../../database.types"
-
+import { getAllFacultyUsers, getAllAdminUsers, provisionStudents, getUsersByEmails } from "@/actions/users"
+import { createCourse, createSection, createGroup, createGroupMembers } from "@/actions/courses"
 interface SectionState {
   groups: SectionGroups
   unassigned: Student[]
@@ -109,25 +107,20 @@ export default function CreateCoursePage() {
   const [dragOverGroup, setDragOverGroup] = useState<string | null>(null)
 
   const handleSubmit = async () => {
-
-    // Provision students from CSV into the users table (is_active: false)
-    // before they have logged in. Already-existing users are skipped.
     if (allStudents.length > 0) {
       await provisionStudents(allStudents)
     }
 
-    // Create course
-    const course: TablesInsert<"courses"> = {
-      active: true,
-      code: courseCode,
-      name: courseName,
-    }
-    const courseResponse = await createCourse(course)
-    if (!courseResponse.success || !courseResponse.data) return
+    // Look up real user IDs by email from the users table
+    const provisionedUsers = await getUsersByEmails(allStudents.map(s => s.email).filter((email): email is string => email != null))
+    const emailToUserId = Object.fromEntries(
+      provisionedUsers.map(u => [u.email, u.id])
+    )
 
+    const courseResponse = await createCourse({ active: true, code: courseCode, name: courseName })
+    if (!courseResponse.success || !courseResponse.data) return
     const courseId = courseResponse.data.id
 
-    // Create sections with course_id returned from Supabase
     const sectionResults = await Promise.all(
       sections.map((section) =>
         createSection({
@@ -141,9 +134,38 @@ export default function CreateCoursePage() {
       )
     )
 
-    sectionResults.map((result) => {
-      console.log(result)
-    })
+    for (let i = 0; i < sections.length; i++) {
+      const sectionResult = sectionResults[i]
+      if (!sectionResult.success || !sectionResult.data) continue
+
+      const sectionId = sectionResult.data.id
+      const sectionName = sections[i].name
+      const groups = sectionStates[sectionName]?.groups ?? {}
+
+      await Promise.all(
+        Object.entries(groups).map(async ([groupName, students]) => {
+          const groupResponse = await createGroup({ name: groupName, section_id: sectionId })
+          if (!groupResponse.success || !groupResponse.data) return
+
+          const groupId = groupResponse.data.id
+
+          await Promise.all(
+            students
+              .filter((student): student is Student & { email: string } => student.email != null)
+              .map((student) => {
+                const studentId = emailToUserId[student.email]  // real UUID from DB
+                if (!studentId) {
+                  console.error("No user ID found for student:", student.email)
+                  return
+                }
+                return createGroupMembers({ group_id: groupId, student_id: studentId, active: true })
+              })
+          )
+        })
+      )
+    }
+
+    router.push("/admin/courses")
   }
 
   const parseCSV = (text: string): Student[] => {
