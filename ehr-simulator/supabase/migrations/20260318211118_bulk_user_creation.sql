@@ -22,11 +22,6 @@ ALTER TABLE public.faculty_section
   ON UPDATE CASCADE;
 
 -- Update the trigger so that when a student who was pre-provisioned from a CSV
--- first logs in via Google OAuth:
---   1. Their row is found by email.
---   2. Their id is updated to the real auth UUID (cascades to child tables).
---   3. is_active is flipped to true.
--- For brand-new users (not pre-provisioned) the trigger inserts a fresh row as before.
 CREATE OR REPLACE FUNCTION public.link_new_user_profile()
 RETURNS trigger AS $$
 BEGIN
