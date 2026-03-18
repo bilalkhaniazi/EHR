@@ -82,9 +82,14 @@ export async function getSimCaseById(id: string) {
   );
 
   const { data, error } = await supabase
-    .from("case_data")
-    .select("*")
-    .eq("id", id)
+    .from('cases')
+    .select(`
+      *,
+      case_family_history(*),
+      case_safety_alerts(*)
+    `)
+    .eq('id', id)
+    .single()
 
   if (error) {
     const result = {
@@ -98,7 +103,7 @@ export async function getSimCaseById(id: string) {
   return {
     success: true,
     data,
-    message: 'Successfully retrieved Sim Cases'
+    message: 'Successfully retrieved Sim Case'
   };
 }
 
