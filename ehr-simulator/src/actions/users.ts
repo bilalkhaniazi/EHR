@@ -65,36 +65,41 @@ export async function getAllFacultyUsers() {
   return data || []
 }
 
-export async function provisionStudents(students: Student[]) {
+export async function provisionStudents(students: { email?: string | null; full_name?: string | null }[]) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  // Fetch existing users by email to preserve their IDs
-  const emails = students.map(s => s.email);
+  // Find which emails already have a record in the users table
+  const emails = students.map(s => s.email).filter(Boolean) as string[];
   const { data: existing, error: fetchError } = await supabase
     .from("users")
-    .select("id, email")
+    .select("email")
     .in("email", emails);
 
   if (fetchError) throw new Error(`Fetch failed: ${fetchError.message}`);
 
-  const existingMap = new Map(existing?.map(u => [u.email, u.id]) ?? []);
+  const existingEmails = new Set(existing?.map(u => u.email) ?? []);
+
+  // Only create records for students not yet in the users table
+  const newStudents = students.filter(s => s.email && !existingEmails.has(s.email));
+
+  if (newStudents.length === 0) return { provisioned: [] };
 
   const { error } = await supabase
     .from("users")
-    .upsert(
-      students.map(s => ({
-        id: existingMap.get(s.email) ?? crypto.randomUUID(),
+    .insert(
+      newStudents.map(s => ({
+        id: crypto.randomUUID(),
         email: s.email,
         full_name: s.full_name,
         role: "student",
-      })),
-      { onConflict: "email" }
+        is_active: false,
+      }))
     );
 
-  if (error) throw new Error(`Upsert failed: ${error.message}`);
+  if (error) throw new Error(`Insert failed: ${error.message}`);
 
-  return { provisioned: students };
+  return { provisioned: newStudents };
 }
