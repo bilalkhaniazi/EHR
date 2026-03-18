@@ -3,7 +3,7 @@ import { SupabaseClient } from "@supabase/supabase-js"
 export async function upsertCaseDemographics(
   supabase: SupabaseClient,
   payload: any,
-  caseId: string
+  caseId?: string | null
 ) {
   const d = payload
 
@@ -27,6 +27,8 @@ export async function upsertCaseDemographics(
     attending_provider: [d.attendingProviderName, d.attendingProviderTitle].filter(Boolean).join(" ") || null,
     inpatient_duration_days: toNumeric(d.admissionDateOffest),
     time_of_admission: d.admissionTime,
+    emergency_contact_name: d.contact ?? null,
+    emergency_contact_relationship: d.contactRelationship ?? null,
     updated_at: new Date().toISOString(),
     created_at: new Date().toISOString(), // Fix: check if exists before setting created_at
   };
