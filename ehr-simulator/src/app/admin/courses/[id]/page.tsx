@@ -44,6 +44,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
   ]);
 
   if (!sectionsResult.success || !casesResult.success || !courseResult.success || !courseResult.data) {
+    // console.log(`Error: ${sectionsResult?.error.message}`)
+
     return <div>Error loading data: {sectionsResult.message || casesResult.message || courseResult.message}</div>
   }
 
@@ -59,10 +61,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
         presimTime: assignment.presim_time,
         sectionName: section.name,
         sectionId: section.id,
-        caseName: assignment.case_data.name || "Unknown Case",
-        caseId: assignment.case_data.id,
-        caseDescription: assignment.case_data.description || '',
-        caseDiagnosis: assignment.case_data.diagnosis || ''
+        caseName: assignment.cases.name || "Unknown Case",
+        caseId: assignment.cases.id,
+        caseDescription: assignment.cases.description || '',
+        caseDiagnosis: assignment.cases.admitting_diagnosis || ''
       };
     })
   ).reduce<AssignmentGroups>((acc, item) => {

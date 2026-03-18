@@ -21,7 +21,7 @@ export async function getAllSimCases() {
   );
 
   const { data, error } = await supabase
-    .from("case_data")
+    .from("cases")
     .select("*")
 
   if (error) {
@@ -80,7 +80,7 @@ export async function getCaseByCourseId(id: string) {
     .select(`
       case_id,
       course_id,
-      case_data(
+      cases(
         name
       )
       `)
@@ -96,16 +96,16 @@ export async function getCaseByCourseId(id: string) {
     return result
   }
 
-  // Auto-generated Supabase types wouldn't recognize the PK/FK relationship between case_data and course_case
+  // Auto-generated Supabase types wouldn't recognize the PK/FK relationship between cases -m and course_case
   // Force case data to be single object, not array
   const cleanData = data?.map((item) => {
-    const _caseData = Array.isArray(item.case_data)
-      ? item.case_data[0]
-      : item.case_data;
+    const _caseData = Array.isArray(item.cases)
+      ? item.cases[0]
+      : item.cases;
 
     return {
       ...item,
-      case_data: _caseData || { name: "Unknown Case" }
+      cases: _caseData || { name: "Unknown Case" }
     };
   });
 
@@ -132,11 +132,11 @@ export async function getSectionCaseAssignments(courseId: string) {
         id,
         sim_time,
         presim_time,
-        case_data!section_assignments_case_id_fkey (
+        cases!section_assignments_case_id_fkey (
           id,
           name,
           description,
-          diagnosis
+          admitting_diagnosis
         )
       )
     `)
@@ -152,16 +152,16 @@ export async function getSectionCaseAssignments(courseId: string) {
     return result
   }
 
-  // explicitly get TS to recognize case_data as object, not array
+  // explicitly get TS to recognize cases as object, not array
   const cleanData = data?.map((item) => {
     const cleanedAssignments = item.section_assignments.map(assignment => {
-      const _caseData = Array.isArray(assignment.case_data)
-        ? assignment.case_data[0]
-        : assignment.case_data;
+      const _caseData = Array.isArray(assignment.cases)
+        ? assignment.cases[0]
+        : assignment.cases;
 
       return {
         ...assignment,
-        case_data: _caseData
+        cases: _caseData
       };
     });
 
@@ -243,12 +243,12 @@ export async function getCourseCaseAssignments() {
   );
 
   const { data, error } = await supabase
-    .from('case_data')
+    .from('cases')
     .select(`
       id,
       name,
       description, 
-      diagnosis,
+      admitting_diagnosis,
       course_cases (
         id,
         course_id,
@@ -280,7 +280,7 @@ export async function getCourseCaseAssignments() {
         courseCode: null,
         caseName: caseItem.name,
         description: caseItem.description,
-        diagnosis: caseItem.diagnosis
+        diagnosis: caseItem.admitting_diagnosis
       }];
     }
 
@@ -298,7 +298,7 @@ export async function getCourseCaseAssignments() {
         courseCode: course?.code,
         caseName: caseItem.name,
         description: caseItem.description,
-        diagnosis: caseItem.diagnosis
+        diagnosis: caseItem.admitting_diagnosis
       };
     });
   }) ?? [];
