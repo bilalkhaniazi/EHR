@@ -37,7 +37,6 @@ export default async function AdminPage() {
           )
         })()}
       </div>
-
       <div className="container mx-auto mt-4 mb-2">
         <ResumeCaseDraftCard />
       </div>

@@ -2,9 +2,19 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+type OrderInput = {
+  category?: string | null
+  title?: string | null
+  details?: string | null
+  status?: string | null
+  orderingProvider?: string | null
+  important?: boolean | null
+  visibleInPresim?: boolean | null
+}
+
 export async function updateOrders(
   supabase: SupabaseClient,
-  orders: any[],
+  orders: unknown[],
   caseId: string,
 ) {
 
@@ -16,7 +26,9 @@ export async function updateOrders(
   if (delErr) throw new Error(delErr.message);
   if (orders.length === 0) return [];
 
-  const rows = orders.map((order) => ({
+  const rows = orders.map((o) => {
+    const order = (o ?? {}) as OrderInput
+    return {
     case_id: caseId,
     category: order.category,
     title: order.title,
@@ -25,7 +37,8 @@ export async function updateOrders(
     provider: order.orderingProvider,
     is_important: order.important,
     is_in_presim: order.visibleInPresim,
-  }));
+    }
+  });
 
   const { data, error } = await supabase
     .from("orders")

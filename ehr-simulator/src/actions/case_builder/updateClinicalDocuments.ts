@@ -15,7 +15,7 @@ type ClinicalDocCategoryType =
   | "Rapid Response"
   | "Telehealth";
 
-type ClinicalNoteInput = {
+export type ClinicalNoteInput = {
   title?: string;
   category?: string;
   author: string;

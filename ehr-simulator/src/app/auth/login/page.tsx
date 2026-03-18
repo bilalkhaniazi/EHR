@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
-export default function LoginPage() {
+function LoginClient() {
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
   const router = useRouter()
@@ -51,5 +51,13 @@ export default function LoginPage() {
         Continue with Google
       </button>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p className="p-6">Loading…</p>}>
+      <LoginClient />
+    </Suspense>
   )
 }

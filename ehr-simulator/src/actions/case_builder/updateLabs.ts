@@ -3,20 +3,27 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { transformLabTableToSchema } from "@/lib/labTypes";
 import { LabResultInsert, ImagingReportDraft, MicrobiologyReportDraft } from "@/lib/labTypes";
+import type { LabTableData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 
 export async function updateLabs(
   supabase: SupabaseClient,
-  payload: any,
+  payload: unknown,
   caseId: string,
 ) {
+  const p = payload as {
+    data?: LabTableData[];
+    timePoints?: number[];
+    timePointsInPreSim?: number[];
+    visibleItems?: string[];
+  } | null
   const { labResults, imagingReports, microbiologyReports } = transformLabTableToSchema(caseId, {
-    data: payload.data ?? [],
-    timePoints: payload.timePoints ?? [],
-    timePointsInPreSim: new Set(payload.timePointsInPreSim ?? []),
-    visibleItems: new Set(payload.visibleItems ?? []),
+    data: p?.data ?? [],
+    timePoints: p?.timePoints ?? [],
+    timePointsInPreSim: new Set(p?.timePointsInPreSim ?? []),
+    visibleItems: new Set(p?.visibleItems ?? []),
   })
 
-  await deleteLabs(supabase, caseId, payload.timePoints)
+  await deleteLabs(supabase, caseId, p?.timePoints ?? [])
   const savedLabs = await saveLabs(supabase, labResults)
 
   const labIdByOffset = new Map(
@@ -88,7 +95,7 @@ async function deleteImagingReports(supabase: SupabaseClient, labIds: string[]) 
   if (delErr) throw delErr
 }
 
-async function saveImagingReports(supabase: SupabaseClient, imagingRows: any[]) {
+async function saveImagingReports(supabase: SupabaseClient, imagingRows: unknown[]) {
   if (imagingRows.length > 0) {
     const { error: imagingError } = await supabase
       .from("imaging_reports")
@@ -131,7 +138,7 @@ async function deleteMicrobiologyReports(supabase: SupabaseClient, labIds: strin
   if (delErr) throw delErr
 }
 
-async function saveMicrobiologyReports(supabase: SupabaseClient, microbiologyRows: any[]) {
+async function saveMicrobiologyReports(supabase: SupabaseClient, microbiologyRows: unknown[]) {
   if (microbiologyRows.length > 0) {
     const { error: microbiologyError } = await supabase
       .from("microbiology_reports")

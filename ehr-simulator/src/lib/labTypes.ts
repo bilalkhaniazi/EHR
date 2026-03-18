@@ -193,7 +193,7 @@ export function transformLabTableToSchema(
           baseRow.data = {
             ...(baseRow.data ?? {}),
             unstructured: {
-              ...(((baseRow.data ?? {}) as any).unstructured ?? {}),
+              ...(((baseRow.data ?? {}) as { unstructured?: Record<string, unknown> }).unstructured ?? {}),
               [row.field]: cellValue ?? null,
             },
           }

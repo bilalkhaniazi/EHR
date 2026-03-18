@@ -70,7 +70,8 @@ export default function CasePage() {
       if (result.success && result.data) {
         console.log("Fetched case data:", result.data)
       } else {
-        console.warn("Failed to fetch case data:", result.error)
+        const err = "error" in result ? result.error : undefined
+        console.warn("Failed to fetch case data:", err)
       }
       // TODO: remove temp data once schema is complete
       initialRow.current = TempFormData as CaseDataRow
@@ -93,6 +94,7 @@ export default function CasePage() {
     setFormData(prev => prev ? ({ ...prev, [field]: value }) : prev)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const updateCaseData = async (_payload: CaseDataScalarUpdate) => {
     // TODO: supabase.from('case_data').update(_payload).eq('id', caseId)
   }

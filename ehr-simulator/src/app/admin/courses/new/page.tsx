@@ -207,8 +207,9 @@ export default function CreateCoursePage() {
         })
         setSelectedFile(file)
         setFileUploadError("")
-      } catch (err: any) {
-        setFileUploadError(err.message)
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to parse CSV."
+        setFileUploadError(message)
         setSelectedFile(undefined)
         setAllStudents([])
       }

@@ -3,16 +3,16 @@
 import { createClient } from "@supabase/supabase-js";
 
 export interface CaseBundle {
-  caseRow: any
-  safetyAlerts: any[]
-  familyHistory: any[]
-  clinicalDocuments: any[]
-  orders: any[]
-  labResults: any[]
-  imagingReports: any[]
-  microbiologyReports: any[]
-  documentationResults: any[]
-  medicationAdministrations: any[]
+  caseRow: unknown
+  safetyAlerts: unknown[]
+  familyHistory: unknown[]
+  clinicalDocuments: unknown[]
+  orders: unknown[]
+  labResults: unknown[]
+  imagingReports: unknown[]
+  microbiologyReports: unknown[]
+  documentationResults: unknown[]
+  medicationAdministrations: unknown[]
 }
 
 export async function getCaseBundle(

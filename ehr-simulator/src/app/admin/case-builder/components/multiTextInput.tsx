@@ -131,4 +131,6 @@ const MultiTextInput = forwardRef<MultiTextInputHandle, MultiTextInputProps>(({
   );
 });
 
+MultiTextInput.displayName = "MultiTextInput";
+
 export default MultiTextInput;

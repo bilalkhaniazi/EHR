@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
+import type { User } from '@supabase/supabase-js'
 import { clearDraft as clearCaseBuilderDraft } from '@/utils/drafts/caseBuilderDraft';
 
 const supabase = createBrowserClient(
@@ -12,7 +13,7 @@ const supabase = createBrowserClient(
 type UserRoles = "student" | "admin" | "faculty"
 
 interface UserContextType {
-  user: any;
+  user: User | null;
   role: UserRoles | null;
   isAdmin: boolean;
   loading: boolean;
@@ -26,7 +27,7 @@ const UserContext = createContext<UserContextType>({
 })
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<UserRoles | null>(null)
   const [loading, setLoading] = useState<boolean>(true);
 

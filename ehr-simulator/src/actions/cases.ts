@@ -311,8 +311,9 @@ export async function getCourseCaseAssignments() {
 }
 
 // extracts type of data from ActionResponse for use in frontend
-type ExtractData<T extends (...args: any) => Promise<ActionResponse<any>>> =
-  NonNullable<Awaited<ReturnType<T>>['data']>;
+type ExtractData<T> = T extends (...args: infer _Args) => Promise<ActionResponse<infer D>>
+  ? NonNullable<D>
+  : never;
 
 export type SectionSimulationsData = ExtractData<typeof getSectionCaseAssignments>;
 export type CasesData = ExtractData<typeof getCaseByCourseId>;

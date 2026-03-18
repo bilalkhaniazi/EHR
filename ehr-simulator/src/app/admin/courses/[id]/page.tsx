@@ -51,16 +51,19 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
   const processedSims = sectionsData.flatMap((section) =>
     section.section_assignments.map((assignment) => {
+      const caseRow = Array.isArray(assignment.case_data)
+        ? assignment.case_data[0]
+        : assignment.case_data;
       return {
         id: assignment.id,
         simTime: assignment.sim_time,
         presimTime: assignment.presim_time,
         sectionName: section.name,
         sectionId: section.id,
-        caseName: assignment.case_data.name || "Unknown Case",
-        caseId: assignment.case_data.id,
-        caseDescription: assignment.case_data.description || '',
-        caseDiagnosis: assignment.case_data.diagnosis || ''
+        caseName: caseRow?.name || "Unknown Case",
+        caseId: caseRow?.id,
+        caseDescription: caseRow?.description || '',
+        caseDiagnosis: caseRow?.diagnosis || ''
       };
     })
   ).reduce<AssignmentGroups>((acc, item) => {

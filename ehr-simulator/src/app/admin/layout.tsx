@@ -19,6 +19,35 @@ export default async function AdminLayout({
       redirect("/auth/login");
     }
 
+    // Local dev escape hatch:
+    // If `DEV_ADMIN_EMAILS` is set, only those emails can access `/admin`
+    // without needing a `public.users.role = 'admin'` row yet.
+    //
+    // Remove for final build by NOT setting DEV_ADMIN_EMAILS in production.
+    if (process.env.NODE_ENV !== "production") {
+      const allowed = (process.env.DEV_ADMIN_EMAILS ?? "")
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (allowed.length > 0) {
+        const email = (user.email ?? "").toLowerCase();
+        if (!email || !allowed.includes(email)) {
+          return (
+            <main className="p-8 min-h-screen flex items-center justify-center">
+              <div className="max-w-xl w-full text-center bg-white rounded-lg shadow p-6">
+                <h1 className="text-2xl font-semibold mb-2">Not authorized</h1>
+                <p className="text-sm text-muted-foreground">
+                  You do not have permission to access the admin area.
+                </p>
+              </div>
+            </main>
+          );
+        }
+      }
+
+      // allowed (or no allowlist configured) -> fall through to render admin
+    } else {
     // Check role from the application's users table (public.users)
     const { data: profile, error: profileError } = await supabase
       .from("users")
@@ -37,6 +66,7 @@ export default async function AdminLayout({
           </div>
         </main>
       );
+    }
     }
   } catch {
     return (

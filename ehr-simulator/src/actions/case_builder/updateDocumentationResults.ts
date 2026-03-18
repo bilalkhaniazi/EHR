@@ -3,17 +3,19 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { transformDocumentationTableToSchema } from "@/lib/documentationTypes";
 import { DocumentationResultInsert } from "@/lib/documentationTypes";
+import type { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData";
 
 export async function updateDocumentationResults(
   supabase: SupabaseClient,
-  payload: any,
+  payload: unknown,
   caseId: string
 ) {
 
+  const p = payload as { data?: FlexSheetData[]; timePoints?: number[]; timePointsInPreSim?: number[] } | null
   const { documentationResults } = transformDocumentationTableToSchema(caseId, {
-    data: payload.data ?? [],
-    timePoints: payload.timePoints ?? [],
-    timePointsInPreSim: new Set(payload.timePointsInPreSim ?? []),
+    data: p?.data ?? [],
+    timePoints: p?.timePoints ?? [],
+    timePointsInPreSim: new Set(p?.timePointsInPreSim ?? []),
   })
 
   await deleteDocumentationResults(supabase, caseId)
