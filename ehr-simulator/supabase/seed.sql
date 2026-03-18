@@ -146,3 +146,4 @@ VALUES  ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a', 'e5f6a7b8-c9d0-4e5f-9c1f-4c5d6e
         ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c6a', 'e5f6a7b8-c9d0-4e5f-4b1a-4c5d6e7f8a9d'),
         ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5e', 'e5f6a7b8-c9d0-4e5f-4b1a-4c5d6e7f8a9d'),
         ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5e', 'e5f6a7b8-c9d0-4e5f-9c1f-4c5d6e7f8a9d')
+ON CONFLICT DO NOTHING;
