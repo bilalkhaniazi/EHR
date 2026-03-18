@@ -111,7 +111,7 @@ AS $$
       )) AS cases
     FROM student_sections ss
     JOIN public.section_assignments sa ON sa.section_id = ss.section_id
-    JOIN public.case_data           cd ON cd.id          = sa.case_id
+    JOIN public.cases           cd ON cd.id          = sa.case_id
     WHERE ss.member_active = true
     GROUP BY ss.course_id
   ),
@@ -125,7 +125,7 @@ AS $$
       cs.group_id
     FROM student_sections ss
     JOIN public.case_sessions cs ON cs.group_id = ss.group_id
-    JOIN public.case_data     cd ON cd.id        = cs.case_id
+    JOIN public.cases     cd ON cd.id        = cs.case_id
     WHERE cs.status = 'completed'
   ),
   team_members_per_session AS (
