@@ -57,7 +57,7 @@ function normalizeCategory(note: ClinicalNoteInput): ClinicalDocCategoryType {
 export async function updateClinicalDocuments(
   supabase: SupabaseClient,
   notes: ClinicalNoteInput[],
-  caseId: string | null,
+  caseId: string
 ) {
   if (!caseId) throw new Error("Case ID is required");
   const { error: deleteErr } = await supabase

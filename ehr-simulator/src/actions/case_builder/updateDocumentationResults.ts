@@ -7,14 +7,13 @@ import { DocumentationResultInsert } from "@/lib/documentationTypes";
 export async function updateDocumentationResults(
   supabase: SupabaseClient,
   payload: any,
-  caseId: string,
+  caseId: string
 ) {
 
   const { documentationResults } = transformDocumentationTableToSchema(caseId, {
     data: payload.data ?? [],
     timePoints: payload.timePoints ?? [],
     timePointsInPreSim: new Set(payload.timePointsInPreSim ?? []),
-    visibleItems: new Set(payload.visibleItems ?? []),
   })
 
   await deleteDocumentationResults(supabase, caseId)

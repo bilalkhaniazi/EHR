@@ -7,11 +7,6 @@ export async function updatePatientHistory(
   payload: any,
   caseId: string,
 ) {
-
-
-  const safetyAlerts = payload.safetyAlerts ?? [];
-  const familyHistory = payload.familyHistory ?? {};
-
   await updateMedicalHistory(supabase, payload, caseId);
   await updateSafetyAlerts(supabase, payload, caseId);
   await updateFamilyHistory(supabase, payload, caseId);
@@ -59,7 +54,7 @@ async function updateSafetyAlerts(
   const { error: seedErr } = await supabase
     .from("safety_alerts")
     .upsert(
-      names.map((name) => ({ name })),
+      names.map((name: any) => ({ name })),
       { onConflict: "name", ignoreDuplicates: true }
     );
 
@@ -80,7 +75,7 @@ async function updateSafetyAlerts(
     (alerts ?? []).map((a: any) => [a.name, a.id])
   );
 
-  const missing = names.filter((n) => !idByName.has(n));
+  const missing = names.filter((n: any) => !idByName.has(n));
   if (missing.length) {
     throw new Error(
       `Some safety alerts could not be resolved to ids: ${missing.join(
@@ -89,7 +84,7 @@ async function updateSafetyAlerts(
     );
   }
 
-  const joinRows = names.map((name) => ({
+  const joinRows = names.map((name: any) => ({
     case_id: caseId,
     safety_alert_id: idByName.get(name)!,
   }));
@@ -110,17 +105,15 @@ async function updateFamilyHistory(
   h: any,
   caseId: string) {
 
-  type row = { relationship: string; condition: string };
-
   const raw = Array.isArray(h?.familyHistory) ? h.familyHistory : [];
   const cleaned = raw
-    .map((x) => ({
+    .map((x: any) => ({
       relation: typeof x?.relation === "string" ? x.relation.trim() : "",
       condition: typeof x?.condition === "string" ? x.condition.trim() : "",
     }))
-    .filter((x) => x.relation && x.condition);
+    .filter((x: any) => x.relation && x.condition);
   const deduped = Array.from(
-    new Map(cleaned.map((x) => [`${x.relation}|||${x.condition}`, x])).values()
+    new Map(cleaned.map((x: any) => [`${x.relation}|||${x.condition}`, x])).values()
   );
 
   const { error: delErr } = await supabase
@@ -136,7 +129,7 @@ async function updateFamilyHistory(
 
   if (deduped.length === 0) return;
 
-  const relationNames = Array.from(new Set(deduped.map((x) => x.relation)));
+  const relationNames = Array.from(new Set(deduped.map((x: any) => x.relation)));
   const { error: seedErr } = await supabase
     .from("relationship_types")
     .upsert(
@@ -172,7 +165,7 @@ async function updateFamilyHistory(
     );
   }
 
-  const rows = deduped.map((x) => ({
+  const rows = deduped.map((x: any) => ({
     case_id: caseId,
     relationship_id: relIdByName.get(x.relation)!,
     condition: x.condition,

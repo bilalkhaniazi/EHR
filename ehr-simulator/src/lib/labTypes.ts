@@ -1,5 +1,6 @@
 import { ImagingData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 import { LabTableData } from '@/app/simulation/[sessionId]/chart/labs/components/labsData';
+import { MicrobiologyReportData } from "@/app/simulation/[sessionId]/chart/labs/components/labsData";
 
 export type LabResultInsert = {
   case_id: string
@@ -186,7 +187,8 @@ export function transformLabTableToSchema(
         const columnName = LAB_FIELD_TO_COLUMN[row.field]
 
         if (columnName) {
-          baseRow[columnName] = parseNumeric(cellValue)
+          /// TODO: This is workaround, update mappings above to satisfy type checking
+          ; (baseRow[columnName] as number | null | undefined) = parseNumeric(cellValue)
         } else {
           baseRow.data = {
             ...(baseRow.data ?? {}),
