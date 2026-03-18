@@ -44,8 +44,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
   ]);
 
   if (!sectionsResult.success || !casesResult.success || !courseResult.success || !courseResult.data) {
-    // console.log(`Error: ${sectionsResult?.error.message}`)
-
     return <div>Error loading data: {sectionsResult.message || casesResult.message || courseResult.message}</div>
   }
 
