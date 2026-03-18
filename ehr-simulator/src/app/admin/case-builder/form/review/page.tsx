@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { ClipboardCheck } from "lucide-react"
 import { FormShell } from "../../components/formShell"
-import { createCaseData } from "@/actions/cases"
 
 const FormReview = () => {
   const {
@@ -16,7 +15,8 @@ const FormReview = () => {
     chartingData,
     ioData,
     medOrderData,
-    medAdministrationData
+    medAdministrationData,
+    caseId,
   } = useFormContext()
 
   const router = useRouter();
@@ -30,32 +30,16 @@ const FormReview = () => {
   const handleSubmit = async () => {
     setSubmitError(null);
     setIsSubmitting(true);
-
-    const name =
-      demographicData.caseName?.trim() ||
-      [demographicData.firstName, demographicData.lastName].filter(Boolean).join(" ").trim() ||
-      "Unnamed Case";
-    const ageRaw = demographicData.age?.trim();
-    const age = ageRaw !== "" ? parseInt(ageRaw, 10) : null;
-    if (ageRaw !== "" && (Number.isNaN(age) || age === null)) {
-      setSubmitError("Age must be a valid number.");
+    try {
+      // Case builder steps persist continuously; this final step only validates we have a caseId.
+      if (!caseId) {
+        setSubmitError("Missing case ID. Please go back to Demographics and save again.");
+        return;
+      }
+      router.push("/admin/case-builder/form/success");
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    const result = await createCaseData({
-      name,
-      description: demographicData.summary?.trim() || null,
-      age: age ?? null,
-      diagnosis: demographicData.admittingDiagnosis?.trim() || null,
-    });
-
-    setIsSubmitting(false);
-    if (!result.success) {
-      setSubmitError(result.message ?? "Failed to create case.");
-      return;
-    }
-    router.push("/admin/case-builder/form/success");
   }
 
   return (

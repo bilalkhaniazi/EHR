@@ -99,14 +99,13 @@ export default function MedicationOrderForm() {
     router.push("/admin/case-builder/form/intake-output");
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onDataChange('medOrders', {
       createdOrders: medOrders,
       selectedMeds: selectedMeds
     });
     router.push('/admin/case-builder/form/medication-administrations');
   }
-  console.log(medOrders)
   return (
     <FormShell
       title="Medication Orders"

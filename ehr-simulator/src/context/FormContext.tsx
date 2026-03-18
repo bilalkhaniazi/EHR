@@ -20,6 +20,8 @@ interface FormContextType {
   ioData: IntakeOutputFormData[];
   medOrderData: MedOrderFormData;
   medAdministrationData: MedAdministrationInstance[];
+  caseId?: string;
+  setCaseId: (id: string) => void;
   onDataChange: (key: keyof FormBlob, data: CompleteFormType) => void;
   saveDraftNow: () => void;
   resetDraft: () => void;
@@ -65,6 +67,8 @@ const defaultHistoryData = {
 }
 const FormContext = createContext<FormContextType>({
   onDataChange: () => { },
+  setCaseId: () => { },
+  caseId: undefined,
   demographicData: defaultDemographicData,
   historyData: defaultHistoryData,
   noteData: [],
@@ -81,6 +85,7 @@ const FormContext = createContext<FormContextType>({
 });
 
 export function FormContextProvider({ children }: { children: React.ReactNode }) {
+  const [caseId, setCaseId] = useState<string | undefined>(undefined);
   const [demographicData, setDemographicData] = useState<DemographicFormData>(defaultDemographicData);
   const [historyData, setHistoryData] = useState<HistoryFormData>(defaultHistoryData);
   const [noteData, setNoteData] = useState<ClinicalNote[]>([]);
@@ -280,6 +285,8 @@ export function FormContextProvider({ children }: { children: React.ReactNode })
 
   return (
     <FormContext.Provider value={{
+      caseId,
+      setCaseId,
       demographicData,
       historyData,
       noteData,
