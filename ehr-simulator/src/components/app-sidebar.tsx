@@ -18,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 import { clearDraft as clearCaseBuilderDraft } from "@/utils/drafts/caseBuilderDraft";
+import { Button } from "@/components/ui/button";
 
 const adminRoutes = [
   {
@@ -55,11 +56,6 @@ const defaultRoutes = [
   },
 ];
 
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-);
-
 export function AppSidebar() {
 
   const { loading, user } = useUser();
@@ -67,18 +63,23 @@ export function AppSidebar() {
   const router = useRouter();
   const isCurrentPath = (url: string) => pathname === url;
 
+  if (loading) return null;
+
   const handleLogout = async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     await supabase.auth.signOut();
     if (user?.id) {
       clearCaseBuilderDraft(user.id);
     }
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("role");
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('role');
     }
-    router.replace("/auth/login");
-  };
-
-  if (loading) return null;
+    router.replace('/auth/login');
+  }
 
   return (
     <Sidebar>
@@ -118,18 +119,19 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleLogout}>
-                <LogOut />
-                <span>Logout</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
         <SidebarGroup />
 
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <div className="w-full">
+          <Button variant="ghost" size="default" className="w-full justify-start" onClick={handleLogout}>
+            <LogOut />
+            <span>Logout</span>
+          </Button>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   )
 }
