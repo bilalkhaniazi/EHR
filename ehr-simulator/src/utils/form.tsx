@@ -28,6 +28,8 @@ export interface DemographicFormData {
   relationshipStatus: string;
   religion: string;
   summary: string;
+  contact: string;
+  contactRelationship: string;
 }
 
 export interface HistoryFormData {
