@@ -89,6 +89,121 @@ export async function getSimCaseById(id: string) {
   };
 }
 
+// --- Lookup tables ---
+
+export type LookupRow = { id: string; name: string }
+
+async function fetchLookup(table: 'isolation_precautions' | 'relationship_statuses' | 'relationship_types' | 'safety_alerts'): Promise<ActionResponse<LookupRow[]>> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { data, error } = await supabase
+    .from(table)
+    .select('id, name')
+    .eq('is_active', true)
+    .order('name')
+  if (error) return { success: false, message: `Failed to fetch ${table}`, error }
+  return { success: true, message: 'ok', data: data as LookupRow[] }
+}
+
+export const getIsolationPrecautions = async () => fetchLookup('isolation_precautions')
+export const getRelationshipStatuses = async () => fetchLookup('relationship_statuses')
+export const getRelationshipTypes = async () => fetchLookup('relationship_types')
+export const getSafetyAlerts = async () => fetchLookup('safety_alerts')
+
+// --- Family history ---
+
+export async function replaceFamilyHistory(
+  caseId: string,
+  entries: { relationship_id: string; condition: string }[]
+): Promise<ActionResponse> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { error: deleteError } = await supabase
+    .from('case_family_history')
+    .delete()
+    .eq('case_id', caseId)
+
+  if (deleteError) return { success: false, message: 'Failed to clear family history.', error: deleteError }
+
+  if (entries.length === 0) return { success: true, message: 'Family history cleared.' }
+
+  const { error: insertError } = await supabase
+    .from('case_family_history')
+    .insert(entries.map(e => ({
+      case_id: caseId,
+      relationship_id: e.relationship_id,
+      condition: e.condition,
+    })))
+
+  if (insertError) return { success: false, message: 'Failed to insert family history.', error: insertError }
+  return { success: true, message: 'Family history saved.' }
+}
+
+// --- Safety alerts ---
+
+export async function addSafetyAlert(caseId: string, safetyAlertId: string): Promise<ActionResponse> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { error } = await supabase
+    .from('case_safety_alerts')
+    .insert({ case_id: caseId, safety_alert_id: safetyAlertId })
+  if (error) return { success: false, message: 'Failed to add safety alert.', error }
+  return { success: true, message: 'Safety alert added.' }
+}
+
+export async function removeSafetyAlert(caseId: string, safetyAlertId: string): Promise<ActionResponse> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  const { error } = await supabase
+    .from('case_safety_alerts')
+    .delete()
+    .eq('case_id', caseId)
+    .eq('safety_alert_id', safetyAlertId)
+  if (error) return { success: false, message: 'Failed to remove safety alert.', error }
+  return { success: true, message: 'Safety alert removed.' }
+}
+
+// --- Case scalar update ---
+
+export async function updateSimCase(
+  id: string,
+  payload: Database['public']['Tables']['cases']['Update']
+): Promise<ActionResponse> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { error } = await supabase
+    .from('cases')
+    .update(payload)
+    .eq('id', id);
+
+  if (error) {
+    console.error("updateSimCase error:", error);
+    return {
+      success: false,
+      message: 'Failed to update case.',
+      error,
+    };
+  }
+
+  revalidatePath('/admin/cases');
+
+  return {
+    success: true,
+    message: 'Case updated successfully.',
+  };
+}
 
 export async function getCaseByCourseId(id: string) {
   const supabase = createClient(
@@ -264,12 +379,12 @@ export async function getCourseCaseAssignments() {
   );
 
   const { data, error } = await supabase
-    .from('case_data')
+    .from('cases')
     .select(`
       id,
       name,
-      description, 
-      diagnosis,
+      description,
+      admitting_diagnosis,
       course_cases (
         id,
         course_id,
@@ -282,6 +397,7 @@ export async function getCourseCaseAssignments() {
     `);
 
   if (error) {
+    console.error("getCourseCaseAssignments error:", error); // add this
     return {
       success: false,
       message: 'Failed to retrieve sim cases.',
@@ -301,7 +417,7 @@ export async function getCourseCaseAssignments() {
         courseCode: null,
         caseName: caseItem.name,
         description: caseItem.description,
-        diagnosis: caseItem.diagnosis
+        admitting_diagnosis: caseItem.admitting_diagnosis
       }];
     }
 
@@ -319,7 +435,7 @@ export async function getCourseCaseAssignments() {
         courseCode: course?.code,
         caseName: caseItem.name,
         description: caseItem.description,
-        diagnosis: caseItem.diagnosis
+        admitting_diagnosis: caseItem.admitting_diagnosis
       };
     });
   }) ?? [];

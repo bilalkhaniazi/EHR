@@ -5,28 +5,19 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, ArrowRight, FolderPen } from "lucide-react"
+import { ArrowRight, FolderPen } from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
-import { useState, useEffect, useRef } from "react"
-import { TempFormData, type CaseDataRow, type CaseDataScalarUpdate, type CaseFamilyHistoryRow, type CodeStatusType, type InsuranceType } from "../types"
-import { getSimCaseById } from "@/actions/cases"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { type CaseDataRow, type CaseDataScalarUpdate, type CaseFamilyHistoryRow, type CodeStatusType, type InsuranceType } from "../types"
+import {
+  getSimCaseById, updateSimCase,
+  getIsolationPrecautions, getRelationshipStatuses, getRelationshipTypes, getSafetyAlerts,
+  replaceFamilyHistory,
+  addSafetyAlert, removeSafetyAlert,
+  type LookupRow,
+} from "@/actions/cases"
 import MultiTextInput, { type MultiTextInputHandle } from "../../case-builder/components/multiTextInput"
-import { FamilyHistory, type FamilyHistoryData, type FamilyHistoryInputHandle } from "../../case-builder/form/history/familyHistory"
-
-// Adapter: CaseFamilyHistoryRow <-> FamilyHistoryData
-function toFamilyHistoryData(rows: CaseFamilyHistoryRow[]): FamilyHistoryData[] {
-  return rows.map(r => ({ relation: r.relationship_id, condition: r.condition }))
-}
-
-function fromFamilyHistoryData(entries: FamilyHistoryData[], caseId: string): CaseFamilyHistoryRow[] {
-  return entries.map(e => ({
-    id: crypto.randomUUID(),
-    case_id: caseId,
-    relationship_id: e.relation,
-    condition: e.condition,
-    created_at: new Date().toISOString(),
-  }))
-}
+import { EditFamilyHistory } from "../components/EditFamilyHistory"
 
 // Section wrapper
 const FormSection = ({
@@ -55,28 +46,45 @@ export default function CasePage() {
   const caseId = params.id as string
 
   const [formData, setFormData] = useState<CaseDataRow | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const initialRow = useRef<CaseDataRow | null>(null)
+
+  const [isolationOptions, setIsolationOptions] = useState<LookupRow[]>([])
+  const [relationshipStatusOptions, setRelationshipStatusOptions] = useState<LookupRow[]>([])
+  const [relationshipTypeOptions, setRelationshipTypeOptions] = useState<LookupRow[]>([])
+  const [safetyAlertOptions, setSafetyAlertOptions] = useState<LookupRow[]>([])
 
   const medicalHistoryRef = useRef<MultiTextInputHandle>(null)
   const surgicalHistoryRef = useRef<MultiTextInputHandle>(null)
   const allergiesRef = useRef<MultiTextInputHandle>(null)
   const socialHabitsRef = useRef<MultiTextInputHandle>(null)
   const livingSituationRef = useRef<MultiTextInputHandle>(null)
-  const familyHistoryRef = useRef<FamilyHistoryInputHandle>(null)
 
   useEffect(() => {
-    const fetchRow = async () => {
-      const result = await getSimCaseById(caseId)
-      if (result.success && result.data) {
-        console.log("Fetched case data:", result.data)
+    const fetchAll = async () => {
+      const [caseResult, isolationResult, relStatusResult, relTypeResult, safetyResult] = await Promise.all([
+        getSimCaseById(caseId),
+        getIsolationPrecautions(),
+        getRelationshipStatuses(),
+        getRelationshipTypes(),
+        getSafetyAlerts(),
+      ])
+
+      if (caseResult.success && caseResult.data) {
+        const row = caseResult.data as CaseDataRow
+        initialRow.current = row
+        setFormData(row)
       } else {
-        console.warn("Failed to fetch case data:", result.error)
+        console.error("Failed to fetch case data:", caseResult.error)
+        setLoadError("Failed to load case. Please try again.")
       }
-      // TODO: remove temp data once schema is complete
-      initialRow.current = TempFormData as CaseDataRow
-      setFormData(TempFormData as CaseDataRow)
+
+      if (isolationResult.success && isolationResult.data) setIsolationOptions(isolationResult.data)
+      if (relStatusResult.success && relStatusResult.data) setRelationshipStatusOptions(relStatusResult.data)
+      if (relTypeResult.success && relTypeResult.data) setRelationshipTypeOptions(relTypeResult.data)
+      if (safetyResult.success && safetyResult.data) setSafetyAlertOptions(safetyResult.data)
     }
-    fetchRow()
+    fetchAll()
   }, [caseId])
 
   const updateField = <K extends keyof CaseDataScalarUpdate>(
@@ -86,25 +94,88 @@ export default function CasePage() {
     setFormData(prev => prev ? ({ ...prev, [field]: value }) : prev)
   }
 
-  const updateArrayField = <K extends keyof Pick<CaseDataRow, 'medical_history' | 'surgical_history' | 'allergies' | 'social_habits' | 'living_situation'>>(
+  const arrayDebounceRef = useRef<Partial<Record<keyof CaseDataScalarUpdate, ReturnType<typeof setTimeout>>>>({})
+
+  const updateArrayField = useCallback(<K extends keyof Pick<CaseDataRow, 'medical_history' | 'surgical_history' | 'allergies' | 'social_habits' | 'living_situation'>>(
     field: K,
     value: string[]
   ) => {
     setFormData(prev => prev ? ({ ...prev, [field]: value }) : prev)
+    clearTimeout(arrayDebounceRef.current[field])
+    arrayDebounceRef.current[field] = setTimeout(() => {
+      updateCaseData({ [field]: value } as CaseDataScalarUpdate)
+    }, 1000)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const updateCaseData = async (payload: CaseDataScalarUpdate) => {
+    const result = await updateSimCase(caseId, payload)
+    if (!result.success) {
+      console.error("Failed to update case:", result.error)
+    }
   }
 
-  const updateCaseData = async (_payload: CaseDataScalarUpdate) => {
-    // TODO: supabase.from('case_data').update(_payload).eq('id', caseId)
+  const handleFamilyHistoryAdd = async (entry: { relationship_id: string; condition: string }) => {
+    const newRow: CaseFamilyHistoryRow = {
+      id: crypto.randomUUID(),
+      case_id: caseId,
+      relationship_id: entry.relationship_id,
+      condition: entry.condition,
+      created_at: new Date().toISOString(),
+    }
+    setFormData(prev => prev ? {
+      ...prev,
+      case_family_history: [...(prev.case_family_history ?? []), newRow]
+    } : prev)
+    await replaceFamilyHistory(caseId, [
+      ...(formData?.case_family_history ?? []).map(r => ({
+        relationship_id: r.relationship_id,
+        condition: r.condition,
+      })),
+      entry,
+    ])
+  }
+
+  const handleFamilyHistoryDelete = async (id: string) => {
+    const updated = (formData?.case_family_history ?? []).filter(r => r.id !== id)
+    setFormData(prev => prev ? { ...prev, case_family_history: updated } : prev)
+    await replaceFamilyHistory(caseId, updated.map(r => ({
+      relationship_id: r.relationship_id,
+      condition: r.condition,
+    })))
+  }
+
+  const handleSafetyAlertToggle = async (safetyAlertId: string, checked: boolean) => {
+    if (!formData) return
+    if (checked) {
+      await addSafetyAlert(caseId, safetyAlertId)
+      setFormData(prev => prev ? {
+        ...prev,
+        case_safety_alerts: [...(prev.case_safety_alerts ?? []), {
+          case_id: caseId,
+          safety_alert_id: safetyAlertId,
+          created_at: new Date().toISOString(),
+        }]
+      } : prev)
+    } else {
+      await removeSafetyAlert(caseId, safetyAlertId)
+      setFormData(prev => prev ? {
+        ...prev,
+        case_safety_alerts: (prev.case_safety_alerts ?? []).filter(a => a.safety_alert_id !== safetyAlertId)
+      } : prev)
+    }
   }
 
   const handleBlur = <K extends keyof CaseDataScalarUpdate>(field: K) => {
     if (!formData || !initialRow.current) return
     if (formData[field] !== initialRow.current[field]) {
       updateCaseData({ [field]: formData[field] } as CaseDataScalarUpdate)
+      // Keep initialRow in sync so repeated blurs don't re-fire
+      initialRow.current = { ...initialRow.current, [field]: formData[field] }
     }
   }
 
-  if (!formData) return <div>Loading...</div>
+  if (loadError) return <div className="p-8 text-red-500">{loadError}</div>
+  if (!formData) return <div className="p-8 text-slate-500">Loading...</div>
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-slate-50/50">
@@ -118,11 +189,8 @@ export default function CasePage() {
           <p className="text-xs text-slate-500 mt-1">View and edit case details</p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
-          <Button variant="secondary" className="cursor-pointer" onClick={() => router.push("/admin/cases")}>
-            <ArrowLeft /> Cancel
-          </Button>
-          <Button className="cursor-pointer" onClick={() => { }}>
-            Submit Case <ArrowRight />
+          <Button className="cursor-pointer" onClick={() => { router.push("/admin/cases") }}>
+            Return to Cases <ArrowRight />
           </Button>
         </div>
       </header>
@@ -203,7 +271,7 @@ export default function CasePage() {
             </div>
           </FormSection>
 
-          {/* ── Demographics ── */}
+          {/*  Demographics  */}
           <FormSection title="Demographics" subtitle="Patient identity and personal background">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               <div className="flex flex-col gap-1">
@@ -270,6 +338,7 @@ export default function CasePage() {
                 <Label className="text-xs font-medium text-slate-500">Employment</Label>
                 <Input
                   value={formData.employment ?? ''}
+                  placeholder="Occupation"
                   onChange={e => updateField('employment', e.target.value)}
                   onBlur={() => handleBlur('employment')}
                 />
@@ -294,9 +363,10 @@ export default function CasePage() {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-                <Label className="text-xs font-medium text-slate-500">Weight (kg)</Label>
+                <Label className="text-xs font-medium text-slate-500">Weight</Label>
                 <Input
                   type="number"
+                  placeholder="kg"
                   value={formData.weight_kg ?? ''}
                   onChange={e => updateField('weight_kg', Number(e.target.value))}
                   onBlur={() => handleBlur('weight_kg')}
@@ -313,6 +383,60 @@ export default function CasePage() {
                     }}
                   />
                 </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs font-medium text-slate-500">Relationship Status</Label>
+                <Select
+                  value={formData.relationship_status_id ?? 'none'}
+                  onValueChange={val => {
+                    const v = val === 'none' ? null : val
+                    updateField('relationship_status_id', v)
+                    updateCaseData({ relationship_status_id: v })
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {relationshipStatusOptions.map(o => (
+                      <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs font-medium text-slate-500">Isolation Precautions</Label>
+                <Select
+                  value={formData.isolation_precautions_id ?? 'none'}
+                  onValueChange={val => {
+                    const v = val === 'none' ? null : val
+                    updateField('isolation_precautions_id', v)
+                    updateCaseData({ isolation_precautions_id: v })
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {isolationOptions.map(o => (
+                      <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs font-medium text-slate-500">Emergency Contact Name</Label>
+                <Input
+                  value={formData.emergency_contact_name ?? ''}
+                  onChange={e => updateField('emergency_contact_name', e.target.value)}
+                  onBlur={() => handleBlur('emergency_contact_name')}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-xs font-medium text-slate-500">Emergency Contact Relationship</Label>
+                <Input
+                  value={formData.emergency_contact_relationship ?? ''}
+                  onChange={e => updateField('emergency_contact_relationship', e.target.value)}
+                  onBlur={() => handleBlur('emergency_contact_relationship')}
+                />
               </div>
             </div>
           </FormSection>
@@ -371,16 +495,31 @@ export default function CasePage() {
 
           {/* Family History */}
           <FormSection title="Family History">
-            <FamilyHistory
-              ref={familyHistoryRef}
-              value={toFamilyHistoryData(formData.case_family_history ?? [])}
-              onChange={entries =>
-                setFormData(prev => prev
-                  ? { ...prev, case_family_history: fromFamilyHistoryData(entries, caseId) }
-                  : prev
-                )
-              }
+            <EditFamilyHistory
+              rows={formData.case_family_history ?? []}
+              relationshipOptions={relationshipTypeOptions}
+              onAdd={handleFamilyHistoryAdd}
+              onDelete={handleFamilyHistoryDelete}
             />
+          </FormSection>
+
+          {/* Safety Alerts */}
+          <FormSection title="Safety Alerts" subtitle="Active alerts associated with this patient">
+            <div className="flex flex-wrap gap-4 py-2">
+              {safetyAlertOptions.map(alert => {
+                const isActive = (formData.case_safety_alerts ?? []).some(a => a.safety_alert_id === alert.id)
+                return (
+                  <div key={alert.id} className="flex items-center gap-2">
+                    <Switch
+                      id={`alert-${alert.id}`}
+                      checked={isActive}
+                      onCheckedChange={checked => handleSafetyAlertToggle(alert.id, checked)}
+                    />
+                    <Label htmlFor={`alert-${alert.id}`} className="text-xs text-slate-600">{alert.name}</Label>
+                  </div>
+                )
+              })}
+            </div>
           </FormSection>
 
         </div>
