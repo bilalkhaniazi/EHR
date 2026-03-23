@@ -1,17 +1,7 @@
 "use client"
 
-import * as React from "react"
 import Link from "next/link"
-
-interface Course {
-  id: string;
-  name: string;
-  code: string;
-  semester: string;
-  active: boolean;
-  start_date: string;
-  end_date: string;
-}
+import { Course } from "../types"
 
 interface CourseListItemProps {
   course: Course;
