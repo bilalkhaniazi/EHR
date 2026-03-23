@@ -3,7 +3,12 @@ export interface Course {
   name: string;
   code: string;
   description: string;
+  semester: string;
+  active: boolean;
+  start_date: string;
+  end_date: string;
 }
+
 export interface Section {
   id: string;
   course_id: string;
