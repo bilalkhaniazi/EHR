@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS medications (
   infusion_rate_unit iv_infusion_rate_type,
   diluent TEXT,
   total_volume numeric,
-  is_continuous boolean NOT NULL DEFAULT false
+  is_continuous boolean NOT NULL DEFAULT false,
+  UNIQUE (generic_name, route, strength, strength_unit)
 );
 
 INSERT INTO medications (
@@ -48,7 +49,6 @@ VALUES
   ('acetaminophen', 'Ofirmev', 'IV', 1000, 'mg', (SELECT id FROM dispense_units WHERE name = 'Vial'), 'mL/hr', NULL, 50, false),
   ('metoprolol succinate', 'Toprol XL', 'PO', 25, 'mg', (SELECT id FROM dispense_units WHERE name = 'Tablet'), NULL, NULL, NULL, false),
   ('amoxicillin', 'Amoxil IV', 'IV', 500, 'mg', (SELECT id FROM dispense_units WHERE name = 'Vial'), 'mL/hr', 'normal saline 0.9%', 50, false),
-  ('acetaminophen', 'Ofirmev', 'IV', 1000, 'mg', (SELECT id FROM dispense_units WHERE name = 'Vial'), 'mL/hr', NULL, 50, false),
   ('normal saline 0.9%', NULL, 'IV', 1000, 'mL', (SELECT id FROM dispense_units WHERE name = 'Bag'), 'mL/hr', NULL, 1000, true),
   ('Lactated Ringer''s Injection ', NULL, 'IV', 1000, 'mL', (SELECT id FROM dispense_units WHERE name = 'Bag'), 'mL/hr', NULL, 1000, true),
   ('piperacillin tazobactam', NULL, 'IV', 3.375, 'g', (SELECT id FROM dispense_units WHERE name = 'Vial'), 'mL/hr', 'normal saline 0.9%', 100, false),
@@ -76,7 +76,9 @@ VALUES
   ('acetaminophen', 'Tylenol', 'PO', 325, 'mg', (SELECT id FROM dispense_units WHERE name = 'Tablet'), NULL, NULL, NULL, false),
   ('cefazolin', 'Ancef', 'IV', 1000, 'mg', (SELECT id FROM dispense_units WHERE name = 'Vial'), 'mL/hr', NULL, NULL, false),
   ('sodium chloride', NULL, 'PO', 1, 'g', (SELECT id FROM dispense_units WHERE name = 'Tablet'), NULL, NULL, NULL, false),
-  ('pantoprazole', 'Protonix', 'PO', 40, 'mg', (SELECT id FROM dispense_units WHERE name = 'Tablet'), NULL, NULL, NULL, false);
+  ('pantoprazole', 'Protonix', 'PO', 40, 'mg', (SELECT id FROM dispense_units WHERE name = 'Tablet'), NULL, NULL, NULL, false)
+ON CONFLICT (generic_name, route, strength, strength_unit) DO NOTHING;
+
 
 CREATE type medication_frequencies as enum ('QD', 'BID', 'TID', 'QID', 'Q1H', 'Q2H', 'Q3H', 'Q4H', 'Q6H', 'Q8H', 'Q12H', 'Q24H', 'ACHS', 'DAILY', 'ONCE', 'CONTINUOUS');
 CREATE type medication_priorities as enum ('STAT', 'NOW', 'Routine', 'PRN');
@@ -96,7 +98,7 @@ CREATE TABLE IF NOT EXISTS medication_orders (
 );
 
 -- Link a medication administration to its corresponding order
-ALTER TABLE medication_administrations ADD COLUMN medication_order_id UUID references medication_orders(id) ON DELETE CASCADE;
+ALTER TABLE IF EXISTS medication_administrations ADD COLUMN medication_order_id UUID references medication_orders(id) ON DELETE CASCADE;
 
 
 
