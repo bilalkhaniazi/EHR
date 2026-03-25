@@ -18,7 +18,7 @@ export type FacultySectionInsert = TablesInsert<"faculty_section">
 export type User = Tables<"users">
 export type UserInsert = TablesInsert<"users">
 
-export async function getAllCourses() {
+export async function getAllCourses(): Promise<ActionResponse<Course[] | null>> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -27,14 +27,25 @@ export async function getAllCourses() {
   const { data, error } = await supabase
     .from("courses")
     .select("*")
-  // .order("start_date", { ascending: false });
+    .order('code', { ascending: false })
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    const result: ActionResponse = {
+      success: false,
+      message: 'Failed to fetch courses.',
+      error,
+    }
+    return result
 
-  return data || [];
+  }
+  return {
+    success: true,
+    data,
+    message: 'Successfully retrieved all courses.'
+  }
 }
 
-export async function getCourseById(id: string) {
+export async function getCourseById(id: string): Promise<ActionResponse<Course | null>> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -45,12 +56,28 @@ export async function getCourseById(id: string) {
     .select("*")
     .eq("id", id)
 
-  if (error) throw new Error(error.message);
 
-  return data[0] || null;
+  if (error) {
+    const result: ActionResponse = {
+      success: false,
+      error,
+      message: 'Failed to retrieve course.'
+    }
+    return result
+  }
+
+  const cleanData = Array.isArray(data)
+    ? data[0]
+    : data
+
+  return {
+    success: true,
+    data: cleanData,
+    message: 'Successfully retrieved course.'
+  }
 }
 
-export async function getSections(id: string) {
+export async function getSectionsByCourseId(id: string) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -61,10 +88,22 @@ export async function getSections(id: string) {
     .select("*")
     .eq("course_id", id)
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    const result: ActionResponse = {
+      success: false,
+      error,
+      message: 'Failed to retrieve sections.'
+    }
+    return result;
+  }
 
-  return data || null;
+  return {
+    success: true,
+    data,
+    message: 'Successfully retrieved sections.',
+  }
 }
+
 
 export async function createCourse(course: CourseInsert): Promise<ActionResponse<Course>> {
   const supabase = createClient(

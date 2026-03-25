@@ -1,46 +1,38 @@
-"use client"
-import { useEffect, useState } from "react";
-import CourseListItem from "./components/CourseListItem";
-import CourseListSkeleton from "./components/CourseListSkeleton";
 import { getAllCourses } from "@/actions/courses";
-import { Course } from "./types";
+import CourseListItem from "./components/CourseListItem";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-async function getCourses(): Promise<Course[]> {
-  return await getAllCourses();
-}
+export default async function CoursesPage() {
+  const courseResult = await getAllCourses();
 
-export default function CoursesPage() {
-  const router = useRouter();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  if (!courseResult.success || !courseResult.data) {
+    return (
+      <div className="flex h-screen items-center justify-center text-muted-foreground">
+        Courses not found.
+      </div>
+    )
+  }
 
-  useEffect(() => {
-    getCourses().then((courses) => {
-      setCourses(courses);
-      setLoading(false);
-    });
-  }, []);
+  const courses = courseResult.data || [];
 
   return (
     <div className="w-full">
-      <div className="w-full px-8">
-        <div className="pt-10 flex justify-between">
-          <h1 className="text-4xl font-bold">COURSES</h1>
-          <Button
-            className="cursor-pointer"
-            onClick={() => { router.push("/admin/courses/new") }}>
-            Create New Course <Plus />
-          </Button>
+      <header className="bg-white border-b px-8 py-4 pb-4 sticky top-0 z-10">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h1 className="text-5xl font-bold tracking-tight">COURSES</h1>
+            <p className="text-xs text-gray-500">Manage all simulation courses</p>
+          </div>
+          <Link href='#'>
+            <Button>Create Course</Button>
+          </Link>
         </div>
-        {loading ? (
-          <CourseListSkeleton />
-        ) : (
-          courses.map((course) =>
-            <CourseListItem key={course.id} course={course} />
-          )
+      </header>
+
+      <div className="px-4">
+        {courses.map((course) =>
+          <CourseListItem key={course.id} course={course} />
         )}
       </div>
     </div>
