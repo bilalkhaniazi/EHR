@@ -43,7 +43,12 @@ export default function AuthCallbackPage() {
           }
         }
 
-        const destination = role === 'admin' ? '/admin' : `/user/profile/${session.user.id}`
+        const destination =
+          role === 'admin'
+            ? '/admin'
+            : role === 'faculty'
+            ? `/faculty/${session.user.id}`
+            : `/user/profile/${session.user.id}`
         router.replace(destination)
       } else {
         const { data: authListener } = supabase.auth.onAuthStateChange(
@@ -56,7 +61,12 @@ export default function AuthCallbackPage() {
                   window.localStorage.setItem('role', role)
                 } catch {}
               }
-              const destination = role === 'admin' ? '/admin' : `/user/profile/${sess.user.id}`
+              const destination =
+                role === 'admin'
+                  ? '/admin'
+                  : role === 'faculty'
+                  ? `/faculty/${sess.user.id}`
+                  : `/user/profile/${sess.user.id}`
               router.replace(destination)
             }
           })
