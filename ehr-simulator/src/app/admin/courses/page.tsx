@@ -1,28 +1,21 @@
 "use client"
-
-import * as React from "react";
-import { useEffect } from "react";
-import CourseListItem from "./CourseListItem";
+import { useEffect, useState } from "react";
+import CourseListItem from "./components/CourseListItem";
+import CourseListSkeleton from "./components/CourseListSkeleton";
 import { getAllCourses } from "@/actions/courses";
-// import Link from "next/link";
-
-type Course = {
-  id: string;
-  name: string;
-  code: string;
-  semester: string;
-  active: boolean;
-  start_date: string;
-  end_date: string;
-}
+import { Course } from "./types";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 async function getCourses(): Promise<Course[]> {
   return await getAllCourses();
 }
 
 export default function CoursesPage() {
-  const [courses, setCourses] = React.useState<Course[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const router = useRouter();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getCourses().then((courses) => {
@@ -32,13 +25,24 @@ export default function CoursesPage() {
   }, []);
 
   return (
-    <div className="pl-4">
-      <h1 className="container mx-auto pt-10 text-4xl font-bold">COURSES</h1>
-      {loading && <p>Loading</p>}
-      {courses.map((course) =>
-        <CourseListItem key={course.id} course={course} />
-      )}
-
+    <div className="w-full">
+      <div className="w-full px-8">
+        <div className="pt-10 flex justify-between">
+          <h1 className="text-4xl font-bold">COURSES</h1>
+          <Button
+            className="cursor-pointer"
+            onClick={() => { router.push("/admin/courses/new") }}>
+            Create New Course <Plus />
+          </Button>
+        </div>
+        {loading ? (
+          <CourseListSkeleton />
+        ) : (
+          courses.map((course) =>
+            <CourseListItem key={course.id} course={course} />
+          )
+        )}
+      </div>
     </div>
   );
 }
