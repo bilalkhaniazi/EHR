@@ -19,15 +19,21 @@ export default async function CoursesPage() {
 
   return (
     <div className="w-full">
-      <div className="w-full px-8">
-        <div className="pt-10 flex justify-between">
-          <h1 className="text-4xl font-bold">COURSES</h1>
+      <header className="bg-white border-b px-8 py-4 pb-4 sticky top-0 z-10">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h1 className="text-5xl font-bold tracking-tight">COURSES</h1>
+            <p className="text-xs text-gray-500">Manage all simulation courses</p>
+          </div>
           <Link href="/admin/courses/new">
             <Button className="cursor-pointer">
               Create New Course <Plus />
             </Button>
           </Link>
         </div>
+      </header>
+
+      <div className="w-full px-8 pb-10">
         {courses.map((course) => (
           <CourseListItem key={course.id} course={course} />
         ))}

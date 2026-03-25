@@ -348,8 +348,9 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 
 [auth.external.google]
 enabled = true
-# Local dev Google OAuth client id (match your Google Cloud app)
-client_id = "141754297785-m9vl1jai1vgt7bip2de3ho6tjlr0hp89.apps.googleusercontent.com"
+# Team default from main; override locally if your Google Cloud OAuth client differs
+# client_id = "407381537949-okpll3lve00g0o3cdscdql42hnoqp0k3.apps.googleusercontent.com"
+client_id = "501023505211-qcfc5i1sep9nphkrktdnhco9i3493l1b.apps.googleusercontent.com"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET)"
 skip_nonce_check = false
 
