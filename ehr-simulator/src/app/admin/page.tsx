@@ -9,7 +9,6 @@ async function getData(): Promise<StudentInfo[]> {
 
 export default async function AdminPage() {
   const data = await getData()
-
   return (
     <div className="w-full">
       <header className="bg-white border-b px-8 py-4 pb-4 sticky top-0 z-10">
