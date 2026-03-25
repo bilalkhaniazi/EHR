@@ -27,8 +27,8 @@ export type SectionGroups = Record<string, Student[]>
 export function generateGroupNames(count: number): string[] {
   const names: string[] = []
   for (let i = 0; i < count; i++) {
-    if (i < 26) names.push(String.fromCharCode(65 + i))
-    else names.push(String.fromCharCode(65 + Math.floor(i / 26) - 1) + String.fromCharCode(65 + (i % 26)))
+    if (i < 26) names.push("Group " + String.fromCharCode(65 + i))
+    else names.push("Group " + String.fromCharCode(65 + Math.floor(i / 26) - 1) + String.fromCharCode(65 + (i % 26)))
   }
   return names
 }
