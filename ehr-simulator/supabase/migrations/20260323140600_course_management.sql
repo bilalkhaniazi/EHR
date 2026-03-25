@@ -24,7 +24,7 @@ ALTER TABLE public.faculty_section
 CREATE OR REPLACE FUNCTION public.link_new_user_profile()
 RETURNS trigger AS $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM public.users WHERE email = new.email) THEN
+  IF EXISTS (SELECT 1 FROM public.users WHERE LOWER(TRIM(email)) = LOWER(TRIM(new.email))) THEN
     UPDATE public.users
     SET
       id         = new.id,
@@ -35,7 +35,7 @@ BEGIN
                      new.raw_user_meta_data->>'name'
                    ),
       updated_at = now()
-    WHERE email = new.email;
+    WHERE LOWER(TRIM(email)) = LOWER(TRIM(new.email));
   ELSE
     INSERT INTO public.users (id, role, full_name, email, is_active)
     VALUES (
@@ -45,7 +45,7 @@ BEGIN
         new.raw_user_meta_data->>'full_name',
         new.raw_user_meta_data->>'name'
       ),
-      new.email,
+      LOWER(TRIM(new.email)),
       true
     );
   END IF;
@@ -163,3 +163,6 @@ CREATE TRIGGER groups_after_insert_create_case_sessions
 AFTER INSERT ON public.groups
 FOR EACH ROW
 EXECUTE FUNCTION public.create_case_sessions_for_new_group();
+
+CREATE UNIQUE INDEX users_email_unique_normalized
+ON public.users (LOWER(TRIM(email)));
