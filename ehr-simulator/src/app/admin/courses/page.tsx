@@ -1,5 +1,5 @@
 import { getAllCourses } from "@/actions/courses";
-import CourseListItem from "./CourseListItem";
+import CourseListItem from "./components/CourseListItem";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
