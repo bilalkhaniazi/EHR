@@ -1,0 +1,10 @@
+{
+  "name": "ehr-simulator-gv",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix ehr-simulator",
+    "build": "npm run build --prefix ehr-simulator",
+    "start": "npm run start --prefix ehr-simulator",
+    "lint": "npm run lint --prefix ehr-simulator"
+  }
+}

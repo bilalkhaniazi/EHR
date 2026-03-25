@@ -1,6 +1,51 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-CREATE type code_status_type as enum ('Full', 'DNR', 'Partial');
-CREATE type insurance_type as enum ('Medicare', 'Medicaid', 'Private');
+
+-- Make enum type creation idempotent across multiple local migration histories.
+-- Earlier migrations used different casing for enum labels (e.g. 'FULL'/'PARTIAL'),
+-- so we rename labels when needed instead of failing the whole reset.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'code_status_type'
+  ) THEN
+    CREATE type public.code_status_type as enum ('Full', 'DNR', 'Partial');
+  ELSE
+    -- Rename legacy enum labels (FULL/PARTIAL -> Title Case) if they exist.
+    IF EXISTS (
+      SELECT 1
+      FROM pg_enum e
+      JOIN pg_type t ON t.oid = e.enumtypid
+      WHERE t.typname = 'code_status_type' AND e.enumlabel = 'FULL'
+    ) AND NOT EXISTS (
+      SELECT 1
+      FROM pg_enum e
+      JOIN pg_type t ON t.oid = e.enumtypid
+      WHERE t.typname = 'code_status_type' AND e.enumlabel = 'Full'
+    ) THEN
+      ALTER TYPE public.code_status_type RENAME VALUE 'FULL' TO 'Full';
+    END IF;
+
+    IF EXISTS (
+      SELECT 1
+      FROM pg_enum e
+      JOIN pg_type t ON t.oid = e.enumtypid
+      WHERE t.typname = 'code_status_type' AND e.enumlabel = 'PARTIAL'
+    ) AND NOT EXISTS (
+      SELECT 1
+      FROM pg_enum e
+      JOIN pg_type t ON t.oid = e.enumtypid
+      WHERE t.typname = 'code_status_type' AND e.enumlabel = 'Partial'
+    ) THEN
+      ALTER TYPE public.code_status_type RENAME VALUE 'PARTIAL' TO 'Partial';
+    END IF;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'insurance_type'
+  ) THEN
+    CREATE type public.insurance_type as enum ('Medicare', 'Medicaid', 'Private');
+  END IF;
+END $$;
 
 -- =========================================
 -- Safety Alerts
@@ -181,7 +226,24 @@ CREATE table if NOT exists case_family_history (
 -- =========================================
 -- Clinical Documents
 -- =========================================
-CREATE type clinical_doc_category_type as enum ('Admission', 'Consent', 'Consult', 'Discharge', 'History & Physical', 'Nursing', 'Post-op', 'Pre-op', 'Progress', 'Rapid Response', 'Telehealth');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'clinical_doc_category_type') THEN
+    CREATE type public.clinical_doc_category_type as enum (
+      'Admission',
+      'Consent',
+      'Consult',
+      'Discharge',
+      'History & Physical',
+      'Nursing',
+      'Post-op',
+      'Pre-op',
+      'Progress',
+      'Rapid Response',
+      'Telehealth'
+    );
+  END IF;
+END $$;
 CREATE table if NOT exists clinical_documents (
   id uuid primary key DEFAULT gen_random_uuid(),
   case_id uuid NOT NULL references cases(id) ON DELETE CASCADE,

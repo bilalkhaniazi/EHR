@@ -61,7 +61,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
         sectionName: section.name,
         sectionId: section.id,
         caseName: caseRow?.name || "Unknown Case",
-        caseId: caseRow?.id,
+        caseId: caseRow?.id ?? "",
         caseDescription: caseRow?.description || "",
         caseDiagnosis: caseRow?.admitting_diagnosis || "",
       };

@@ -1,6 +1,9 @@
 "use server"
 
-import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js"
+import { createServerSupabase } from "@/utils/supabase/server"
+import { createServiceSupabase } from "@/utils/supabase/service"
+import { verifySimulationSessionAccess } from "@/actions/simulation/verifySimulationSessionAccess"
 
 export interface CaseBundle {
   caseRow: unknown
@@ -15,15 +18,12 @@ export interface CaseBundle {
   medicationAdministrations: unknown[]
 }
 
-export async function getCaseBundle(
-  caseId: string,
+export type SimulationCaseBundle = CaseBundle & { caseId: string }
+
+async function fetchCaseBundleWithServiceRole(
+  supabase: SupabaseClient,
+  caseId: string
 ): Promise<CaseBundle> {
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-
   const [
     caseRes,
     safetyAlertsRes,
@@ -38,27 +38,33 @@ export async function getCaseBundle(
   ] = await Promise.all([
     supabase
       .from("cases")
-      .select(`
+      .select(
+        `
         *,
         isolation_precautions:isolation_precautions_id ( id, name ),
         relationship_status:relationship_status_id ( id, name )
-      `)
+      `
+      )
       .eq("id", caseId)
       .single(),
 
     supabase
       .from("case_safety_alerts")
-      .select(`
+      .select(
+        `
         safety_alert:safety_alert_id ( id, name )
-      `)
+      `
+      )
       .eq("case_id", caseId),
 
     supabase
       .from("case_family_history")
-      .select(`
+      .select(
+        `
         *,
         relationship:relationship_id ( id, name )
-      `)
+      `
+      )
       .eq("case_id", caseId)
       .order("created_at", { ascending: true }),
 
@@ -139,4 +145,32 @@ export async function getCaseBundle(
     documentationResults: documentationResultsRes.data ?? [],
     medicationAdministrations: medicationAdministrationsRes.data ?? [],
   }
+}
+
+/**
+ * Loads simulation clinical data only after verifying the signed-in user may access
+ * `case_sessions.id = sessionId` (group membership or faculty section assignment).
+ */
+export async function getSimulationCaseBundle(
+  sessionId: string
+): Promise<SimulationCaseBundle | null> {
+  if (!sessionId) return null
+
+  const userClient = await createServerSupabase()
+  const {
+    data: { user },
+  } = await userClient.auth.getUser()
+  if (!user?.id) return null
+
+  const admin = createServiceSupabase()
+  const resolved = await verifySimulationSessionAccess(
+    admin,
+    user.id,
+    sessionId,
+    user.email
+  )
+  if (!resolved) return null
+
+  const bundle = await fetchCaseBundleWithServiceRole(admin, resolved.caseId)
+  return { ...bundle, caseId: resolved.caseId }
 }
