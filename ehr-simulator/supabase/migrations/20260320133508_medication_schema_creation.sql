@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS medication_orders (
 );
 
 -- Link a medication administration to its corresponding order
-ALTER TABLE IF EXISTS medication_administrations ADD COLUMN medication_order_id UUID references medication_orders(id) ON DELETE CASCADE;
+ALTER TABLE IF EXISTS medication_administrations ADD COLUMN IF NOT EXISTS medication_order_id UUID references medication_orders(id) ON DELETE CASCADE;
 
 
 
