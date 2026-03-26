@@ -37,6 +37,7 @@ import { saveCaseData } from "@/actions/case_builder/caseBuilder";
 export default function DemographicsForm() {
   const { onDataChange, demographicData: initialData, setCaseId, caseId } = useFormContext();
   const [demographicsData, setDemographicsData] = useState<DemographicFormData>(initialData);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const router = useRouter();
   const [showCancelAlert, setShowCancelAlert] = useState<boolean>(false);
 
@@ -54,6 +55,39 @@ export default function DemographicsForm() {
   }
 
   const handleSubmit = async () => {
+    const requiredChecks: Array<{ label: string; value: string }> = [
+      { label: "Case Name", value: demographicsData.caseName },
+      { label: "Case Description", value: demographicsData.summary },
+      { label: "First Name", value: demographicsData.firstName },
+      { label: "Last Name", value: demographicsData.lastName },
+      { label: "DOB Month", value: demographicsData.DOBMonth },
+      { label: "DOB Day", value: demographicsData.DOBDay },
+      { label: "Age", value: demographicsData.age },
+      { label: "Code Status", value: demographicsData.codeStatus },
+      { label: "Height (ft)", value: demographicsData.heightFeet },
+      { label: "Height (in)", value: demographicsData.heightInches },
+      { label: "Dosing Weight", value: demographicsData.dosingWeight },
+      { label: "Isolation Precautions", value: demographicsData.precautions },
+      { label: "Language", value: demographicsData.language },
+      { label: "Insurance", value: demographicsData.insurance },
+      { label: "Employment", value: demographicsData.employment },
+      { label: "Relationship", value: demographicsData.relationshipStatus },
+      { label: "Religion", value: demographicsData.religion },
+      { label: "Admitting Diagnosis", value: demographicsData.admittingDiagnosis },
+      { label: "Attending Provider Title", value: demographicsData.attendingProviderTitle },
+      { label: "Attending Provider Name", value: demographicsData.attendingProviderName },
+      { label: "Inpatient Duration", value: demographicsData.admissionDateOffest },
+      { label: "Admission Time", value: demographicsData.admissionTime },
+      { label: "Emergency Contact", value: demographicsData.contact },
+      { label: "Contact Relationship", value: demographicsData.contactRelationship },
+    ];
+    const missing = requiredChecks.filter((field) => !field.value?.trim());
+    if (missing.length > 0) {
+      setSubmitError("Please fill all required demographics fields before moving forward.");
+      return;
+    }
+
+    setSubmitError(null);
     onDataChange("demographics", demographicsData)
     const result = await saveCaseData({
       payload: demographicsData,
@@ -118,6 +152,11 @@ export default function DemographicsForm() {
       backButtonTooltip="Quit & Return to Dashboard"
     >
       <CancelAlert />
+      {submitError ? (
+        <div className="mx-6 mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 md:mx-12 lg:mx-24">
+          {submitError}
+        </div>
+      ) : null}
       <div className="flex overflow-y-auto flex-col w-full bg-slate-50/50">
         <div className="flex-1 p-6 md:px-12 lg:px-24">
           <div className="max-w-6xl mx-auto space-y-6 pb-20">

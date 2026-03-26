@@ -2,6 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/utils/supabase/server";
+import { mergedDevAccessEmails } from "@/lib/devAccess";
 
 export default async function AdminLayout({
   children,
@@ -20,15 +21,12 @@ export default async function AdminLayout({
     }
 
     // Local dev escape hatch:
-    // If `DEV_ADMIN_EMAILS` is set, only those emails can access `/admin`
-    // without needing a `public.users.role = 'admin'` row yet.
+    // If `DEV_ADMIN_EMAILS` and/or `DEV_BUILDER_FULL_ACCESS_EMAILS` is set, only those emails
+    // can access `/admin` without needing `public.users.role = 'admin'` yet.
     //
-    // Remove for final build by NOT setting DEV_ADMIN_EMAILS in production.
+    // Reversible: unset both in production (or leave empty) for normal admin checks.
     if (process.env.NODE_ENV !== "production") {
-      const allowed = (process.env.DEV_ADMIN_EMAILS ?? "")
-        .split(",")
-        .map((s) => s.trim().toLowerCase())
-        .filter(Boolean);
+      const allowed = mergedDevAccessEmails();
 
       if (allowed.length > 0) {
         const email = (user.email ?? "").toLowerCase();

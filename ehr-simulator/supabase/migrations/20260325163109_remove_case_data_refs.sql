@@ -1,4 +1,4 @@
-ALTER TYPE clinical_doc_category_type ADD VALUE 'Student';
+ALTER TYPE clinical_doc_category_type ADD VALUE IF NOT EXISTS 'Student';
 
 ALTER TABLE IF EXISTS public.section_assignments
   DROP CONSTRAINT IF EXISTS section_assignments_case_id_fkey,

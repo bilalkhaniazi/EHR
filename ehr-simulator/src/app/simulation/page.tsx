@@ -15,12 +15,23 @@ export default async function StartSimulationPage() {
           No simulation sessions are available for your account. Join a course group or contact your instructor.
         </p>
       ) : (
-        <ul className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto px-4">
+        <ul className="flex max-h-[60vh] w-full max-w-lg flex-col gap-2 overflow-y-auto px-4">
           {sessions.map((s) => (
             <li key={s.id}>
-              <Button asChild variant="default" className="w-full min-w-[280px]">
-                <Link href={`/simulation/${s.id}/chart/overview`}>
-                  Open simulation session
+              <Button
+                asChild
+                variant="default"
+                className="h-auto min-h-11 w-full min-w-[280px] flex-col items-stretch gap-0.5 py-3 text-left whitespace-normal"
+              >
+                <Link
+                  href={`/simulation/${s.id}/chart/overview`}
+                  className="flex flex-col gap-0.5"
+                  aria-label={`Open simulation: ${s.title}. ${s.subtitle}`}
+                >
+                  <span className="text-sm font-semibold leading-tight">{s.title}</span>
+                  <span className="text-xs font-normal leading-tight text-white/85">
+                    {s.subtitle}
+                  </span>
                 </Link>
               </Button>
             </li>

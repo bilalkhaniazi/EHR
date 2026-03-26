@@ -1,5 +1,4 @@
 import { getCourseById } from "@/actions/courses";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getSectionCaseAssignments } from "@/actions/cases";
 import CaseAssignment from "./components/caseAssignment";
@@ -7,6 +6,7 @@ import { getCaseByCourseId } from "@/actions/cases";
 import DeleteCaseButton from "./components/deleteCaseButton";
 import { Database } from "../../../../../database.types";
 import { SimAssignmentTable } from "./components/simAssignmentTable";
+import EditCourseDialog from "./components/editCourseDialog";
 
 
 interface CoursePageProps {
@@ -88,7 +88,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
             </h1>
             <p className="text-xs text-gray-500">Manage assigned for cases this course.</p>
           </div>
-          <Button>Edit Course</Button>
+          <EditCourseDialog course={courseData} />
         </div>
       </header>
 

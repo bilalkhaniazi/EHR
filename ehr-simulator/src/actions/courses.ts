@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js";
-import { Tables, TablesInsert } from "../../database.types";
+import { Tables, TablesInsert, TablesUpdate } from "../../database.types";
 import { ActionResponse } from "./cases";
 import { revalidatePath } from "next/cache";
 
@@ -123,15 +123,18 @@ export async function createCourse(course: CourseInsert): Promise<ActionResponse
   return { success: true, message: "Course created successfully.", data };
 }
 
-export async function updateCourse(course: CourseInsert): Promise<ActionResponse<Course>> {
+export async function updateCourse(
+  id: string,
+  updates: TablesUpdate<"courses">
+): Promise<ActionResponse<Course>> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
   const { data, error } = await supabase
-    .from('courses')
-    .update(course)
-    .eq('id', course.id)
+    .from("courses")
+    .update(updates)
+    .eq("id", id)
     .select()
     .single();
 
@@ -139,11 +142,13 @@ export async function updateCourse(course: CourseInsert): Promise<ActionResponse
     console.error("Update Error:", error);
     return { success: false, message: "Failed to update the course. Please try again.", error };
   }
-  revalidatePath('/courses');
+  revalidatePath("/courses");
+  revalidatePath("/admin/courses");
+  revalidatePath(`/admin/courses/${id}`);
   return {
     success: true,
     message: "Course saved successfully.",
-    data
+    data,
   };
 }
 

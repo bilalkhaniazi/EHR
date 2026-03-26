@@ -10,7 +10,7 @@ export interface OrderType {
 
 }
 
-export const nursingOrders: OrderType[] = [
+export const nursingOrders: OrderType[] = [/*
   {
     category: 'Nursing',
     title: "Vital Signs Monitoring (q4h)",
@@ -88,7 +88,7 @@ export const nursingOrders: OrderType[] = [
     important: true,
     visibleInPresim: true
   },
-];
+*/];
 
 export const nursingHeaderNames: OrderType = {
   title: "Nursing",
@@ -120,7 +120,7 @@ export const medHeaderNames: MedOrderData = {
   orderingProvider: "Ordering Provider"
 }
 
-export const respiratoryOrders: OrderType[] = [
+export const respiratoryOrders: OrderType[] = [/*
   {
     important: false,
     category: 'Respiratory',
@@ -139,7 +139,7 @@ export const respiratoryOrders: OrderType[] = [
     orderingProvider: "Dr. Azzedine Habz",
     visibleInPresim: true
   },
-];
+*/];
 
 export const respHeaderNames: OrderType = {
   title: "Respiratory",
@@ -151,7 +151,7 @@ export const respHeaderNames: OrderType = {
 
 
 
-export const laboratoryOrders: OrderType[] = [
+export const laboratoryOrders: OrderType[] = [/*
   {
     category: 'Laboratory',
     title: "Basic Metabolic Panel (BMP)",
@@ -199,7 +199,7 @@ export const laboratoryOrders: OrderType[] = [
     important: true,
     visibleInPresim: true
   },
-]
+*/]
 
 export const laboratoryHeaderNames: OrderType = {
   title: "Laboratory",
@@ -217,7 +217,7 @@ export const consultHeaderNames: OrderType = {
   visibleInPresim: true
 }
 
-export const consultOrders: OrderType[] = [
+export const consultOrders: OrderType[] = [/*
   {
     important: false,
 
@@ -248,6 +248,6 @@ export const consultOrders: OrderType[] = [
     orderingProvider: "Dr. John Smith, MD",
     visibleInPresim: true
   }
-]
+*/]
 
 

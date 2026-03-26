@@ -435,7 +435,7 @@ export async function getCourseCaseAssignments() {
             courseCode: null,
             caseName: caseItem.name,
             description: caseItem.description,
-            diagnosis: caseItem.admitting_diagnosis,
+            admitting_diagnosis: caseItem.admitting_diagnosis,
           },
         ];
       }
@@ -453,7 +453,7 @@ export async function getCourseCaseAssignments() {
           courseCode: course?.code,
           caseName: caseItem.name,
           description: caseItem.description,
-          diagnosis: caseItem.admitting_diagnosis,
+          admitting_diagnosis: caseItem.admitting_diagnosis,
         };
       });
     }) ?? [];

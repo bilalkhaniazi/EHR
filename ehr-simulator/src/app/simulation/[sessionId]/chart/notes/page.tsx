@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react";
-import { ClinicalNote, sampleNotes } from "./components/notesData"; // Assuming sampleNotes is exported from here
+import { useState, useMemo } from "react";
+import { ClinicalNote } from "./components/notesData";
 import NursingNoteEntry from "./components/nursingNoteEntry";
 import NoteDisplay from "./components/noteDisplay";
-import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
@@ -12,43 +11,50 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import FilterBadges from "./components/filterBadges";
 import { Skeleton } from "@/components/ui/skeleton";
-import { differenceInMinutes, format } from "date-fns";
+import { useSimulationTime } from "../context/SimulationTimeContext";
 
 const NotePage = () => {
-  const [notesData, setNotesData] = useState<ClinicalNote[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
   const [sessionStartTime] = useState(new Date().getTime())
-
   const [filteredSpecialties, setFilteredSpecialties] = useState<string[]>([]);
 
-  useEffect(() => {
-    const fetchNotes = async () => {
-      setIsLoading(true);
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network
-        setNotesData(sampleNotes as ClinicalNote[]);
-      } catch (err) {
-        console.error(err);
-        setIsError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const { isLoading: ctxLoading, clinicalDocuments } = useSimulationTime()
 
-    fetchNotes();
-  }, []);
+  const toTitle = (category: string): string => {
+    if (!category || !category.trim()) return "General Note"
+    if (category === "Nursing") return "Nursing Note"
+    if (category === "Progress") return "Progress Note"
+    if (category === "Consult") return "Consult Note"
+    if (category === "Admission") return "Admission Note"
+    if (category === "Discharge") return "Discharge Note"
+    return `${category} Note`
+  }
+
+  const notesData: ClinicalNote[] = useMemo(() => {
+    return (clinicalDocuments ?? []).map((doc) => {
+      const specialty = doc.specialty?.trim() ? doc.specialty : "General"
+      const content = doc.doc_text ?? ""
+      const category = typeof doc.category === "string" ? doc.category.trim() : ""
+      return {
+        title: toTitle(category),
+        author: doc.author ?? "N/A",
+        specialty,
+        timeOffset: doc.time_offset ?? 0,
+        excludedFromPresim: doc.is_in_presim === true ? false : true,
+        content,
+      }
+    })
+  }, [clinicalDocuments])
 
   const specialties = useMemo(() => {
-    return [...new Set(notesData.map((note) => note.specialty))];
-  }, [notesData]);
+    return [...new Set(notesData.map((note) => note.specialty).filter((s) => s.trim().length > 0))]
+  }, [notesData])
 
   const filteredNotesData = useMemo(() => {
     if (filteredSpecialties.length === 0) {
-      return notesData;
+      return notesData
     }
-    return notesData.filter(note => filteredSpecialties.includes(note.specialty));
-  }, [notesData, filteredSpecialties]);
+    return notesData.filter(note => filteredSpecialties.includes(note.specialty))
+  }, [notesData, filteredSpecialties])
 
   const handleFilterChange = (specialty: string, checked: boolean | "indeterminate") => {
     setFilteredSpecialties(prev => {
@@ -61,36 +67,12 @@ const NotePage = () => {
   };
 
   const clearAllFilters = () => {
-    setFilteredSpecialties([]);
-  };
+    setFilteredSpecialties([])
+  }
 
+  const noopSubmit = () => {}
 
-
-  const onSubmitNote = async (noteContent: string) => {
-    const now = differenceInMinutes(new Date(), sessionStartTime)
-
-    const newNote: ClinicalNote = {
-      title: "Student Note",
-      author: "Current User, RN BSN",
-      specialty: "Nursing",
-      timeOffset: now,
-      content: noteContent,
-      excludedFromPresim: true
-    }
-
-    const previousNotes = [...notesData];
-    setNotesData(prev => [newNote, ...prev]);
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      toast.success(`Nursing note submitted at ${format(now, 'HH:mm')}`);
-    } catch (err) {
-      setNotesData(previousNotes);
-      toast.error(`Failed to submit note: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  };
-
-  if (isLoading) {
+  if (ctxLoading) {
     return (
       <div className="flex flex-col h-full w-full pt-16 bg-gray-100 justify-start items-center gap-6">
         <Skeleton className="w-5/6 h-16 rounded-xl bg-gray-200" />
@@ -98,14 +80,6 @@ const NotePage = () => {
         <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
         <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
         <Skeleton className="w-5/6 h-8 rounded-xl bg-gray-200" />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="w-full h-full flex flex-col px-4 gap-3 bg-gray-100 justify-center items-center">
-        <p className="text-red-600">Error loading notes.</p>
       </div>
     );
   }
@@ -157,12 +131,14 @@ const NotePage = () => {
             handleClearFilters={clearAllFilters}
           />
         </div>
-        <NursingNoteEntry submitNote={onSubmitNote} />
+        <div className="pointer-events-none opacity-70">
+          <NursingNoteEntry submitNote={noopSubmit} />
+        </div>
       </div>
 
       <div className="flex flex-col flex-grow gap-4 p-2 rounded-t-lg overflow-y-auto border inset-shadow-sm bg-gray-100">
         {filteredNotesData.length === 0 ? (
-          <p className="text-center text-gray-500 mt-10">No notes found.</p>
+          <p className="text-center text-gray-500 mt-10">No notes available</p>
         ) : (
           filteredNotesData.map((note, index) => {
             return (

@@ -32,12 +32,7 @@ const fieldToColumn = {
 
 export function SelectedLabs() {
   const [startTime] = useState(new Date().getTime())
-  const {
-    isLoading,
-    labResults,
-    availableTimeOffsets,
-    selectedTimeOffset,
-  } = useSimulationTime()
+  const { isLoading, labResults } = useSimulationTime()
 
   const selectedTemplateRows = useMemo(() => {
     return selectedLabs
@@ -58,11 +53,25 @@ export function SelectedLabs() {
   }, [])
 
   const { labValuesByField, effectiveOffset } = useMemo(() => {
-    if (availableTimeOffsets.length === 0) {
-      return { labValuesByField: {} as Record<string, number | null>, effectiveOffset: null as number | null }
+    if (labResults.length === 0) {
+      return {
+        labValuesByField: {} as Record<string, number | null>,
+        effectiveOffset: null as number | null,
+      }
     }
 
-    const candidates = labResults.filter((r) => r.time_offset === selectedTimeOffset)
+    const offsets = [...new Set(labResults.map((r) => r.time_offset))]
+    if (offsets.length === 0) {
+      return {
+        labValuesByField: {} as Record<string, number | null>,
+        effectiveOffset: null as number | null,
+      }
+    }
+
+    // Single snapshot: use the maximum time_offset present (furthest along in case data).
+    const latestOffset = Math.max(...offsets)
+
+    const candidates = labResults.filter((r) => r.time_offset === latestOffset)
 
     const scoreRow = (r: LabResultRow) =>
       selectedLabs.reduce((acc, field) => {
@@ -83,9 +92,9 @@ export function SelectedLabs() {
 
     return {
       labValuesByField: values,
-      effectiveOffset: selectedTimeOffset,
+      effectiveOffset: latestOffset,
     }
-  }, [labResults, selectedTimeOffset, availableTimeOffsets.length])
+  }, [labResults])
 
   const hasAnyLabValue = useMemo(() => {
     return selectedLabs.some((field) => labValuesByField[field] != null)

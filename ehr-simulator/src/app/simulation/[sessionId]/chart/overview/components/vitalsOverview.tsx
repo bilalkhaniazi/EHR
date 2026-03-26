@@ -5,7 +5,6 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  type CellContext,
 } from "@tanstack/react-table"
 
 import {
@@ -17,66 +16,100 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Card } from "@/components/ui/card"
-import type { FlexSheetData } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
 import { useMemo, useState } from "react"
 import StyledTitle from "./styledTitle"
-import { generateInitialChartingData, getAllTimeOffsets } from "@/app/simulation/[sessionId]/chart/charting/components/flexSheetData"
 import { formatTimeFromOffset } from "../../charting/page"
+import { useSimulationTime } from "../../context/SimulationTimeContext"
 
-export type vitalsOverviewTable = {
+export type VitalsOverviewTable = {
   field: string
   [key: string]: string
 }
 
-const vitalSignIds = [
-  "hrInput",
-  "bpInput",
-  "rrInput",
-  "tempInput",
-  "spo2Input",
-  "painInput",
-  "weightKgInput",
-];
+const toText = (value: string | null | undefined) => (value && value.trim() ? value : "")
 
-function mostRecentVitals(
-  data: FlexSheetData[],
-  timeOffsets: number[],
-  limit: number = 3
-) {
-
-  const activeOffsets = timeOffsets.filter(offset => {
-    return data.some(row => {
-      const value = row[offset];
-      return value !== undefined && value !== null && value !== "";
-    });
-  });
-
-  activeOffsets.sort((a, b) => b - a);
-
-  return activeOffsets.slice(0, limit);
-}
+const hasAnyVitals = (row: {
+  hr: string | null
+  bp: string | null
+  rr: string | null
+  temp: string | null
+  spo2: string | null
+  pain: string | null
+  weight_kg: string | null
+}) =>
+  [
+    row.hr,
+    row.bp,
+    row.rr,
+    row.temp,
+    row.spo2,
+    row.pain,
+    row.weight_kg,
+  ].some((v) => Boolean(v && v.trim()))
 
 
 
 export function VitalsOverview() {
-  const [sessionStartTime] = useState(new Date().getTime());
-
-  const { allTimeOffsets, fullChartingData } = useMemo(() => {
-    if (!sessionStartTime) return { allTimeOffsets: [], fullChartingData: [] };
-    const offsets = getAllTimeOffsets(sessionStartTime);
-    const data = generateInitialChartingData(offsets);
-    return { allTimeOffsets: offsets, fullChartingData: data };
-  }, [sessionStartTime]);
-
-  const filteredData = useMemo(() => {
-    return fullChartingData.filter(row => vitalSignIds.includes(row.id));
-  }, [fullChartingData]);
+  const [sessionStartTime] = useState(new Date().getTime())
+  const { documentationResults } = useSimulationTime()
 
   const displayTimeOffsets = useMemo(() => {
-    return mostRecentVitals(filteredData, allTimeOffsets)
-  }, [allTimeOffsets, filteredData]);
+    const rowsWithVitals = documentationResults.filter((r) =>
+      hasAnyVitals({
+        hr: r.hr,
+        bp: r.bp,
+        rr: r.rr,
+        temp: r.temp,
+        spo2: r.spo2,
+        pain: r.pain,
+        weight_kg: r.weight_kg,
+      })
+    )
+    const offsets = [...new Set(rowsWithVitals.map((r) => r.time_offset))]
+    return offsets.sort((a, b) => b - a).slice(0, 3)
+  }, [documentationResults])
 
-  const columns: ColumnDef<FlexSheetData>[] = useMemo(() => [
+  const tableData = useMemo<VitalsOverviewTable[]>(() => {
+    const getMostRecentValue = (
+      timeOffset: number,
+      field:
+        | "hr"
+        | "bp"
+        | "rr"
+        | "temp"
+        | "spo2"
+        | "pain"
+        | "weight_kg"
+    ) => {
+      const atOffset = documentationResults
+        .filter((r) => r.time_offset === timeOffset)
+        .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+      return toText(atOffset[0]?.[field])
+    }
+
+    const makeRow = (
+      label: string,
+      field: "hr" | "bp" | "rr" | "temp" | "spo2" | "pain" | "weight_kg"
+    ): VitalsOverviewTable => {
+      const row: VitalsOverviewTable = { field: label }
+      for (const offset of displayTimeOffsets) {
+        row[String(offset)] = getMostRecentValue(offset, field)
+      }
+      return row
+    }
+
+    return [
+      makeRow("HR", "hr"),
+      makeRow("BP", "bp"),
+      makeRow("RR", "rr"),
+      makeRow("Temp", "temp"),
+      makeRow("SpO2", "spo2"),
+      makeRow("Pain", "pain"),
+      makeRow("Weight (kg)", "weight_kg"),
+    ]
+  }, [documentationResults, displayTimeOffsets])
+
+  const columns: ColumnDef<VitalsOverviewTable>[] = useMemo(() => [
     {
       accessorKey: "field",
       header: "",
@@ -87,11 +120,11 @@ export function VitalsOverview() {
     ...displayTimeOffsets.map(timeKey => {
       return {
         id: String(timeKey),
-        accessorKey: String(timeKey) as keyof FlexSheetData,
+        accessorKey: String(timeKey) as keyof VitalsOverviewTable,
         header: () => {
           const result = formatTimeFromOffset(timeKey, sessionStartTime)
           if (result.error) {
-            return <span>Error</span>;
+            return <span>Error</span>
           }
 
           return (
@@ -103,25 +136,24 @@ export function VitalsOverview() {
                 {result.time}
               </h1>
             </div>
-          );
+          )
         },
-        cell: (info: CellContext<FlexSheetData, unknown>) => {
-          const value = info.getValue() as string;
+        cell: (info: { getValue: () => unknown }) => {
+          const value = info.getValue() as string
           return (
             <div className="h-full">
               <p className="text-xs w-full min-w-12 text-right pr-2">
-                {/* Render value if exists, otherwise placeholder */}
                 {value ? value : ""}
               </p>
             </div>
           )
-        }
+        },
       }
     })
   ], [displayTimeOffsets, sessionStartTime])
 
   const table = useReactTable({
-    data: filteredData,
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })

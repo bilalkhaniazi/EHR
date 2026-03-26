@@ -4,45 +4,49 @@ import OrdersTable from "./components/ordersTable"
 import {
   nursingHeaderNames,
   respHeaderNames,
-  medHeaderNames,
   laboratoryHeaderNames,
   consultHeaderNames,
-  MedOrderData,
 } from "./components/orderData"
-import { nursingOrders, respiratoryOrders, consultOrders, laboratoryOrders } from "./components/orderData"
+import { useSimulationTime, type OrdersRow } from "../context/SimulationTimeContext"
 
 
 // import { Skeleton } from "@/components/ui/skeleton"
-import { getMedDose } from "../mar/components/marHelpers"
-import { allMedications, AllMedicationTypes, medicationOrders } from "../mar/components/marData"
 
 const OrdersPage = () => {
+  const { isLoading: ctxLoading, orders } = useSimulationTime()
 
-  const medLookup = allMedications.reduce<Record<string, AllMedicationTypes>>((acc, med) => {
-    acc[med.id] = med
-    return acc;
-  }, {})
+  const toUIOrderRow = (o: OrdersRow) => {
+    return {
+      displayName: o.title,
+      title: o.title,
+      details: o.details,
+      status: o.status,
+      orderingProvider: o.provider,
+      important: o.is_important,
+      visibleInPresim: o.is_in_presim,
+    }
+  }
 
-  const medData = medicationOrders.map(order => {
-    const brandName = medLookup[order.medicationId].brandName ? `(${medLookup[order.medicationId].brandName})` : ''
-    const dose = getMedDose(medLookup[order.medicationId], order)
-    return (
-      {
-        title: `${medLookup[order.medicationId].genericName} ${brandName}`,
-        route: medLookup[order.medicationId].route,
-        dose: dose,
-        frequency: order.frequency,
-        priority: order.priority,
-        administrationInstructions: order.instructions ? order.instructions : '',
-        orderingProvider: order.orderingProvider
-      } as MedOrderData
-    )
-  })
+  const nursingUiOrders = ctxLoading
+    ? []
+    : orders.filter((o) => o.category === "Nursing").map(toUIOrderRow)
+  const respiratoryUiOrders = ctxLoading
+    ? []
+    : orders
+        .filter((o) => o.category === "Respiratory")
+        .map(toUIOrderRow)
+  const laboratoryUiOrders = ctxLoading
+    ? []
+    : orders
+        .filter((o) => o.category === "Laboratory")
+        .map(toUIOrderRow)
+  const consultUiOrders = ctxLoading
+    ? []
+    : orders.filter((o) => o.category === "Consult").map(toUIOrderRow)
 
 
   // arrays for tanstack table to iterate over to build columns 
   const orderColumns = ["details", "status", "orderingProvider"]
-  const medOrderColumns = ["dose", "route", "frequency", "priority", "administrationInstructions", "orderingProvider"]
 
   // if (isLoading || isFetching) {
   //   return (
@@ -60,11 +64,10 @@ const OrdersPage = () => {
   return (
     <div className="px-2 pt-4 w-full h-[calc(100vh-4rem)] flex flex-col gap-4 justify-start items-center bg-gray-100 overflow-y-auto">
       <div className="flex w-full h-full flex-col gap-4 px-2 py-3 overflow-y-auto border border-gray-300 rounded-tl-lg inset-shadow-sm">
-        <OrdersTable color="bg-blue-300" columnNames={orderColumns} headerNames={nursingHeaderNames} data={nursingOrders} />
-        <OrdersTable color="bg-red-300" columnNames={medOrderColumns} headerNames={medHeaderNames} data={medData} />
-        <OrdersTable color="bg-lime-200" columnNames={orderColumns} headerNames={respHeaderNames} data={respiratoryOrders} />
-        <OrdersTable color="bg-fuchsia-200" columnNames={orderColumns} headerNames={laboratoryHeaderNames} data={laboratoryOrders} />
-        <OrdersTable color="bg-yellow-200" columnNames={orderColumns} headerNames={consultHeaderNames} data={consultOrders} />
+        <OrdersTable color="bg-blue-300" columnNames={orderColumns} headerNames={nursingHeaderNames} data={nursingUiOrders} />
+        <OrdersTable color="bg-lime-200" columnNames={orderColumns} headerNames={respHeaderNames} data={respiratoryUiOrders} />
+        <OrdersTable color="bg-fuchsia-200" columnNames={orderColumns} headerNames={laboratoryHeaderNames} data={laboratoryUiOrders} />
+        <OrdersTable color="bg-yellow-200" columnNames={orderColumns} headerNames={consultHeaderNames} data={consultUiOrders} />
       </div>
     </div>
   )

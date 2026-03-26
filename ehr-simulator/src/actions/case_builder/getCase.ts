@@ -20,6 +20,50 @@ export interface CaseBundle {
 
 export type SimulationCaseBundle = CaseBundle & { caseId: string }
 
+/**
+ * `20260223043507_case_data_tables` created `lab_results` with
+ * `time_offset_days` / `time_offset_hours` / `time_offset_minutes`.
+ * `20260302003314` uses a single `time_offset` but `CREATE IF NOT EXISTS` skips when the
+ * table already exists — so local DBs often only have the older columns. The labs UI expects
+ * `time_offset` (minutes from a common zero).
+ */
+function normalizeLabResultRows(
+  rows: Record<string, unknown>[] | null | undefined
+): Record<string, unknown>[] {
+  if (!rows?.length) return []
+  return rows.map((row) => {
+    if (typeof row.time_offset === "number") return row
+    const d = row.time_offset_days
+    if (typeof d === "number") {
+      const h =
+        typeof row.time_offset_hours === "number" ? row.time_offset_hours : 0
+      const m =
+        typeof row.time_offset_minutes === "number"
+          ? row.time_offset_minutes
+          : 0
+      return { ...row, time_offset: d * 24 * 60 + h * 60 + m }
+    }
+    return { ...row, time_offset: 0 }
+  })
+}
+
+/** Older `imaging_reports` uses `is_critical_or_abnormal`; UI expects `is_critical`. */
+function normalizeImagingRows(
+  rows: Record<string, unknown>[] | null | undefined
+): Record<string, unknown>[] {
+  if (!rows?.length) return []
+  return rows.map((row) => {
+    if ("is_critical" in row && row.is_critical !== undefined) return row
+    if (
+      "is_critical_or_abnormal" in row &&
+      row.is_critical_or_abnormal !== undefined
+    ) {
+      return { ...row, is_critical: row.is_critical_or_abnormal }
+    }
+    return row
+  })
+}
+
 async function fetchCaseBundleWithServiceRole(
   supabase: SupabaseClient,
   caseId: string
@@ -42,7 +86,7 @@ async function fetchCaseBundleWithServiceRole(
         `
         *,
         isolation_precautions:isolation_precautions_id ( id, name ),
-        relationship_status:relationship_status_id ( id, name )
+        relationship_statuses:relationship_status_id ( id, name )
       `
       )
       .eq("id", caseId)
@@ -52,7 +96,7 @@ async function fetchCaseBundleWithServiceRole(
       .from("case_safety_alerts")
       .select(
         `
-        safety_alert:safety_alert_id ( id, name )
+        safety_alerts:safety_alert_id ( id, name )
       `
       )
       .eq("case_id", caseId),
@@ -62,7 +106,7 @@ async function fetchCaseBundleWithServiceRole(
       .select(
         `
         *,
-        relationship:relationship_id ( id, name )
+        relationship_types:relationship_id ( id, name )
       `
       )
       .eq("case_id", caseId)
@@ -72,7 +116,6 @@ async function fetchCaseBundleWithServiceRole(
       .from("clinical_documents")
       .select("*")
       .eq("case_id", caseId)
-      .order("time_offset", { ascending: true })
       .order("created_at", { ascending: true }),
 
     supabase
@@ -85,7 +128,7 @@ async function fetchCaseBundleWithServiceRole(
       .from("lab_results")
       .select("*")
       .eq("case_id", caseId)
-      .order("time_offset", { ascending: true }),
+      .order("created_at", { ascending: true }),
 
     supabase
       .from("imaging_reports")
@@ -103,7 +146,6 @@ async function fetchCaseBundleWithServiceRole(
       .from("documentation_results")
       .select("*")
       .eq("case_id", caseId)
-      .order("time_offset", { ascending: true })
       .order("created_at", { ascending: true }),
 
     supabase
@@ -139,8 +181,12 @@ async function fetchCaseBundleWithServiceRole(
     familyHistory: familyHistoryRes.data ?? [],
     clinicalDocuments: clinicalDocumentsRes.data ?? [],
     orders: ordersRes.data ?? [],
-    labResults: labResultsRes.data ?? [],
-    imagingReports: imagingReportsRes.data ?? [],
+    labResults: normalizeLabResultRows(
+      labResultsRes.data as Record<string, unknown>[] | null
+    ),
+    imagingReports: normalizeImagingRows(
+      imagingReportsRes.data as Record<string, unknown>[] | null
+    ),
     microbiologyReports: microbiologyReportsRes.data ?? [],
     documentationResults: documentationResultsRes.data ?? [],
     medicationAdministrations: medicationAdministrationsRes.data ?? [],
@@ -171,6 +217,15 @@ export async function getSimulationCaseBundle(
   )
   if (!resolved) return null
 
-  const bundle = await fetchCaseBundleWithServiceRole(admin, resolved.caseId)
-  return { ...bundle, caseId: resolved.caseId }
+  try {
+    const bundle = await fetchCaseBundleWithServiceRole(admin, resolved.caseId)
+    return { ...bundle, caseId: resolved.caseId }
+  } catch (e) {
+    console.error("getSimulationCaseBundle: failed to load case data", {
+      sessionId,
+      caseId: resolved.caseId,
+      error: e,
+    })
+    return null
+  }
 }

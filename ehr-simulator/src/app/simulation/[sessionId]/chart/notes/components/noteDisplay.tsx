@@ -30,7 +30,6 @@ interface NoteDisplayProps {
 
 export default function NoteDisplay({ note, startTime }: NoteDisplayProps) {
   const [isOpen, setIsOpen] = useState(false);
-  console.log(note.content);
   const sanitizedContent = DOMPurify.sanitize(note.content)
 
   // Determine icon based on note type

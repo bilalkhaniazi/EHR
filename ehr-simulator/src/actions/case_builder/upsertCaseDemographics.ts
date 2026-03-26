@@ -6,6 +6,20 @@ export async function upsertCaseDemographics(
   caseId?: string | null
 ) {
   const d = (payload ?? {}) as Record<string, unknown>
+  const heightFt = toNumeric(d.heightFeet);
+  const heightIn = toNumeric(d.heightInches);
+  const precautionName = normalizePrecautionName(d.precautions);
+  const relationshipName = toTrimmedString(d.relationshipStatus);
+  const isolationPrecautionId = await resolveLookupId(
+    supabase,
+    "isolation_precautions",
+    precautionName || "None"
+  );
+  const relationshipStatusId = await resolveLookupId(
+    supabase,
+    "relationship_statuses",
+    relationshipName || "Unknown / Undetermined"
+  );
 
   const row = {
     ...(caseId ? { id: caseId } : {}),
@@ -16,12 +30,16 @@ export async function upsertCaseDemographics(
     date_of_birth: computeDob(d),
     // `cases.code_status` is a Postgres enum (NOT NULL). UI sometimes sends "".
     code_status: normalizeCodeStatus(d.codeStatus),
-    height_ft: toNumeric(d.heightFeet),
-    height_in: toNumeric(d.heightInches),
+    height_ft: heightFt,
+    height_in: heightIn,
+    // Local schema enforces height_cm NOT NULL.
+    height_cm: toHeightCm(heightFt, heightIn),
     weight_kg: toNumeric(d.dosingWeight),
+    isolation_precautions_id: isolationPrecautionId,
     language: (d.language as string | undefined) ?? null,
-    //insurance
+    insurance: normalizeInsurance(d.insurance),
     employment: (d.employment as string | undefined) ?? null,
+    relationship_status_id: relationshipStatusId,
     religion: (d.religion as string | undefined) ?? null,
     requires_interpreter: Boolean(d.needsInterpreter),
     admitting_diagnosis: (d.admittingDiagnosis as string | undefined) ?? null,
@@ -63,8 +81,8 @@ function normalizeTime(v: unknown): string | null {
 }
 
 function computeDob(d: Record<string, unknown>) {
-  const day = Number(d?.DOBDay);
-  if (!Number.isFinite(day) || day <= 0) return null;
+  const rawDay = Number(d?.DOBDay);
+  const day = Number.isFinite(rawDay) && rawDay > 0 && rawDay <= 31 ? rawDay : 1;
 
   const month = monthToNumber(d?.DOBMonth as string | undefined);
   const age = Number(d?.age);
@@ -79,6 +97,47 @@ function toNumeric(v: unknown): number | null {
   if (v === null || v === undefined) return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
+}
+
+function toTrimmedString(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+function normalizePrecautionName(v: unknown): string {
+  const s = toTrimmedString(v);
+  if (!s) return "";
+  // UI option has a misspelling; DB lookup uses "Airborne".
+  if (s.toLowerCase() === "airbourne") return "Airborne";
+  return s;
+}
+
+function normalizeInsurance(v: unknown): string {
+  const s = toTrimmedString(v);
+  if (s === "Medicare" || s === "Medicaid" || s === "Private") return s;
+  return "Private";
+}
+
+async function resolveLookupId(
+  supabase: SupabaseClient,
+  table: "isolation_precautions" | "relationship_statuses",
+  name: string
+) {
+  const { data, error } = await supabase
+    .from(table)
+    .select("id")
+    .eq("name", name)
+    .maybeSingle();
+  if (error || !data?.id) {
+    throw new Error(`Could not resolve ${table} id for "${name}"`);
+  }
+  return data.id as string;
+}
+
+function toHeightCm(feet: number | null, inches: number | null): number {
+  const totalInches = (feet ?? 0) * 12 + (inches ?? 0);
+  const cm = totalInches * 2.54;
+  // Keep it as a number and guarantee NOT NULL.
+  return Number.isFinite(cm) ? Number(cm.toFixed(2)) : 0;
 }
 
 function monthToNumber(monthName?: string) {

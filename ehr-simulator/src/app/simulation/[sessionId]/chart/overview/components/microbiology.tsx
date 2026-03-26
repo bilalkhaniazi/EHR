@@ -7,21 +7,17 @@ import StyledTitle from "./styledTitle"
 import { useSimulationTime } from "../../context/SimulationTimeContext"
 
 const Microbiology = () => {
-  const { isLoading, microbiologyReports, labIdsAtSelectedTime } = useSimulationTime()
-
-  const filteredReports = useMemo(() => {
-    return microbiologyReports.filter((r) => labIdsAtSelectedTime.has(r.lab_id))
-  }, [microbiologyReports, labIdsAtSelectedTime])
+  const { isLoading, microbiologyReports } = useSimulationTime()
 
   const renderedReports = useMemo(() => {
-    return filteredReports.map((r) => ({
+    return microbiologyReports.map((r) => ({
       id: r.id,
       organismName: r.name,
       specimen: r.sample_type,
       sensitivities: r.sensitivity,
       results: r.culture_results,
     }))
-  }, [filteredReports])
+  }, [microbiologyReports])
 
   const hasAny = renderedReports.length > 0
 

@@ -24,16 +24,12 @@ function normalizeFindings(findings: unknown): Finding[] {
 }
 
 const Imaging = () => {
-  const { isLoading, imagingReports, labIdsAtSelectedTime } = useSimulationTime()
+  const { isLoading, imagingReports } = useSimulationTime()
 
-  const filteredReports = useMemo(() => {
-    return imagingReports.filter((r) => labIdsAtSelectedTime.has(r.lab_id))
-  }, [imagingReports, labIdsAtSelectedTime])
-
-  const hasAnyImaging = filteredReports.length > 0
+  const hasAnyImaging = imagingReports.length > 0
 
   const renderedReports = useMemo(() => {
-    return filteredReports.map((r) => {
+    return imagingReports.map((r) => {
       const findings = normalizeFindings(r.findings)
       const impressions = Array.isArray(r.impressions) ? r.impressions : []
 
@@ -44,7 +40,7 @@ const Imaging = () => {
         impressions,
       }
     })
-  }, [filteredReports])
+  }, [imagingReports])
 
   return (
     <Card className="relative col-span-1 pt-2 overflow-hidden h-fit gap-3">

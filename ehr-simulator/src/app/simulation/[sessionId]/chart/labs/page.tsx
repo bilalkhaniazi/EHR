@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useSimulationTime } from "../context/SimulationTimeContext";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper, type Column } from "@tanstack/react-table";
@@ -68,26 +68,7 @@ export function LabPage() {
     labResults,
     imagingReports,
     microbiologyReports,
-    selectedTimeOffset,
   } = useSimulationTime();
-  const tableScrollRef = useRef<HTMLDivElement>(null);
-
-  /** Time column to emphasize: exact match to global selector, else closest offset in this table. */
-  const activeTimeColumn = useMemo(() => {
-    if (timePoints.length === 0) return null;
-    if (timePoints.includes(selectedTimeOffset)) return selectedTimeOffset;
-    return timePoints.reduce((closest, t) =>
-      Math.abs(t - selectedTimeOffset) < Math.abs(closest - selectedTimeOffset) ? t : closest
-    , timePoints[0]!);
-  }, [timePoints, selectedTimeOffset]);
-
-  useEffect(() => {
-    if (isLoading || activeTimeColumn == null) return;
-    const root = tableScrollRef.current;
-    if (!root) return;
-    const th = root.querySelector(`th[data-lab-col="${activeTimeColumn}"]`);
-    th?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [isLoading, activeTimeColumn, selectedTimeOffset, timePoints]);
 
   useEffect(() => {
     if (ctxLoading) {
@@ -182,19 +163,13 @@ export function LabPage() {
     // Dynamic Time Columns
     ...timePoints.map(timePoint => {
       const { time: displayTime, date: displayDate } = formatTimeFromOffset(timePoint, simStartTime);
-      const isActiveColumn = activeTimeColumn !== null && timePoint === activeTimeColumn;
 
       return columnHelper.accessor(row => row[timePoint], {
         id: String(timePoint),
         header: () => (
-          <div
-            className={cn(
-              "flex flex-col justify-center items-center py-0.5",
-              isActiveColumn && "rounded-md bg-sky-100 ring-2 ring-sky-400 ring-inset"
-            )}
-          >
+          <div className="flex flex-col justify-center items-center py-0.5">
             <h2 className="my-1 text-neutral-500 text-xs font-light">{displayDate}</h2>
-            <p className={cn("mb-1 text-sm", isActiveColumn && "font-semibold text-sky-900")}>{displayTime}</p>
+            <p className="mb-1 text-sm">{displayTime}</p>
           </div>
         ),
         cell: ({ row, column, getValue }) => {
@@ -255,7 +230,7 @@ export function LabPage() {
       })
     })
   ],
-    [timePoints, simStartTime, activeTimeColumn]
+    [timePoints, simStartTime]
   );
 
   const ptTable = useReactTable({
@@ -304,10 +279,7 @@ export function LabPage() {
           No lab timepoints are available for this case yet. The chart will update when lab results exist.
         </p>
       )}
-      <div
-        ref={tableScrollRef}
-        className="w-full h-full border border-gray-200 rounded-t-lg overflow-auto"
-      >
+      <div className="w-full h-full border border-gray-200 rounded-t-lg overflow-auto">
         <Table className="w-full overflow-x-auto">
           <TableHeader className=" bg-gray-50 sticky top-0">
             {ptTable.getHeaderGroups().map(headerGroup => (
@@ -316,14 +288,7 @@ export function LabPage() {
                   <TableHead
                     style={getPinnedStyles(header.column)}
                     key={header.id}
-                    data-lab-col={header.column.id === "pinned" ? undefined : header.column.id}
-                    className={cn(
-                      "border-b-2 border-gray-200 p-0",
-                      header.column.id !== "pinned" &&
-                        activeTimeColumn !== null &&
-                        header.column.id === String(activeTimeColumn) &&
-                        "bg-sky-50 shadow-[inset_0_0_0_2px_rgb(14_165_233)]"
-                    )}
+                    className="border-b-2 border-gray-200 p-0"
                   >
                     {header.isPlaceholder
                       ? null
@@ -343,19 +308,13 @@ export function LabPage() {
                 {row.getVisibleCells().map(cell => {
                   const rowType = row.original.rowType
 
-                  const isActiveTimeCell =
-                    cell.column.id !== "pinned" &&
-                    activeTimeColumn !== null &&
-                    cell.column.id === String(activeTimeColumn);
-
                   return (
                     <TableCell
                       style={getPinnedStyles(cell.column)}
                       key={`${cell.id}-${row.original.field}`}
                       className={cn(
                         "p-0 min-w-24 border-separate border-gray-200 border-b",
-                        rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate",
-                        isActiveTimeCell && rowType !== "divider" && "bg-sky-50/90"
+                        rowType === "divider" ? "bg-blue-50" : "bg-white border-r border-separate"
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

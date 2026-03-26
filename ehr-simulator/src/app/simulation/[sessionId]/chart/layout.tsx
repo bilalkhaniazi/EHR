@@ -5,7 +5,6 @@ import { Toaster } from "sonner"
 import ChartSidebar from "@/app/simulation/[sessionId]/chart/components/chartSidebar"
 import Header from "@/app/simulation/[sessionId]/chart/components/header"
 import { SimulationTimeProvider } from "./context/SimulationTimeContext"
-import SimulationTimeSelector from "./components/SimulationTimeSelector"
 
 type ChartLayoutProps = {
   children: React.ReactNode;
@@ -21,7 +20,6 @@ const ChartLayout = ({ children }: ChartLayoutProps) => {
         <div className="flex w-full min-h-0 flex-1">
           <ChartSidebar />
           <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
-            <SimulationTimeSelector />
             <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
           </div>
         </div>

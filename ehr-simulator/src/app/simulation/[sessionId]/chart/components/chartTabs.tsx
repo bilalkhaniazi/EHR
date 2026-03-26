@@ -1,6 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clipboard, NotebookText, Pill, TestTubeDiagonal, User } from "lucide-react";
-import MultiPtSelector from "./multiPtSelector";
 import Link from "next/link";
 import { useParams } from "next/navigation"
 
@@ -71,8 +70,7 @@ export default function ChartTabs() {
                 <p className="text-md font-normal tracking-tight">{tab.name}</p>
               </TabsTrigger>
             </Link>
-          )),
-          <MultiPtSelector key="multiPatientSelector" />
+          ))
         ]}
       </TabsList>
     </Tabs>

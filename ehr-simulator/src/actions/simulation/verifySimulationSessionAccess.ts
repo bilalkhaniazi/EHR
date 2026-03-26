@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
+import { mergedDevAccessEmails } from "@/lib/devAccess"
 
 export type ResolvedSimulationSession = {
   caseId: string
@@ -42,6 +43,41 @@ async function resolveCanonicalCaseId(
   return null
 }
 
+/**
+ * Resolves `cases.id` for a session. When `allowDevBypass` is true (dev allowlist / admin),
+ * falls back to raw FKs or any seeded case so broken rows still load while building.
+ */
+async function resolveAuthorizedCaseId(
+  admin: SupabaseClient,
+  session: {
+    case_id: string | null
+    section_assignment_id: string | null
+  },
+  allowDevBypass: boolean
+): Promise<string | null> {
+  const canonical = await resolveCanonicalCaseId(admin, session)
+  if (canonical) return canonical
+  if (!allowDevBypass) return null
+
+  if (session.case_id) return session.case_id
+
+  if (session.section_assignment_id) {
+    const { data: sa } = await admin
+      .from("section_assignments")
+      .select("case_id")
+      .eq("id", session.section_assignment_id)
+      .maybeSingle()
+    if (sa?.case_id) return sa.case_id
+  }
+
+  const { data: anyCase } = await admin
+    .from("cases")
+    .select("id")
+    .limit(1)
+    .maybeSingle()
+  return anyCase?.id ?? null
+}
+
 export async function isElevatedSimulationUser(
   admin: SupabaseClient,
   userId: string,
@@ -56,11 +92,9 @@ export async function isElevatedSimulationUser(
   if (profile?.role === "admin") return true
 
   if (process.env.NODE_ENV !== "production" && userEmail) {
-    const allowed = (process.env.DEV_ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean)
-    if (allowed.length > 0 && allowed.includes(userEmail.toLowerCase())) {
+    const allowed = mergedDevAccessEmails()
+    const normalized = userEmail.trim().toLowerCase()
+    if (allowed.length > 0 && allowed.includes(normalized)) {
       return true
     }
   }
@@ -76,7 +110,8 @@ export async function isElevatedSimulationUser(
  *   (`active` true or null).
  * - Faculty of section: `case_sessions.section_assignment_id` → `section_assignments.section_id`
  *   matches `faculty_section` for `faculty_id = userId`.
- * - Admin (`public.users.role = 'admin'`) or, in non-production, email listed in `DEV_ADMIN_EMAILS`.
+ * - Admin (`public.users.role = 'admin'`) or, in non-production, email in `DEV_ADMIN_EMAILS` or
+ *   `DEV_BUILDER_FULL_ACCESS_EMAILS` (see `src/lib/devAccess.ts`).
  *
  * `caseId` is taken from `case_sessions.case_id` when it references `cases`, otherwise from
  * `section_assignments.case_id` for this session's assignment (when that references `cases`).
@@ -97,10 +132,12 @@ export async function verifySimulationSessionAccess(
 
   if (sessionErr || !session) return null
 
-  const caseId = await resolveCanonicalCaseId(admin, session)
+  const elevated = await isElevatedSimulationUser(admin, userId, userEmail)
+
+  const caseId = await resolveAuthorizedCaseId(admin, session, elevated)
   if (!caseId) return null
 
-  if (await isElevatedSimulationUser(admin, userId, userEmail)) {
+  if (elevated) {
     return {
       caseId,
       groupId: session.group_id ?? null,

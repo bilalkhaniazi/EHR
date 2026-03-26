@@ -2,7 +2,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -18,20 +17,35 @@ export type ImagingReportRow = Database["public"]["Tables"]["imaging_reports"]["
 export type MicrobiologyReportRow =
   Database["public"]["Tables"]["microbiology_reports"]["Row"]
 export type CaseRow = Database["public"]["Tables"]["cases"]["Row"]
+export type OrdersRow = Database["public"]["Tables"]["orders"]["Row"]
+export type ClinicalDocumentRow =
+  Database["public"]["Tables"]["clinical_documents"]["Row"]
+export type DocumentationResultRow =
+  Database["public"]["Tables"]["documentation_results"]["Row"]
+export type MedicationAdministrationRow =
+  Database["public"]["Tables"]["medication_administrations"]["Row"]
+export type SafetyAlertRow = {
+  safety_alerts: { id: string; name: string } | null
+}
+export type FamilyHistoryRow = {
+  id: string
+  condition: string
+  relationship_types: { id: string; name: string } | null
+}
 
 export type SimulationTimeContextValue = {
   isLoading: boolean
   caseId: string | null
   caseRow: CaseRow | null
-  /** Distinct `lab_results.time_offset` values, ascending (smallest = most recent in this UI). */
-  availableTimeOffsets: number[]
-  selectedTimeOffset: number
-  setSelectedTimeOffset: (offset: number) => void
   labResults: LabResultRow[]
   imagingReports: ImagingReportRow[]
   microbiologyReports: MicrobiologyReportRow[]
-  /** `lab_results.id` for rows at `selectedTimeOffset`. */
-  labIdsAtSelectedTime: Set<string>
+  orders: OrdersRow[]
+  clinicalDocuments: ClinicalDocumentRow[]
+  documentationResults: DocumentationResultRow[]
+  medicationAdministrations: MedicationAdministrationRow[]
+  safetyAlerts: SafetyAlertRow[]
+  familyHistory: FamilyHistoryRow[]
 }
 
 const SimulationTimeContext = createContext<SimulationTimeContextValue | null>(
@@ -50,8 +64,18 @@ export function SimulationTimeProvider({ children }: { children: ReactNode }) {
   const [microbiologyReports, setMicrobiologyReports] = useState<
     MicrobiologyReportRow[]
   >([])
-  const [availableTimeOffsets, setAvailableTimeOffsets] = useState<number[]>([])
-  const [selectedTimeOffset, setSelectedTimeOffsetState] = useState(0)
+  const [orders, setOrders] = useState<OrdersRow[]>([])
+  const [clinicalDocuments, setClinicalDocuments] = useState<
+    ClinicalDocumentRow[]
+  >([])
+  const [documentationResults, setDocumentationResults] = useState<
+    DocumentationResultRow[]
+  >([])
+  const [medicationAdministrations, setMedicationAdministrations] = useState<
+    MedicationAdministrationRow[]
+  >([])
+  const [safetyAlerts, setSafetyAlerts] = useState<SafetyAlertRow[]>([])
+  const [familyHistory, setFamilyHistory] = useState<FamilyHistoryRow[]>([])
 
   useEffect(() => {
     if (!sessionId) {
@@ -61,8 +85,12 @@ export function SimulationTimeProvider({ children }: { children: ReactNode }) {
       setLabResults([])
       setImagingReports([])
       setMicrobiologyReports([])
-      setAvailableTimeOffsets([])
-      setSelectedTimeOffsetState(0)
+      setOrders([])
+      setClinicalDocuments([])
+      setDocumentationResults([])
+      setMedicationAdministrations([])
+      setSafetyAlerts([])
+      setFamilyHistory([])
       return
     }
 
@@ -80,31 +108,39 @@ export function SimulationTimeProvider({ children }: { children: ReactNode }) {
           setLabResults([])
           setImagingReports([])
           setMicrobiologyReports([])
-          setAvailableTimeOffsets([])
-          setSelectedTimeOffsetState(0)
+          setOrders([])
+          setClinicalDocuments([])
+          setDocumentationResults([])
+          setMedicationAdministrations([])
+          setSafetyAlerts([])
+          setFamilyHistory([])
           return
         }
 
         const labs = (bundle.labResults ?? []) as LabResultRow[]
         const imaging = (bundle.imagingReports ?? []) as ImagingReportRow[]
         const micro = (bundle.microbiologyReports ?? []) as MicrobiologyReportRow[]
-
-        const offsets = [...new Set(labs.map((r) => r.time_offset))].sort(
-          (a, b) => a - b
-        )
+        const bundleOrders = (bundle.orders ?? []) as OrdersRow[]
+        const bundleClinicalDocuments = (bundle.clinicalDocuments ??
+          []) as ClinicalDocumentRow[]
+        const bundleDocumentationResults = (bundle.documentationResults ??
+          []) as DocumentationResultRow[]
+        const bundleMedicationAdministrations = (bundle.medicationAdministrations ??
+          []) as MedicationAdministrationRow[]
+        const bundleSafetyAlerts = (bundle.safetyAlerts ?? []) as SafetyAlertRow[]
+        const bundleFamilyHistory = (bundle.familyHistory ?? []) as FamilyHistoryRow[]
 
         setCaseId(bundle.caseId)
         setCaseRow((bundle.caseRow ?? null) as CaseRow | null)
         setLabResults(labs)
         setImagingReports(imaging)
         setMicrobiologyReports(micro)
-        setAvailableTimeOffsets(offsets)
-
-        setSelectedTimeOffsetState((prev) => {
-          if (offsets.length === 0) return 0
-          if (offsets.includes(prev)) return prev
-          return offsets[0]!
-        })
+        setOrders(bundleOrders)
+        setClinicalDocuments(bundleClinicalDocuments)
+        setDocumentationResults(bundleDocumentationResults)
+        setMedicationAdministrations(bundleMedicationAdministrations)
+        setSafetyAlerts(bundleSafetyAlerts)
+        setFamilyHistory(bundleFamilyHistory)
       } catch {
         if (!cancelled) {
           setCaseId(null)
@@ -112,8 +148,12 @@ export function SimulationTimeProvider({ children }: { children: ReactNode }) {
           setLabResults([])
           setImagingReports([])
           setMicrobiologyReports([])
-          setAvailableTimeOffsets([])
-          setSelectedTimeOffsetState(0)
+          setOrders([])
+          setClinicalDocuments([])
+          setDocumentationResults([])
+          setMedicationAdministrations([])
+          setSafetyAlerts([])
+          setFamilyHistory([])
         }
       } finally {
         if (!cancelled) setIsLoading(false)
@@ -126,41 +166,34 @@ export function SimulationTimeProvider({ children }: { children: ReactNode }) {
     }
   }, [sessionId])
 
-  const setSelectedTimeOffset = useCallback((offset: number) => {
-    setSelectedTimeOffsetState(offset)
-  }, [])
-
-  const labIdsAtSelectedTime = useMemo(() => {
-    const ids = labResults
-      .filter((r) => r.time_offset === selectedTimeOffset)
-      .map((r) => r.id)
-    return new Set(ids)
-  }, [labResults, selectedTimeOffset])
-
   const value = useMemo<SimulationTimeContextValue>(
     () => ({
       isLoading,
       caseId,
       caseRow,
-      availableTimeOffsets,
-      selectedTimeOffset,
-      setSelectedTimeOffset,
       labResults,
       imagingReports,
       microbiologyReports,
-      labIdsAtSelectedTime,
+      orders,
+      clinicalDocuments,
+      documentationResults,
+      medicationAdministrations,
+      safetyAlerts,
+      familyHistory,
     }),
     [
       isLoading,
       caseId,
       caseRow,
-      availableTimeOffsets,
-      selectedTimeOffset,
-      setSelectedTimeOffset,
       labResults,
       imagingReports,
       microbiologyReports,
-      labIdsAtSelectedTime,
+      orders,
+      clinicalDocuments,
+      documentationResults,
+      medicationAdministrations,
+      safetyAlerts,
+      familyHistory,
     ]
   )
 

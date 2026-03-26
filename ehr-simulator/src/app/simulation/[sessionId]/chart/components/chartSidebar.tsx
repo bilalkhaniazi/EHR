@@ -1,21 +1,9 @@
 import { CircleUserRound, Info } from "lucide-react";
-import { useState, useEffect } from "react";
-import type { ChartData } from "./chartData";
+import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { format, subDays, subYears } from "date-fns";
-
-// You need to import your mock data sources here
-// Adjust paths as necessary based on your project structure
-import { jamesAllen } from "./chartData";
-import { medicationOrders } from "../mar/components/marData"; // Adjust path to where medicationOrders lives
-
-// Define types for local state
-interface MarCounts {
-  prn: number;
-  scheduled: number;
-  continuous: number;
-}
+import { format, subDays } from "date-fns";
+import { useSimulationTime } from "../context/SimulationTimeContext";
 
 function ChartSidebarSkeleton() {
   return (
@@ -35,44 +23,17 @@ function ChartSidebarSkeleton() {
 }
 
 export default function ChartSidebar() {
-  const [sidebarData, setSidebarData] = useState<ChartData | null>(null);
-  const [marData, setMarData] = useState<MarCounts | null>(null);
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [sessionStartTime] = useState(new Date().getTime());
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Perform the MAR calculations (formerly done in queryFn)
-        const orderCounts = medicationOrders.reduce((acc, order) => {
-          if (order.priority === "PRN") {
-            acc["prn"]++;
-          } else if (order.frequency === "Continuous") {
-            acc['continuous']++;
-          } else {
-            acc['scheduled']++;
-          }
-          return acc;
-        }, { prn: 0, continuous: 0, scheduled: 0 });
-
-        setSidebarData(jamesAllen);
-        setMarData(orderCounts);
-        setIsLoading(false);
-
-      } catch (err) {
-        console.error("Failed to load chart data", err);
-        setIsError(true);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { isLoading, caseRow } = useSimulationTime();
+  const sessionStartTime = new Date().getTime();
+  const ageYears = useMemo(() => {
+    if (!caseRow?.date_of_birth) return null;
+    const dob = new Date(caseRow.date_of_birth);
+    const now = new Date();
+    let years = now.getFullYear() - dob.getFullYear();
+    const monthDiff = now.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) years -= 1;
+    return years >= 0 ? years : null;
+  }, [caseRow?.date_of_birth]);
 
   // --- Render Logic ---
 
@@ -84,15 +45,7 @@ export default function ChartSidebar() {
     )
   }
 
-  if (isError) {
-    return (
-      <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
-        <p className="text-red-600 mt-10">Failed to load data</p>
-      </div>
-    );
-  }
-
-  if (!sidebarData || Object.keys(sidebarData).length === 0) {
+  if (!caseRow) {
     return (
       <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
         <p className="mt-10">No patient data.</p>
@@ -102,23 +55,27 @@ export default function ChartSidebar() {
 
   // --- Helper Functions ---
 
-  const displayDob = (sessionStartDate: number, age: number) => {
-    const birthDate = subYears(sessionStartDate, age);
-    return format(birthDate, 'P')
+  const displayDob = (dob: string | null) => {
+    if (!dob) return "N/A";
+    return format(new Date(dob), "P");
   };
 
-  const displayAdmissionDate = (currDate: number, daysIp: number) => {
+  const displayAdmissionDate = (admissionTs: string | null, currDate: number, daysIp: number) => {
+    if (admissionTs) return format(new Date(admissionTs), "P")
     const admissionDate = subDays(currDate, daysIp)
     return format(admissionDate, "P")
   };
 
-  const displayOrderCount = (count: number | undefined) => {
-    if (count === undefined) return '';
-    if (count === 1) {
-      return 'order'
-    }
-    return 'orders'
-  }
+  const patientName = caseRow.name || [caseRow.first_name, caseRow.last_name].filter(Boolean).join(" ") || "N/A";
+  const isolationName = (caseRow as { isolation_precautions?: { name?: string } | null }).isolation_precautions?.name ?? "N/A";
+  const relationshipName = (caseRow as { relationship_statuses?: { name?: string } | null }).relationship_statuses?.name ?? "N/A";
+  const weightDisplay = caseRow.weight_kg != null ? `${caseRow.weight_kg} kg` : "N/A";
+  const heightDisplay =
+    caseRow.height_ft != null || caseRow.height_in != null
+      ? `${caseRow.height_ft ?? 0}'${caseRow.height_in ?? 0}"` : "N/A";
+  const inpatientDays = caseRow.inpatient_duration_days ?? 0;
+  const attending = caseRow.attending_provider ?? "N/A";
+  const admissionDate = displayAdmissionDate(caseRow.time_of_admission, sessionStartTime, inpatientDays);
 
   return (
     <div className="w-64 h-[calc(100vh-4rem)] flex flex-col justify-start items-center bg-gray-200 border-r border-gray-300 p-2 flex-shrink-0">
@@ -126,23 +83,22 @@ export default function ChartSidebar() {
         <CircleUserRound size={100} strokeWidth={0.8} color="oklch(38% 0.189 293.745)" className="rounded-full bg-white" />
       </span>
       <div className="flex flex-col items-center">
-        <h1 className="text-purple-900 text-lg font-medium tracking-tight">{sidebarData.name.value}</h1>
+        <h1 className="text-purple-900 text-lg font-medium tracking-tight">{patientName}</h1>
         <p className="text-purple-900 text-sm tracking-tight">
-          {sidebarData.gender.value},
-          <span className="pl-2 font-normal">{sidebarData.age.value} y.o.</span>
+          <span className="pl-2 font-normal">{ageYears != null ? `${ageYears} y.o.` : "N/A"}</span>
         </p>
         <p className="text-purple-900 text-sm font-light tracking-tight">
-          {sidebarData.age.label}:
-          <span className="pl-2 font-normal">{displayDob(sessionStartTime, sidebarData.age.value)}</span>
+          DOB:
+          <span className="pl-2 font-normal">{displayDob(caseRow.date_of_birth)}</span>
         </p>
         <p className="text-purple-900 text-sm font-light tracking-tight">
-          {sidebarData.mrn.label ?? 'N/A'}:
-          <span className="pl-2 font-normal">{sidebarData.mrn.value ?? "N/A"}</span>
+          Relationship:
+          <span className="pl-2 font-normal">{relationshipName}</span>
         </p>
 
         <p className="text-purple-900 text-sm font-light tracking-tight">
-          {sidebarData.code.label}:
-          <span className="pl-2 font-normal">{sidebarData.code.value}</span>
+          Code:
+          <span className="pl-2 font-normal">{caseRow.code_status ?? "N/A"}</span>
         </p>
       </div>
 
@@ -152,16 +108,16 @@ export default function ChartSidebar() {
           <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl  px-1">This Admission</p>
 
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline">{sidebarData.admissionDate.label}:</span>
-            <span className="pl-2 font-normal">{displayAdmissionDate(sessionStartTime, sidebarData.admissionDate.value)}</span>
+            <span className="underline">Admission Date:</span>
+            <span className="pl-2 font-normal">{admissionDate}</span>
           </p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline">{sidebarData.attending.label}:</span>
-            <span className="pl-2 font-normal">{sidebarData.attending.value}</span>
+            <span className="underline">Attending:</span>
+            <span className="pl-2 font-normal">{attending}</span>
           </p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline">{sidebarData.location.label}:</span>
-            <span className="pl-2 font-normal">{sidebarData.location.value}</span>
+            <span className="underline">Case ID:</span>
+            <span className="pl-2 font-normal">{caseRow.id}</span>
           </p>
         </div>
 
@@ -169,16 +125,16 @@ export default function ChartSidebar() {
         <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
           <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">Clinical Info</p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline">{sidebarData.height.label}:</span>
-            <span className="pl-2 font-normal">{sidebarData.height.value}</span>
+            <span className="underline">Height:</span>
+            <span className="pl-2 font-normal">{heightDisplay}</span>
           </p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline">{sidebarData.weight.label}:</span>
-            <span className="pl-2 font-normal">{sidebarData.weight.value}</span>
+            <span className="underline">Weight:</span>
+            <span className="pl-2 font-normal">{weightDisplay}</span>
           </p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline text-nowrap">{sidebarData.isolation.label}:</span>
-            <span className="pl-2 font-normal">{sidebarData.isolation.value}</span>
+            <span className="underline text-nowrap">Isolation:</span>
+            <span className="pl-2 font-normal">{isolationName}</span>
             <span className="pl-1">
               <TooltipProvider>
                 <Tooltip>
@@ -186,22 +142,22 @@ export default function ChartSidebar() {
                     <Info size={14} color="oklch(38.1% 0.176 304.987)" />
                   </TooltipTrigger>
                   <TooltipContent className="w-fit">
-                    <p className="max-w-120 text-wrap">{sidebarData.isolation.tooltip}</p>
+                    <p className="max-w-120 text-wrap">Isolation precautions are loaded from case demographics.</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </span>
           </p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline pr-2 text-nowrap">{sidebarData.allergies.label}:</span>
+            <span className="underline pr-2 text-nowrap">Allergies:</span>
             <span className='font-normal decoration-none no-underline px-2 bg-yellow-200 rounded-md'>
-              {sidebarData.allergies.value.join(", ")}
+              {(caseRow.allergies ?? []).join(", ") || "N/A"}
             </span>
           </p>
           <p className="text-purple-900 text-xs font-light tracking-tight">
-            <span className="underline pr-2 text-nowrap">{sidebarData.pmh.label}:</span>
+            <span className="underline pr-2 text-nowrap">PMH:</span>
             <span className='font-normal decoration-none no-underline rounded-md'>
-              {sidebarData.pmh.value.join(", ")}
+              {(caseRow.medical_history ?? []).join(", ") || "N/A"}
             </span>
           </p>
 
@@ -211,16 +167,7 @@ export default function ChartSidebar() {
         <div className="relative flex flex-col bg-white border border-purple-900 w-full h-fit px-2 py-3 gap-1 rounded-lg shadow-md">
           <p className="font-medium text-purple-900 tracking-tight -top-3 absolute left-2 bg-white rounded-2xl px-1">MAR</p>
           <p className="text-purple-900 text-xs tracking-tight">
-            <span className="underline">Scheduled:</span>
-            <span className="pl-2 font-medium">{marData?.scheduled} {displayOrderCount(marData?.scheduled)}</span>
-          </p>
-          <p className="text-purple-900 text-xs tracking-tight">
-            <span className="underline">PRN:</span>
-            <span className="pl-2 font-medium">{marData?.prn} {displayOrderCount(marData?.prn)}</span>
-          </p>
-          <p className="text-purple-900 text-xs tracking-tight">
-            <span className="underline">Continuous:</span>
-            <span className="pl-2 font-medium">{marData?.continuous} {displayOrderCount(marData?.continuous)}</span>
+            <span className="pl-2 font-medium">No MAR summary available.</span>
           </p>
         </div>
       </div>

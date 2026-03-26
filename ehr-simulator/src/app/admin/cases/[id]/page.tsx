@@ -75,7 +75,10 @@ export default function CasePage() {
         initialRow.current = row
         setFormData(row)
       } else {
-        console.error("Failed to fetch case data:", caseResult.error)
+        console.error(
+          "Failed to fetch case data:",
+          "error" in caseResult ? caseResult.error : caseResult.message,
+        )
         setLoadError("Failed to load case. Please try again.")
       }
 
